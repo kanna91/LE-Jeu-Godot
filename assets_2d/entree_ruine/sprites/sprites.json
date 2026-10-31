@@ -1,0 +1,168 @@
+{
+ "taille": [
+  1536,
+  1024
+ ],
+ "sprites": [
+  {
+   "nom": "fond",
+   "calque": "fond",
+   "z": 0,
+   "ordre": 0,
+   "x": 0,
+   "y": 0,
+   "l": 1536,
+   "h": 1024
+  },
+  {
+   "nom": "mur_ruine_gauche",
+   "calque": "plan_moyen",
+   "z": 1,
+   "ordre": 1,
+   "x": 132,
+   "y": 427,
+   "l": 238,
+   "h": 241
+  },
+  {
+   "nom": "arcade_fond",
+   "calque": "plan_moyen",
+   "z": 1,
+   "ordre": 2,
+   "x": 595,
+   "y": 270,
+   "l": 257,
+   "h": 407
+  },
+  {
+   "nom": "aqueduc",
+   "calque": "plan_moyen",
+   "z": 1,
+   "ordre": 3,
+   "x": 1088,
+   "y": 245,
+   "l": 394,
+   "h": 432
+  },
+  {
+   "nom": "vegetation_fond",
+   "calque": "plan_moyen",
+   "z": 1,
+   "ordre": 4,
+   "x": 0,
+   "y": 0,
+   "l": 1502,
+   "h": 734
+  },
+  {
+   "nom": "sol",
+   "calque": "sol",
+   "z": 2,
+   "ordre": 5,
+   "x": 0,
+   "y": 623,
+   "l": 1536,
+   "h": 401
+  },
+  {
+   "nom": "pile_proche_gauche",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 6,
+   "x": 0,
+   "y": 149,
+   "l": 278,
+   "h": 693
+  },
+  {
+   "nom": "pile_gauche",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 7,
+   "x": 360,
+   "y": 299,
+   "l": 252,
+   "h": 536
+  },
+  {
+   "nom": "pile_massive",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 8,
+   "x": 843,
+   "y": 365,
+   "l": 262,
+   "h": 386
+  },
+  {
+   "nom": "pile_proche_droite",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 9,
+   "x": 1457,
+   "y": 169,
+   "l": 79,
+   "h": 673
+  },
+  {
+   "nom": "arc_gauche",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 10,
+   "x": 0,
+   "y": 0,
+   "l": 492,
+   "h": 303
+  },
+  {
+   "nom": "arc_central",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 11,
+   "x": 488,
+   "y": 0,
+   "l": 504,
+   "h": 369
+  },
+  {
+   "nom": "arc_droit",
+   "calque": "arcade",
+   "z": 3,
+   "ordre": 12,
+   "x": 988,
+   "y": 0,
+   "l": 548,
+   "h": 369
+  },
+  {
+   "nom": "fougeres_gauche",
+   "calque": "fougeres",
+   "z": 4,
+   "ordre": 13,
+   "x": 0,
+   "y": 518,
+   "l": 625,
+   "h": 487
+  },
+  {
+   "nom": "fougeres_droite",
+   "calque": "fougeres",
+   "z": 4,
+   "ordre": 14,
+   "x": 1332,
+   "y": 789,
+   "l": 204,
+   "h": 204
+  },
+  {
+   "nom": "fougeres_pile",
+   "calque": "fougeres",
+   "z": 4,
+   "ordre": 15,
+   "x": 821,
+   "y": 604,
+   "l": 228,
+   "h": 147
+  }
+ ]
+}

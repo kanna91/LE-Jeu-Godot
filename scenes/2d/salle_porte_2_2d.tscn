@@ -1,0 +1,135 @@
+[gd_scene load_steps=20 format=3]
+
+[ext_resource type="Script" path="res://scripts/2d/decor_2d.gd" id="script"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/fond.png" id="fond"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/colonne_gauche.png" id="colonne_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/colonne_droite.png" id="colonne_droite"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/anneau.png" id="anneau"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/rotonde.png" id="rotonde"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/mur_gauche.png" id="mur_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/voute.png" id="voute"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/bord_droit.png" id="bord_droit"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/porte_centre.png" id="porte_centre"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/porte_gauche.png" id="porte_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/porte_petite.png" id="porte_petite"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/escalier.png" id="escalier"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/dallage.png" id="dallage"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/tapis.png" id="tapis"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/bougie.png" id="bougie"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/pilier_droit.png" id="pilier_droit"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/vegetation_droite.png" id="vegetation_droite"]
+[ext_resource type="Texture2D" path="res://assets_2d/salle_porte_2/sprites/lierre_droit.png" id="lierre_droit"]
+
+[node name="SallePorte22D" type="Node2D"]
+script = ExtResource("script")
+taille_image = Vector2(1536, 1024)
+sprites_vent = PackedStringArray("lierre_droit", "vegetation_droite")
+sprites_flamme = PackedStringArray("bougie")
+particules = "poussiere"
+
+[node name="Fond" type="Node2D" parent="."]
+
+[node name="fond" type="Sprite2D" parent="Fond"]
+texture = ExtResource("fond")
+centered = false
+position = Vector2(0, 0)
+
+[node name="Rotonde" type="Node2D" parent="."]
+
+[node name="colonne_gauche" type="Sprite2D" parent="Rotonde"]
+texture = ExtResource("colonne_gauche")
+centered = false
+position = Vector2(643, 327)
+
+[node name="colonne_droite" type="Sprite2D" parent="Rotonde"]
+texture = ExtResource("colonne_droite")
+centered = false
+position = Vector2(980, 315)
+
+[node name="anneau" type="Sprite2D" parent="Rotonde"]
+texture = ExtResource("anneau")
+centered = false
+position = Vector2(695, 58)
+
+[node name="rotonde" type="Sprite2D" parent="Rotonde"]
+texture = ExtResource("rotonde")
+centered = false
+position = Vector2(707, 119)
+
+[node name="Murs" type="Node2D" parent="."]
+
+[node name="mur_gauche" type="Sprite2D" parent="Murs"]
+texture = ExtResource("mur_gauche")
+centered = false
+position = Vector2(0, 0)
+
+[node name="voute" type="Sprite2D" parent="Murs"]
+texture = ExtResource("voute")
+centered = false
+position = Vector2(420, 0)
+
+[node name="bord_droit" type="Sprite2D" parent="Murs"]
+texture = ExtResource("bord_droit")
+centered = false
+position = Vector2(1000, 23)
+
+[node name="Portes" type="Node2D" parent="."]
+
+[node name="porte_centre" type="Sprite2D" parent="Portes"]
+texture = ExtResource("porte_centre")
+centered = false
+position = Vector2(781, 477)
+
+[node name="porte_gauche" type="Sprite2D" parent="Portes"]
+texture = ExtResource("porte_gauche")
+centered = false
+position = Vector2(84, 364)
+
+[node name="porte_petite" type="Sprite2D" parent="Portes"]
+texture = ExtResource("porte_petite")
+centered = false
+position = Vector2(343, 491)
+
+[node name="Sol" type="Node2D" parent="."]
+
+[node name="escalier" type="Sprite2D" parent="Sol"]
+texture = ExtResource("escalier")
+centered = false
+position = Vector2(0, 770)
+
+[node name="dallage" type="Sprite2D" parent="Sol"]
+texture = ExtResource("dallage")
+centered = false
+position = Vector2(0, 749)
+
+[node name="Tapis" type="Node2D" parent="."]
+
+[node name="tapis" type="Sprite2D" parent="Tapis"]
+texture = ExtResource("tapis")
+centered = false
+position = Vector2(263, 777)
+
+[node name="PremierPlan" type="Node2D" parent="."]
+
+[node name="bougie" type="Sprite2D" parent="PremierPlan"]
+texture = ExtResource("bougie")
+centered = false
+position = Vector2(327, 717)
+
+[node name="pilier_droit" type="Sprite2D" parent="PremierPlan"]
+texture = ExtResource("pilier_droit")
+centered = false
+position = Vector2(1090, 3)
+
+[node name="vegetation_droite" type="Sprite2D" parent="PremierPlan"]
+texture = ExtResource("vegetation_droite")
+centered = false
+position = Vector2(1157, 660)
+
+[node name="lierre_droit" type="Sprite2D" parent="PremierPlan"]
+texture = ExtResource("lierre_droit")
+centered = false
+position = Vector2(1293, 40)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(768, 512)

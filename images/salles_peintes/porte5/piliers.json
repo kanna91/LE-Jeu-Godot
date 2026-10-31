@@ -1,0 +1,34 @@
+[
+ {
+  "couleur": "#FF0000",
+  "pilier": "premier_plan_0",
+  "base": {
+   "x": 29,
+   "y": 410
+  }
+ },
+ {
+  "couleur": "#00FF00",
+  "pilier": "premier_plan_1",
+  "base": {
+   "x": 246,
+   "y": 411
+  }
+ },
+ {
+  "couleur": "#0000FF",
+  "pilier": "premier_plan_2",
+  "base": {
+   "x": 636,
+   "y": 411
+  }
+ },
+ {
+  "couleur": "#FFFF00",
+  "pilier": "premier_plan_3",
+  "base": {
+   "x": 734,
+   "y": 424
+  }
+ }
+]

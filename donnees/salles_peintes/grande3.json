@@ -1,0 +1,206 @@
+{
+ "fond": "images/salles_peintes/grande3/fond.jpeg",
+ "fond_hd": "images/salles_peintes/grande3/fond_hd.png",
+ "perspective": {
+  "y_horizon": 268,
+  "hauteur_par_pixel": 0.719,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    340,
+    52
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    100,
+    512
+   ],
+   [
+    128,
+    470
+   ],
+   [
+    200,
+    430
+   ],
+   [
+    226,
+    412
+   ],
+   [
+    230,
+    396
+   ],
+   [
+    294,
+    396
+   ],
+   [
+    300,
+    380
+   ],
+   [
+    318,
+    340
+   ],
+   [
+    462,
+    340
+   ],
+   [
+    482,
+    360
+   ],
+   [
+    540,
+    380
+   ],
+   [
+    600,
+    408
+   ],
+   [
+    666,
+    428
+   ],
+   [
+    732,
+    428
+   ],
+   [
+    750,
+    470
+   ],
+   [
+    742,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    330,
+    342
+   ],
+   [
+    450,
+    342
+   ],
+   [
+    458,
+    356
+   ],
+   [
+    322,
+    356
+   ]
+  ],
+  [
+   [
+    234,
+    400
+   ],
+   [
+    290,
+    400
+   ],
+   [
+    292,
+    412
+   ],
+   [
+    228,
+    412
+   ]
+  ],
+  [
+   [
+    670,
+    432
+   ],
+   [
+    728,
+    432
+   ],
+   [
+    736,
+    452
+   ],
+   [
+    676,
+    452
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "chemin dans la brume",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "chemin dans la brume": [
+   390,
+   378,
+   "down"
+  ],
+  "passage de gauche": [
+   261,
+   434,
+   "down_right"
+  ],
+  "passage de droite": [
+   702,
+   474,
+   "down_left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "grande salle/3"
+}

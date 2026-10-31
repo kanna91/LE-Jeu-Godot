@@ -1,0 +1,116 @@
+[gd_scene load_steps=18 format=3]
+
+[ext_resource type="Script" path="res://scripts/2d/decor_2d.gd" id="script"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/fond.png" id="fond"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/mur_ruine_gauche.png" id="mur_ruine_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/arcade_fond.png" id="arcade_fond"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/aqueduc.png" id="aqueduc"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/vegetation_fond.png" id="vegetation_fond"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/sol.png" id="sol"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/pile_proche_gauche.png" id="pile_proche_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/pile_gauche.png" id="pile_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/pile_massive.png" id="pile_massive"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/pile_proche_droite.png" id="pile_proche_droite"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/arc_gauche.png" id="arc_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/arc_central.png" id="arc_central"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/arc_droit.png" id="arc_droit"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/fougeres_gauche.png" id="fougeres_gauche"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/fougeres_droite.png" id="fougeres_droite"]
+[ext_resource type="Texture2D" path="res://assets_2d/entree_ruine/sprites/fougeres_pile.png" id="fougeres_pile"]
+
+[node name="EntreeRuine2D" type="Node2D"]
+script = ExtResource("script")
+taille_image = Vector2(1536, 1024)
+
+[node name="Fond" type="Node2D" parent="."]
+
+[node name="fond" type="Sprite2D" parent="Fond"]
+texture = ExtResource("fond")
+centered = false
+position = Vector2(0, 0)
+
+[node name="PlanMoyen" type="Node2D" parent="."]
+
+[node name="mur_ruine_gauche" type="Sprite2D" parent="PlanMoyen"]
+texture = ExtResource("mur_ruine_gauche")
+centered = false
+position = Vector2(132, 427)
+
+[node name="arcade_fond" type="Sprite2D" parent="PlanMoyen"]
+texture = ExtResource("arcade_fond")
+centered = false
+position = Vector2(595, 270)
+
+[node name="aqueduc" type="Sprite2D" parent="PlanMoyen"]
+texture = ExtResource("aqueduc")
+centered = false
+position = Vector2(1088, 245)
+
+[node name="vegetation_fond" type="Sprite2D" parent="PlanMoyen"]
+texture = ExtResource("vegetation_fond")
+centered = false
+position = Vector2(0, 0)
+
+[node name="Sol" type="Node2D" parent="."]
+
+[node name="sol" type="Sprite2D" parent="Sol"]
+texture = ExtResource("sol")
+centered = false
+position = Vector2(0, 623)
+
+[node name="Arcade" type="Node2D" parent="."]
+
+[node name="pile_proche_gauche" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("pile_proche_gauche")
+centered = false
+position = Vector2(0, 149)
+
+[node name="pile_gauche" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("pile_gauche")
+centered = false
+position = Vector2(360, 299)
+
+[node name="pile_massive" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("pile_massive")
+centered = false
+position = Vector2(843, 365)
+
+[node name="pile_proche_droite" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("pile_proche_droite")
+centered = false
+position = Vector2(1457, 169)
+
+[node name="arc_gauche" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("arc_gauche")
+centered = false
+position = Vector2(0, 0)
+
+[node name="arc_central" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("arc_central")
+centered = false
+position = Vector2(488, 0)
+
+[node name="arc_droit" type="Sprite2D" parent="Arcade"]
+texture = ExtResource("arc_droit")
+centered = false
+position = Vector2(988, 0)
+
+[node name="Fougeres" type="Node2D" parent="."]
+
+[node name="fougeres_gauche" type="Sprite2D" parent="Fougeres"]
+texture = ExtResource("fougeres_gauche")
+centered = false
+position = Vector2(0, 518)
+
+[node name="fougeres_droite" type="Sprite2D" parent="Fougeres"]
+texture = ExtResource("fougeres_droite")
+centered = false
+position = Vector2(1332, 789)
+
+[node name="fougeres_pile" type="Sprite2D" parent="Fougeres"]
+texture = ExtResource("fougeres_pile")
+centered = false
+position = Vector2(821, 604)
+
+[node name="Camera2D" type="Camera2D" parent="."]
+position = Vector2(768, 512)

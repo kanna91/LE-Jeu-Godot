@@ -1,0 +1,210 @@
+{
+ "fond": "images/salles_peintes/prison2/fond.jpeg",
+ "fond_hd": "images/salles_peintes/prison2/fond_hd.png",
+ "perspective": {
+  "y_horizon": 321,
+  "hauteur_par_pixel": 0.922,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    370,
+    45
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    440
+   ],
+   [
+    700,
+    430
+   ],
+   [
+    680,
+    402
+   ],
+   [
+    650,
+    395
+   ],
+   [
+    600,
+    392
+   ],
+   [
+    560,
+    398
+   ],
+   [
+    540,
+    392
+   ],
+   [
+    520,
+    384
+   ],
+   [
+    440,
+    382
+   ],
+   [
+    330,
+    386
+   ],
+   [
+    250,
+    392
+   ],
+   [
+    160,
+    400
+   ],
+   [
+    90,
+    412
+   ],
+   [
+    50,
+    425
+   ],
+   [
+    0,
+    430
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    330,
+    367
+   ],
+   [
+    420,
+    367
+   ],
+   [
+    420,
+    382
+   ],
+   [
+    330,
+    382
+   ]
+  ],
+  [
+   [
+    0,
+    445
+   ],
+   [
+    30,
+    445
+   ],
+   [
+    30,
+    498
+   ],
+   [
+    0,
+    498
+   ]
+  ],
+  [
+   [
+    737,
+    455
+   ],
+   [
+    768,
+    455
+   ],
+   [
+    768,
+    498
+   ],
+   [
+    737,
+    498
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "escalier du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "escalier du fond": [
+   375,
+   400,
+   "down"
+  ],
+  "passage de gauche": [
+   48,
+   471,
+   "right"
+  ],
+  "passage de droite": [
+   719,
+   476,
+   "left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "prison/grande salle/2"
+}

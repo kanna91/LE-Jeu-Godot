@@ -1,0 +1,206 @@
+{
+ "fond": "images/salles_peintes/grande7/fond.jpeg",
+ "fond_hd": "images/salles_peintes/grande7/fond_hd.png",
+ "perspective": {
+  "y_horizon": 344,
+  "hauteur_par_pixel": 0.991,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    400,
+    55
+   ],
+   [
+    511,
+    165
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    440
+   ],
+   [
+    40,
+    424
+   ],
+   [
+    72,
+    408
+   ],
+   [
+    78,
+    394
+   ],
+   [
+    178,
+    394
+   ],
+   [
+    220,
+    398
+   ],
+   [
+    372,
+    398
+   ],
+   [
+    378,
+    386
+   ],
+   [
+    488,
+    386
+   ],
+   [
+    552,
+    392
+   ],
+   [
+    558,
+    390
+   ],
+   [
+    648,
+    390
+   ],
+   [
+    700,
+    408
+   ],
+   [
+    767,
+    418
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    382,
+    390
+   ],
+   [
+    482,
+    390
+   ],
+   [
+    486,
+    402
+   ],
+   [
+    378,
+    402
+   ]
+  ],
+  [
+   [
+    82,
+    398
+   ],
+   [
+    172,
+    398
+   ],
+   [
+    176,
+    412
+   ],
+   [
+    78,
+    412
+   ]
+  ],
+  [
+   [
+    562,
+    394
+   ],
+   [
+    642,
+    394
+   ],
+   [
+    646,
+    408
+   ],
+   [
+    558,
+    408
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "arches du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "arches du fond": [
+   432,
+   424,
+   "down"
+  ],
+  "passage de gauche": [
+   127,
+   434,
+   "down_right"
+  ],
+  "passage de droite": [
+   602,
+   430,
+   "down_left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "grande salle/7"
+}

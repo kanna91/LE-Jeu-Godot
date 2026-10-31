@@ -1,0 +1,18 @@
+{
+ "taille": [
+  385,
+  320
+ ],
+ "animations": {
+  "respiration": {
+   "images": 48,
+   "fps": 12,
+   "boucle": true
+  },
+  "rire": {
+   "images": 73,
+   "fps": 12,
+   "boucle": false
+  }
+ }
+}

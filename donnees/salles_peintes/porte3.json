@@ -1,0 +1,331 @@
+{
+ "fond": "images/salles_peintes/porte3/fond.jpeg",
+ "perspective": {
+  "y_horizon": 320,
+  "hauteur_par_pixel": 2.0,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    82
+   ],
+   [
+    372,
+    100
+   ],
+   [
+    511,
+    205
+   ]
+  ]
+ },
+ "depart": [
+  330,
+  482
+ ],
+ "marche": [
+  [
+   [
+    20,
+    512
+   ],
+   [
+    20,
+    432
+   ],
+   [
+    46,
+    398
+   ],
+   [
+    52,
+    378
+   ],
+   [
+    98,
+    378
+   ],
+   [
+    102,
+    400
+   ],
+   [
+    102,
+    456
+   ],
+   [
+    196,
+    456
+   ],
+   [
+    204,
+    412
+   ],
+   [
+    210,
+    352
+   ],
+   [
+    212,
+    345
+   ],
+   [
+    378,
+    345
+   ],
+   [
+    384,
+    358
+   ],
+   [
+    470,
+    370
+   ],
+   [
+    560,
+    376
+   ],
+   [
+    566,
+    374
+   ],
+   [
+    648,
+    374
+   ],
+   [
+    652,
+    392
+   ],
+   [
+    660,
+    420
+   ],
+   [
+    642,
+    448
+   ],
+   [
+    700,
+    470
+   ],
+   [
+    742,
+    490
+   ],
+   [
+    767,
+    500
+   ],
+   [
+    767,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [
+  [
+   [
+    95,
+    0
+   ],
+   [
+    197,
+    0
+   ],
+   [
+    197,
+    340
+   ],
+   [
+    202,
+    356
+   ],
+   [
+    200,
+    400
+   ],
+   [
+    188,
+    440
+   ],
+   [
+    150,
+    450
+   ],
+   [
+    100,
+    450
+   ],
+   [
+    95,
+    430
+   ]
+  ],
+  [
+   [
+    478,
+    0
+   ],
+   [
+    527,
+    0
+   ],
+   [
+    527,
+    377
+   ],
+   [
+    478,
+    377
+   ]
+  ],
+  [
+   [
+    648,
+    0
+   ],
+   [
+    706,
+    0
+   ],
+   [
+    706,
+    399
+   ],
+   [
+    648,
+    399
+   ]
+  ]
+ ],
+ "sorties": [
+  [
+   [
+    566,
+    380
+   ],
+   [
+    646,
+    382
+   ],
+   [
+    648,
+    392
+   ],
+   [
+    564,
+    390
+   ]
+  ],
+  [
+   [
+    216,
+    346
+   ],
+   [
+    370,
+    346
+   ],
+   [
+    374,
+    353
+   ],
+   [
+    212,
+    353
+   ]
+  ],
+  [
+   [
+    133,
+    499
+   ],
+   [
+    743,
+    499
+   ],
+   [
+    743,
+    511
+   ],
+   [
+    133,
+    511
+   ]
+  ],
+  [
+   [
+    58,
+    378
+   ],
+   [
+    96,
+    378
+   ],
+   [
+    96,
+    392
+   ],
+   [
+    56,
+    392
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte de droite → salle porte 4",
+  "couloir du fond",
+  "retour : salle porte 2",
+  "porte de gauche"
+ ],
+ "ips": 24,
+ "nom_sortie": "porte de droite",
+ "arrivee_porte": [
+  606,
+  406
+ ],
+ "arrivees": {
+  "porte de gauche": [
+   76,
+   418,
+   "down_right"
+  ],
+  "couloir du fond": [
+   293,
+   366,
+   "down"
+  ]
+ },
+ "masque_piliers": "images/salles_peintes/porte3/masque.png",
+ "piliers": "images/salles_peintes/porte3/piliers.json",
+ "decor_video": "images/salles_peintes/porte3/decor.ogv",
+ "directions_sorties": [
+  "droite",
+  "devant",
+  "bas",
+  "gauche"
+ ],
+ "portes_animees": [
+  {
+   "nom": "P3-2",
+   "sortie": 1,
+   "x": 188.47058823529412,
+   "y": 197.6888888888889,
+   "w": 206.82352941176472,
+   "h": 163.55555555555557,
+   "images": "images/salles_peintes/porte3/portes/P3-2/%03d.png",
+   "nombre": 97,
+   "ips": 24
+  }
+ ],
+ "types_sorties": [
+  "porte",
+  "porte",
+  "passage",
+  "porte"
+ ],
+ "source": "test_salle/porte3.json"
+}

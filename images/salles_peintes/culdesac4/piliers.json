@@ -1,0 +1,42 @@
+[
+ {
+  "couleur": "#FF0000",
+  "pilier": "premier_plan_0",
+  "base": {
+   "x": 21,
+   "y": 330
+  }
+ },
+ {
+  "couleur": "#00FF00",
+  "pilier": "premier_plan_1",
+  "base": {
+   "x": 162,
+   "y": 338
+  }
+ },
+ {
+  "couleur": "#0000FF",
+  "pilier": "premier_plan_2",
+  "base": {
+   "x": 248,
+   "y": 333
+  }
+ },
+ {
+  "couleur": "#FFFF00",
+  "pilier": "premier_plan_3",
+  "base": {
+   "x": 515,
+   "y": 333
+  }
+ },
+ {
+  "couleur": "#FF00FF",
+  "pilier": "premier_plan_4",
+  "base": {
+   "x": 672,
+   "y": 355
+  }
+ }
+]

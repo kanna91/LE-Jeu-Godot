@@ -1,0 +1,245 @@
+{
+ "_aide": "Emplacements des squelettes à fouiller (Fouille), par image de salle. Coordonnées en pixels de l'image fixe (768 x 512), sans miroir. x, y : milieu du pied de l'objet au sol, contre un mur ou un pilier. types : objets permis. La taille vient de la perspective (SallePeinte.TAILLES).",
+ "emplacements": {
+  "salle1": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 209,
+    "y": 394
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 548,
+    "y": 395
+   }
+  ],
+  "salle2": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 178,
+    "y": 455
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 598,
+    "y": 455
+   }
+  ],
+  "porte1": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 640,
+    "y": 470
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 180,
+    "y": 445
+   }
+  ],
+  "porte2": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 666,
+    "y": 450
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 557,
+    "y": 409
+   }
+  ],
+  "porte3": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 668,
+    "y": 492
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 427,
+    "y": 396
+   }
+  ],
+  "porte4": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 126,
+    "y": 402
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 625,
+    "y": 440
+   }
+  ],
+  "porte5": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 263,
+    "y": 420
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 692,
+    "y": 493
+   }
+  ],
+  "porte6": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 650,
+    "y": 396
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 268,
+    "y": 390
+   }
+  ],
+  "culdesac1": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 160,
+    "y": 446
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac2": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 152,
+    "y": 461
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac3": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 214,
+    "y": 449
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac4": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 160,
+    "y": 446
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac5": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 160,
+    "y": 446
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac6": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 163,
+    "y": 450
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ],
+  "culdesac7": [
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 160,
+    "y": 446
+   },
+   {
+    "types": [
+     "squelette"
+    ],
+    "x": 612,
+    "y": 446
+   }
+  ]
+ }
+}

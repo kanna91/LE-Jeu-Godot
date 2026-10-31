@@ -1,0 +1,389 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://scripts/3d/scene_assets_blender.gd" id="script"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Pile_Fasciculee_4m7.gltf" id="1"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Pile_Carree_Blocs_4m7.gltf" id="2"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Ecoincon_Profond_4m5.gltf" id="3"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Ecoincon_Arc_6m5.gltf" id="4"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Ecoincon_Grand_Arc_8m.gltf" id="5"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Arcade_Piles_Fasciculees_3Travees.gltf" id="6"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Arcade_Murale_3Arches_12m.gltf" id="7"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Mur_Ruine_Haut_8m.gltf" id="8"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Mur_Ruine_Bas_6m.gltf" id="9"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Gravats_Moussus.gltf" id="10"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Mur_Arcature_Aveugle_8m.gltf" id="11"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Sol_Dalles_Herbe_26x26m.gltf" id="12"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Chemin_Dalles_3x12m.gltf" id="13"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Rideau_Lierre_Arc_Profond_4m5.gltf" id="14"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Lierre_Crete_Mur_4m.gltf" id="15"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Rideau_Lierre_Arc_6m5.gltf" id="16"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Rideau_Lierre_Grand_Arc_8m.gltf" id="17"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Lierre_Pile_4m7.gltf" id="18"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Nappe_Lierre_Mur_3x4m.gltf" id="19"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Rideau_Lierre_Arc_3m8.gltf" id="20"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Arbre_Feuillu_Dense_15m.gltf" id="21"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Arbre_Feuillu_14m.gltf" id="22"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Arbre_Feuillu_Geant_22m.gltf" id="23"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Massif_Fougeres_Geant_5x4m.gltf" id="24"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Fougere_Grande.gltf" id="25"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Massif_Fougeres_Dense_4x3m.gltf" id="26"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Buisson_Feuillu.gltf" id="27"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Touffe_Herbe.gltf" id="28"]
+[ext_resource type="PackedScene" path="res://assets_3d/entree_ruine/ER_Sol_Lointain.gltf" id="29"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ciel_mat"]
+sky_top_color = Color(0.55, 0.66, 0.68, 1)
+sky_horizon_color = Color(0.86, 0.9, 0.84, 1)
+ground_bottom_color = Color(0.12, 0.16, 0.1, 1)
+ground_horizon_color = Color(0.7, 0.76, 0.7, 1)
+sun_angle_max = 20.0
+
+[sub_resource type="Sky" id="ciel"]
+sky_material = SubResource("ciel_mat")
+
+[sub_resource type="Environment" id="env"]
+background_mode = 2
+sky = SubResource("ciel")
+ambient_light_source = 3
+ambient_light_energy = 0.7
+tonemap_mode = 4
+tonemap_exposure = 1.0
+ssao_enabled = true
+ssao_intensity = 2.5
+glow_enabled = true
+glow_intensity = 0.5
+glow_bloom = 0.08
+fog_enabled = true
+fog_light_color = Color(0.78, 0.84, 0.8, 1)
+fog_density = 0.0035
+fog_sky_affect = 0.4
+fog_aerial_perspective = 0.3
+volumetric_fog_enabled = true
+volumetric_fog_density = 0.0015
+volumetric_fog_albedo = Color(0.85, 0.9, 0.86, 1)
+volumetric_fog_anisotropy = 0.5
+volumetric_fog_length = 80.0
+
+[node name="EntreeRuine" type="Node3D"]
+script = ExtResource("script")
+
+[node name="Environnement" type="WorldEnvironment" parent="."]
+environment = SubResource("env")
+
+[node name="Soleil" type="DirectionalLight3D" parent="."]
+transform = Transform3D(-0.66896, -0.55001, 0.49998, 2.5251e-08, 0.67265, 0.73996, -0.74329, 0.49501, -0.44998, 0, 0, 0)
+light_color = Color(1, 0.92, 0.76, 1)
+light_energy = 2.2
+light_volumetric_fog_energy = 1.5
+shadow_enabled = true
+directional_shadow_max_distance = 120.0
+
+[node name="Camera" type="Camera3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 0.99452, -0.10453, 0, 0.10453, 0.99452, 0, 1.6, 0)
+keep_aspect = 0
+fov = 71.51
+far = 600.0
+current = true
+
+[node name="Architecture" type="Node3D" parent="."]
+
+[node name="Sol" type="Node3D" parent="."]
+
+[node name="Vegetation" type="Node3D" parent="."]
+
+[node name="Pile_Fasciculee_4m7_1" parent="Architecture" instance=ExtResource("1")]
+transform = Transform3D(0.93969, 0, 0.34202, 0, 1, 0, -0.34202, 0, 0.93969, -4.5, 0, -6.8)
+
+[node name="Pile_Fasciculee_4m7_2" parent="Architecture" instance=ExtResource("1")]
+transform = Transform3D(0.84805, 0, 0.52992, 0, 1, 0, -0.52992, 0, 0.84805, -2.9, 0, -11)
+
+[node name="Pile_Fasciculee_4m7_3" parent="Architecture" instance=ExtResource("1")]
+transform = Transform3D(1.4841, 0, 0.92736, 0, 1, 0, -0.92736, 0, 1.4841, 2.6, 0, -14.5)
+
+[node name="Pile_Carree_Blocs_4m7_1" parent="Architecture" instance=ExtResource("2")]
+transform = Transform3D(1.2016, 0, -0.34455, 0, 1, 0, 0.34455, 0, 1.2016, 4.8, 0, -7)
+
+[node name="Ecoincon_Profond_4m5_1" parent="Architecture" instance=ExtResource("3")]
+transform = Transform3D(0.35556, 0, 0.65414, 0, 1, 0, -0.93333, 0, 0.2492, -3.7, 4.7, -8.9)
+
+[node name="Ecoincon_Arc_6m5_1" parent="Architecture" instance=ExtResource("4")]
+transform = Transform3D(0.84615, 0, 0.53688, 0, 1, 0, -0.53846, 0, 0.84366, -0.15, 4.7, -12.75)
+
+[node name="Ecoincon_Grand_Arc_8m_1" parent="Architecture" instance=ExtResource("5")]
+transform = Transform3D(0.275, 0, -0.95957, 0, 1, 0, 0.9375, 0, 0.28147, 3.7, 4.7, -10.75)
+
+[node name="Arcade_Piles_Fasciculees_3Travees_1" parent="Architecture" instance=ExtResource("6")]
+transform = Transform3D(0.99619, 0, -0.087156, 0, 1, 0, 0.087156, 0, 0.99619, 1.9, 0, -21)
+
+[node name="Arcade_Murale_3Arches_12m_1" parent="Architecture" instance=ExtResource("7")]
+transform = Transform3D(0.97124, 0, -0.46947, 0, 1.25, 0, 0.51642, 0, 0.88295, 11.5, 0, -22)
+
+[node name="Mur_Ruine_Haut_8m_1" parent="Architecture" instance=ExtResource("8")]
+transform = Transform3D(0.96593, 0, 0.25882, 0, 1, 0, -0.25882, 0, 0.96593, -8.5, 0, -16)
+
+[node name="Mur_Ruine_Bas_6m_1" parent="Architecture" instance=ExtResource("9")]
+transform = Transform3D(0.34202, 0, 0.93969, 0, 1, 0, -0.93969, 0, 0.34202, -12, 0, -11)
+
+[node name="Gravats_Moussus_1" parent="Architecture" instance=ExtResource("10")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, -1.6, 0, -13.8)
+
+[node name="Mur_Arcature_Aveugle_8m_1" parent="Architecture" instance=ExtResource("11")]
+transform = Transform3D(0.99756, 0, -0.069756, 0, 1, 0, 0.069756, 0, 0.99756, -3, 0, -28.5)
+
+[node name="Mur_Ruine_Haut_8m_2" parent="Architecture" instance=ExtResource("8")]
+transform = Transform3D(0.97815, 0, -0.20791, 0, 1, 0, 0.20791, 0, 0.97815, 7, 0, -30)
+
+[node name="Sol_Dalles_Herbe_26x26m_1" parent="Sol" instance=ExtResource("12")]
+transform = Transform3D(0.81915, 0, -0.57358, 0, 1, 0, 0.57358, 0, 0.81915, -6.4565, 0, 0.64898)
+
+[node name="Chemin_Dalles_3x12m_1" parent="Sol" instance=ExtResource("13")]
+transform = Transform3D(0.37461, 0, -0.92718, 0, 1, 0, 0.92718, 0, 0.37461, 6, 0.005, -15)
+
+[node name="Rideau_Lierre_Arc_Profond_4m5_1" parent="Vegetation" instance=ExtResource("14")]
+transform = Transform3D(0.35556, 0, 0.65414, 0, 1, 0, -0.93333, 0, 0.2492, -3.7, 4.7, -8.9)
+
+[node name="Lierre_Crete_Mur_4m_1" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(0.4, 0, 0.93449, 0, 1.3, 0, -1.05, 0, 0.356, -3.9476, 8.15, -8.9943)
+
+[node name="Rideau_Lierre_Arc_6m5_1" parent="Vegetation" instance=ExtResource("16")]
+transform = Transform3D(0.84615, 0, 0.53688, 0, 1, 0, -0.53846, 0, 0.84366, -0.15, 4.7, -12.75)
+
+[node name="Lierre_Crete_Mur_4m_2" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(1.375, 0, 0.53688, 0, 1.3, 0, -0.875, 0, 0.84366, -0.23053, 7.95, -12.877)
+
+[node name="Rideau_Lierre_Grand_Arc_8m_1" parent="Vegetation" instance=ExtResource("17")]
+transform = Transform3D(0.275, 0, -0.95957, 0, 1, 0, 0.9375, 0, 0.28147, 3.7, 4.7, -10.75)
+
+[node name="Lierre_Crete_Mur_4m_3" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(0.55, 0, -0.95957, 0, 1.3, 0, 1.875, 0, 0.28147, 3.796, 9.75, -10.778)
+
+[node name="Lierre_Pile_4m7_1" parent="Vegetation" instance=ExtResource("18")]
+transform = Transform3D(-0.93969, 0, 0.34202, 0, 1, 0, -0.34202, 0, -0.93969, -4.5, 0, -6.8)
+
+[node name="Lierre_Pile_4m7_2" parent="Vegetation" instance=ExtResource("18")]
+transform = Transform3D(-0.93969, 0, 0.34202, 0, 1, 0, -0.34202, 0, -0.93969, -2.9, 0, -11)
+
+[node name="Lierre_Pile_4m7_3" parent="Vegetation" instance=ExtResource("18")]
+transform = Transform3D(-1.7433, 0, 0.15252, 0, 1, 0, -0.15252, 0, -1.7433, 2.6, 0, -14.5)
+
+[node name="Lierre_Pile_4m7_4" parent="Vegetation" instance=ExtResource("18")]
+transform = Transform3D(-1.2074, 0, 0.32352, 0, 1, 0, -0.32352, 0, -1.2074, 4.8, 0, -7)
+
+[node name="Nappe_Lierre_Mur_3x4m_1" parent="Vegetation" instance=ExtResource("19")]
+transform = Transform3D(0.59088, 0, -0.17365, 0, 1.1, 0, 0.10419, 0, 0.98481, 2.43, 0.3, -13.55)
+
+[node name="Nappe_Lierre_Mur_3x4m_2" parent="Vegetation" instance=ExtResource("19")]
+transform = Transform3D(0.25, 0, -0.86603, 0, 1, 0, 0.43301, 0, 0.5, 1.6, 0.6, -14.3)
+
+[node name="Rideau_Lierre_Arc_3m8_1" parent="Vegetation" instance=ExtResource("20")]
+transform = Transform3D(0.99619, 0, -0.087156, 0, 1, 0, 0.087156, 0, 0.99619, -1.8855, 4.7, -21.331)
+
+[node name="Rideau_Lierre_Arc_3m8_2" parent="Vegetation" instance=ExtResource("20")]
+transform = Transform3D(0.99619, 0, -0.087156, 0, 1, 0, 0.087156, 0, 0.99619, 1.9, 4.7, -21)
+
+[node name="Rideau_Lierre_Arc_3m8_3" parent="Vegetation" instance=ExtResource("20")]
+transform = Transform3D(0.99619, 0, -0.087156, 0, 1, 0, 0.087156, 0, 0.99619, 5.6855, 4.7, -20.669)
+
+[node name="Lierre_Crete_Mur_4m_4" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(2.7893, 0, -0.087156, 0, 1, 0, 0.24404, 0, 0.99619, 1.9, 7.2, -21)
+
+[node name="Nappe_Lierre_Mur_3x4m_3" parent="Vegetation" instance=ExtResource("19")]
+transform = Transform3D(1.0595, 0, -0.46947, 0, 1, 0, 0.56337, 0, 0.88295, 7.6, 3, -24.2)
+
+[node name="Lierre_Crete_Mur_4m_5" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(3.002, 0, -0.46947, 0, 1, 0, 1.5962, 0, 0.88295, 11.5, 7.6, -22)
+
+[node name="Nappe_Lierre_Mur_3x4m_4" parent="Vegetation" instance=ExtResource("19")]
+transform = Transform3D(1.1591, 0, 0.25882, 0, 0.9, 0, -0.31058, 0, 0.96593, -9.2, 0.3, -15.7)
+
+[node name="Lierre_Crete_Mur_4m_6" parent="Vegetation" instance=ExtResource("15")]
+transform = Transform3D(1.5455, 0, 0.25882, 0, 1, 0, -0.41411, 0, 0.96593, -8.5, 3.2, -16)
+
+[node name="Arbre_Feuillu_Dense_15m_1" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -12, 0, -22)
+
+[node name="Arbre_Feuillu_Dense_15m_2" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.2675, 0, 0.96356, 0, 1, 0, -0.96356, 0, 0.2675, -17, 0, -15)
+
+[node name="Arbre_Feuillu_Dense_15m_3" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.85689, 0, 0.5155, 0, 1, 0, -0.5155, 0, -0.85689, -6, 0, -29)
+
+[node name="Arbre_Feuillu_Dense_15m_4" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.72593, 0, -0.68777, 0, 1, 0, 0.68777, 0, -0.72593, 3, 0, -31)
+
+[node name="Arbre_Feuillu_Dense_15m_5" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.46852, 0, -0.88345, 0, 1, 0, 0.88345, 0, 0.46852, 11, 0, -33)
+
+[node name="Arbre_Feuillu_Dense_15m_6" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.97659, 0, 0.21512, 0, 1, 0, -0.21512, 0, 0.97659, 18, 0, -29)
+
+[node name="Arbre_Feuillu_14m_1" parent="Vegetation" instance=ExtResource("22")]
+transform = Transform3D(0.053955, 0, 0.99854, 0, 1, 0, -0.99854, 0, 0.053955, -15, 0, -32)
+
+[node name="Arbre_Feuillu_Dense_15m_7" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.94772, 0, 0.3191, 0, 1, 0, -0.3191, 0, -0.94772, 24, 0, -24)
+
+[node name="Arbre_Feuillu_14m_2" parent="Vegetation" instance=ExtResource("22")]
+transform = Transform3D(-0.56098, 0, -0.82783, 0, 1, 0, 0.82783, 0, -0.56098, -22, 0, -24)
+
+[node name="Arbre_Feuillu_14m_3" parent="Vegetation" instance=ExtResource("22")]
+transform = Transform3D(0.6476, 0, -0.76198, 0, 1, 0, 0.76198, 0, 0.6476, 7, 0, -40)
+
+[node name="Arbre_Feuillu_Dense_15m_8" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.90745, 0, 0.42017, 0, 1, 0, -0.42017, 0, 0.90745, 16, 0, -40)
+
+[node name="Arbre_Feuillu_Geant_22m_1" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.16211, 0, 0.98677, 0, 1, 0, -0.98677, 0, -0.16211, -1, 0, -27)
+
+[node name="Arbre_Feuillu_Geant_22m_2" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.99418, 0, 0.10775, 0, 1, 0, -0.10775, 0, -0.99418, -10, 0, -26)
+
+[node name="Arbre_Feuillu_Geant_22m_3" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.36977, 0, -0.92912, 0, 1, 0, 0.92912, 0, -0.36977, 9, 0, -28)
+
+[node name="Arbre_Feuillu_Geant_22m_4" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(0.79635, 0, -0.60483, 0, 1, 0, 0.60483, 0, 0.79635, 16, 0, -22)
+
+[node name="Arbre_Feuillu_Geant_22m_5" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(0.79581, 0, 0.60554, 0, 1, 0, -0.60554, 0, 0.79581, -16, 0, -20)
+
+[node name="Arbre_Feuillu_Geant_22m_6" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.37059, 0, 0.9288, 0, 1, 0, -0.9288, 0, -0.37059, 4, 0, -36)
+
+[node name="Arbre_Feuillu_Geant_22m_7" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.99408, 0, -0.10864, 0, 1, 0, 0.10864, 0, -0.99408, -24, 0, -34)
+
+[node name="Arbre_Feuillu_Geant_22m_8" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(-0.16124, 0, -0.98692, 0, 1, 0, 0.98692, 0, -0.16124, 24, 0, -36)
+
+[node name="Arbre_Feuillu_Geant_22m_9" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(0.90782, 0, -0.41936, 0, 1, 0, 0.41936, 0, 0.90782, -6, 0, -42)
+
+[node name="Arbre_Feuillu_Geant_22m_10" parent="Vegetation" instance=ExtResource("23")]
+transform = Transform3D(0.64692, 0, 0.76256, 0, 1, 0, -0.76256, 0, 0.64692, 14, 0, -46)
+
+[node name="Massif_Fougeres_Geant_5x4m_1" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.97815, 0, 0.20791, 0, 1, 0, -0.20791, 0, 0.97815, -3.9, 0, -4.2)
+
+[node name="Massif_Fougeres_Geant_5x4m_2" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.93969, 0, -0.34202, 0, 1, 0, 0.34202, 0, 0.93969, -5.2, 0, -8.6)
+
+[node name="Massif_Fougeres_Geant_5x4m_3" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.60622, 0, 0.35, 0, 0.7, 0, -0.35, 0, 0.60622, -2.6, 0, -10.2)
+
+[node name="Massif_Fougeres_Geant_5x4m_4" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.84173, 0, -0.1183, 0, 0.85, 0, 0.1183, 0, 0.84173, 5, 0, -4.6)
+
+[node name="Massif_Fougeres_Geant_5x4m_5" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.67973, 0, 0.31696, 0, 0.75, 0, -0.31696, 0, 0.67973, 2.6, 0, -13)
+
+[node name="Massif_Fougeres_Geant_5x4m_6" parent="Vegetation" instance=ExtResource("24")]
+transform = Transform3D(0.61284, 0, 0.51423, 0, 0.8, 0, -0.51423, 0, 0.61284, 6.8, 0, -9.5)
+
+[node name="Fougere_Grande_1" parent="Vegetation" instance=ExtResource("25")]
+transform = Transform3D(0.82534, 0, 0.56464, 0, 1, 0, -0.56464, 0, 0.82534, -2.4, 0, -3.6)
+
+[node name="Fougere_Grande_2" parent="Vegetation" instance=ExtResource("25")]
+transform = Transform3D(-0.50485, 0, 0.86321, 0, 1, 0, -0.86321, 0, -0.50485, 3.4, 0, -3.8)
+
+[node name="Massif_Fougeres_Dense_4x3m_1" parent="Vegetation" instance=ExtResource("26")]
+transform = Transform3D(0.99619, 0, 0.087156, 0, 1, 0, -0.087156, 0, 0.99619, -0.2, 0, -16.5)
+
+[node name="Massif_Fougeres_Dense_4x3m_2" parent="Vegetation" instance=ExtResource("26")]
+transform = Transform3D(0.96593, 0, 0.25882, 0, 1, 0, -0.25882, 0, 0.96593, -6.5, 0, -14)
+
+[node name="Massif_Fougeres_Dense_4x3m_3" parent="Vegetation" instance=ExtResource("26")]
+transform = Transform3D(0.86603, 0, -0.5, 0, 1, 0, 0.5, 0, 0.86603, 8.5, 0, -18)
+
+[node name="Buisson_Feuillu_1" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(0.91781, 0, 0.77306, 0, 1.2, 0, -0.77306, 0, 0.91781, -2, 0, -10.3)
+
+[node name="Buisson_Feuillu_2" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(0.91781, 0, 0.77306, 0, 1.2, 0, -0.77306, 0, 0.91781, 3.5, 0, -13.8)
+
+[node name="Touffe_Herbe_1" parent="Vegetation" instance=ExtResource("28")]
+transform = Transform3D(0.66027, 0, -0.45171, 0, 0.8, 0, 0.45171, 0, 0.66027, -0.6, 0, -6)
+
+[node name="Touffe_Herbe_2" parent="Vegetation" instance=ExtResource("28")]
+transform = Transform3D(0.13597, 0, 0.78836, 0, 0.8, 0, -0.78836, 0, 0.13597, 1.4, 0, -8.5)
+
+[node name="Touffe_Herbe_3" parent="Vegetation" instance=ExtResource("28")]
+transform = Transform3D(0.78405, 0, 0.15894, 0, 0.8, 0, -0.15894, 0, 0.78405, 0.2, 0, -11.5)
+
+[node name="Touffe_Herbe_4" parent="Vegetation" instance=ExtResource("28")]
+transform = Transform3D(-0.77344, 0, -0.20443, 0, 0.8, 0, 0.20443, 0, -0.77344, 3.4, 0, -10)
+
+[node name="Touffe_Herbe_5" parent="Vegetation" instance=ExtResource("28")]
+transform = Transform3D(0.28989, 0, -0.74563, 0, 0.8, 0, 0.74563, 0, 0.28989, -1.2, 0, -8.8)
+
+[node name="Buisson_Feuillu_3" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(4.5, 0, 0, 0, 3.2, 0, 0, 0, 4.5, -14, 0, -27)
+
+[node name="Arbre_Feuillu_Dense_15m_9" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -11.5, 0, -30)
+
+[node name="Buisson_Feuillu_4" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(2.7972, 0, 3.525, 0, 3.2, 0, -3.525, 0, 2.7972, -8, 0, -31)
+
+[node name="Arbre_Feuillu_Dense_15m_10" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.12884, 0, 0.99166, 0, 1, 0, -0.99166, 0, -0.12884, -5.5, 0, -34)
+
+[node name="Buisson_Feuillu_5" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-1.0224, 0, 4.3823, 0, 3.2, 0, -4.3823, 0, -1.0224, -2, 0, -30)
+
+[node name="Arbre_Feuillu_Dense_15m_11" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.9668, 0, -0.25554, 0, 1, 0, 0.25554, 0, -0.9668, 0.5, 0, -33)
+
+[node name="Buisson_Feuillu_6" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-4.0683, 0, 1.9232, 0, 3.2, 0, -1.9232, 0, -4.0683, 4, 0, -32)
+
+[node name="Arbre_Feuillu_Dense_15m_12" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.37798, 0, -0.92581, 0, 1, 0, 0.92581, 0, 0.37798, 6.5, 0, -35)
+
+[node name="Buisson_Feuillu_7" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-4.0354, 0, -1.9913, 0, 3.2, 0, 1.9913, 0, -4.0354, 10, 0, -30)
+
+[node name="Arbre_Feuillu_Dense_15m_13" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.8694, 0, 0.49411, 0, 1, 0, -0.49411, 0, 0.8694, 12.5, 0, -33)
+
+[node name="Buisson_Feuillu_8" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-0.94858, 0, -4.3989, 0, 3.2, 0, 4.3989, 0, -0.94858, 16, 0, -27)
+
+[node name="Arbre_Feuillu_Dense_15m_14" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.60201, 0, 0.79849, 0, 1, 0, -0.79849, 0, -0.60201, 18.5, 0, -30)
+
+[node name="Buisson_Feuillu_9" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(2.8561, 0, -3.4774, 0, 3.2, 0, 3.4774, 0, 2.8561, 22, 0, -31)
+
+[node name="Arbre_Feuillu_Dense_15m_15" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.71427, 0, -0.69987, 0, 1, 0, 0.69987, 0, -0.71427, 24.5, 0, -34)
+
+[node name="Buisson_Feuillu_10" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(4.4994, 0, 0.075663, 0, 3.2, 0, -0.075663, 0, 4.4994, -20, 0, -30)
+
+[node name="Arbre_Feuillu_Dense_15m_16" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.78607, 0, -0.61814, 0, 1, 0, 0.61814, 0, 0.78607, -17.5, 0, -33)
+
+[node name="Buisson_Feuillu_11" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(2.7376, 0, 3.5715, 0, 3.2, 0, -3.5715, 0, 2.7376, 1, 0, -37)
+
+[node name="Arbre_Feuillu_Dense_15m_17" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(0.5117, 0, 0.85916, 0, 1, 0, -0.85916, 0, 0.5117, 3.5, 0, -40)
+
+[node name="Buisson_Feuillu_12" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-1.096, 0, 4.3645, 0, 3.2, 0, -4.3645, 0, -1.096, 13, 0, -37)
+
+[node name="Arbre_Feuillu_Dense_15m_18" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.91793, 0, 0.39674, 0, 1, 0, -0.39674, 0, -0.91793, 15.5, 0, -40)
+
+[node name="Buisson_Feuillu_13" parent="Vegetation" instance=ExtResource("27")]
+transform = Transform3D(-4.1001, 0, 1.8545, 0, 3.2, 0, -1.8545, 0, -4.1001, -11, 0, -38)
+
+[node name="Arbre_Feuillu_Dense_15m_19" parent="Vegetation" instance=ExtResource("21")]
+transform = Transform3D(-0.27516, 0, -0.9614, 0, 1, 0, 0.9614, 0, -0.27516, -8.5, 0, -41)
+
+[node name="Nappe_Lierre_Mur_3x4m_5" parent="Vegetation" instance=ExtResource("19")]
+transform = Transform3D(2.1946, 0, -0.069756, 0, 1.1, 0, 0.15346, 0, 0.99756, -3, 0.5, -28.4)
+
+[node name="Sol_Lointain" parent="Sol" instance=ExtResource("29")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0)

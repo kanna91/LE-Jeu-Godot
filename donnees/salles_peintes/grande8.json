@@ -1,0 +1,206 @@
+{
+ "fond": "images/salles_peintes/grande8/fond.jpeg",
+ "fond_hd": "images/salles_peintes/grande8/fond_hd.png",
+ "perspective": {
+  "y_horizon": 272,
+  "hauteur_par_pixel": 0.794,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    322,
+    40
+   ],
+   [
+    511,
+    190
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    410
+   ],
+   [
+    60,
+    400
+   ],
+   [
+    112,
+    380
+   ],
+   [
+    118,
+    366
+   ],
+   [
+    208,
+    366
+   ],
+   [
+    260,
+    344
+   ],
+   [
+    332,
+    332
+   ],
+   [
+    338,
+    320
+   ],
+   [
+    408,
+    320
+   ],
+   [
+    470,
+    328
+   ],
+   [
+    580,
+    348
+   ],
+   [
+    612,
+    358
+   ],
+   [
+    708,
+    358
+   ],
+   [
+    767,
+    366
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    342,
+    324
+   ],
+   [
+    402,
+    324
+   ],
+   [
+    406,
+    336
+   ],
+   [
+    338,
+    336
+   ]
+  ],
+  [
+   [
+    122,
+    370
+   ],
+   [
+    202,
+    370
+   ],
+   [
+    206,
+    384
+   ],
+   [
+    118,
+    384
+   ]
+  ],
+  [
+   [
+    618,
+    362
+   ],
+   [
+    702,
+    362
+   ],
+   [
+    706,
+    376
+   ],
+   [
+    614,
+    376
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "porte du fond": [
+   372,
+   358,
+   "down"
+  ],
+  "passage de gauche": [
+   162,
+   406,
+   "down_right"
+  ],
+  "passage de droite": [
+   660,
+   398,
+   "down_left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "grande salle/8"
+}

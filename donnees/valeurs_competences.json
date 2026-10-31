@@ -1,0 +1,1251 @@
+{
+ "Feu": {
+  "multiplicateur_degats": 0.78,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7783,
+  "valeur_avant": 41.12,
+  "valeur_cible": 32,
+  "valeur_atteinte": 32.07
+ },
+ "Attaque_rapide": {
+  "multiplicateur_degats": 2.38,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 2.3751,
+  "valeur_avant": 4.21,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.02
+ },
+ "Attaque_lourde": {
+  "multiplicateur_degats": 1.86,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.8563,
+  "valeur_avant": 5.93,
+  "valeur_cible": 11,
+  "valeur_atteinte": 11.02
+ },
+ "Tempete_de_feu": {
+  "multiplicateur_degats": 0.61,
+  "type_alteration": {
+   "brulure": 12
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6092,
+  "valeur_avant": 58.31,
+  "valeur_cible": 35,
+  "valeur_atteinte": 34.93
+ },
+ "Boule_de_feu": {
+  "multiplicateur_degats": 0.47,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4697,
+  "valeur_avant": 25.55,
+  "valeur_cible": 12,
+  "valeur_atteinte": 12.01
+ },
+ "Eclair": {
+  "multiplicateur_degats": 0.48,
+  "type_alteration": {
+   "électrocution": 7,
+   "conductivité": 10,
+   "paralysie": 5
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4817,
+  "valeur_avant": 22.49,
+  "valeur_cible": 12,
+  "valeur_atteinte": 11.94
+ },
+ "Coup_de_baton": {
+  "multiplicateur_degats": 1.61,
+  "type_alteration": {
+   "aveugler": 32,
+   "sommeil": 16
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.6115,
+  "valeur_avant": 6.54,
+  "valeur_cible": 10,
+  "valeur_atteinte": 9.97
+ },
+ "Coup_de_poing": {
+  "multiplicateur_degats": 1.85,
+  "type_alteration": {
+   "stun": 35
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.8502,
+  "valeur_avant": 5.88,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.0
+ },
+ "Enchainement": {
+  "multiplicateur_degats": 1.42,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.419,
+  "valeur_avant": 14.09,
+  "valeur_cible": 20,
+  "valeur_atteinte": 20.01
+ },
+ "Coup_de_marteau": {
+  "multiplicateur_degats": 2.29,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 2.2856,
+  "valeur_avant": 4.38,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.02
+ },
+ "Fracasser": {
+  "multiplicateur_degats": 1.23,
+  "type_alteration": {
+   "stun": 19
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.2344,
+  "valeur_avant": 12.19,
+  "valeur_cible": 15,
+  "valeur_atteinte": 14.98
+ },
+ "Coup_de_dague": {
+  "multiplicateur_degats": 2.38,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 2.3751,
+  "valeur_avant": 4.21,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.02
+ },
+ "Laceration": {
+  "multiplicateur_degats": 0.4,
+  "type_alteration": {
+   "saignement": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4007,
+  "valeur_avant": 64.57,
+  "valeur_cible": 41,
+  "valeur_atteinte": 40.95
+ },
+ "Coup_d_epee": {
+  "multiplicateur_degats": 1.57,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.5676,
+  "valeur_avant": 6.38,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.02
+ },
+ "Frenesie": {
+  "multiplicateur_degats": 1.98,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.9829,
+  "valeur_avant": 10.09,
+  "valeur_cible": 20,
+  "valeur_atteinte": 19.97
+ },
+ "Botte_secrete": {
+  "multiplicateur_degats": 0.79,
+  "type_alteration": {
+   "saignement": 16,
+   "désarmement": 12
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7914,
+  "valeur_avant": 38.86,
+  "valeur_cible": 32,
+  "valeur_atteinte": 32.21
+ },
+ "Coup_de_lance": {
+  "multiplicateur_degats": 1.75,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.751,
+  "valeur_avant": 5.71,
+  "valeur_cible": 10,
+  "valeur_atteinte": 9.99
+ },
+ "Balayage": {
+  "multiplicateur_degats": 1.82,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.821,
+  "valeur_avant": 14.28,
+  "valeur_cible": 26,
+  "valeur_atteinte": 25.99
+ },
+ "Rafale_de_lance": {
+  "multiplicateur_degats": 1.36,
+  "type_alteration": {
+   "lenteur": 20
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.3584,
+  "valeur_avant": 14.34,
+  "valeur_cible": 19,
+  "valeur_atteinte": 19.01
+ },
+ "Perforation": {
+  "multiplicateur_degats": 0.46,
+  "type_alteration": {
+   "saignement": 27
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4577,
+  "valeur_avant": 60.83,
+  "valeur_cible": 40,
+  "valeur_atteinte": 39.62
+ },
+ "Tir": {
+  "multiplicateur_degats": 2.07,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 2.0687,
+  "valeur_avant": 4.83,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.01
+ },
+ "Tir_rapide": {
+  "multiplicateur_degats": 1.43,
+  "type_alteration": {
+   "aveugler": 21
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.4308,
+  "valeur_avant": 14.31,
+  "valeur_cible": 20,
+  "valeur_atteinte": 19.96
+ },
+ "Tir_precis": {
+  "multiplicateur_degats": 1.0,
+  "type_alteration": {
+   "marque": 30,
+   "lenteur": 20
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9981,
+  "valeur_avant": 10.02,
+  "valeur_cible": 10,
+  "valeur_atteinte": 10.02
+ },
+ "Tir_empoisonne": {
+  "multiplicateur_degats": 0.56,
+  "type_alteration": {
+   "poison": 39,
+   "peste": 11
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.5604,
+  "valeur_avant": 64.68,
+  "valeur_cible": 40,
+  "valeur_atteinte": 39.68
+ },
+ "Coup_de_gourdin": {
+  "multiplicateur_degats": 0.91,
+  "type_alteration": {
+   "trauma": 18
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9106,
+  "valeur_avant": 15.16,
+  "valeur_cible": 14,
+  "valeur_atteinte": 13.92
+ },
+ "Grand_coup_de_gourdin": {
+  "multiplicateur_degats": 0.95,
+  "type_alteration": {
+   "stun": 19,
+   "affaiblissement": 24,
+   "trauma": 24
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9533,
+  "valeur_avant": 26.03,
+  "valeur_cible": 25,
+  "valeur_atteinte": 25.02
+ },
+ "Cri_de_guerre": {
+  "type_alteration": {
+   "rage": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0,
+  "valeur_avant": 7.58,
+  "valeur_cible": 10,
+  "valeur_atteinte": 7.58
+ },
+ "Protection": {
+  "type_alteration": {
+   "protection": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {
+   "protection": 60.0
+  },
+  "facteur": 1.5,
+  "valeur_avant": 3.21,
+  "valeur_cible": 10,
+  "valeur_atteinte": 3.6
+ },
+ "Blizzard": {
+  "multiplicateur_degats": 0.77,
+  "type_alteration": {
+   "gel": 12,
+   "engelure": 15,
+   "morsure du givre": 15
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7743,
+  "valeur_avant": 63.17,
+  "valeur_cible": 50,
+  "valeur_atteinte": 49.32
+ },
+ "Trait_des_Ombres": {
+  "multiplicateur_degats": 0.83,
+  "type_alteration": {
+   "terreur": 13,
+   "siphon de vie": 17
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.8334,
+  "valeur_avant": 39.02,
+  "valeur_cible": 33,
+  "valeur_atteinte": 33.13
+ },
+ "Projectile_des_ombres": {
+  "multiplicateur_degats": 0.7,
+  "type_alteration": {
+   "corruption": 10,
+   "condamnation": 7
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6971,
+  "valeur_avant": 43.69,
+  "valeur_cible": 32,
+  "valeur_atteinte": 31.47
+ },
+ "Enflammer": {
+  "multiplicateur_degats": 0.62,
+  "type_alteration": {
+   "brulure": 47,
+   "inflammabilité": 25
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6236,
+  "valeur_avant": 70.18,
+  "valeur_cible": 45,
+  "valeur_atteinte": 44.99
+ },
+ "Caresse_des_ombres": {
+  "multiplicateur_degats": 1.14,
+  "type_alteration": {
+   "destruction armure": 57,
+   "destruction résistance": 57,
+   "décrépitude": 29,
+   "esprit embrumé": 29
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.1408,
+  "valeur_avant": 17.84,
+  "valeur_cible": 20,
+  "valeur_atteinte": 20.06
+ },
+ "Silence": {
+  "multiplicateur_degats": 0.74,
+  "type_alteration": {
+   "silence": 45,
+   "brûlure de mana": 22
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7433,
+  "valeur_avant": 19.19,
+  "valeur_cible": 15,
+  "valeur_atteinte": 14.93
+ },
+ "Soin_mineur": {
+  "multiplicateur_degats": 0.7,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6989,
+  "valeur_avant": 27.19,
+  "valeur_cible": 19,
+  "valeur_atteinte": 19.03
+ },
+ "Soin": {
+  "multiplicateur_degats": 0.67,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6661,
+  "valeur_avant": 63.06,
+  "valeur_cible": 42,
+  "valeur_atteinte": 42.25
+ },
+ "Soin_majeur": {
+  "multiplicateur_degats": 0.74,
+  "type_alteration": {},
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7381,
+  "valeur_avant": 70.45,
+  "valeur_cible": 52,
+  "valeur_atteinte": 52.13
+ },
+ "Recupe": {
+  "multiplicateur_degats": 0.85,
+  "type_alteration": {
+   "régénération": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.8461,
+  "valeur_avant": 22.3,
+  "valeur_cible": 19,
+  "valeur_atteinte": 19.08
+ },
+ "Précision": {
+  "type_alteration": {
+   "précis": 100,
+   "concentration": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0,
+  "valeur_avant": 3.26,
+  "valeur_cible": 15,
+  "valeur_atteinte": 3.26
+ },
+ "Etincelle_ardente": {
+  "multiplicateur_degats": 0.54,
+  "type_alteration": {
+   "brulure": 21
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.5375,
+  "valeur_avant": 32.39,
+  "valeur_cible": 18,
+  "valeur_atteinte": 17.96
+ },
+ "Mur_de_flammes": {
+  "multiplicateur_degats": 0.3,
+  "type_alteration": {
+   "brulure": 10,
+   "inflammabilité": 8
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3,
+  "valeur_avant": 83.94,
+  "valeur_cible": 26,
+  "valeur_atteinte": 27.89
+ },
+ "Immolation": {
+  "multiplicateur_degats": 0.72,
+  "type_alteration": {
+   "brulure": 58,
+   "inflammabilité": 29
+  },
+  "alterations_lanceur": {
+   "rage": 22,
+   "vigueur": 29
+  },
+  "puissance_alterations": {},
+  "facteur": 0.724,
+  "valeur_avant": 45.05,
+  "valeur_cible": 36,
+  "valeur_atteinte": 35.89
+ },
+ "Meteore": {
+  "multiplicateur_degats": 0.5,
+  "type_alteration": {
+   "brulure": 25,
+   "stun": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4958,
+  "valeur_avant": 123.12,
+  "valeur_cible": 60,
+  "valeur_atteinte": 60.53
+ },
+ "Embrasement": {
+  "multiplicateur_degats": 0.45,
+  "type_alteration": {
+   "brulure": 31,
+   "inflammabilité": 27,
+   "vulnérabilité": 13
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.447,
+  "valeur_avant": 150.05,
+  "valeur_cible": 76,
+  "valeur_atteinte": 75.98
+ },
+ "Givre": {
+  "multiplicateur_degats": 1.02,
+  "type_alteration": {
+   "lenteur": 15,
+   "engourdissement": 20
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0234,
+  "valeur_avant": 11.74,
+  "valeur_cible": 12,
+  "valeur_atteinte": 11.96
+ },
+ "Eclat_de_glace": {
+  "multiplicateur_degats": 0.67,
+  "type_alteration": {
+   "engelure": 23
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6673,
+  "valeur_avant": 26.62,
+  "valeur_cible": 18,
+  "valeur_atteinte": 17.95
+ },
+ "Souffle_glacial": {
+  "multiplicateur_degats": 0.73,
+  "type_alteration": {
+   "lenteur": 26,
+   "morsure du givre": 18,
+   "engourdissement": 26
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7345,
+  "valeur_avant": 33.66,
+  "valeur_cible": 26,
+  "valeur_atteinte": 25.86
+ },
+ "Marteau_de_givre": {
+  "multiplicateur_degats": 1.15,
+  "type_alteration": {
+   "gel": 40,
+   "stun": 17
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.1523,
+  "valeur_avant": 31.6,
+  "valeur_cible": 36,
+  "valeur_atteinte": 35.91
+ },
+ "Lames_gelees": {
+  "multiplicateur_degats": 0.4,
+  "type_alteration": {
+   "engelure": 16,
+   "saignement": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3999,
+  "valeur_avant": 102.17,
+  "valeur_cible": 48,
+  "valeur_atteinte": 48.02
+ },
+ "Zero_absolu": {
+  "multiplicateur_degats": 1.0,
+  "type_alteration": {
+   "gel": 45,
+   "morsure du givre": 60,
+   "pétrification": 15
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0048,
+  "valeur_avant": 75.71,
+  "valeur_cible": 76,
+  "valeur_atteinte": 75.71
+ },
+ "Decharge": {
+  "multiplicateur_degats": 0.87,
+  "type_alteration": {
+   "électrocution": 17,
+   "paralysie": 13
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.8741,
+  "valeur_avant": 20.09,
+  "valeur_cible": 18,
+  "valeur_atteinte": 17.88
+ },
+ "Chaine_d_eclairs": {
+  "multiplicateur_degats": 0.46,
+  "type_alteration": {
+   "conductivité": 14,
+   "électrocution": 9
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.456,
+  "valeur_avant": 47.88,
+  "valeur_cible": 26,
+  "valeur_atteinte": 26.08
+ },
+ "Surcharge": {
+  "multiplicateur_degats": 1.19,
+  "type_alteration": {
+   "électrocution": 60,
+   "conductivité": 36
+  },
+  "alterations_lanceur": {
+   "hâte": 36,
+   "agilité": 48
+  },
+  "puissance_alterations": {},
+  "facteur": 1.1943,
+  "valeur_avant": 31.76,
+  "valeur_cible": 36,
+  "valeur_atteinte": 35.92
+ },
+ "Tempete_orageuse": {
+  "multiplicateur_degats": 0.96,
+  "type_alteration": {
+   "paralysie": 19,
+   "électrocution": 29
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.963,
+  "valeur_avant": 49.33,
+  "valeur_cible": 48,
+  "valeur_atteinte": 47.9
+ },
+ "Jugement_du_tonnerre": {
+  "multiplicateur_degats": 1.23,
+  "type_alteration": {
+   "paralysie": 49,
+   "conductivité": 60
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.2263,
+  "valeur_avant": 62.87,
+  "valeur_cible": 76,
+  "valeur_atteinte": 76.21
+ },
+ "Trait_arcanique": {
+  "multiplicateur_degats": 1.02,
+  "type_alteration": {
+   "usure magique": 15,
+   "torpeur": 15
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0218,
+  "valeur_avant": 11.74,
+  "valeur_cible": 12,
+  "valeur_atteinte": 11.98
+ },
+ "Projectiles_arcaniques": {
+  "multiplicateur_degats": 0.84,
+  "type_alteration": {
+   "usure magique": 25
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.8426,
+  "valeur_avant": 21.31,
+  "valeur_cible": 18,
+  "valeur_atteinte": 17.95
+ },
+ "Siphon_de_mana": {
+  "multiplicateur_degats": 1.27,
+  "type_alteration": {
+   "brûlure de mana": 60,
+   "trouble": 51
+  },
+  "alterations_lanceur": {
+   "clarté": 51,
+   "intellect": 51
+  },
+  "puissance_alterations": {},
+  "facteur": 1.2674,
+  "valeur_avant": 21.63,
+  "valeur_cible": 26,
+  "valeur_atteinte": 26.04
+ },
+ "Distorsion": {
+  "multiplicateur_degats": 1.06,
+  "type_alteration": {
+   "silence": 32,
+   "esprit embrumé": 37,
+   "dissonance": 37
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0609,
+  "valeur_avant": 33.98,
+  "valeur_cible": 36,
+  "valeur_atteinte": 35.97
+ },
+ "Barrage_arcanique": {
+  "multiplicateur_degats": 1.31,
+  "type_alteration": {
+   "usure magique": 60
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.3083,
+  "valeur_avant": 36.87,
+  "valeur_cible": 48,
+  "valeur_atteinte": 48.06
+ },
+ "Singularite": {
+  "multiplicateur_degats": 0.61,
+  "type_alteration": {
+   "destruction résistance": 30,
+   "brûlure de mana": 24
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6088,
+  "valeur_avant": 118.48,
+  "valeur_cible": 76,
+  "valeur_atteinte": 75.97
+ },
+ "Souffle_du_chaos": {
+  "multiplicateur_degats": 0.33,
+  "type_alteration": {
+   "corruption": 5,
+   "brulure": 3
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.334,
+  "valeur_avant": 30.77,
+  "valeur_cible": 12,
+  "valeur_atteinte": 11.84
+ },
+ "Etincelle_chaotique": {
+  "multiplicateur_degats": 0.38,
+  "type_alteration": {
+   "corruption": 10,
+   "brulure": 6
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3828,
+  "valeur_avant": 38.7,
+  "valeur_cible": 18,
+  "valeur_atteinte": 18.13
+ },
+ "Fleau_putride": {
+  "multiplicateur_degats": 0.71,
+  "type_alteration": {
+   "peste": 32,
+   "poison": 21
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7072,
+  "valeur_avant": 33.51,
+  "valeur_cible": 26,
+  "valeur_atteinte": 25.99
+ },
+ "Faille_du_neant": {
+  "multiplicateur_degats": 0.3,
+  "type_alteration": {
+   "corruption": 10,
+   "vulnérabilité": 8,
+   "entropie": 8
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3,
+  "valeur_avant": 83.2,
+  "valeur_cible": 36,
+  "valeur_atteinte": 36.24
+ },
+ "Tempete_du_chaos": {
+  "multiplicateur_degats": 0.3,
+  "type_alteration": {
+   "corruption": 9,
+   "brulure": 6,
+   "gel": 4,
+   "électrocution": 6,
+   "poison": 4
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3,
+  "valeur_avant": 135.06,
+  "valeur_cible": 48,
+  "valeur_atteinte": 52.26
+ },
+ "Apocalypse": {
+  "multiplicateur_degats": 0.3,
+  "type_alteration": {
+   "corruption": 15,
+   "peste": 12,
+   "vulnérabilité": 12,
+   "condamnation": 8
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3,
+  "valeur_avant": 198.97,
+  "valeur_cible": 76,
+  "valeur_atteinte": 84.62
+ },
+ "Murmure_des_ombres": {
+  "multiplicateur_degats": 1.29,
+  "type_alteration": {
+   "sape": 45,
+   "affaiblissement": 26
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.2905,
+  "valeur_avant": 9.37,
+  "valeur_cible": 12,
+  "valeur_atteinte": 12.0
+ },
+ "Malediction_de_faiblesse": {
+  "multiplicateur_degats": 1.82,
+  "type_alteration": {
+   "faiblesse": 70,
+   "affaiblissement": 60,
+   "sape": 60,
+   "déchéance": 54
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.8157,
+  "valeur_avant": 10.28,
+  "valeur_cible": 18,
+  "valeur_atteinte": 18.04
+ },
+ "Toucher_fletrissant": {
+  "multiplicateur_degats": 0.66,
+  "type_alteration": {
+   "flétrissement": 39,
+   "malédiction": 33,
+   "maladresse": 26,
+   "siphon de vie": 20,
+   "poison": 23,
+   "épuisement vital": 26
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6558,
+  "valeur_avant": 34.13,
+  "valeur_cible": 26,
+  "valeur_atteinte": 26.12
+ },
+ "Voile_des_tenebres": {
+  "multiplicateur_degats": 1.22,
+  "type_alteration": {
+   "aveugler": 55,
+   "maladresse": 55,
+   "débilité": 55,
+   "terreur": 30,
+   "torpeur": 49,
+   "engourdissement": 49
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.2197,
+  "valeur_avant": 30.77,
+  "valeur_cible": 36,
+  "valeur_atteinte": 36.0
+ },
+ "Marque_du_neant": {
+  "multiplicateur_degats": 2.01,
+  "type_alteration": {
+   "destruction armure": 70,
+   "destruction résistance": 70,
+   "vulnérabilité": 60,
+   "marque": 60,
+   "entropie": 60
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 2.0101,
+  "valeur_avant": 26.4,
+  "valeur_cible": 48,
+  "valeur_atteinte": 48.0
+ },
+ "Anatheme": {
+  "multiplicateur_degats": 0.61,
+  "type_alteration": {
+   "flétrissement": 37,
+   "faiblesse": 37,
+   "débilité": 37,
+   "décrépitude": 30,
+   "condamnation": 15,
+   "poison": 24,
+   "entropie": 37,
+   "dissonance": 24
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6087,
+  "valeur_avant": 114.06,
+  "valeur_cible": 76,
+  "valeur_atteinte": 75.59
+ },
+ "Lumiere_apaisante": {
+  "multiplicateur_degats": 0.56,
+  "type_alteration": {
+   "sérénité": 28
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.5626,
+  "valeur_avant": 32.0,
+  "valeur_cible": 18,
+  "valeur_atteinte": 17.92
+ },
+ "Egide_sacree": {
+  "multiplicateur_degats": 0.92,
+  "type_alteration": {
+   "bouclier": 100,
+   "barrière": 100,
+   "robustesse": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {
+   "bouclier": 60
+  },
+  "facteur": 0.9198,
+  "valeur_avant": 27.74,
+  "valeur_cible": 26,
+  "valeur_atteinte": 26.0
+ },
+ "Aube_reparatrice": {
+  "multiplicateur_degats": 0.71,
+  "type_alteration": {
+   "régénération": 100,
+   "clarté": 35,
+   "sérénité": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7081,
+  "valeur_avant": 49.94,
+  "valeur_cible": 36,
+  "valeur_atteinte": 36.08
+ },
+ "Purification": {
+  "multiplicateur_degats": 0.96,
+  "type_alteration": {
+   "bénédiction": 100,
+   "illumination": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9628,
+  "valeur_avant": 49.47,
+  "valeur_cible": 48,
+  "valeur_atteinte": 47.89
+ },
+ "Miracle": {
+  "multiplicateur_degats": 0.48,
+  "type_alteration": {
+   "bouclier": 100,
+   "bénédiction": 100,
+   "transcendance": 100
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {
+   "bouclier": 100
+  },
+  "facteur": 0.483,
+  "valeur_avant": 139.69,
+  "valeur_cible": 76,
+  "valeur_atteinte": 75.63
+ },
+ "Estafilade": {
+  "multiplicateur_degats": 0.64,
+  "type_alteration": {
+   "saignement": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6399,
+  "valeur_avant": 15.6,
+  "valeur_cible": 11,
+  "valeur_atteinte": 11.17
+ },
+ "Entaille": {
+  "multiplicateur_degats": 0.67,
+  "type_alteration": {
+   "saignement": 24
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6736,
+  "valeur_avant": 19.98,
+  "valeur_cible": 16,
+  "valeur_atteinte": 16.01
+ },
+ "Danse_des_lames": {
+  "multiplicateur_degats": 0.36,
+  "type_alteration": {
+   "saignement": 7,
+   "poison": 5
+  },
+  "alterations_lanceur": {
+   "agilité": 11
+  },
+  "puissance_alterations": {},
+  "facteur": 0.3566,
+  "valeur_avant": 41.4,
+  "valeur_cible": 22,
+  "valeur_atteinte": 21.69
+ },
+ "Tourbillon_d_acier": {
+  "multiplicateur_degats": 0.45,
+  "type_alteration": {
+   "saignement": 13,
+   "désarmement": 9
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4481,
+  "valeur_avant": 50.24,
+  "valeur_cible": 30,
+  "valeur_atteinte": 29.71
+ },
+ "Frappe_tendineuse": {
+  "multiplicateur_degats": 0.97,
+  "type_alteration": {
+   "désarmement": 49,
+   "lenteur": 39,
+   "saignement": 29
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9742,
+  "valeur_avant": 39.79,
+  "valeur_cible": 39,
+  "valeur_atteinte": 38.87
+ },
+ "Mille_entailles": {
+  "multiplicateur_degats": 0.46,
+  "type_alteration": {
+   "saignement": 16,
+   "usure": 23,
+   "poison": 9
+  },
+  "alterations_lanceur": {
+   "vigueur": 14
+  },
+  "puissance_alterations": {},
+  "facteur": 0.4588,
+  "valeur_avant": 90.51,
+  "valeur_cible": 62,
+  "valeur_atteinte": 61.87
+ },
+ "Dard_empoisonne": {
+  "multiplicateur_degats": 0.5,
+  "type_alteration": {
+   "poison": 15
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.4973,
+  "valeur_avant": 20.85,
+  "valeur_cible": 11,
+  "valeur_atteinte": 11.06
+ },
+ "Coup_precis": {
+  "multiplicateur_degats": 0.7,
+  "type_alteration": {
+   "marque": 21,
+   "poison": 14
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.6996,
+  "valeur_avant": 22.48,
+  "valeur_cible": 16,
+  "valeur_atteinte": 16.01
+ },
+ "Volee": {
+  "multiplicateur_degats": 0.39,
+  "type_alteration": {
+   "lenteur": 10,
+   "poison": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.3881,
+  "valeur_avant": 56.13,
+  "valeur_cible": 22,
+  "valeur_atteinte": 22.37
+ },
+ "Transpercer": {
+  "multiplicateur_degats": 0.79,
+  "type_alteration": {
+   "destruction armure": 36,
+   "saignement": 20
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7907,
+  "valeur_avant": 36.26,
+  "valeur_cible": 30,
+  "valeur_atteinte": 30.02
+ },
+ "Point_vital": {
+  "multiplicateur_degats": 0.58,
+  "type_alteration": {
+   "marque": 29,
+   "saignement": 17,
+   "poison": 20
+  },
+  "alterations_lanceur": {
+   "agilité": 17
+  },
+  "puissance_alterations": {},
+  "facteur": 0.5752,
+  "valeur_avant": 59.31,
+  "valeur_cible": 39,
+  "valeur_atteinte": 39.09
+ },
+ "Perce_coeur": {
+  "multiplicateur_degats": 0.52,
+  "type_alteration": {
+   "destruction armure": 31,
+   "saignement": 26,
+   "paralysie": 16,
+   "poison": 21
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.517,
+  "valeur_avant": 110.66,
+  "valeur_cible": 62,
+  "valeur_atteinte": 62.43
+ },
+ "Bourrade": {
+  "multiplicateur_degats": 1.29,
+  "type_alteration": {
+   "stun": 13,
+   "déchéance": 19
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.2935,
+  "valeur_avant": 8.52,
+  "valeur_cible": 11,
+  "valeur_atteinte": 10.97
+ },
+ "Coup_assommant": {
+  "multiplicateur_degats": 0.76,
+  "type_alteration": {
+   "stun": 15,
+   "trauma": 19
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.7552,
+  "valeur_avant": 19.51,
+  "valeur_cible": 16,
+  "valeur_atteinte": 16.06
+ },
+ "Onde_de_choc": {
+  "multiplicateur_degats": 0.95,
+  "type_alteration": {
+   "lenteur": 29,
+   "stun": 10
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.9521,
+  "valeur_avant": 23.01,
+  "valeur_cible": 22,
+  "valeur_atteinte": 22.04
+ },
+ "Brise_armure": {
+  "multiplicateur_degats": 0.89,
+  "type_alteration": {
+   "destruction armure": 54,
+   "trauma": 31,
+   "déchéance": 31
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 0.8939,
+  "valeur_avant": 32.69,
+  "valeur_cible": 30,
+  "valeur_atteinte": 29.89
+ },
+ "Seisme": {
+  "multiplicateur_degats": 1.07,
+  "type_alteration": {
+   "stun": 27,
+   "vulnérabilité": 32
+  },
+  "alterations_lanceur": {},
+  "puissance_alterations": {},
+  "facteur": 1.0655,
+  "valeur_avant": 48.23,
+  "valeur_cible": 51,
+  "valeur_atteinte": 51.21
+ },
+ "Colere_du_titan": {
+  "multiplicateur_degats": 0.86,
+  "type_alteration": {
+   "stun": 26,
+   "trauma": 52,
+   "destruction armure": 43
+  },
+  "alterations_lanceur": {
+   "protection": 43,
+   "puissance du titan": 100
+  },
+  "puissance_alterations": {},
+  "facteur": 0.8643,
+  "valeur_avant": 69.21,
+  "valeur_cible": 62,
+  "valeur_atteinte": 61.81
+ }
+}

@@ -1,0 +1,75 @@
+class_name Competences
+extends RefCounted
+## Fabrique des compétences et des sorts à partir des données exportées du jeu Python.
+##
+## ``Competences.creer("Coup_d_epee")`` remplace ``Coup_d_epee()`` : les tirages
+## au hasard des dégâts (``random.randint``) sont refaits à chaque création, puis la
+## compétence est préparée (Ameliorations.preparer : corrections de base,
+## normalisation et arbre d'amélioration), comme ``__init_subclass__``.
+
+static var _competences := {}
+static var _sorts := {}
+static var _ordre_sorts := []
+
+
+static func _charger() -> void:
+	if not _competences.is_empty():
+		return
+	for c in U.charger_json("competences.json"):
+		_competences[c["classe"]] = c["args"]
+	for s in U.charger_json("sorts.json"):
+		_sorts[s["classe"]] = s
+		_ordre_sorts.append(s["classe"])
+
+
+## Noms de classe des sorts du grimoire, dans l'ordre des éléments puis des paliers (classes_de_sorts).
+static func classes_de_sorts() -> Array:
+	_charger()
+	return _ordre_sorts
+
+
+## Noms de classe des compétences de competence.py, par ordre alphabétique (inspect.getmembers).
+static func classes_de_competences() -> Array:
+	_charger()
+	var noms := _competences.keys()
+	noms.sort()
+	return noms
+
+
+static func est_sort(nom_classe: String) -> bool:
+	_charger()
+	return _sorts.has(nom_classe)
+
+
+## Fiche d'un sort ({"classe", "element", "palier", "fiche"}).
+static func donnees_sort(nom_classe: String) -> Dictionary:
+	_charger()
+	return _sorts.get(nom_classe, {})
+
+
+static func _valeur(v):
+	if v is Dictionary and v.has("alea"):
+		return randi_range(int(v["alea"][0]), int(v["alea"][1]))
+	return U.entiers(v)
+
+
+## Crée une compétence (competence.py) ou un sort (sorts.py) par le nom de sa classe Python.
+static func creer(nom_classe: String) -> Competence:
+	_charger()
+	var comp: Competence
+	if _sorts.has(nom_classe):
+		var s: Dictionary = _sorts[nom_classe]
+		comp = Sort.new()
+		comp.initialiser_sort(nom_classe, s["element"], int(s["palier"]), s["fiche"])
+	elif _competences.has(nom_classe):
+		var args := {}
+		var brut: Dictionary = _competences[nom_classe]
+		for cle in brut:
+			args[cle] = _valeur(brut[cle])
+		comp = Competence.new()
+		comp.initialiser(nom_classe, args)
+	else:
+		push_error("Compétence inconnue : " + nom_classe)
+		return null
+	Ameliorations.preparer(comp)
+	return comp

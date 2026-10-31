@@ -1,0 +1,202 @@
+{
+ "fond": "images/salles_peintes/crypte14/fond.jpeg",
+ "fond_hd": "images/salles_peintes/crypte14/fond_hd.png",
+ "perspective": {
+  "y_horizon": 313,
+  "hauteur_par_pixel": 0.886,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    362,
+    43
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    420
+   ],
+   [
+    720,
+    400
+   ],
+   [
+    690,
+    380
+   ],
+   [
+    580,
+    378
+   ],
+   [
+    520,
+    372
+   ],
+   [
+    500,
+    360
+   ],
+   [
+    330,
+    360
+   ],
+   [
+    300,
+    366
+   ],
+   [
+    260,
+    372
+   ],
+   [
+    200,
+    378
+   ],
+   [
+    100,
+    385
+   ],
+   [
+    40,
+    400
+   ],
+   [
+    0,
+    430
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    340,
+    359
+   ],
+   [
+    480,
+    359
+   ],
+   [
+    480,
+    374
+   ],
+   [
+    340,
+    374
+   ]
+  ],
+  [
+   [
+    0,
+    445
+   ],
+   [
+    30,
+    445
+   ],
+   [
+    30,
+    498
+   ],
+   [
+    0,
+    498
+   ]
+  ],
+  [
+   [
+    737,
+    435
+   ],
+   [
+    768,
+    435
+   ],
+   [
+    768,
+    498
+   ],
+   [
+    737,
+    498
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "marches du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "marches du fond": [
+   410,
+   392,
+   "down"
+  ],
+  "passage de gauche": [
+   48,
+   471,
+   "right"
+  ],
+  "passage de droite": [
+   719,
+   466,
+   "left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "crypte/14"
+}

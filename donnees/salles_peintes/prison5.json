@@ -1,0 +1,186 @@
+{
+ "fond": "images/salles_peintes/prison5/fond.jpeg",
+ "fond_hd": "images/salles_peintes/prison5/fond_hd.png",
+ "perspective": {
+  "y_horizon": 342,
+  "hauteur_par_pixel": 1.033,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    388,
+    48
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    410
+   ],
+   [
+    740,
+    400
+   ],
+   [
+    700,
+    395
+   ],
+   [
+    600,
+    392
+   ],
+   [
+    520,
+    388
+   ],
+   [
+    330,
+    388
+   ],
+   [
+    250,
+    390
+   ],
+   [
+    100,
+    395
+   ],
+   [
+    0,
+    400
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    330,
+    385
+   ],
+   [
+    450,
+    385
+   ],
+   [
+    450,
+    400
+   ],
+   [
+    330,
+    400
+   ]
+  ],
+  [
+   [
+    0,
+    415
+   ],
+   [
+    30,
+    415
+   ],
+   [
+    30,
+    498
+   ],
+   [
+    0,
+    498
+   ]
+  ],
+  [
+   [
+    737,
+    425
+   ],
+   [
+    768,
+    425
+   ],
+   [
+    768,
+    498
+   ],
+   [
+    737,
+    498
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "arches du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "arches du fond": [
+   390,
+   418,
+   "down"
+  ],
+  "passage de gauche": [
+   48,
+   456,
+   "right"
+  ],
+  "passage de droite": [
+   719,
+   461,
+   "left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "prison/grande salle/5"
+}

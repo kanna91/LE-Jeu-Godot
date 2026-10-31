@@ -1,0 +1,198 @@
+{
+ "fond": "images/salles_peintes/grande6/fond.jpeg",
+ "fond_hd": "images/salles_peintes/grande6/fond_hd.png",
+ "perspective": {
+  "y_horizon": 226,
+  "hauteur_par_pixel": 0.649,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    280,
+    35
+   ],
+   [
+    511,
+    185
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    350
+   ],
+   [
+    100,
+    330
+   ],
+   [
+    150,
+    308
+   ],
+   [
+    310,
+    300
+   ],
+   [
+    314,
+    290
+   ],
+   [
+    428,
+    290
+   ],
+   [
+    432,
+    300
+   ],
+   [
+    560,
+    304
+   ],
+   [
+    620,
+    320
+   ],
+   [
+    634,
+    334
+   ],
+   [
+    728,
+    334
+   ],
+   [
+    767,
+    340
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    318,
+    294
+   ],
+   [
+    424,
+    294
+   ],
+   [
+    428,
+    306
+   ],
+   [
+    314,
+    306
+   ]
+  ],
+  [
+   [
+    0,
+    358
+   ],
+   [
+    20,
+    356
+   ],
+   [
+    20,
+    422
+   ],
+   [
+    0,
+    424
+   ]
+  ],
+  [
+   [
+    640,
+    338
+   ],
+   [
+    722,
+    338
+   ],
+   [
+    726,
+    352
+   ],
+   [
+    636,
+    352
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "allée du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "allée du fond": [
+   371,
+   328,
+   "down"
+  ],
+  "passage de gauche": [
+   44,
+   430,
+   "right"
+  ],
+  "passage de droite": [
+   681,
+   374,
+   "down_left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "grande salle/6"
+}

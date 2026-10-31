@@ -1,0 +1,1960 @@
+[
+ {
+  "classe": "Feu",
+  "args": {
+   "nom": "Feu",
+   "description": "Une attaque élémentaire de feu",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "feu"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     2,
+     4
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 15,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Attaque_rapide",
+  "args": {
+   "nom": "Attaque rapide",
+   "description": "Une attaque rapide au corps a corps",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     2,
+     4
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Attaque_lourde",
+  "args": {
+   "nom": "Attaque lourde",
+   "description": "Une puissante attaque au corps a corps",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 2,
+   "type_ciblage": "aléatoire",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     1,
+     2
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Tempete_de_feu",
+  "args": {
+   "nom": "Tempête de feu",
+   "description": "Une pluie de feu qui touche tous les ennemis",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 3,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 4,
+   "type_ciblage": "aléatoire",
+   "type_degats": [
+    "feu"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": {
+    "alea": [
+     1,
+     2
+    ]
+   },
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Boule_de_feu",
+  "args": {
+   "nom": "Boule de Feu",
+   "description": "Un puissant sort offensif de feu",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 2,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "feu"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": {
+    "alea": [
+     8,
+     12
+    ]
+   },
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Eclair",
+  "args": {
+   "nom": "Eclair",
+   "description": "Une attaque infligeant des dégâts de foudre.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 2,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "foudre"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": {
+    "alea": [
+     4,
+     20
+    ]
+   },
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_baton",
+  "args": {
+   "nom": "Coup de baton",
+   "description": "Une attaque de base infligeant des dégâts contondants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": {
+    "alea": [
+     1,
+     2
+    ]
+   },
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_poing",
+  "args": {
+   "nom": "Coup de poing",
+   "description": "Une attaque de base infligeant des dégâts tranchants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "aléatoire",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     2,
+     4
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 100,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Enchainement",
+  "args": {
+   "nom": "Enchainement",
+   "description": "Un enchainement d'attaque a mains nues.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 2,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": {
+    "alea": [
+     1,
+     4
+    ]
+   },
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_marteau",
+  "args": {
+   "nom": "Coup de marteau",
+   "description": "Une attaque de base infligeant des dégâts contondant.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     3,
+     5
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Fracasser",
+  "args": {
+   "nom": "Fracasser",
+   "description": "Une puissante attaque infligeant des dégâts contondant.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": {
+    "alea": [
+     4,
+     7
+    ]
+   },
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 35,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_dague",
+  "args": {
+   "nom": "Coup de dague",
+   "description": "Une attaque de base infligeant des dégâts tranchants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Laceration",
+  "args": {
+   "nom": "Lacération",
+   "description": "Une attaque infligeant des dégâts tranchants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 3,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_d_epee",
+  "args": {
+   "nom": "Coup d'épée",
+   "description": "Une attaque de base infligeant des dégâts tranchants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     2,
+     4
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Frenesie",
+  "args": {
+   "nom": "Frénésie",
+   "description": "Une attaque infligeant des dégâts tranchants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 2,
+   "nombre_cible": 1,
+   "type_ciblage": "aléatoire",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     1,
+     3
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Botte_secrete",
+  "args": {
+   "nom": "Botte secrète",
+   "description": "Une attaque spéciale infligeant des dégâts tranchants plus élevés.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "tranchant"
+   ],
+   "degats_tranchant": {
+    "alea": [
+     7,
+     12
+    ]
+   },
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_lance",
+  "args": {
+   "nom": "Coup de lance",
+   "description": "Une attaque de base infligeant des dégâts perforants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     2,
+     4
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Balayage",
+  "args": {
+   "nom": "Balayage",
+   "description": "Une attaque infligeant des dégâts a tout les ennemis.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 3,
+   "type_ciblage": "toute",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     1,
+     2
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Rafale_de_lance",
+  "args": {
+   "nom": "Raffale de lance",
+   "description": "Une attaque infligeant des dégâts perforants, mais attaquant deux fois.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 3,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     1,
+     3
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Perforation",
+  "args": {
+   "nom": "Perforation",
+   "description": "Une attaque infligeant des dégâts perforants faibles mais appliquant l'altération saignement.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 25,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Tir",
+  "args": {
+   "nom": "Tir à l'arc",
+   "description": "Une attaque de base infligeant des dégâts perforants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Tir_rapide",
+  "args": {
+   "nom": "Tir rapide",
+   "description": "Une attaque a l'arc rapide qui inflige des dégâts perforants.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 1,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 2,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Tir_precis",
+  "args": {
+   "nom": "Tir précis",
+   "description": "Une attaque infligeant des dégâts perforants plus élevés.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     7,
+     11
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Tir_empoisonne",
+  "args": {
+   "nom": "Tir empoisonné",
+   "description": "Une attaque infligeant des dégâts perforants faibles mais appliquant l'altération poison.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "perforant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Coup_de_gourdin",
+  "args": {
+   "nom": "Coup de gourdin",
+   "description": "Une attaque de base infligeant des dégâts contondants.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Grand_coup_de_gourdin",
+  "args": {
+   "nom": "Grand coup de gourdin",
+   "description": "Une attaque infligeant des dégâts contondants plus élevés.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "physique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "contondant"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": {
+    "alea": [
+     8,
+     11
+    ]
+   },
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Cri_de_guerre",
+  "args": {
+   "nom": "Cri de guerre",
+   "description": "Augmente les dégâts critiques de tous les gobelins.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "renforcement offensif physique",
+   "type_attaque": "magique",
+   "nombre_attaque": 0,
+   "nombre_cible": 1,
+   "type_ciblage": "tous_les_ennemis",
+   "type_degats": [],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Protection",
+  "args": {
+   "nom": "Protection",
+   "description": "Augmente l'armure de la cible de 40.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "renforcement defensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 0,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Blizzard",
+  "args": {
+   "nom": "Blizzard",
+   "description": "Une attaque infligeant des dégâts de froid faibles mais attaquant trois fois.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 10,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 3,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "froid"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": {
+    "alea": [
+     3,
+     6
+    ]
+   },
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Trait_des_Ombres",
+  "args": {
+   "nom": "Trait de l'ombre",
+   "description": "Une attaque infligeant des dégâts d'ombre plus élevés mais coûte plus cher en mana.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 8,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "ombre"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 25,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Projectile_des_ombres",
+  "args": {
+   "nom": "Projectile de l'ombre",
+   "description": "Une attaque infligeant des dégâts d'ombre faibles.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 0,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "ombre"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": {
+    "alea": [
+     5,
+     10
+    ]
+   },
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Enflammer",
+  "args": {
+   "nom": "Enflammer",
+   "description": "Une attaque infligeant des dégâts de feu faibles mais appliquant l'altération brûlure.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 5,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "feu"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": {
+    "alea": [
+     5,
+     6
+    ]
+   },
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Caresse_des_ombres",
+  "args": {
+   "nom": "Caresse des ombres",
+   "description": "Une attaque infligeant des dégâts d'ombre faibles et appliquant les altérations destruction d'armure et destruction résistance magique.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 10,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "ombre"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": {
+    "alea": [
+     5,
+     10
+    ]
+   },
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Silence",
+  "args": {
+   "nom": "Silence",
+   "description": "Une attaque infligeant des dégâts d'ombre faibles et appliquant l'altération silence.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 5,
+   "cout_action": 1,
+   "type_competence": "offensif",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "ombre"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": {
+    "alea": [
+     4,
+     6
+    ]
+   },
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Soin_mineur",
+  "args": {
+   "nom": "Soin mineur",
+   "description": "Une compétence infligeant des dégâts de lumière faibles.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 5,
+   "cout_action": 1,
+   "type_competence": "heal",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "self",
+   "type_degats": [
+    "lumière"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": {
+    "alea": [
+     5,
+     10
+    ]
+   },
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Soin",
+  "args": {
+   "nom": "Soin",
+   "description": "Un soin magique pour récupérer des points de vie.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 2,
+   "cout_action": 1,
+   "type_competence": "heal",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "self",
+   "type_degats": [
+    "lumière"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 40,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Soin_majeur",
+  "args": {
+   "nom": "Soin majeur",
+   "description": "Une compétence infligeant des grands dégâts de lumière.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 20,
+   "cout_action": 1,
+   "type_competence": "heal",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "self",
+   "type_degats": [
+    "lumière"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": {
+    "alea": [
+     20,
+     30
+    ]
+   },
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Recupe",
+  "args": {
+   "nom": "Récupe",
+   "description": "Une compétence infligeant des dégâts de lumière faibles et ajoutant l'altération récupe.",
+   "niveau": 1,
+   "points_amélioration": 0,
+   "cout_mana": 5,
+   "cout_action": 1,
+   "type_competence": "heal",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 1,
+   "type_ciblage": "choix",
+   "type_degats": [
+    "lumière"
+   ],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": {
+    "alea": [
+     5,
+     10
+    ]
+   },
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ },
+ {
+  "classe": "Précision",
+  "args": {
+   "nom": "Précision",
+   "description": "Donne un bonus de précision.",
+   "niveau": 0,
+   "points_amélioration": 0,
+   "cout_mana": 5,
+   "cout_action": 1,
+   "type_competence": "renforcement offensif physique",
+   "type_attaque": "magique",
+   "nombre_attaque": 1,
+   "nombre_cible": 4,
+   "type_ciblage": "aléatoire",
+   "type_degats": null,
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": -10,
+   "penetration_resistance": 0,
+   "penetration_armure": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
+ }
+]

@@ -1,0 +1,245 @@
+{
+ "fond": "images/salles_peintes/grande4/fond.jpeg",
+ "fond_hd": "images/salles_peintes/grande4/fond_hd.png",
+ "perspective": {
+  "y_horizon": 285,
+  "hauteur_par_pixel": 0.774,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    356,
+    55
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    380
+   ],
+   [
+    60,
+    374
+   ],
+   [
+    140,
+    368
+   ],
+   [
+    200,
+    358
+   ],
+   [
+    204,
+    344
+   ],
+   [
+    268,
+    344
+   ],
+   [
+    292,
+    350
+   ],
+   [
+    296,
+    350
+   ],
+   [
+    426,
+    350
+   ],
+   [
+    458,
+    354
+   ],
+   [
+    462,
+    352
+   ],
+   [
+    538,
+    352
+   ],
+   [
+    600,
+    370
+   ],
+   [
+    700,
+    384
+   ],
+   [
+    767,
+    388
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    696,
+    404
+   ],
+   [
+    712,
+    398
+   ],
+   [
+    732,
+    398
+   ],
+   [
+    746,
+    404
+   ],
+   [
+    746,
+    414
+   ],
+   [
+    730,
+    420
+   ],
+   [
+    712,
+    420
+   ],
+   [
+    696,
+    414
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    300,
+    354
+   ],
+   [
+    420,
+    354
+   ],
+   [
+    426,
+    366
+   ],
+   [
+    294,
+    366
+   ]
+  ],
+  [
+   [
+    208,
+    348
+   ],
+   [
+    264,
+    348
+   ],
+   [
+    268,
+    360
+   ],
+   [
+    204,
+    360
+   ]
+  ],
+  [
+   [
+    464,
+    356
+   ],
+   [
+    536,
+    356
+   ],
+   [
+    540,
+    370
+   ],
+   [
+    460,
+    370
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "arches du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "arches du fond": [
+   360,
+   388,
+   "down"
+  ],
+  "passage de gauche": [
+   236,
+   382,
+   "down_right"
+  ],
+  "passage de droite": [
+   500,
+   392,
+   "down_left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "grande salle/4"
+}

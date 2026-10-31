@@ -1,0 +1,58 @@
+Testeur d'étage — 2026-10-28T15:26:59 — 2 partie(s), graine 2002
+Hypothèses : 6 s par action de combat du héros, 20 s par personnage croisé (lecture), 8 s pour découvrir chaque nouvelle salle ; course permanente ; pas de fouille ni de dialogue.
+
+== Partie 2002 : le joueur automatique ne bat pas le gardien (3 défaites)
+   temps mesuré (déplacements, fondus) : 8 min 14 s ; combats estimés : 27 min 48 s (278 actions) ; lecture estimée : 2 min 20 s (7 personnages) ; découverte des salles : 5 min 12 s
+   GARDIEN TROUVÉ après (estimé) : 6 min 32 s
+   TOTAL ESTIMÉ : 43 min 34 s (sans avoir vaincu le gardien) ; morts (relevé au cachot) : 15 ; fuites devant un chasseur : 0
+   non visitée : salle 17 — entrée vue depuis la salle 20
+   non visitée : salle 18 — entrée vue depuis la salle 19
+   non visitée : salle 32 — entrée vue depuis la salle 33
+   non visitée : salle 42 — entrée vue depuis la salle 12
+   non visitée : salle 43 — aucune entrée vue
+   non visitée : salle 44 — aucune entrée vue
+   non visitée : salle 45 — aucune entrée vue
+   non visitée : salle 46 — entrée vue depuis la salle 12
+   non visitée : salle 47 (verrouillée) — entrée vue depuis la salle 3
+   non visitée : salle 48 (verrouillée) — entrée vue depuis la salle 3
+   non visitée : salle 49 — entrée vue depuis la salle 33
+   salles visitées : 39 sur 50 ; passages : 190 ; combats : 6 (6 gagnés, 0 fuites) ; captures : 3 ; PV : 1/100
+   combat : Drub chaman, Loup — 9 action(s), gagné
+   combat : Thog chaman — 15 action(s), perdu (mort du héros)
+   combat : Chef Vrog chaman, Vrog chaman, Loup — 6 action(s), perdu (mort du héros)
+   combat : Squelette — 4 action(s), gagné
+   combat : Frug lancier, Skab chaman — 6 action(s), gagné
+   combat : Kriz chaman, Loup — 8 action(s), gagné
+   combat : Porteur Vrog defenseur — 32 action(s), perdu (mort du héros)
+   combat : Kruk feticheur — 3 action(s), gagné
+   combat : Drub chaman — 16 action(s), perdu (mort du héros)
+   combat : Chef Gor chaman, Snag chaman, Loup — 14 action(s), perdu (mort du héros)
+   combat : Chef Murg chaman, Thog chaman, Loup — 9 action(s), perdu (mort du héros)
+   combat : Chef Blik chaman, Gruk chaman, Loup — 15 action(s), perdu (mort du héros)
+   combat : Chef Grib chaman, Drak chaman, Loup — 15 action(s), perdu (mort du héros)
+   combat : Chef Slub chaman, Kruk chaman, Loup — 8 action(s), perdu (mort du héros)
+   combat : Chef Nog chaman, Skrak chaman, Loup — 11 action(s), perdu (mort du héros)
+   combat : Chef Frug chaman, Grog chaman, Loup — 18 action(s), perdu (mort du héros)
+   combat : Chef Fleb chaman, Grom chaman, Loup — 9 action(s), perdu (mort du héros)
+   combat : Chef Slub chaman, Krag chaman, Loup — 9 action(s), perdu (mort du héros)
+   combat : Chef Fleb chaman, Zog chaman, Loup — 23 action(s), gagné
+   combat : Porteur Gruk defenseur — 26 action(s), perdu (mort du héros)
+   combat : Kriz chaman — 22 action(s), perdu (mort du héros)
+
+== Partie 2003 : gardien vaincu
+   temps mesuré (déplacements, fondus) : 2 min 51 s ; combats estimés : 7 min 12 s (72 actions) ; lecture estimée : 2 min 20 s (7 personnages) ; découverte des salles : 3 min 20 s
+   GARDIEN TROUVÉ après (estimé) : 5 min 21 s
+   TOTAL ESTIMÉ : 15 min 43 s ; morts (relevé au cachot) : 2 ; fuites devant un chasseur : 8
+   salles visitées : 25 sur 49 ; passages : 79 ; combats : 4 (4 gagnés, 0 fuites) ; captures : 1 ; PV : 100/100
+   combat : Murg feticheur — 7 action(s), perdu (mort du héros)
+   combat : Blik sorcier — 2 action(s), gagné
+   combat : Squelette — 4 action(s), gagné
+   combat : Porteur Brak chaman — 27 action(s), perdu (mort du héros)
+   combat : Porteur Grub chaman — 30 action(s), gagné
+   combat : Krag feticheur — 2 action(s), gagné
+
+== RÉSUMÉ : gardien vaincu dans 1 partie(s) sur 2
+   temps estimé jusqu'au gardien vaincu : moyenne 15 min 43 s (de 15 min 43 s à 15 min 43 s)
+   GARDIEN TROUVÉ dans 2 partie(s) sur 2 : après 5 min 57 s en moyenne (estimé ; de 5 min 21 s à 6 min 32 s)
+   morts du héros (joueur automatique) : 17 ; captures par un geôlier : 4 ; fuites devant un chasseur : 8 (en 2 partie(s))
+   partie 2002 : le joueur automatique ne bat pas le gardien (3 défaites)

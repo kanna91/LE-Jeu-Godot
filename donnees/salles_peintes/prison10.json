@@ -1,0 +1,194 @@
+{
+ "fond": "images/salles_peintes/prison10/fond.jpeg",
+ "fond_hd": "images/salles_peintes/prison10/fond_hd.png",
+ "perspective": {
+  "y_horizon": 354,
+  "hauteur_par_pixel": 1.116,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    390,
+    40
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    460
+   ],
+   [
+    720,
+    450
+   ],
+   [
+    700,
+    420
+   ],
+   [
+    600,
+    415
+   ],
+   [
+    560,
+    398
+   ],
+   [
+    450,
+    392
+   ],
+   [
+    330,
+    400
+   ],
+   [
+    300,
+    408
+   ],
+   [
+    180,
+    410
+   ],
+   [
+    100,
+    420
+   ],
+   [
+    0,
+    445
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    420,
+    387
+   ],
+   [
+    500,
+    387
+   ],
+   [
+    500,
+    402
+   ],
+   [
+    420,
+    402
+   ]
+  ],
+  [
+   [
+    0,
+    460
+   ],
+   [
+    30,
+    460
+   ],
+   [
+    30,
+    498
+   ],
+   [
+    0,
+    498
+   ]
+  ],
+  [
+   [
+    737,
+    475
+   ],
+   [
+    768,
+    475
+   ],
+   [
+    768,
+    498
+   ],
+   [
+    737,
+    498
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "allee du fond",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "allee du fond": [
+   460,
+   420,
+   "down"
+  ],
+  "passage de gauche": [
+   48,
+   479,
+   "right"
+  ],
+  "passage de droite": [
+   719,
+   486,
+   "left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "prison/grande salle/10"
+}

@@ -1,0 +1,162 @@
+[
+ {
+  "nom": "flammes_avant_gauche",
+  "couleur": "#FFFF00",
+  "base": {
+   "y": 470
+  },
+  "bbox": [
+   22,
+   286,
+   118,
+   358
+  ],
+  "feu": 0.45
+ },
+ {
+  "nom": "flammes_avant_droite",
+  "couleur": "#FF00FF",
+  "base": {
+   "y": 472
+  },
+  "bbox": [
+   648,
+   280,
+   752,
+   358
+  ],
+  "feu": 0.45
+ },
+ {
+  "nom": "flammes_fond_gauche",
+  "couleur": "#00FFFF",
+  "base": {
+   "y": 300
+  },
+  "bbox": [
+   150,
+   212,
+   210,
+   257
+  ],
+  "feu": 0.62
+ },
+ {
+  "nom": "flammes_fond_droite",
+  "couleur": "#FF8000",
+  "base": {
+   "y": 300
+  },
+  "bbox": [
+   550,
+   212,
+   610,
+   257
+  ],
+  "feu": 0.62
+ },
+ {
+  "nom": "brasero_avant_gauche",
+  "couleur": "#FF0000",
+  "base": {
+   "y": 470
+  },
+  "bbox": [
+   12,
+   352,
+   119,
+   474
+  ]
+ },
+ {
+  "nom": "brasero_avant_droite",
+  "couleur": "#00FF00",
+  "base": {
+   "y": 472
+  },
+  "bbox": [
+   644,
+   352,
+   752,
+   475
+  ]
+ },
+ {
+  "nom": "brasero_fond_gauche",
+  "couleur": "#0000FF",
+  "base": {
+   "y": 300
+  },
+  "bbox": [
+   150,
+   254,
+   209,
+   301
+  ]
+ },
+ {
+  "nom": "brasero_fond_droite",
+  "couleur": "#8000FF",
+  "base": {
+   "y": 300
+  },
+  "bbox": [
+   551,
+   254,
+   609,
+   301
+  ]
+ },
+ {
+  "nom": "pilier_gauche",
+  "couleur": "#FF0080",
+  "base": {
+   "y": 301
+  },
+  "bbox": [
+   108,
+   90,
+   146,
+   301
+  ]
+ },
+ {
+  "nom": "pilier_centre_gauche",
+  "couleur": "#80FF00",
+  "base": {
+   "y": 297
+  },
+  "bbox": [
+   203,
+   90,
+   252,
+   297
+  ]
+ },
+ {
+  "nom": "pilier_centre_droit",
+  "couleur": "#0080FF",
+  "base": {
+   "y": 297
+  },
+  "bbox": [
+   513,
+   90,
+   557,
+   297
+  ]
+ },
+ {
+  "nom": "pilier_droit",
+  "couleur": "#00FF80",
+  "base": {
+   "y": 301
+  },
+  "bbox": [
+   630,
+   90,
+   660,
+   301
+  ]
+ }
+]

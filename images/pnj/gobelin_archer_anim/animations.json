@@ -1,0 +1,27 @@
+{
+ "taille": [
+  403,
+  256
+ ],
+ "vues": {
+  "dos": {
+   "images": 33,
+   "fps": 12
+  },
+  "face": {
+   "images": 37,
+   "fps": 12
+  },
+  "profil": {
+   "images": 27,
+   "fps": 12
+  },
+  "trois_quarts": {
+   "images": 21,
+   "fps": 12
+  }
+ },
+ "fps": 12,
+ "foulee": 0.02349,
+ "visible": 0.9413
+}

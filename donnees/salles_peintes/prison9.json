@@ -1,0 +1,217 @@
+{
+ "fond": "images/salles_peintes/prison9/fond.jpeg",
+ "fond_hd": "images/salles_peintes/prison9/fond_hd.png",
+ "perspective": {
+  "y_horizon": 331,
+  "hauteur_par_pixel": 0.971,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    372,
+    40
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    440
+   ],
+   [
+    740,
+    420
+   ],
+   [
+    735,
+    368
+   ],
+   [
+    600,
+    370
+   ],
+   [
+    580,
+    380
+   ],
+   [
+    560,
+    402
+   ],
+   [
+    450,
+    398
+   ],
+   [
+    380,
+    393
+   ],
+   [
+    330,
+    402
+   ],
+   [
+    200,
+    412
+   ],
+   [
+    70,
+    423
+   ],
+   [
+    0,
+    433
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    700,
+    458
+   ],
+   [
+    735,
+    458
+   ],
+   [
+    735,
+    476
+   ],
+   [
+    700,
+    476
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    610,
+    369
+   ],
+   [
+    720,
+    369
+   ],
+   [
+    720,
+    384
+   ],
+   [
+    610,
+    384
+   ]
+  ],
+  [
+   [
+    0,
+    450
+   ],
+   [
+    30,
+    450
+   ],
+   [
+    30,
+    498
+   ],
+   [
+    0,
+    498
+   ]
+  ],
+  [
+   [
+    737,
+    455
+   ],
+   [
+    768,
+    455
+   ],
+   [
+    768,
+    498
+   ],
+   [
+    737,
+    498
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    512
+   ],
+   [
+    0,
+    512
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "escalier de droite",
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "bord",
+  "bord",
+  "passage"
+ ],
+ "arrivees": {
+  "escalier de droite": [
+   665,
+   402,
+   "down"
+  ],
+  "passage de gauche": [
+   48,
+   474,
+   "right"
+  ],
+  "passage de droite": [
+   719,
+   476,
+   "left"
+  ]
+ },
+ "grande_salle": true,
+ "ips": 24,
+ "source": "prison/grande salle/9"
+}

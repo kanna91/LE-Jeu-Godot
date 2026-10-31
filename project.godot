@@ -1,0 +1,38 @@
+; Engine configuration file.
+; It's best edited using the editor UI and not directly,
+; since the parameters that go here are not all obvious.
+;
+; Format:
+;   [section] ; section goes between []
+;   param=value ; assign values to parameters
+
+config_version=5
+
+[application]
+
+config/name="LE Jeu Ultime"
+config/description="Portage Godot du RPG « LE Jeu » (version pygame)."
+run/main_scene="res://scenes/principal.tscn"
+config/features=PackedStringArray("4.7")
+
+[autoload]
+
+Musique="*res://scripts/noyau/musique.gd"
+
+[display]
+
+window/size/viewport_width=960
+window/size/viewport_height=540
+window/size/window_width_override=1280
+window/size/window_height_override=720
+window/stretch/mode="canvas_items"
+
+[importer_defaults]
+
+texture={
+"mipmaps/generate": true
+}
+
+[rendering]
+
+textures/canvas_textures/default_texture_filter=3

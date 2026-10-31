@@ -1,0 +1,26 @@
+{
+ "taille": [
+  359,
+  360
+ ],
+ "vues": {
+  "dos": {
+   "images": 55,
+   "fps": 12
+  },
+  "face": {
+   "images": 31,
+   "fps": 12
+  },
+  "profil": {
+   "images": 37,
+   "fps": 12
+  },
+  "trois_quarts": {
+   "images": 36,
+   "fps": 12
+  }
+ },
+ "fps": 12,
+ "foulee": 0.0117
+}
