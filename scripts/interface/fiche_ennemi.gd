@@ -108,8 +108,31 @@ static func _decrire_competence(ennemi, competence, joueur) -> Array:
 	return lignes
 
 
+## Ennemi dont on ne peut rien savoir (Chevalier de la mort) : toutes ses statistiques s'affichent « ??? ».
+static func stats_cachees(ennemi) -> bool:
+	return U.vrai(U.ga(ennemi, "stats_cachees", false))
+
+
+## Fiche d'un ennemi aux statistiques cachées : les rubriques habituelles, chaque valeur remplacée par « ??? ».
+static func contenu_cache() -> Array:
+	return [["Classe : ??? — type : ??? — niveau ???", "normal"],
+		["Points de vie : ??? / ???    Mana : ??? / ???    PA : ??? / ???", "valeur"],
+		["", "normal"], ["CARACTÉRISTIQUES", "titre"],
+		["Force ???    Dextérité ???    Endurance ???    Intelligence ???    Sagesse ???    Puissance magique ???", "normal"],
+		["", "normal"], ["ATTAQUE", "titre"],
+		["Dégâts ???    Chance de toucher ???    Critique ???", "normal"],
+		["", "normal"], ["DÉFENSE", "titre"],
+		["Armure ???    Résistance magique ???    Résistance élémentaire ???    Esquive ???    Parade ???", "normal"],
+		["Vulnérabilités : ???    Résistances : ???", "normal"],
+		["", "normal"], ["COMPÉTENCES (???)", "titre"], ["???", "normal"],
+		["", "normal"],
+		["Impossible de jauger cette créature. Ce que vous savez d'elle est dans le glossaire (touche J).", "detail"]]
+
+
 ## Tout le texte de la fiche : [[texte, style], ...].
 static func contenu_fiche(ennemi, joueur) -> Array:
+	if stats_cachees(ennemi):
+		return contenu_cache()
 	var l := []
 	var morceaux := []
 	for x in [U.ga(ennemi, "classe", null), U.ga(ennemi, "sous_classe", null)]:
@@ -241,8 +264,22 @@ static func dessiner_infobulle(ci: CanvasItem, ennemi, joueur, rect_ennemi: Rect
 		if U.vrai(x):
 			morceaux.append(x)
 	var classe := " ".join(morceaux)
-	lignes.append(["%s · niveau %d" % [U.majuscule(classe) if classe != "" else "Ennemi", ennemi.niveau], COULEURS["detail"], 13])
-	lignes.append(null)
+	var cache := stats_cachees(ennemi)
+	if cache:
+		lignes.append(["??? · niveau ???", COULEURS["detail"], 13])
+		lignes.append(null)
+		lignes.append(["Danger : ???", COULEURS["danger"], 14])
+		lignes.append(["Vous touche à ??? · armure ??? · résistances ???", COULEURS["normal"], 14])
+	else:
+		lignes.append(["%s · niveau %d" % [U.majuscule(classe) if classe != "" else "Ennemi", ennemi.niveau], COULEURS["detail"], 13])
+		lignes.append(null)
+		_lignes_infobulle(lignes, ennemi, joueur)
+	lignes.append(["Clic / A / Y : fiche détaillée", COULEURS["titre"], 13])
+	_dessiner_infobulle(ci, ennemi, lignes, rect_ennemi, largeur, marge, cache)
+
+
+## Lignes chiffrées de l'info-bulle (ennemi aux statistiques visibles).
+static func _lignes_infobulle(lignes: Array, ennemi, joueur) -> void:
 	var attaque := meilleure_attaque(ennemi, joueur)
 	if attaque[0] != null:
 		lignes.append(["Danger : %s ≈ %d dégâts" % [attaque[0].nom, attaque[1]], COULEURS["danger"], 14])
@@ -272,7 +309,10 @@ static func dessiner_infobulle(ci: CanvasItem, ennemi, joueur, rect_ennemi: Rect
 		lignes.append(["État : " + ", ".join(etats), COULEURS["danger"], 14])
 	if not U.ga(ennemi, "magie", true):
 		lignes.append(["Réduit au silence", COULEURS["danger"], 14])
-	lignes.append(["Clic / A / Y : fiche détaillée", COULEURS["titre"], 13])
+
+
+## Dessine l'info-bulle (``cache`` : jauges sans chiffres).
+static func _dessiner_infobulle(ci: CanvasItem, ennemi, lignes: Array, rect_ennemi: Rect2, largeur: int, marge: int, cache: bool) -> void:
 	var rendu := []
 	for ligne in lignes:
 		if ligne == null:
@@ -303,8 +343,10 @@ static func dessiner_infobulle(ci: CanvasItem, ennemi, joueur, rect_ennemi: Rect
 				var bx := x + marge
 				var by := cy + rang * 14
 				Ui.rect(ci, Rect2(bx, by + 2, 150, 8), Color8(60, 20, 20), 0, 3)
-				Ui.rect(ci, Rect2(bx, by + 2, int(150 * maxf(0, j[0]) / j[1]), 8), j[2], 0, 3)
-				Ui.texte(ci, "%s / %s %s" % [str(int(maxf(0, j[0]))), str(int(j[1])), j[3]], Vector2(bx + 158, by - 2), COULEURS["normal"], 13)
+				var part: float = 1.0 if cache else maxf(0, j[0]) / j[1]  # caché : jauge pleine, elle ne trahit rien
+				Ui.rect(ci, Rect2(bx, by + 2, int(150 * part), 8), j[2], 0, 3)
+				var chiffres := "??? / ???" if cache else "%s / %s" % [str(int(maxf(0, j[0]))), str(int(j[1]))]
+				Ui.texte(ci, "%s %s" % [chiffres, j[3]], Vector2(bx + 158, by - 2), COULEURS["normal"], 13)
 			cy += 30
 			continue
 		Ui.texte(ci, ligne[0], Vector2(x + marge, cy), ligne[1], ligne[2])

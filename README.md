@@ -119,8 +119,8 @@ stick droit pour choisir un bouton de l'interface.
     « Salles orientées comme la mini-carte ») ; le gardien, dont la classe est tirée dès la création de l'étage ;
   - un **coffre ancien** (cerclé de fer, sceau rouge) : l'**armure anti-boss** de l'étage (voir « Armure anti-boss ») ;
   - **diablotins** (`Rencontres.diablotin`, fiche de l'utilisateur) : ils transmettent les informations **au
-    compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (5 informations,
-    dans l'ordre), **l'étage** (faiblesse puis force du gardien, direction du geôlier, du pupitre, d'une cachette,
+    compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (15 informations,
+    dans l'ordre, **un élément à la fois** depuis le 2026-10-31 : une résistance, son plafond de dégâts, sa lame...), **l'étage** (faiblesse puis force du gardien, direction du geôlier, du pupitre, d'une cachette,
     d'un chevalier, de la succube, d'une salle verrouillée), **« Mes affaires ? »** après une capture (où sont le
     coffre des confiscations et les porteurs) et **« Autre chose ? »** (conseils sur les mécaniques ; le lore viendra
     dans `Rencontres.LORE`). Les lieux sont donnés **depuis la salle du diablotin** (2026-10-30) : « à 3 salles d'ici,
@@ -129,6 +129,27 @@ stick droit pour choisir un bouton de l'interface.
     pupitre, salle secrète ou coffre qui n'existent pas, lame « capable de blesser le Chevalier de la mort »), noté au
     journal comme une vraie information ; le diablotin ne se contredit jamais ensuite. Chacun répond à 2 questions puis disparaît. Chaque réponse va dans le
     **journal** du joueur (touche **J**, ou bouton « Journal » du menu Pause) ;
+  - **Glossaire du compte** (2026-10-31) : les informations **générales sur les ennemis** (Chevalier de la mort,
+    et les conseils qui parlent du geôlier ou des gobelins : `Rencontres.ASTUCES`, 3e champ) vont aussi dans l'onglet
+    **« Glossaire »** du journal (clic, ← → ou G). Il est lié au **compte** (`Compte`, fichier `user://compte.json`) :
+    il **reste quand le joueur meurt et recommence**, et un diablotin ne redit **jamais** une information sur un
+    ennemi déjà apprise, même dans une autre partie. Le reste (étage, affaires, conseils généraux) ne vaut que pour
+    la partie. Pendant les tests (`-s`), le compte reste en mémoire et n'écrit rien ;
+  - **Statistiques du Chevalier de la mort cachées** (2026-10-31) : sa fiche détaillée et son info-bulle de combat
+    affichent « ??? » à la place de chaque valeur (PV, caractéristiques, attaque, défense, compétences ; jauges
+    pleines). Drapeau `stats_cachees` (posé par `Aventure.creer_imbattable`), lu par `FicheEnnemi.stats_cachees` ;
+  - **Salles pièges désactivées** (2026-10-31) : `Donjon.CHANCE_PIEGE` = 0 (1 sur 15 avant ; `salle_piege` gardée) ;
+  - **Potions de niveau 1** (2026-10-31) : la potion de soin rend **40 PV**, celle de mana **40 points de mana**
+    (valeur fixe : `"fixe": true` dans l'effet, `Consommable.POINTS_NIVEAU_1`) ; niveaux 2 et 3 inchangés (% du
+    maximum). Les potions que boivent les ennemis en combat gardent l'ancienne règle (40 PV soigneraient un gobelin
+    en entier) ;
+  - **Coffre des confiscations près du cachot** (2026-10-31) : le coffre (objets et or) est à **3 salles au plus** de
+    la salle où le héros se réveille (`Aventure.salle_du_coffre`, `COFFRE_PRES_DU_CACHOT`), jamais dans une salle
+    fermée à clé ;
+  - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
+    ne s'utilisent (argenterie, nourriture, objets cassés : `ObjetsDivers.CATALOGUE`, noms et prix choisis par
+    Claude, à valider), pour de futures quêtes ou la revente. Un squelette fouillé en donne un 15 fois sur 100 (part
+    prise sur « rien »). Les **clés** du héros s'y affichent en tête (« Clé rouillée ×N ») ;
   - **choix moraux** (`Rencontres`) : gobelin blessé (le soigner avec une potion : clé ou grimoire ; l'épargner : un
     secret vrai ; l'achever : un Chevalier de la mort de plus), prisonnier (briser ses chaînes : bruyant, les ennemis de la
     salle accourent, il donne une clé ; lui demander ce qu'il sait : il dit vrai), autel de sang (offrir des PV contre
@@ -592,6 +613,8 @@ stick droit pour choisir un bouton de l'interface.
 | `scripts/logique/generation_objets.gd` | `GenerationObjets` : objets à une seule option (caractéristique, défense, dégâts, pénétration), type dans le nom, arme de départ nue, armure anti-boss. |
 | `scripts/logique/degats.gd` | `Degats` : pourcentages (vulnérabilités, résistances en %) puis blocage en points (2 points = 1 dégât, sans cumul défense générale / résistance spécifique). |
 | `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)`). |
+| `scripts/noyau/compte.gd` | `Compte` : ce que le joueur garde d'une partie à l'autre (glossaire des ennemis), `user://compte.json`. |
+| `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers et affichage des clés. |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
 ### Correspondance pygame → Godot
@@ -818,6 +841,22 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Chevalier caché, glossaire du compte, objets divers, potions, coffre près du cachot
+- **Chevalier de la mort** : fiche et info-bulle en « ??? » (aucun chiffre).
+- **Diablotins** : le Chevalier est expliqué un élément à la fois (15 informations au lieu de 5, la première ne liste
+  plus toutes ses résistances) ; conseil « courir l'attire » corrigé (seul le bruit, chaînes brisées, l'attire).
+- **Glossaire** (onglet du journal), lié au compte et gardé après une mort ; un diablotin ne redit jamais une
+  information sur un ennemi, même dans une autre partie.
+- **Salles pièges** désactivées ; **potions de niveau 1** : 40 PV / 40 mana ; **coffre des confiscations** à 3 salles
+  au plus du cachot.
+- **Catégorie « Divers »** (inventaire et marchand), clés affichées dans l'inventaire, objets divers trouvés sur les
+  squelettes.
+- Fichiers : `scripts/noyau/compte.gd`, `scripts/logique/objets_divers.gd` (nouveaux), `rencontres.gd`,
+  `journal.gd`, `fiche_ennemi.gd` (interface et écran), `aventure.gd`, `donjon.gd`, `consommable.gd`, `ennemis.gd`,
+  `fouille.gd`, `objet.gd`, `description_objet.gd`, `menu_inventaire.gd`, `menu_marchand.gd`,
+  `choix_objet_combat.gd` ; tests : `test_aventure.gd` (glossaire, nouveautés), `capture_divers_glossaire.gd`
+  (captures 110 à 115).
 
 ### 2026-10-31 — Nouvelle version Windows et règle de publication
 - Release **v0.2** (version nettoyée) sur LE-Jeu-Godot.

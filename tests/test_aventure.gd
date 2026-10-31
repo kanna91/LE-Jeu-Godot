@@ -30,6 +30,8 @@ func _lancer() -> void:
 	await _personnages()
 	_pactes()
 	await _diablotins()
+	await _glossaire_du_compte()
+	_nouveautes_31_octobre()
 	_sauvegarde()
 	await _combat_fuite()
 	print("BILAN aventure : %d échec(s)" % echecs)
@@ -542,9 +544,10 @@ func _diablotins() -> void:
 	# Tirage fixé ici : avec 40 conversations, environ 3 % des tirages ne donnent aucun mensonge (1 réponse « Cet
 	# étage ? » sur 3) ; sans graine propre, ce test dépendait du hasard consommé par les tests précédents.
 	seed(2027)
+	Compte.vider()
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
-	verifier(Rencontres.infos_diablotin(donjon, "chevalier")[0][1] == Rencontres.INFOS_CHEVALIER[0], "chevalier : première information d'abord")
+	verifier(Rencontres.infos_diablotin(donjon, "chevalier")[0][1] == Rencontres.INFOS_CHEVALIER[0][1], "chevalier : première information d'abord")
 	verifier(Rencontres.infos_diablotin(donjon, "affaires").is_empty(), "pas d'affaires à retrouver avant une capture")
 	var geolier := {}
 	for i in donjon.plan_donjon[1]:
@@ -565,9 +568,10 @@ func _diablotins() -> void:
 	verifier(textes.size() > 5, "le journal se remplit (%d entrées)" % textes.size())
 	verifier(uniques.size() == textes.size(), "aucune information dite deux fois")
 	var ordre := []
+	var textes_chevalier := Rencontres.INFOS_CHEVALIER.map(func(i): return i[1])
 	for t in textes:
-		if t in Rencontres.INFOS_CHEVALIER:
-			ordre.append(Rencontres.INFOS_CHEVALIER.find(t))
+		if t in textes_chevalier:
+			ordre.append(textes_chevalier.find(t))
 	var trie := ordre.duplicate()
 	trie.sort()
 	verifier(ordre == trie, "le chevalier est expliqué dans l'ordre")
@@ -594,6 +598,112 @@ func _diablotins() -> void:
 	var part := float(lot.count(true)) / maxf(1, lot.size())
 	verifier(part > 0.22 and part < 0.45, "environ 1 réponse sur 3 sur l'étage est un mensonge (%.0f %%)" % (part * 100))
 	print("Journal après 40 diablotins : %d entrées dont %d mensonges" % [textes.size(), mensonges])
+
+
+## Glossaire du compte (2026-10-31) : les informations sur les ennemis y vont et survivent à une nouvelle partie ;
+## un diablotin ne les redit jamais, même dans une autre partie ; le Chevalier, un élément à la fois.
+func _glossaire_du_compte() -> void:
+	Compte.vider()
+	var joueur := Personnage.nouveau()
+	var donjon := Donjon.nouveau(joueur)
+	var info := Rencontres.repondre(donjon, "chevalier")
+	verifier(info[0] == "chevalier/" + Rencontres.INFOS_CHEVALIER[0][0], "chevalier : un élément à la fois, dans l'ordre")
+	verifier(Compte.glossaire().get(Rencontres.NOM_CHEVALIER, []).size() == 1, "l'information sur le chevalier va au glossaire")
+	for i in Rencontres.INFOS_CHEVALIER:
+		verifier(not ("lames, pointes, masses" in i[1]), "plus de liste de résistances d'un coup")
+	# Nouvelle partie (le héros est mort) : le glossaire reste, l'information n'est pas redite
+	var joueur2 := Personnage.nouveau()
+	var donjon2 := Donjon.nouveau(joueur2)
+	verifier(Compte.glossaire().get(Rencontres.NOM_CHEVALIER, []).size() == 1, "le glossaire survit à une nouvelle partie")
+	var suivante := Rencontres.infos_diablotin(donjon2, "chevalier")
+	verifier(not suivante.is_empty() and suivante[0][0] == "chevalier/" + Rencontres.INFOS_CHEVALIER[1][0],
+		"nouvelle partie : le diablotin passe à l'information suivante")
+	for k in 30:
+		await Rencontres.diablotin(donjon2, {"genre": "pnj", "sous": "diablotin", "etat": "actif"})
+	var vus := {}
+	var doublons := 0
+	for ennemi in Compte.glossaire():
+		for e in Compte.glossaire()[ennemi]:
+			if vus.has(e["cle"]):
+				doublons += 1
+			vus[e["cle"]] = true
+	verifier(doublons == 0, "aucune information sur un ennemi apprise deux fois (%d)" % doublons)
+	var dits_ennemis := 0
+	for e in U.ga(joueur2, "journal", []):
+		if e["texte"] == info[1]:
+			dits_ennemis += 1
+	verifier(dits_ennemis == 0, "l'information de la partie précédente n'est jamais redite")
+	# Geôlier et gobelins : leurs conseils vont aussi au glossaire
+	var connus := Compte.glossaire().keys()
+	verifier(connus.has(Rencontres.NOM_CHEVALIER), "glossaire : Chevalier de la mort (%s)" % str(connus))
+	Compte.vider()
+
+
+## Demandes du 2026-10-31 : statistiques du Chevalier cachées, salles pièges désactivées, potions de niveau 1 à 40,
+## coffre des confiscations à 3 salles au plus du cachot, catégorie « Divers » (et clés) dans l'inventaire.
+func _nouveautes_31_octobre() -> void:
+	var joueur := Personnage.nouveau()
+	var donjon := Donjon.nouveau(joueur)
+	# Chevalier : « ??? » partout, aucun chiffre
+	var chevalier := Aventure.creer_imbattable(donjon)
+	var fiche := FicheEnnemi.contenu_fiche(chevalier, joueur)
+	var chiffres := 0
+	for l in fiche:
+		var r := RegEx.create_from_string("\\d")
+		if r.search(String(l[0])) != null:
+			chiffres += 1
+	verifier(chiffres == 0, "fiche du chevalier : aucun chiffre (%d lignes chiffrées)" % chiffres)
+	verifier("???" in String(fiche[1][0]), "fiche du chevalier : PV « ??? »")
+	var gobelin := Gobelin.nouveau(donjon, 1).generer_gobelin(donjon, 1)
+	verifier(not FicheEnnemi.stats_cachees(gobelin), "les gobelins gardent leur fiche")
+	# Salles pièges désactivées
+	verifier(Donjon.CHANCE_PIEGE == 0.0, "salles pièges désactivées")
+	# Potions de niveau 1 : 40 PV / 40 mana ; celles des ennemis restent en pourcentage
+	joueur.points_de_vie_max = 200
+	joueur.points_de_vie = 100
+	Consommable.creer_potion("pv", 1).utiliser(joueur)
+	verifier(int(joueur.points_de_vie) == 140, "potion de soin niv.1 : +40 PV (%d)" % int(joueur.points_de_vie))
+	joueur.mana_max = 200
+	joueur.mana = 100
+	Consommable.creer_potion("mana", 1).utiliser(joueur)
+	verifier(int(joueur.mana) == 140, "potion de mana niv.1 : +40 mana (%d)" % int(joueur.mana))
+	verifier(DescriptionObjet.effet_consommable(Consommable.creer_potion("pv", 1)) == "Rend 40 PV", "potion niv.1 décrite « Rend 40 PV »")
+	verifier(not U.vrai(Consommable.creer_potion("pv", 1, true).effet.get("fixe", false)), "potion d'un ennemi : en pourcentage")
+	verifier(not U.vrai(Consommable.creer_potion("pv", 2).effet.get("fixe", false)), "potion niv.2 : en pourcentage")
+	# Coffre des confiscations : à 3 salles au plus du cachot (sur 20 captures)
+	var loin := 0
+	for k in 20:
+		var j := Personnage.nouveau()
+		var d := Donjon.nouveau(j)
+		j.piece_or = 50
+		j.inventaire.append(Arme.nouvelle("Epée", "arme", "Epée"))
+		var geolier := {}
+		for i in d.plan_donjon[1]:
+			for p in d.plan_donjon[1][i].get("presences", []):
+				if p["genre"] == "geolier":
+					geolier = p
+		Aventure.capturer(d, geolier)
+		var cachot := str(d.salle_actuelle[1])
+		var dist := Aventure.distances_depuis(d.plan_donjon[1], cachot)
+		for i in d.plan_donjon[1]:
+			for p in d.plan_donjon[1][i].get("presences", []):
+				if p.get("sous") == "coffre_confisque" and p.get("etat") == "actif":
+					if int(dist.get(i, 99)) > Aventure.COFFRE_PRES_DU_CACHOT or d.plan_donjon[1][i].get("verrouillee", false):
+						loin += 1
+	verifier(loin == 0, "coffre des confiscations à 3 salles au plus du cachot, jamais fermé à clé (%d trop loin)" % loin)
+	# Catégorie « Divers » et clés
+	var MI := load("res://scripts/ecrans/menu_inventaire.gd")
+	var babiole := ObjetsDivers.creer("Cuillère en argent")
+	joueur.recevoir_objet(babiole)
+	verifier(babiole.est_divers() and joueur.equipements.values().find(babiole) == -1, "objet divers : jamais équipé")
+	verifier(MI.objets_de_categorie(joueur, "Divers") == [babiole], "objet divers rangé dans « Divers »")
+	verifier(MI.objets_de_categorie(joueur, "Consommables").find(babiole) == -1, "objet divers hors des consommables")
+	joueur._d["cles"] = 2
+	verifier(MI.compte_categorie(joueur, "Divers") == 3, "les clés comptent dans « Divers »")
+	verifier(DescriptionObjet.categorie(babiole) == "Divers — Argenterie", "catégorie lisible de l'objet divers")
+	var MM := load("res://scripts/ecrans/menu_marchand.gd")
+	verifier(MM.SOUS_ONGLETS.has("Divers") and MM.filtrer_objets([babiole], "Divers") == [babiole], "le marchand a la catégorie « Divers »")
+	verifier(Marchand.prix_vente(babiole) == 25, "objet divers revendu à sa valeur")
 
 
 func _sauvegarde() -> void:

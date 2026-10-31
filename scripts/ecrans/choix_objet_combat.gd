@@ -46,7 +46,8 @@ func _dessiner(ci: Control) -> void:
 		var objet = b[2]
 		Ui.rect(ci, r, Color8(90, 90, 150) if r.has_point(s) else Color8(60, 60, 110), 0, 6)
 		var effet: Dictionary = objet.effet
-		var detail := "+%d %% %s" % [int(effet.get("valeur", 0) * 100), NOMS_EFFETS.get(effet.get("type"), "")]
+		var detail := ("+%d %s" % [int(effet.get("valeur", 0)), NOMS_EFFETS.get(effet.get("type"), "")]) if U.vrai(effet.get("fixe", false)) \
+			else "+%d %% %s" % [int(effet.get("valeur", 0) * 100), NOMS_EFFETS.get(effet.get("type"), "")]
 		var r_nom := Ui.texte(ci, objet.nom, r.position + Vector2(12, 10), Ui.BLANC, 18)
 		if b[3] > 1:
 			Ui.texte(ci, "×%d" % b[3], Vector2(r_nom.end.x + 8, r.position.y + 10), Ui.OR, 18)

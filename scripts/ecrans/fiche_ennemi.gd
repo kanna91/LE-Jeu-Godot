@@ -58,10 +58,11 @@ func _dessiner(ci: Control) -> void:
 			FicheEnnemi.COULEURS["detail"], 16, false, null, "topright")
 	var portrait := Rect2(cadre.position.x + 20, cadre.position.y + 60, 150, 225)
 	Animations.dessiner_respirant(ci, Ui.texture("gobelins/" + str(ennemi.image)), portrait, Animations.phase_de(ennemi))
-	var ratio := maxf(0, ennemi.points_de_vie) / maxf(1, ennemi.points_de_vie_max)
+	var ratio := 1.0 if FicheEnnemi.stats_cachees(ennemi) else maxf(0, ennemi.points_de_vie) / maxf(1, ennemi.points_de_vie_max)
 	Ui.rect(ci, Rect2(portrait.position.x, portrait.end.y + 12, 150, 10), Color8(90, 0, 0))
 	Ui.rect(ci, Rect2(portrait.position.x, portrait.end.y + 12, int(150 * ratio), 10), Color8(0, 200, 60))
-	Ui.texte(ci, "%s / %s PV" % [str(ennemi.points_de_vie), str(ennemi.points_de_vie_max)], Vector2(portrait.position.x, portrait.end.y + 26),
+	var pv_texte := "??? / ??? PV" if FicheEnnemi.stats_cachees(ennemi) else "%s / %s PV" % [str(ennemi.points_de_vie), str(ennemi.points_de_vie_max)]
+	Ui.texte(ci, pv_texte, Vector2(portrait.position.x, portrait.end.y + 26),
 		FicheEnnemi.COULEURS["normal"], 16)
 	var y := zone_texte.position.y - defilement
 	for l in lignes:

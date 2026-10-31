@@ -1,7 +1,11 @@
 class_name Consommable
 extends Objet
 ## Objet à usage unique (potion) qui rend des PV et/ou du mana.
-## ``effet`` : {"type": "pv" | "mana" | "mixte", "valeur": fraction du maximum}.
+## ``effet`` : {"type": "pv" | "mana" | "mixte", "valeur": fraction du maximum} ; avec ``"fixe": true``, ``valeur``
+## est un nombre de points (potions de niveau 1 : 40 PV ou 40 mana, décision de l'utilisateur, 2026-10-31).
+
+## Points rendus par les potions de soin et de mana de niveau 1.
+const POINTS_NIVEAU_1 := 40
 
 
 static func nouveau_consommable(nom: String, effet: Dictionary, description := "", valeur = 0) -> Consommable:
@@ -20,12 +24,13 @@ func utiliser(personnage) -> void:
 		stats["potions_bues"] = stats.get("potions_bues", 0) + 1
 	var v = effet["valeur"] * (1 + U.num(personnage, "talent_efficacite_potions"))
 	var sans_pv := U.vrai(U.ga(personnage, "talent_sans_potion_pv", 0))
+	var fixe := U.vrai(effet.get("fixe", false))
 	if t == "pv":
-		var gain := 0 if sans_pv else int(personnage.points_de_vie_max * v)
+		var gain := 0 if sans_pv else int(v if fixe else personnage.points_de_vie_max * v)
 		personnage.points_de_vie = min(personnage.points_de_vie + gain, personnage.points_de_vie_max)
 		print("🧪 Vous récupérez %d PV." % gain)
 	elif t == "mana":
-		var gain := int(personnage.mana_max * v)
+		var gain := int(v if fixe else personnage.mana_max * v)
 		personnage.mana = min(personnage.mana + gain, personnage.mana_max)
 		print("🔮 Vous récupérez %d mana." % gain)
 	elif t == "mixte":
@@ -36,9 +41,15 @@ func utiliser(personnage) -> void:
 		print("✨ Vous récupérez %d PV et %d mana." % [gain_pv, gain_mana])
 
 
-## Potion prédéfinie : « pv », « mana » ou « mixte », niveau 1 à 3.
-static func creer_potion(type_potion: String, niveau: int) -> Consommable:
+## Potion prédéfinie : « pv », « mana » ou « mixte », niveau 1 à 3. ``pour_ennemi`` : la potion qu'un ennemi boit en
+## combat garde l'ancienne règle (pourcentage de ses PV max, même au niveau 1 : 40 PV soigneraient un gobelin en entier).
+static func creer_potion(type_potion: String, niveau: int, pour_ennemi := false) -> Consommable:
 	var i := niveau - 1
+	if niveau == 1 and type_potion in ["pv", "mana"] and not pour_ennemi:
+		var pv := type_potion == "pv"
+		return nouveau_consommable("Potion de %s niv.1" % ("soin" if pv else "mana"),
+			{"type": type_potion, "valeur": POINTS_NIVEAU_1, "fixe": true},
+			"Rend %d %s" % [POINTS_NIVEAU_1, "PV" if pv else "points de mana"], 60)
 	if type_potion == "pv":
 		var pourcentage: float = [0.35, 0.45, 0.65][i]
 		return nouveau_consommable("Potion de soin niv.%d" % niveau, {"type": "pv", "valeur": pourcentage},

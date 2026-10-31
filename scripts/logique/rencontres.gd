@@ -7,7 +7,8 @@ extends RefCounted
 ##   héros. Il peut **mentir, mais seulement sur le donjon, jamais sur les ennemis** (fiche de l'utilisateur) : une
 ##   réponse à « Cet étage ? » sur trois (CHANCE_MENSONGE) est un mensonge (``mensonges_diablotin``), noté au journal
 ##   comme une vraie information. Tout ce qui touche les ennemis et les affaires confisquées reste vrai.
-##   **Aucun diablotin ne dit deux fois la même chose dans une partie** (``donjon.diablotins_dits``)
+##   **Aucun diablotin ne dit deux fois la même chose dans une partie** (``donjon.diablotins_dits``), ni jamais,
+##   même dans une autre partie, une information sur un ennemi (glossaire du compte : ``Compte``)
 ##   ; chacun répond à DIABLOTIN_REPONSES questions au plus puis disparaît ; chaque réponse va dans le **journal**
 ##   du joueur (``noter_journal``, écran ``journal.gd``, touche J). Le lore viendra dans ``LORE``.
 ## - **Gobelin blessé** (choix moral) : le soigner avec une potion (il donne une clé ou un grimoire), l'épargner
@@ -29,26 +30,41 @@ const COULEUR_DIABLOTIN := Color8(190, 120, 230)
 const DIABLOTIN_REPONSES := 2
 ## Part des réponses à « Cet étage ? » qui sont des mensonges sur le donjon (décision de l'utilisateur, 2026-10-27).
 const CHANCE_MENSONGE := 1.0 / 3.0
-## Ce que les diablotins disent du Chevalier de la mort, dans cet ordre, une information à la fois (fiche de
-## l'utilisateur « chevalier de la mort.odt »).
+## Ce que les diablotins disent du Chevalier de la mort, dans cet ordre, **un élément à la fois** (demande de
+## l'utilisateur, 2026-10-31 : avant, la première réponse listait toutes ses résistances d'un coup) : [clé, texte].
+## Ces informations vont au **glossaire du compte** (``Compte``) : elles ne sont jamais redites, même dans une autre
+## partie. Fiche de l'utilisateur « chevalier de la mort.odt » ; règles dans ``Aventure.CHEVALIER``.
 const INFOS_CHEVALIER := [
-	"Le Chevalier de la mort ? Il résiste à tout : lames, pointes, masses, feu, froid, foudre, chaos, arcane, ombre... Tes coups l'effleurent à peine.",
-	"Il frappe avec sa grande lame... mais pas seulement avec elle. Hé hé.",
-	"Sa lame est trempée dans l'ombre : elle te blesse aussi avec des ténèbres.",
-	"Inutile de chercher à l'affronter. Fuis. Il vaut toujours mieux fuir.",
-	"Et surtout, pas de bruit ! Le bruit l'attire : cours trop longtemps, brise des chaînes... et il arrive.",
+	["tranchant", "Le Chevalier de la mort ? Les lames glissent sur lui. Elles l'effleurent à peine."],
+	["lame", "Il frappe avec une grande lame... mais pas seulement avec elle. Hé hé."],
+	["feu", "Le feu ne le brûle pas. Garde tes flammes pour d'autres."],
+	["ombre_lame", "Sa lame est trempée dans l'ombre : elle te blesse aussi avec des ténèbres."],
+	["perforant", "Les pointes, les flèches, les lances ? Elles ne le percent pas."],
+	["froid", "Le froid ne le ralentit pas. Il est déjà plus froid que la glace."],
+	["plafond", "Quoi que tu lui fasses, tes coups ne lui arrachent qu'une ou deux blessures... trois, avec beaucoup de chance."],
+	["contondant", "Les masses rebondissent sur lui. Tu peux taper, il ne plie pas."],
+	["foudre", "La foudre ne l'arrête pas. Elle le fait à peine frissonner."],
+	["mana", "Quand sa lame te touche, elle peut aspirer ta magie... et user tes forces."],
+	["arcane", "L'arcane ? Il s'en moque. La magie pure n'a pas de prise sur lui."],
+	["fuir", "Inutile de chercher à l'affronter. Fuis. Il vaut toujours mieux fuir."],
+	["ombre", "L'ombre ne lui fait rien : il en est fait."],
+	["chaos", "Même le chaos ne le blesse pas. Rien ne le blesse vraiment."],
+	["bruit", "Et surtout, pas de bruit ! Le bruit l'attire : brise des chaînes... et il arrive."],
 ]
-## Conseils sur les mécaniques du jeu : [clé, texte] (textes de Claude, à valider).
+const NOM_CHEVALIER := "Chevalier de la mort"
+## Conseils sur les mécaniques du jeu : [clé, texte, ennemi] (textes de Claude, à valider). Un conseil qui parle
+## d'un ennemi (``ennemi`` non vide) est une information générale sur lui : il va aussi au glossaire du compte et
+## n'est jamais redit, même dans une autre partie ; les autres ne valent que pour la partie.
 const ASTUCES := [
-	["ombre", "Reste immobile dans les coins les plus sombres : personne ne te verra. Marche dans l'ombre, et on te verra de moitié moins loin."],
-	["course", "Courir, c'est bruyant. Les gobelins t'entendent de loin... et pas seulement eux."],
-	["piliers", "Les piliers et les obstacles coupent la vue. Mets-les entre toi et ceux qui te cherchent."],
-	["pacifiques", "Les gobelins qui lèvent les mains ne veulent pas se battre. Tue-les, et un Chevalier de la mort de plus se mettra à errer."],
-	["geolier", "Le geôlier ne tue pas : il t'assomme et t'enferme au cachot. Tes affaires finissent dans un coffre, perdues, ou dans les poches de gobelins... sauf ton arme, toujours dans le coffre."],
-	["cachettes", "Certains murs cachent des choses : une petite lueur quand tu passes tout près. Les clés des salles fermées y dorment souvent."],
-	["succube", "Si tu croises une dame aux ailes de cuir, elle te vendra ce que tu veux. Le prix, c'est ta vie. Pour toujours."],
-	["fuite", "Un combat qui tourne mal ? Fuis. Ça ne marche pas toujours, mais c'est mieux que mourir."],
-	["suivre", "Ceux qui te poursuivent peuvent te suivre d'une salle à l'autre. Une porte ne suffit pas toujours."],
+	["ombre", "Reste immobile dans les coins les plus sombres : personne ne te verra. Marche dans l'ombre, et on te verra de moitié moins loin.", ""],
+	["course", "Courir, c'est bruyant. Les gobelins de la salle t'entendent de loin.", "Gobelins"],
+	["piliers", "Les piliers et les obstacles coupent la vue. Mets-les entre toi et ceux qui te cherchent.", ""],
+	["pacifiques", "Les gobelins qui lèvent les mains ne veulent pas se battre. Tue-les, et un Chevalier de la mort de plus se mettra à errer.", "Gobelins"],
+	["geolier", "Le geôlier ne tue pas : il t'assomme et t'enferme au cachot. Tes affaires finissent dans un coffre, perdues, ou dans les poches de gobelins... sauf ton arme, toujours dans le coffre.", "Geôlier"],
+	["cachettes", "Certains murs cachent des choses : une petite lueur quand tu passes tout près. Les clés des salles fermées y dorment souvent.", ""],
+	["succube", "Si tu croises une dame aux ailes de cuir, elle te vendra ce que tu veux. Le prix, c'est ta vie. Pour toujours.", ""],
+	["fuite", "Un combat qui tourne mal ? Fuis. Ça ne marche pas toujours, mais c'est mieux que mourir.", ""],
+	["suivre", "Ceux qui te poursuivent peuvent te suivre d'une salle à l'autre. Une porte ne suffit pas toujours.", ""],
 ]
 ## Lore du jeu et des personnages, raconté par les diablotins : [clé, texte] (à écrire par l'utilisateur).
 const LORE := []
@@ -233,15 +249,17 @@ static func infos_diablotin(donjon, sujet: String) -> Array:
 	var liste := []
 	match sujet:
 		"chevalier":
-			# Une à la fois, dans l'ordre
-			for k in INFOS_CHEVALIER.size():
-				if not dits.has("chevalier/%d" % k):
-					liste.append(["chevalier/%d" % k, INFOS_CHEVALIER[k], "Chevalier de la mort"])
+			# Un élément à la fois, dans l'ordre ; ce que le compte sait déjà n'est jamais redit
+			for info in INFOS_CHEVALIER:
+				var cle: String = "chevalier/" + info[0]
+				if not dits.has(cle) and not Compte.connu(cle):
+					liste.append([cle, info[1], NOM_CHEVALIER])
 					break
 		"autre":
 			for a in ASTUCES:
-				if not dits.has("astuce/" + a[0]):
-					liste.append(["astuce/" + a[0], a[1], "Conseils"])
+				var cle: String = "astuce/" + a[0]
+				if not dits.has(cle) and not (a[2] != "" and Compte.connu(cle)):
+					liste.append([cle, a[1], "Conseils"])
 			for l in LORE:
 				if not dits.has("lore/" + l[0]):
 					liste.append(["lore/" + l[0], l[1], "Histoires du donjon"])
@@ -326,7 +344,21 @@ static func repondre(donjon, sujet: String) -> Array:
 		info = infos.pick_random() if sujet != "chevalier" else infos[0]
 	_dits(donjon)[info[0]] = true
 	noter_journal(donjon, info[2], info[1], str(info[0]).begins_with("mensonge/"))
+	var ennemi := ennemi_de(info[0])
+	if ennemi != "":
+		Compte.apprendre(ennemi, info[0], info[1])
 	return info
+
+
+## Ennemi dont parle l'information ``cle`` (« » si elle ne parle pas d'un ennemi) : elle va alors au glossaire.
+static func ennemi_de(cle: String) -> String:
+	if cle.begins_with("chevalier/"):
+		return NOM_CHEVALIER
+	if cle.begins_with("astuce/"):
+		for a in ASTUCES:
+			if "astuce/" + a[0] == cle:
+				return a[2]
+	return ""
 
 
 ## Conversation avec un diablotin : il répond à DIABLOTIN_REPONSES questions au plus (une information nouvelle

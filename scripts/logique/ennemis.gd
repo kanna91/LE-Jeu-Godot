@@ -127,7 +127,7 @@ func generer_objet_butin():
 
 func _tirer_potion(bonus := 0.0):
 	if U.ga(self, "est_boss", false) or randf() < CHANCE_POTION_SOIN + bonus:
-		return Consommable.creer_potion("pv", Consommable.niveau_potion_etage())
+		return Consommable.creer_potion("pv", Consommable.niveau_potion_etage(), true)
 	return null
 
 

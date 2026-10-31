@@ -142,6 +142,10 @@ static func categorie(objet) -> String:
 		return "Armure — %s" % NOMS_EMPLACEMENTS.get(t, t) + suite
 	if objet.est_consommable():
 		return "Consommable"
+	if U.ga(objet, "type_objet", null) == "cle":
+		return "Divers — Clé"
+	if objet.est_divers():
+		return "Divers — %s" % ObjetsDivers.SORTES.get(U.ga(objet, "sorte", ""), "Objet")
 	return "Objet"
 
 
@@ -184,6 +188,8 @@ static func cle_pile(objet) -> String:
 	var effet = U.ga(objet, "effet", null)
 	if objet.est_consommable() and effet is Dictionary:
 		return "pile|%s|%s|%s" % [objet.nom, effet.get("type"), effet.get("valeur")]
+	if objet.est_divers():
+		return "divers|%s" % objet.nom
 	return "objet|%d" % objet.get_instance_id()
 
 
@@ -204,6 +210,8 @@ static func regrouper(liste: Array) -> Array:
 
 
 static func ordre_type(objet) -> Array:
+	if objet.est_divers():
+		return [ORDRE_TYPES.size() + 1, 0, objet.nom]
 	if objet.est_consommable():
 		var effet = U.ga(objet, "effet", null)
 		var type_potion = effet.get("type") if effet is Dictionary else null
@@ -241,6 +249,10 @@ static func effet_consommable(objet) -> String:
 	var effet = U.ga(objet, "effet", null)
 	if not (effet is Dictionary):
 		return ""
+	if U.vrai(effet.get("fixe", false)):
+		var n := int(effet.get("valeur", 0))
+		return {"pv": "Rend %d PV" % n, "mana": "Rend %d points de mana" % n,
+			"mixte": "Rend %d PV et %d points de mana" % [n, n]}.get(effet.get("type"), "")
 	var part := "%s %%" % U.f(effet.get("valeur", 0) * 100, 0)
 	return {"pv": "Rend %s des PV max" % part, "mana": "Rend %s du mana max" % part,
 		"mixte": "Rend %s des PV max et du mana max" % part}.get(effet.get("type"), "")
@@ -400,6 +412,10 @@ static func dessiner_infobulle(ci: CanvasItem, objet, ancre: Rect2, joueur = nul
 		var effet := effet_consommable(objet)
 		if effet != "":
 			lignes.append([effet, COULEUR_PLUS, 14, false])
+	elif objet.est_divers():
+		lignes.append([String(U.ga(objet, "description", "")), COULEUR_TEXTE, 14, false])
+		if int(U.num(objet, "valeur")) > 0:
+			lignes.append(["Se revend %d or chez le marchand" % int(U.num(objet, "valeur")), COULEUR_DETAIL, 13, false])
 	else:
 		var stats := statistiques(objet)
 		if stats.is_empty():
@@ -410,7 +426,7 @@ static func dessiner_infobulle(ci: CanvasItem, objet, ancre: Rect2, joueur = nul
 			lignes.append([effet_unique(objet), COULEUR_UNIQUE, 14, true])
 		if U.vrai(U.ga(objet, "points", null)):
 			lignes.append(["Valeur de l'objet : %s points" % U.g(objet.points), COULEURS_FAMILLES.get(famille(objet), COULEUR_DETAIL), 13, false])
-	if joueur != null and not objet.est_consommable():
+	if joueur != null and not objet.est_consommable() and not objet.est_divers():
 		var equipe = objet_equipe(joueur, objet)
 		if equipe != null and equipe != objet:
 			lignes.append(["Comparé à %s :" % equipe.nom, COULEUR_DETAIL, 13, true])

@@ -1,6 +1,6 @@
 extends Ecran
 ## Boutique du marchand : onglets Acheter / Vendre / Rachat,
-## cinq catégories, tri, vente en lot (onglet « Vendre », second clic pour
+## six catégories (dont « Divers », 2026-10-31), tri, vente en lot (onglet « Vendre », second clic pour
 ## confirmer), bouton « Inventaire ». Un clic (A) sur un article l'achète, le
 ## vend ou le rachète.
 
@@ -16,7 +16,7 @@ const BORDURE := Color8(150, 110, 60)
 const JAUNE := Color8(255, 255, 0)
 const ONGLETS := {"Acheter": Rect2(20, 20, 110, 34), "Vendre": Rect2(138, 20, 110, 34), "Rachat": Rect2(256, 20, 110, 34)}
 const SOUS_ONGLETS := {"Général": Rect2(20, 62, 86, 30), "Armes": Rect2(112, 62, 80, 30), "Armures": Rect2(198, 62, 88, 30),
-	"Bijoux": Rect2(292, 62, 76, 30), "Consommables": Rect2(374, 62, 116, 30)}
+	"Bijoux": Rect2(292, 62, 76, 30), "Consommables": Rect2(374, 62, 116, 30), "Divers": Rect2(496, 62, 76, 30)}
 const BOUTON_INVENTAIRE := Rect2(Ui.LARGEUR - 380, Ui.HAUTEUR - 50, 170, 34)
 const BOUTON_QUITTER := Rect2(Ui.LARGEUR - 195, Ui.HAUTEUR - 50, 170, 34)
 const BOURSE := Rect2(Ui.LARGEUR - 200, 20, 180, 34)

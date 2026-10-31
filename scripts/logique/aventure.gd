@@ -71,6 +71,8 @@ const FUITE_BORNES := [0.15, 0.9]
 const FUITE_BOSS := 0.15
 
 # --- Capture par un geôlier -------------------------------------------------------------------------------
+## Le coffre des confiscations est à 3 salles au plus du cachot (``salle_du_coffre``, demande de l'utilisateur).
+const COFFRE_PRES_DU_CACHOT := 3
 ## Répartition des objets confisqués : coffre des confiscations, perdus, portés par un ennemi « porteur ».
 const CONFISCATION := {"coffre": 50, "perdu": 25, "porteur": 25}
 ## Objets au plus par porteur (au-delà, un second porteur).
@@ -499,6 +501,7 @@ static func creer_imbattable(donjon) -> Gobelin:
 	e._d["sans_animation"] = true  # pas les images du gobelin combattant...
 	e._d["anim_combat"] = "chevalier"  # ...mais les siennes (CombatAnime : deux attaques, deux parades)
 	e._d["centre_combat"] = true  # seul face au héros, au milieu de l'écran
+	e._d["stats_cachees"] = true  # fiche et info-bulle : « ??? » partout (demande de l'utilisateur, 2026-10-31)
 	var lame = Competences.creer("Coup_d_epee")
 	lame._d["nom"] = "Lame de la mort"
 	lame._d["type_degats"] = ["tranchant", "ombre"]
@@ -744,7 +747,7 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 	if pour_porteurs.is_empty():
 		pour_porteurs = ailleurs
 	if not coffre.is_empty() or or_confisque > 0:
-		salles[ailleurs.pick_random()]["presences"].append({"id": _nouvel_id(m), "genre": "objet", "sous": "coffre_confisque",
+		salles[salle_du_coffre(salles, cachot, ailleurs)]["presences"].append({"id": _nouvel_id(m), "genre": "objet", "sous": "coffre_confisque",
 			"etat": "actif", "objets": coffre, "or": or_confisque})
 	while not portes.is_empty():
 		var lot := portes.slice(0, OBJETS_PAR_PORTEUR)
@@ -759,6 +762,23 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 	return ("Le geôlier vous assomme. Vous vous réveillez au cachot, dépouillé de tout. " +
 		"Vos affaires sont quelque part dans l'étage... certaines sont même portées par des gobelins.%s" % (
 		" (%d objet(s) perdus pour de bon)" % perdus if perdus > 0 else ""))
+
+
+## Salle du coffre des confiscations (objets et or) : à COFFRE_PRES_DU_CACHOT salles au plus du cachot, là où le
+## héros se réveille (demande de l'utilisateur, 2026-10-31 ; avant : n'importe où dans l'étage). Une salle paisible
+## (diablotin, succube) convient aussi. S'il n'y en a aucune assez près, la plus proche.
+static func salle_du_coffre(salles: Dictionary, cachot: String, parmi: Array) -> String:
+	var d := distances_depuis(salles, cachot)
+	# Jamais dans une salle fermée à clé : le coffre doit rester accessible sans clé
+	var proches := parmi.filter(func(i): return d.has(i) and int(d[i]) >= 1 and int(d[i]) <= COFFRE_PRES_DU_CACHOT \
+		and not salles[i].get("verrouillee", false))
+	if not proches.is_empty():
+		return proches.pick_random()
+	var tries := parmi.filter(func(i): return d.has(i))
+	if tries.is_empty():
+		return parmi.pick_random()
+	tries.sort_custom(func(a, b): return int(d[a]) < int(d[b]))
+	return tries[0]
 
 
 ## Retire la présence ``p`` de sa salle et la pose dans la salle ``vers``.

@@ -53,6 +53,11 @@ func est_consommable() -> bool:
 	return U.ga(self, "type_objet", null) == "consommable"
 
 
+## Objet neutre (argenterie, nourriture, objet cassé : ObjetsDivers) ou affichage des clés.
+func est_divers() -> bool:
+	return U.ga(self, "type_objet", null) in ["divers", "cle"]
+
+
 ## Attribue un rang : imposé, ou tiré selon l'étage (1-2, 2-3, 3-4, 4-5, puis 5-6).
 static func definir_rang(objet, rang = null) -> void:
 	if rang != null:

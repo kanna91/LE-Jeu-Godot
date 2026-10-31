@@ -7,6 +7,9 @@ extends Dyn
 ## écran (combat, coffre, marchand...) sont des coroutines (``await``).
 
 const CHANCE_MINI_BOSS := 0.2
+## Chance qu'une salle soit piégée en y entrant (1 sur 15 avant ; désactivées par l'utilisateur le 2026-10-31).
+## ``salle_piege`` reste prête si on les remet.
+const CHANCE_PIEGE := 0.0
 const RENCONTRES_ENTRE_MINI_BOSS := 3
 const TYPES_SALLE := ["physique", "tranchante", "perforante", "contondante", "magique", "élémentaire", "feu", "froid",
 	"foudre", "arcane", "chaos", "spirituel", "ombre", "lumière"]
@@ -86,7 +89,7 @@ func creer_boss_gobelin() -> Array:
 	return [Gobelin.nouveau(self, _d["niveau_joueur"]).generer_boss_gobelin(self, _d["niveau_joueur"])]
 
 
-## Événement de la salle actuelle : piège (1 sur 15) ou marchand. Pas de combat d'office : les ennemis rôdent dans
+## Événement de la salle actuelle : piège (CHANCE_PIEGE, désactivés) ou marchand. Pas de combat d'office : les ennemis rôdent dans
 ## la salle (Aventure, PresencesSalle) et le gardien garde la sienne.
 func generer_rencontre() -> void:
 	var etage = _d["salle_actuelle"][0]
@@ -100,7 +103,7 @@ func generer_rencontre() -> void:
 	if salle != null and salle.get("type") == "bonus":
 		print("[INFO] Salle bonus détectée — aucune menace générée.")
 		return
-	if randi_range(1, 15) == 1 and not salle.get("cachot", false):
+	if CHANCE_PIEGE > 0 and randf() < CHANCE_PIEGE and not salle.get("cachot", false):
 		print("[⚠️] Vous entrez dans une salle piégée...")
 		salle_piege()
 		return

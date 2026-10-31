@@ -6,8 +6,9 @@ extends Ecran
 const ZONE_LISTE := Rect2(20, 102, 430, 376)
 const HAUTEUR_LIGNE := 46
 const PANNEAU_EQUIPEMENT := Rect2(480, 20, 460, 458)
-const BOUTONS_CATEGORIES := {"Armes": Rect2(20, 20, 96, 34), "Armures": Rect2(122, 20, 100, 34),
-	"Bijoux": Rect2(228, 20, 90, 34), "Consommables": Rect2(324, 20, 126, 34)}
+## Catégories (« Divers » ajoutée le 2026-10-31 : objets neutres et clés du héros).
+const BOUTONS_CATEGORIES := {"Armes": Rect2(20, 20, 70, 34), "Armures": Rect2(93, 20, 84, 34),
+	"Bijoux": Rect2(180, 20, 70, 34), "Consommables": Rect2(253, 20, 128, 34), "Divers": Rect2(384, 20, 66, 34)}
 const BOUTON_QUITTER := Rect2(Ui.LARGEUR - 140, Ui.HAUTEUR - 50, 120, 34)
 const DELAI_DOUBLE_CLIC := 0.4
 const LIGNE := Color8(40, 36, 52)
@@ -61,6 +62,8 @@ static func de_categorie(objets: Array, categorie: String) -> Array:
 				ok = o.est_bijou()
 			"Consommables":
 				ok = o.est_consommable()
+			"Divers":
+				ok = o.est_divers()
 		if ok:
 			liste.append(o)
 	return liste
@@ -70,6 +73,8 @@ static func de_categorie(objets: Array, categorie: String) -> Array:
 static func resume_objet(objet) -> String:
 	if objet.est_consommable():
 		return DescriptionObjet.effet_consommable(objet)
+	if objet.est_divers():
+		return String(U.ga(objet, "description", ""))
 	var stats := DescriptionObjet.statistiques(objet)
 	var debut: String
 	if objet.est_arme():
@@ -107,6 +112,8 @@ static func utiliser_ou_equiper(j, objet) -> String:
 		if j.mana > mana:
 			gains.append("+%d mana" % int(j.mana - mana))
 		return "%s utilisée : %s" % [objet.nom, ", ".join(gains) if not gains.is_empty() else "aucun effet (déjà au maximum)"]
+	if objet.est_divers():
+		return "%s ne s'utilise pas." % objet.nom
 	if DescriptionObjet.emplacement_cible(j, objet) != null:
 		var cle = j.equiper_item(objet)
 		return "%s équipé (%s)." % [objet.nom, DescriptionObjet.NOMS_EMPLACEMENTS.get(cle, "")]
@@ -124,7 +131,20 @@ func _double_clic(cle) -> bool:
 
 
 func _liste() -> Array:
-	return DescriptionObjet.trier(DescriptionObjet.regrouper(objets_de_categorie(joueur, categorie_active)), tri_actif)
+	var liste := DescriptionObjet.trier(DescriptionObjet.regrouper(objets_de_categorie(joueur, categorie_active)), tri_actif)
+	if categorie_active == "Divers" and nombre_cles(joueur) > 0:
+		liste.push_front([ObjetsDivers.objet_cles(), nombre_cles(joueur), "cles"])  # les clés en tête
+	return liste
+
+
+## Clés du héros (compteur ``cles``), montrées en tête de la catégorie « Divers ».
+static func nombre_cles(j) -> int:
+	return int(U.ga(j, "cles", 0))
+
+
+## Nombre affiché sur le bouton d'une catégorie (« Divers » compte aussi les clés).
+static func compte_categorie(j, categorie: String) -> int:
+	return objets_de_categorie(j, categorie).size() + (nombre_cles(j) if categorie == "Divers" else 0)
 
 
 func _mise_a_jour(_delta: float) -> void:
@@ -170,7 +190,7 @@ func _dessiner(ci: Control) -> void:
 		var actif: bool = nom == categorie_active
 		Ui.rect(ci, r, BORDURE if actif else LIGNE, 0, 6)
 		Ui.rect(ci, r, BORDURE, 1, 6)
-		Ui.texte(ci, "%s (%d)" % [nom, objets_de_categorie(joueur, nom).size()], r.get_center(), Ui.BLANC, 15, actif, null, "center")
+		Ui.texte(ci, "%s (%d)" % [nom, compte_categorie(joueur, nom)], r.get_center(), Ui.BLANC, 14, actif, null, "center")
 	Ui.texte(ci, "Trier :", Vector2(22, 68), DescriptionObjet.COULEUR_DETAIL, 14, true)
 	for mode in boutons_tri:
 		Ui.onglet(ci, boutons_tri[mode], DescriptionObjet.MODES_TRI[mode], mode == tri_actif, boutons_tri[mode].has_point(s), 14)
@@ -240,7 +260,7 @@ func _dessiner(ci: Control) -> void:
 
 func _dessiner_dessus(ci: Control) -> void:
 	if _survol_objet != null:
-		var aide := "Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper"
+		var aide = null if _survol_objet[0].est_divers() else ("Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper")
 		DescriptionObjet.dessiner_infobulle(ci, _survol_objet[0], _survol_objet[1], joueur, null, aide)
 	elif _survol_porte != null:
 		DescriptionObjet.dessiner_infobulle(ci, _survol_porte[0], _survol_porte[1], null, null, "Double-clic : retirer")

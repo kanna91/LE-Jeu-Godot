@@ -73,6 +73,9 @@ func _resultats() -> void:
 			elif joueur.points_de_vie < avant_pv:
 				resultat = "piege"
 				verifier(joueur.points_de_vie >= 1, "le piège ne tue pas")
+			elif "(rangé dans Divers)" in message:
+				resultat = "divers"
+				verifier(joueur.inventaire[-1].est_divers(), "objet divers rangé dans le sac")
 			elif joueur.inventaire.size() > avant_inventaire:
 				resultat = "potion"
 			elif message.begins_with("Un vieux plan"):
