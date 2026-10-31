@@ -810,8 +810,19 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   (la sauvegarde ne copie que le dictionnaire `_d`).
 - Tout nouvel écran : `extends Ecran`, style `Ui`, zones de la manette déclarées à chaque
   image (`definir_zones`), Échap pour fermer, ouverture via une fonction de `Ecrans`.
+- **Publication (décision de l'utilisateur, 2026-10-31) : à chaque commit**, (1) ne publier que ce dossier, sur
+  [LE-Jeu-Godot](https://github.com/kanna91/LE-Jeu-Godot) : `git subtree split --prefix=godot -b version-godot-seule`
+  puis `git push godot version-godot-seule:main` (le dépôt complet LE-Jeu-Ultime n'est plus mis à jour) ;
+  (2) refaire le .exe avec `exporter_windows.bat` ; (3) publier une **nouvelle release** sur LE-Jeu-Godot (v0.2, v0.3…)
+  avec `..\export\LE_Jeu_Ultime_Windows.zip`. Le lien de téléchargement en tête de ce README pointe toujours vers
+  la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Nouvelle version Windows et règle de publication
+- Release **v0.2** (version nettoyée) sur LE-Jeu-Godot.
+- Règle de publication ajoutée (« Règles de maintenance ») : à chaque commit, seulement LE-Jeu-Godot, .exe refait
+  et nouvelle release.
 
 ### 2026-10-31 — Grand nettoyage du code
 - **Version Python supprimée** (décision de l'utilisateur) : les 188 fichiers de la racine (jeu pygame, `class/`,
