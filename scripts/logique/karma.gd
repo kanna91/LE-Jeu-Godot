@@ -8,18 +8,75 @@ extends RefCounted
 ## (palier), un **Chevalier de la mort de plus** sur chaque étage ; il ne repart qu'en remontant de 5 points depuis
 ## le palier qui l'a fait venir (créé à −10, il repart à −5 ; créé à −5, il repart à 0) : ``chevaliers_karma``.
 ## Il reste toujours au moins le chevalier de base de chaque étage.
-## Karma positif, par point : diablotins +5 % de vérité, prix −5 %, or gagné +5 % (toutes les sources).
+## Karma positif, par point : diablotins +5 % de vérité, prix −5 %, or gagné +5 % (toutes les sources, sauf ce que le
+## marchand rachète : il vend moins cher mais rachète toujours au même prix).
 ## Pas encore fait (aucun système de quêtes) : les habitants qui donnent plus ou moins de quêtes ; ils sont déjà plus
 ## froids ou plus chaleureux (accueil des diablotins).
 
+## Tout est réglé par les tables ci-dessous, faites pour être nuancées sans toucher au reste du code
+## (demande de l'utilisateur : « ne fige pas trop tout ça ») :
+## - ACTES : ce que vaut chaque acte (un acte plus ou moins grave, de nouveaux actes...) ;
+## - EFFETS : effet de chaque point de karma, séparément pour le karma négatif et le karma positif ;
+## - PALIER, PALIERS : ce qui arrive à chaque palier (aujourd'hui les Chevaliers de la mort ; demain les quêtes
+##   spéciales du karma négatif, les meilleures récompenses du karma positif) : ``palier`` et ``paliers_franchis``
+##   servent de point d'entrée aux futurs systèmes.
+
+## Valeur de chaque acte : {nom : [points de karma, « clemence » ou « cruaute »]}.
+const ACTES := {
+	"epargner_pacifiques": [1, "clemence"],
+	"tuer_pacifiques": [-1, "cruaute"],
+	"soigner_gobelin_blesse": [1, "clemence"],
+	"epargner_gobelin_blesse": [1, "clemence"],
+	"achever_gobelin_blesse": [-1, "cruaute"],
+	"liberer_prisonnier": [1, "clemence"],
+}
+## Effet par point de karma : {effet : {"negatif": par point négatif, "positif": par point positif}}, en part
+## (0.05 = 5 %), signe compris : + augmente, − diminue.
+const EFFETS := {
+	"mensonges_diablotins": {"negatif": 0.05, "positif": -0.05},
+	"prix_marchands": {"negatif": 0.05, "positif": -0.05},
+	"or_gagne": {"negatif": 0.0, "positif": 0.05},
+}
+## Taille d'un palier de karma.
 const PALIER := 5
-const PAR_POINT := 0.05
+## Ce qui arrive aux paliers (documentation ; le code des chevaliers lit ``chevaliers``) :
+## négatifs : un Chevalier de la mort de plus par palier (et, plus tard, des quêtes spéciales) ; positifs : plus de
+## quêtes, aux récompenses plus intéressantes (pas encore fait : aucun système de quêtes).
+const PALIERS := {"negatif": ["chevalier_de_la_mort", "quetes_speciales"], "positif": ["quetes", "meilleures_recompenses"]}
 ## Les prix ne descendent pas sous ce facteur (karma très positif ; choix de Claude, à valider).
 const PRIX_MIN := 0.25
 
 
 static func valeur(joueur) -> int:
 	return int(U.num(joueur, "karma"))
+
+
+## Le héros fait l'acte ``nom`` (ACTES) : le karma change d'autant (× ``nombre``, ex. plusieurs gobelins), la
+## moralité de la partie le compte. Renvoie le texte à ajouter au message (vide s'il ne se passe rien de visible).
+static func acte(donjon, nom: String, nombre := 1) -> String:
+	var a: Array = ACTES.get(nom, [0, ""])
+	if a[1] != "":
+		var m = U.ga(donjon, "moralite", null)
+		if not (m is Dictionary):
+			m = {"clemence": 0, "cruaute": 0}
+			donjon._d["moralite"] = m
+		m[a[1]] = int(m.get(a[1], 0)) + 1
+	return changer(donjon, int(a[0]) * nombre) if int(a[0]) != 0 else ""
+
+
+## Palier de karma actuel, signé (−11 → −2 ; +7 → +1) : point d'entrée des futurs effets (quêtes...).
+static func palier(joueur) -> int:
+	var k := valeur(joueur)
+	return -((-k) / PALIER) if k < 0 else k / PALIER
+
+
+## Effet d'un point de karma pour ``effet`` (EFFETS) : la part totale à ajouter (0.15 = +15 %).
+static func modificateur(joueur, effet: String) -> float:
+	if joueur == null:
+		return 0.0
+	var k := valeur(joueur)
+	var e: Dictionary = EFFETS.get(effet, {})
+	return (-k) * float(e.get("negatif", 0.0)) if k < 0 else k * float(e.get("positif", 0.0))
 
 
 ## Change le karma de ``delta`` et fait venir ou repartir les Chevaliers de la mort du karma ; renvoie le texte à
@@ -76,23 +133,19 @@ static func synchroniser(donjon) -> void:
 			presents.pop_back()["etat"] = "parti"
 
 
-## Chance qu'un diablotin mente sur l'étage : ``base`` ± 5 % par point de karma (négatif : plus de mensonges).
+## Chance qu'un diablotin mente sur l'étage : ``base`` + EFFETS « mensonges_diablotins ».
 static func chance_mensonge(joueur, base: float) -> float:
-	return clampf(base - PAR_POINT * valeur(joueur), 0.0, 1.0)
+	return clampf(base + modificateur(joueur, "mensonges_diablotins"), 0.0, 1.0)
 
 
-## Facteur des prix des marchands : +5 % par point de karma négatif, −5 % par point positif.
+## Facteur des prix de ce que vendent les marchands (EFFETS « prix_marchands »). Ce qu'ils rachètent ne change pas.
 static func facteur_prix(joueur) -> float:
-	if joueur == null:
-		return 1.0
-	return maxf(PRIX_MIN, 1.0 - PAR_POINT * valeur(joueur))
+	return maxf(PRIX_MIN, 1.0 + modificateur(joueur, "prix_marchands"))
 
 
-## Facteur de l'or gagné : +5 % par point de karma positif (le karma négatif ne le réduit pas).
+## Facteur de l'or gagné (EFFETS « or_gagne » : +5 % par point positif). Pas les ventes au marchand.
 static func facteur_or(joueur) -> float:
-	if joueur == null:
-		return 1.0
-	return 1.0 + PAR_POINT * maxi(0, valeur(joueur))
+	return maxf(0.0, 1.0 + modificateur(joueur, "or_gagne"))
 
 
 ## Or réellement gagné pour ``montant`` (karma positif : +5 % par point), compté dans les statistiques.

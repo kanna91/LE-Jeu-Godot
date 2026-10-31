@@ -175,11 +175,18 @@ stick droit pour choisir un bouton de l'interface.
     qui ne repart qu'en remontant de 5 points depuis le palier qui l'a fait venir (créé à −5, il repart à 0 ; créé à
     −10, il repart à −5) ; il reste toujours le chevalier de base. **Positif**, par point : diablotins +5 % de vérité,
     prix −5 % (jamais sous 25 %, choix de Claude), **or gagné +5 % de toutes les sources** (fouilles, cachettes,
-    coffres, pacifiques, ventes au marchand). Habitants plus froids ou plus chaleureux selon le karma (accueil des
+    coffres, pacifiques). **Le marchand vend plus ou moins cher, mais rachète toujours au même prix** (décision de
+    l'utilisateur). Tout est réglé par trois tables de `Karma`, faites pour être nuancées facilement (l'utilisateur
+    ajoutera des quêtes spéciales au karma négatif) : `ACTES` (ce que vaut chaque acte), `EFFETS` (effet d'un point,
+    séparément en négatif et en positif), `PALIER` / `PALIERS` (ce qui arrive aux paliers ; `Karma.palier` sert de
+    point d'entrée aux futurs systèmes). Habitants plus froids ou plus chaleureux selon le karma (accueil des
     diablotins). **Pas encore fait** : les quêtes (plus ou moins nombreuses, meilleures récompenses tous les +5),
     faute de système de quêtes ;
   - **Corps et âmes** (règles de l'utilisateur, 2026-10-31) : un ennemi vaincu (groupe, porteur, gardien) laisse son
-    **corps** dans la salle (`Aventure.laisser_cadavre`, enregistré avec la salle). Touche E : le **fouiller** (une
+    **corps** dans la salle (`Aventure.laisser_cadavre`, enregistré avec la salle) : la dernière image de son
+    animation de mort, ou, pour une sorte sans animation de mort (squelette, loup...), son image de base couchée sur
+    le dos. Le gobelin blessé est dessiné en train de s'effondrer (milieu de son animation de mort) ; achevé, son
+    animation va jusqu'au bout et son corps reste. Touche E : le **fouiller** (une
     fois : comme un squelette, 50 % rien, 35 % or, 15 % équipement ; corps d'un pacifique : 2 à 6 or × étage, 10 %
     potion, 2 % équipement) ou **siphonner son âme** (il disparaît alors). **1 âme par ennemi, 3 pour un chef de
     groupe (élite), 5 pour le gardien de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
@@ -878,6 +885,15 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Retours sur le karma
+- Le marchand **rachète toujours au même prix** (le karma ne change que ce qu'il vend).
+- Karma réglé par des tables faciles à nuancer (`Karma.ACTES`, `EFFETS`, `PALIERS`, `palier`, `acte`), en vue des
+  quêtes spéciales du karma négatif.
+- Corps : animation de mort jusqu'au bout pour le gobelin blessé achevé ; sortes sans animation de mort couchées sur
+  le dos.
+- Fichiers : `karma.gd`, `marchand.gd`, `rencontres.gd`, `aventure.gd`, `presences_salle.gd` ; tests `test_karma.gd`,
+  `capture_karma.gd` (133 : gobelin achevé).
 
 ### 2026-10-31 — Karma, corps à fouiller, âmes
 - **Karma** : clémence +1, cruauté −1 ; effets sur les mensonges des diablotins, les prix, l'or gagné, l'accueil des

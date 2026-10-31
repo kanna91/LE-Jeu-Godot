@@ -42,7 +42,22 @@ func lancer() -> void:
 		"membres": [{"classe": "guerrier", "sous_classe": "combattant"}, {"classe": "tireur", "sous_classe": "archer"}]},
 		heros + Vector2(70, -25), "%s%s" % [ecran.salle_peinte.ident, "_m" if ecran.salle_peinte.miroir else ""])
 	ecran.salle_peinte.presences.ajouter_immobile(corps)
+	# Sortes sans animation de mort : squelette et loup, couchés sur le dos
+	var os := Aventure.laisser_cadavre(donjon, {"genre": "groupe", "nombre": 2, "etat": "vaincu",
+		"membres": [Creatures.membre("squelette"), Creatures.membre("loup")]},
+		heros + Vector2(-110, -40), "%s%s" % [ecran.salle_peinte.ident, "_m" if ecran.salle_peinte.miroir else ""])
+	ecran.salle_peinte.presences.ajouter_immobile(os)
+	# Gobelin blessé (il s'effondre), puis achevé : son animation de mort va jusqu'au bout
+	var blesse := {"id": 7, "genre": "pnj", "sous": "gobelin_blesse", "etat": "actif", "pos": [heros.x - 60, heros.y - 45],
+		"pos_image": "%s%s" % [ecran.salle_peinte.ident, "_m" if ecran.salle_peinte.miroir else ""]}
+	ecran.salle_peinte.presences.ajouter_immobile(blesse)
 	await capturer("130_corps_dans_la_salle")
+	blesse["sous"] = "cadavre"
+	blesse["genre"] = "objet"
+	blesse["membres"] = [{"sous_classe": CombatAnime.TYPES.find_key(PresencesSalle.SORTES_GOBELINS[7 * 7 % PresencesSalle.SORTES_GOBELINS.size()])}]
+	blesse["t_mort"] = Animations.temps()
+	await attendre(90)
+	await capturer("133_gobelin_acheve")
 	var dlg = Ecrans._ecran("ecran_dialogue").preparer("Cadavre", "Le corps gît sur les dalles.",
 		["Fouiller les corps", "Siphonner leurs âmes (4)", "Partir"], Ecrans.capture(), Color8(150, 120, 170))
 	Ecrans.ouvrir(dlg)

@@ -18,7 +18,7 @@ extends RefCounted
 ## - **Autel de sang** : offrir son sang (PV) contre un point de caractéristique, ou refuser.
 ## - **Succube** (un étage sur deux, pas de combat) : un pacte contre une part des PV max, pour toujours
 ##   (``Aventure.PACTES``), puis elle disparaît ; on peut refuser et revenir.
-## Les choix sont comptés (``donjon.moralite`` : clémence, cruauté) pour de futures conséquences.
+## Chaque choix est un acte de Karma.ACTES (karma ±, compté dans ``donjon.moralite`` : clémence, cruauté).
 ## **Textes et valeurs choisis par Claude, à valider.**
 
 ## Autel : part des PV max offerts, et caractéristiques possibles.
@@ -79,16 +79,6 @@ const EFFETS_PACTES := {
 	"apaisement": "un Chevalier de la mort de cet étage disparaît",
 	"mort": "la prochaine fois que vous mourez, vous vous réveillez au cachot avec 1 PV, sans rien perdre",
 }
-
-
-## Note un choix moral (``moralite`` : clémence, cruauté) et change le karma (+1 / −1) ; renvoie le message du karma.
-static func _noter_moralite(donjon, cle: String) -> String:
-	var m = U.ga(donjon, "moralite", null)
-	if not (m is Dictionary):
-		m = {"clemence": 0, "cruaute": 0}
-		donjon._d["moralite"] = m
-	m[cle] = int(m.get(cle, 0)) + 1
-	return Karma.changer(donjon, 1 if cle == "clemence" else -1)
 
 
 ## Sorties d'une salle peinte, vues par le héros (toujours tourné vers le nord, comme la carte).
@@ -493,13 +483,13 @@ static func gobelin_blesse(donjon, p: Dictionary) -> String:
 	if choix == 0 and potion != null:
 		joueur.retirer_objet_inventaire(potion)
 		p["etat"] = "utilise"
-		_noter_moralite(donjon, "clemence")
+		Karma.acte(donjon, "soigner_gobelin_blesse")
 		return "Le gobelin se relève, incrédule. Avant de filer, il vous glisse %s." % _cle_ou_livre(joueur, int(donjon.salle_actuelle[0]))
 	if choix == 0:
 		return "Vous n'avez rien pour le soigner. Il vous regarde partir."
 	if choix == 1:
 		p["etat"] = "utilise"
-		_noter_moralite(donjon, "clemence")
+		Karma.acte(donjon, "epargner_gobelin_blesse")
 		return "« Merci... » souffle-t-il. « %s »" % phrase(donjon, "etage", true)
 	Statistiques.noter(joueur, "pacifiques_tues")
 	# Son corps reste là : on peut le fouiller et siphonner son âme
@@ -511,7 +501,8 @@ static func gobelin_blesse(donjon, p: Dictionary) -> String:
 	p["pacifique"] = true
 	p["nom_corps"] = "le gobelin"
 	p["membres"] = [{"sous_classe": CombatAnime.TYPES.find_key(sorte)}]
-	return ("Vous l'achevez. " + _noter_moralite(donjon, "cruaute")).strip_edges()
+	p["t_mort"] = Animations.temps()  # son animation de mort reprend là où il s'était effondré
+	return ("Vous l'achevez. " + Karma.acte(donjon, "achever_gobelin_blesse")).strip_edges()
 
 
 ## Prisonnier enchaîné ; renvoie [message, bruit] (bruit : les ennemis de la salle accourent).
@@ -521,7 +512,7 @@ static func prisonnier(donjon, p: Dictionary) -> Array:
 		"Je sais des choses sur ce donjon. »", ["Briser ses chaînes (bruyant)", "Lui demander ce qu'il sait", "Le laisser"])
 	if choix == 0:
 		p["etat"] = "utilise"
-		_noter_moralite(donjon, "clemence")
+		Karma.acte(donjon, "liberer_prisonnier")
 		joueur._d["cles"] = int(U.ga(joueur, "cles", 0)) + 1
 		return ["Les chaînes cèdent dans un fracas qui résonne dans tout l'étage ! L'homme vous donne une clé volée aux " +
 			"gardes (clés : %d) et s'enfuit. « %s »" % [joueur.cles, phrase(donjon, "gardien", true)], true]
@@ -593,7 +584,7 @@ static func epargner_pacifiques(donjon, p: Dictionary) -> String:
 		cadeaux.append(objet.nom)
 	var texte := "%s vous remercie%s et vous laisse%s %s avant de disparaître dans l'ombre." % [
 		"Le gobelin" if n == 1 else "Les gobelins", "" if n == 1 else "nt", "" if n == 1 else "nt", ", ".join(cadeaux)]
-	return (texte + " " + _noter_moralite(donjon, "clemence")).strip_edges()
+	return (texte + " " + Karma.acte(donjon, "epargner_pacifiques")).strip_edges()
 
 
 ## Groupe de gobelins pacifiques touché : [attaquer ?]. Vrai : le joueur choisit de les attaquer.

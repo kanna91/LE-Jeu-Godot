@@ -49,9 +49,10 @@ static func prix_achat(objet, acheteur = null) -> int:
 	return int(objet.valeur * MAJORATION_ACHAT * Talents.facteur_prix(acheteur) * Karma.facteur_prix(acheteur))
 
 
-## Or que le marchand donne au joueur pour un objet : sa valeur (+5 % par point de karma positif, comme tout l'or).
-static func prix_vente(objet, vendeur = null) -> int:
-	return int(round(objet.valeur * Karma.facteur_or(vendeur)))
+## Or que le marchand donne au joueur pour un objet : sa valeur, toujours (le karma ne change que ce que le marchand
+## vend, décision de l'utilisateur du 2026-10-31). ``_vendeur`` : gardé pour de futures nuances.
+static func prix_vente(objet, _vendeur = null) -> int:
+	return int(objet.valeur)
 
 
 ## Prix pour racheter un objet vendu : sa valeur, ± 5 % par point de karma (comme les autres prix).
@@ -96,7 +97,6 @@ func vendre(objet, personnage) -> bool:
 		personnage.inventaire.erase(objet)
 		var gain := prix_vente(objet, personnage)
 		personnage.piece_or += gain
-		Statistiques.noter(personnage, "or_gagne", gain)
 		print("%s a vendu %s pour %d or." % [personnage.nom, objet.nom, gain])
 		if not personnage.possede("vente_historique"):
 			personnage.vente_historique = []

@@ -679,7 +679,7 @@ static func apres_victoire(donjon, p: Dictionary) -> String:
 	if p.get("pacifique", false):
 		Statistiques.noter(donjon.personnage, "pacifiques_tues", membres(p).size())
 		messages.append("Ils ne voulaient pas se battre...")
-		messages.append(Rencontres._noter_moralite(donjon, "cruaute"))
+		messages.append(Karma.acte(donjon, "tuer_pacifiques"))
 	if p["genre"] == "porteur":
 		for objet in p.get("objets", []):
 			donjon.personnage.recevoir_objet(objet)

@@ -71,7 +71,15 @@ func _effets() -> void:
 	verifier(is_equal_approx(Karma.chance_mensonge(joueur, 1.0 / 3.0), 1.0 / 3.0 - 0.20), "karma +4 : +20 % de vérité")
 	verifier(Karma.or_gagne(joueur, 100) == 120, "or gagné +20 %")
 	var objet := Objet.nouveau("Essai", "divers", "", 100)
-	verifier(Marchand.prix_vente(objet, joueur) == 120, "vente au marchand : +20 % d'or")
+	verifier(Marchand.prix_vente(objet, joueur) == 100, "vente au marchand : toujours le même prix (karma sans effet)")
+	joueur._d["karma"] = -4
+	verifier(Marchand.prix_vente(objet, joueur) == 100, "vente au marchand : même prix en karma négatif")
+	verifier(Karma.palier(joueur) == 0 and is_equal_approx(Karma.modificateur(joueur, "prix_marchands"), 0.20), "karma −4 : palier 0, prix +20 %")
+	joueur._d["karma"] = -11
+	verifier(Karma.palier(joueur) == -2, "karma −11 : palier −2")
+	joueur._d["karma"] = 7
+	verifier(Karma.palier(joueur) == 1, "karma +7 : palier +1")
+	joueur._d["karma"] = 4
 	verifier(Marchand.prix_rachat(objet, joueur) == 80, "rachat : −20 %")
 	joueur._d["karma"] = -40
 	verifier(Karma.chance_mensonge(joueur, 1.0 / 3.0) == 1.0, "mensonges plafonnés à 100 %")
@@ -89,6 +97,9 @@ func _pacifiques() -> void:
 	var message := Rencontres.epargner_pacifiques(donjon, p)
 	verifier(p["etat"] == "parti", "pacifiques épargnés : ils partent")
 	verifier(Karma.valeur(joueur) == 1, "épargner : karma +1")
+	verifier(int(donjon.moralite["clemence"]) == 1, "épargner : compté comme clémence")
+	for nom in Karma.ACTES:
+		verifier(int(Karma.ACTES[nom][0]) != 0 and Karma.ACTES[nom][1] in ["clemence", "cruaute"], "acte %s bien décrit" % nom)
 	verifier(joueur.piece_or >= 5 and joueur.piece_or <= 16, "épargner : 5 à 15 or au 1er étage (%d)" % joueur.piece_or)
 	verifier("pièces d'or" in message, "message du cadeau : %s" % message)
 	var q := {"id": 9002, "genre": "groupe", "etat": "actif", "nombre": 1, "chef": false, "pacifique": true}

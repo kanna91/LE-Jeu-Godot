@@ -702,9 +702,12 @@ func _gobelin(n: Node2D, e: Dictionary, membre: Dictionary, k: int, pieds: Vecto
 		return _gobelin_en_marche(n, e, nom_marche, sorte, k, pieds, hauteur, teinte)
 	var jeu: Dictionary = CombatAnime.donnees()["gobelins"].get(sorte, {})
 	if jeu.is_empty() or not jeu["anims"].has(anim):
-		return _gobelin_fixe(n, str(membre.get("image", "")), pieds, hauteur, teinte, sens, decalage)
+		# Sans animation de mort (squelette, loup, gobelin sans animation) : son image de base, couchée sur le dos
+		return _gobelin_fixe(n, str(membre.get("image", "")), pieds, hauteur, teinte, sens, decalage, anim == "mort")
 	var defn: Dictionary = jeu["anims"][anim]
 	var image := int(defn["images"]) - 1
+	if anim == "mort":
+		image = image_mort(e["p"], int(defn["images"]), defn.get("ms", []))
 	if anim == "attente":
 		var ms: Array = defn["ms"]
 		var total := 0.0
@@ -805,8 +808,29 @@ func _gobelin_en_marche(n: Node2D, e: Dictionary, nom: String, sorte: String, k:
 
 ## Gobelin sans animation (lancier, défenseur) : son image fixe du combat (``images/gobelins``), à la même échelle
 ## qu'en combat (corps = CombatAnime.PROPORTION_CORPS de l'image), qui respire. Renvoie le haut de la tête.
+## Image de l'animation de mort à montrer pour la présence ``p`` : le gobelin blessé est en train de s'effondrer
+## (MORT_BLESSE de l'animation) ; achevé (``t_mort``), l'animation reprend jusqu'au bout ; un corps : la dernière.
+const MORT_BLESSE := 0.45
+
+
+func image_mort(p: Dictionary, images: int, ms: Array) -> int:
+	var depart := int(round((images - 1) * MORT_BLESSE))
+	if p.get("sous") == "gobelin_blesse":
+		return depart
+	if p.has("t_mort"):
+		var duree := 0.0
+		var k := depart
+		var ecoule := Animations.temps() - float(p["t_mort"])  # même horloge que Rencontres (t_mort)
+		while k < images - 1:
+			duree += (float(ms[k]) / 1000.0) if k < ms.size() else 0.08
+			if ecoule < duree:
+				return k
+			k += 1
+	return images - 1
+
+
 func _gobelin_fixe(n: Node2D, fichier: String, pieds: Vector2, hauteur: float, teinte: Color, sens: float,
-		decalage: float) -> float:
+		decalage: float, couche := false) -> float:
 	var tex := Ui.texture("gobelins/" + (fichier if fichier != "" else "defaut.png"))
 	if tex == null:
 		_capsule(n, pieds, hauteur * 0.26, hauteur, Color8(70, 95, 45) * teinte)
@@ -815,6 +839,14 @@ func _gobelin_fixe(n: Node2D, fichier: String, pieds: Vector2, hauteur: float, t
 		_cadres[fichier] = tex.get_image().get_used_rect()
 	var cadre: Rect2i = _cadres[fichier]
 	var s := hauteur / CombatAnime.PROPORTION_CORPS / float(tex.get_height())
+	if couche:
+		# Couché sur le dos : l'image tournée d'un quart de tour, posée à plat sur le sol, sans respiration
+		var largeur := float(cadre.size.x) * s
+		var long := float(cadre.size.y) * s
+		n.draw_set_transform(pieds + Vector2(-sens * long / 2.0, -largeur * 0.45), sens * PI / 2.0, Vector2(s, s))
+		n.draw_texture_rect(tex, Rect2(-Vector2(cadre.get_center().x, cadre.end.y), tex.get_size()), false, teinte.darkened(0.2))
+		n.draw_set_transform(Vector2.ZERO)
+		return largeur
 	var souffle := 0.5 - 0.5 * cos(TAU * fposmod(Animations.temps() / Animations.PERIODE_RESPIRATION + decalage, 1.0))
 	var echelle := Vector2(sens * s * (1 - Animations.AMPLITUDE_RESPIRATION / 3 * souffle), s * (1 + Animations.AMPLITUDE_RESPIRATION * souffle))
 	n.draw_set_transform(pieds, 0, echelle)
