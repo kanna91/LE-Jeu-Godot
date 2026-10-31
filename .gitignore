@@ -1,0 +1,4 @@
+# Godot : cache régénéré automatiquement
+.godot/
+# Captures d'écran produites par les tests (régénérables)
+tests/captures/
