@@ -147,6 +147,19 @@ stick droit pour choisir un bouton de l'interface.
   - **Coffre des confiscations près du cachot** (2026-10-31) : le coffre (objets et or) est à **3 salles au plus** de
     la salle où le héros se réveille (`Aventure.salle_du_coffre`, `COFFRE_PRES_DU_CACHOT`), jamais dans une salle
     fermée à clé ;
+  - **Blocs de salles** (2026-10-31, demande de l'utilisateur : on va remplacer petit à petit les salles tirées au
+    hasard par des **blocs de salles connectés les uns aux autres**) : un lot d'images de l'utilisateur forme des
+    salles reliées dans un ordre fixé (`BlocsSalles.BLOCS` : position de chaque salle sur la carte, liens **porte à
+    porte**, entrées vers le reste de l'étage). Le générateur pose chaque bloc après les branches, sur des cases
+    libres, ses entrées raccordées à des salles existantes (`GenerateurEtage._poser_bloc`) ; ses salles reçoivent leur
+    image et leurs sorties dès la création de l'étage (`Donjon._habiller_blocs`) ; ses images (`bloc_*`) ne servent
+    jamais ailleurs. Premier bloc, **cuisine** (un par étage) : **salle à manger** (entrée par le bas, depuis l'étage)
+    → porte du fond → **cuisine** → porte du fond à gauche (elle mène vers l'avant, le nord) → **réserve de la
+    cuisine** (image « petite porte de la cuisine ») → porte de gauche → **cellier gauche** (ouest), porte de droite →
+    **cellier droit** (est) ; l'**arche du fond** de la réserve ressort sur l'étage (deuxième entrée). Exception
+    d'orientation voulue : on entre dans un cellier par le bas de son image. Zones relevées à la main
+    (`outils/importer_blocs.py`, planche `C:\IA\pont-blender\bloc_cuisine\planche_zones.png`, retouchables dans
+    l'éditeur de zones) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
     (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
@@ -615,6 +628,7 @@ stick droit pour choisir un bouton de l'interface.
 | `scripts/logique/degats.gd` | `Degats` : pourcentages (vulnérabilités, résistances en %) puis blocage en points (2 points = 1 dégât, sans cumul défense générale / résistance spécifique). |
 | `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)`). |
 | `scripts/noyau/compte.gd` | `Compte` : ce que le joueur garde d'une partie à l'autre (glossaire des ennemis), `user://compte.json`. |
+| `scripts/logique/blocs_salles.gd` + `outils/importer_blocs.py` | `BlocsSalles` : blocs de salles (plan, liens porte à porte, entrées) ; import de leurs images et de leurs zones. |
 | `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers et affichage des clés. |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
@@ -745,6 +759,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_pv.gd          # PV = 70 (héros) + endurance × 2, caractéristiques du héros, ennemis par étage
 & $godot --path . -s tests/robot.gd -- 2 36000            # partie jouée par l'interface (graine, images)
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
+& $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
+& $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
@@ -842,6 +858,17 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Premier bloc de salles : la cuisine
+- **Blocs de salles** (`BlocsSalles`) : des lots d'images reliés porte à porte, posés tels quels dans l'étage ; le
+  reste de l'étage reste aléatoire pour l'instant. Premier bloc : **cuisine** (salle à manger, cuisine, réserve,
+  deux celliers), un par étage, deux entrées (bas de la salle à manger, arche du fond de la réserve).
+- Images importées par `outils/importer_blocs.py` (zones relevées à la main, fond agrandi par IA).
+- Fichiers : `scripts/logique/blocs_salles.gd`, `outils/importer_blocs.py` (nouveaux), `generateur_etage.gd`
+  (`_poser_bloc`), `donjon.gd` (`_habiller_blocs`), `plan_salles.gd` (images de bloc réservées) ; tests
+  `test_blocs.gd`, `capture_bloc_cuisine.gd`, `test_cartographie_salles.gd` (salles de bloc à part).
+- À faire : pas encore d'emplacements de squelettes à fouiller dans les salles du bloc (`test_emplacements` : 41
+  échecs, 36 avant, comme les prisons et les cryptes).
 
 ### 2026-10-31 — Retours sur la v0.3
 - Les diablotins ne parlent plus de la **limite de dégâts subis** du Chevalier (elle reste secrète) : 14 informations.

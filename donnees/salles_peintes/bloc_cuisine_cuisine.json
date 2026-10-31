@@ -1,0 +1,229 @@
+{
+ "fond": "images/salles_peintes/bloc_cuisine_cuisine/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_cuisine_cuisine/fond_hd.png",
+ "perspective": {
+  "y_horizon": 162,
+  "hauteur_par_pixel": 0.616,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    300,
+    85
+   ],
+   [
+    511,
+    215
+   ]
+  ]
+ },
+ "depart": [
+  430,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    320
+   ],
+   [
+    560,
+    305
+   ],
+   [
+    420,
+    300
+   ],
+   [
+    330,
+    298
+   ],
+   [
+    240,
+    300
+   ],
+   [
+    130,
+    298
+   ],
+   [
+    40,
+    300
+   ],
+   [
+    30,
+    330
+   ],
+   [
+    0,
+    340
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    30,
+    322
+   ],
+   [
+    150,
+    325
+   ],
+   [
+    320,
+    322
+   ],
+   [
+    325,
+    345
+   ],
+   [
+    300,
+    410
+   ],
+   [
+    270,
+    415
+   ],
+   [
+    300,
+    440
+   ],
+   [
+    290,
+    480
+   ],
+   [
+    150,
+    490
+   ],
+   [
+    60,
+    480
+   ],
+   [
+    0,
+    470
+   ],
+   [
+    0,
+    340
+   ]
+  ],
+  [
+   [
+    240,
+    288
+   ],
+   [
+    405,
+    288
+   ],
+   [
+    410,
+    297
+   ],
+   [
+    240,
+    297
+   ]
+  ],
+  [
+   [
+    505,
+    320
+   ],
+   [
+    767,
+    315
+   ],
+   [
+    767,
+    400
+   ],
+   [
+    700,
+    405
+   ],
+   [
+    560,
+    400
+   ],
+   [
+    505,
+    365
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    38,
+    300
+   ],
+   [
+    125,
+    300
+   ],
+   [
+    125,
+    316
+   ],
+   [
+    38,
+    316
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte de la cuisine",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "passage"
+ ],
+ "arrivees": {
+  "porte de la cuisine": [
+   140,
+   310,
+   "right"
+  ]
+ },
+ "bloc": "cuisine",
+ "ips": 24,
+ "source": "cuisine et salle a manger/cuisine.jpeg"
+}

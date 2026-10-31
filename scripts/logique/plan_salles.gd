@@ -107,6 +107,8 @@ static func attribuer(donjon, etage: int) -> void:
 	var noms: Array = images().keys()
 	noms.sort()
 	for image in noms:
+		if BlocsSalles.image_de_bloc(image):
+			continue  # images des blocs : seulement dans leur bloc
 		for miroir in [false, true]:
 			if not prises.has("%s|%s" % [image, miroir]):
 				libres.append([image, miroir])
@@ -232,6 +234,8 @@ static func _attribuer_salle(salles: Dictionary, id: String, etage: int, quartie
 	var noms: Array = images().keys()
 	noms.sort()
 	for image in noms:
+		if BlocsSalles.image_de_bloc(image):
+			continue
 		for miroir in [false, true]:
 			var e := _evaluer(salles, id, etage, image, miroir, quartier.has(id))
 			if e[0] > meilleur_score:

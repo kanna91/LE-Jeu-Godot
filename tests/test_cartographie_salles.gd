@@ -91,8 +91,9 @@ func analyser(salles: Dictionary, id: String, stats: Dictionary) -> void:
 		# Le bas et les passages de bord des grandes salles se ferment sans se voir (mur invisible)
 		if sorties[i] == null and i < dirs.size() and dirs[i] != "bas" and not (i < types.size() and types[i] == "bord"):
 			condamnees += 1
-		# La porte doit mener à la salle qui est dans sa direction sur la mini-carte
-		if sorties[i] != null:
+		# La porte doit mener à la salle qui est dans sa direction sur la mini-carte (sauf dans un bloc de salles :
+		# ses liens sont donnés porte à porte, avec des exceptions voulues, vérifiées par test_blocs)
+		if sorties[i] != null and not salles[id].has("bloc"):
 			var vers := PlanSalles._position(salles[str(sorties[i])]) - ici
 			if PlanSalles.absolue(dirs[i], PlanSalles.FACE) != vers:
 				echecs += 1

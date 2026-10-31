@@ -1,0 +1,178 @@
+{
+ "fond": "images/salles_peintes/bloc_cuisine_cellier_g/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_cuisine_cellier_g/fond_hd.png",
+ "perspective": {
+  "y_horizon": 242,
+  "hauteur_par_pixel": 0.78,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    370,
+    100
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  400,
+  470
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    450
+   ],
+   [
+    730,
+    420
+   ],
+   [
+    690,
+    412
+   ],
+   [
+    600,
+    400
+   ],
+   [
+    560,
+    375
+   ],
+   [
+    360,
+    372
+   ],
+   [
+    320,
+    368
+   ],
+   [
+    280,
+    380
+   ],
+   [
+    210,
+    395
+   ],
+   [
+    160,
+    430
+   ],
+   [
+    60,
+    445
+   ],
+   [
+    0,
+    450
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    60,
+    410
+   ],
+   [
+    210,
+    398
+   ],
+   [
+    215,
+    432
+   ],
+   [
+    120,
+    447
+   ],
+   [
+    60,
+    444
+   ]
+  ],
+  [
+   [
+    612,
+    375
+   ],
+   [
+    672,
+    372
+   ],
+   [
+    676,
+    392
+   ],
+   [
+    614,
+    396
+   ]
+  ],
+  [
+   [
+    680,
+    395
+   ],
+   [
+    740,
+    390
+   ],
+   [
+    745,
+    415
+   ],
+   [
+    690,
+    417
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "retour"
+ ],
+ "directions_sorties": [
+  "bas"
+ ],
+ "types_sorties": [
+  "passage"
+ ],
+ "arrivees": {},
+ "bloc": "cuisine",
+ "ips": 24,
+ "source": "cuisine et salle a manger/cellier gauche.jpeg"
+}

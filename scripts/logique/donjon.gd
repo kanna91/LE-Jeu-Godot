@@ -311,6 +311,11 @@ func generer_etage(etage: int) -> void:
 		elif salle["role"] == "boss":
 			data = _create_room_data("Antre du gardien")
 			data["boss"] = true
+		elif salle["role"] == "bloc":
+			data = _create_room_data(BlocsSalles.BLOCS[salle["bloc"]]["salles"][salle["bloc_salle"]]["nom"])
+			data["bloc"] = salle["bloc"]
+			data["bloc_salle"] = salle["bloc_salle"]
+			data["bloc_instance"] = salle["bloc_instance"]
 		else:
 			data = _create_room_data()
 		if salle.has("evenement"):
@@ -324,12 +329,38 @@ func generer_etage(etage: int) -> void:
 		data["connections"] = textes
 		salles[str(ident)] = data
 	_d["plan_donjon"][etage] = salles
+	_habiller_blocs(salles)
 	# Un étage refait repart de zéro (sinon ses anciens réglages, « prepare », empêcheraient de le peupler)
 	var reglages = U.ga(self, "aventure", null)
 	if reglages is Dictionary:
 		reglages.erase(etage)
 	PlanSalles.attribuer(self, etage)  # images des salles d'abord : le cachot est choisi parmi les prisons
 	Aventure.preparer_etage(self, etage)
+
+
+## Images et sorties des salles des blocs (BlocsSalles.salles_peintes), avant l'attribution des autres images :
+## les liens porte à porte du bloc, et ses entrées vers la salle extérieure voisine.
+func _habiller_blocs(salles: Dictionary) -> void:
+	var instances := {}
+	for id in salles:
+		if salles[id].has("bloc_instance"):
+			var k = salles[id]["bloc_instance"]
+			if not instances.has(k):
+				instances[k] = {"nom": salles[id]["bloc"], "ids": {}}
+			instances[k]["ids"][salles[id]["bloc_salle"]] = id
+	for k in instances:
+		var nom: String = instances[k]["nom"]
+		var ids: Dictionary = instances[k]["ids"]
+		var exterieurs := {}
+		for e in BlocsSalles.BLOCS[nom]["entrees"]:
+			var ici: Dictionary = salles[ids[e[0]]]
+			var cible: Vector2i = ici["position"] + e[2]
+			for conn in ici["connections"]:
+				if salles.has(conn) and salles[conn]["position"] == cible:
+					exterieurs[e[0]] = conn
+		var infos := BlocsSalles.salles_peintes(nom, ids, exterieurs)
+		for cle in infos:
+			salles[ids[cle]]["salle_peinte"] = infos[cle]
 
 
 ## Identifiant de la salle du boss d'un étage (15 pour un étage sans boss marqué).

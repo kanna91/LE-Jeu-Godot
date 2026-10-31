@@ -115,6 +115,63 @@ static func _ecart(salles: Dictionary, a: int, b: int) -> int:
 	return 1 << 20
 
 
+## Pose le bloc ``nom`` (BlocsSalles) dans le plan : ses salles (rôle « bloc », clés « bloc », « bloc_salle »,
+## « bloc_instance ») sur des cases libres, reliées par ses liens, et ses entrées raccordées à des salles existantes
+## (branche ou voie principale, ni départ ni gardien). On préfère un emplacement où **toutes** les entrées tombent
+## sur une salle existante ; une entrée sans salle derrière reçoit une nouvelle salle de branche. Sans aucun
+## emplacement possible, le bloc n'est pas posé.
+static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case: Dictionary, interdites: Array,
+		boss: int, ajouter: Callable, relier: Callable) -> bool:
+	var b: Dictionary = BlocsSalles.BLOCS[nom]
+	var hotes := []
+	for i in salles:
+		if salles[i]["role"] in ["branche", "principale"] and i != 1 and i != boss:
+			hotes.append(i)
+	var meilleurs := []
+	var meilleur_score := -1
+	for h in hotes:
+		for e in b["entrees"]:
+			var origine: Vector2i = salles[h]["position"] - b["salles"][e[0]]["position"] - e[2]
+			var cases := BlocsSalles.cases(nom, origine)
+			var libre := true
+			for c in cases.values():
+				if par_case.has(c) or c in interdites or c.y < 0:
+					libre = false
+					break
+			if not libre:
+				continue
+			var score := 0
+			for r in BlocsSalles.raccords(nom, origine):
+				var autre: int = par_case.get(r[1], 0)
+				if autre and salles[autre]["role"] in ["branche", "principale"] and autre != 1 and autre != boss:
+					score += 1
+				elif autre or r[1] in interdites or r[1].y < 0 or r[1] in cases.values():
+					score = -100  # entrée bouchée (salle spéciale, case interdite) : emplacement refusé
+			if score > meilleur_score:
+				meilleur_score = score
+				meilleurs = [origine]
+			elif score == meilleur_score and not origine in meilleurs:
+				meilleurs.append(origine)
+	if meilleurs.is_empty() or meilleur_score < 1:
+		return false
+	var origine: Vector2i = meilleurs.pick_random()
+	var ids := {}
+	for cle in b["salles"]:
+		var ident: int = ajouter.call(origine + b["salles"][cle]["position"], "bloc")
+		salles[ident]["bloc"] = nom
+		salles[ident]["bloc_salle"] = cle
+		salles[ident]["bloc_instance"] = instance
+		ids[cle] = ident
+	for l in b["liens"]:
+		relier.call(ids[l[0]], ids[l[2]])
+	for r in BlocsSalles.raccords(nom, origine):
+		var autre: int = par_case.get(r[1], 0)
+		if not autre:
+			autre = ajouter.call(r[1], "branche")
+		relier.call(ids[r[0]], autre)
+	return true
+
+
 ## Plan d'un étage : {id: {"position": Vector2i, "connexions": {id: true}, "role", "effet_bonus", "evenement"}}.
 static func generer_plan(etage: int) -> Dictionary:
 	var longueur := VOIE_BASE + mini(8, etage - 1)
@@ -168,6 +225,12 @@ static func generer_plan(etage: int) -> Dictionary:
 			var nouvelle: int = ajouter.call(c, "branche")
 			relier.call(courante, nouvelle)
 			courante = nouvelle
+	# Blocs de salles (BlocsSalles, 2026-10-31) : posés après les branches, avant les cercles
+	var instance := 0
+	for nom in BlocsSalles.BLOCS:
+		for _k in int(BlocsSalles.BLOCS[nom].get("par_etage", 1)):
+			instance += 1
+			_poser_bloc(nom, instance, salles, par_case, interdites, boss, ajouter, relier)
 	# Cercles : un tour de salles en rectangle qui part d'une salle existante et y revient
 	essais = 0
 	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS and essais < 300:
@@ -196,6 +259,9 @@ static func generer_plan(etage: int) -> Dictionary:
 		relier.call(precedente, a)
 	# Boucles : grands cercles (salles voisines mais loin l'une de l'autre par le chemin), puis petites boucles
 	var exclues := [1, boss]
+	for ident in salles:
+		if salles[ident]["role"] == "bloc":
+			exclues.append(ident)  # un bloc n'a que ses liens et ses entrées
 	var paires := []
 	for ident in salles:
 		for c in _voisines(salles[ident]["position"]):
