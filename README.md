@@ -20,6 +20,11 @@ formules. Le jeu Python reste la référence : ce portage le suit écran par éc
 - La fenêtre s'ouvre en 1280×720 et s'adapte (canvas_items, proportions conservées).
 - Sauvegardes : `user://sauvegardes` (sous Windows : `%APPDATA%\Godot\app_userdata\LE Jeu Ultime\sauvegardes`).
   Elles ne sont pas compatibles avec les sauvegardes pickle du jeu Python.
+- **Version jouable Windows (.exe) :** double-cliquer `exporter_windows.bat`. Il produit
+  `..\export\windows\` (`LE_Jeu_Ultime.exe` + `images\salles_peintes` et `images\objets_salles`) et
+  `..\export\LE_Jeu_Ultime_Windows.zip` à distribuer (dézipper puis lancer le .exe). Réglage : `export_presets.cfg`
+  (préréglage « Windows », pck intégré à l'exe, `tests/` et `outils/` exclus, `*.json` inclus). Il faut les modèles
+  d'export 4.7.2 dans `%APPDATA%\Godot\export_templates\4.7.2.stable\`.
 
 Commandes identiques à la version pygame (souris, clavier, manette : A = clic,
 B = Échap, X = clic droit, Y = I, LB/RB = molette, Back = Tab, Start = C), sauf dans
@@ -804,6 +809,14 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   image (`definir_zones`), Échap pour fermer, ouverture via une fonction de `Ecrans`.
 
 ## Journal des modifications
+
+### 2026-10-31 — Version exécutable Windows
+- **Le jeu s'exporte en .exe** (demande de l'utilisateur, pour faire jouer d'autres personnes) :
+  `exporter_windows.bat` + `export_presets.cfg` ; résultat dans `..\export\` (zip d'environ 650 Mo).
+- Correctif : `images/salles_peintes` et `images/objets_salles` ont un `.gdignore`, donc Godot ne les met pas
+  dans le .exe. `SallePeinte.chemin` les lit maintenant à côté du .exe dans le jeu exporté (inchangé dans
+  l'éditeur) ; le script d'export les y copie. Vérifié : salle du geôlier affichée dans une version exportée.
+- Fichiers : `scripts/interface/salle_peinte.gd`, `export_presets.cfg`, `exporter_windows.bat`.
 
 ### 2026-10-30 — Donjon complet de 5 étages, quartier des prisons, écran de victoire
 - **Donjon généré en entier au lancement** (demande de l'utilisateur) : `Donjon.nouveau` crée les 5 étages

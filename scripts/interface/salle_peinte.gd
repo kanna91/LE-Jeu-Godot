@@ -131,8 +131,13 @@ static var cache_textures := {}
 # Chargement
 # ---------------------------------------------------------------------------
 
+## Dans l'éditeur : chemin dans le dossier du projet. Dans le jeu exporté : chemin à côté du .exe.
+## Les dossiers lus ainsi (images/salles_peintes, images/objets_salles) ont un .gdignore : Godot ne les
+## met pas dans le .pck, ils sont copiés à côté du .exe par exporter_windows.bat.
 static func chemin(relatif: String) -> String:
-	return ProjectSettings.globalize_path("res://" + relatif)
+	if OS.has_feature("editor"):
+		return ProjectSettings.globalize_path("res://" + relatif)
+	return OS.get_executable_path().get_base_dir().path_join(relatif)
 
 
 static func lire_salle(id: String) -> Dictionary:
