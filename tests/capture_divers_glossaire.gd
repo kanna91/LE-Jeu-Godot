@@ -32,8 +32,9 @@ func lancer() -> void:
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
 	joueur._d["cles"] = 2
-	for nom in ["Cuillère en argent", "Cuillère en argent", "Pomme ridée", "Lame brisée", "Os gravé"]:
-		joueur.recevoir_objet(ObjetsDivers.creer(nom))
+	# Objets d'essai : le catalogue des objets divers est vide en attendant la liste de l'utilisateur
+	for l in [["Objet d'essai A", "argenterie", 25], ["Objet d'essai A", "argenterie", 25], ["Objet d'essai B", "nourriture", 2]]:
+		joueur.recevoir_objet(ObjetsDivers.creer(l[0], l[1], l[2], "Objet d'essai (capture)."))
 	joueur.recevoir_objet(Consommable.creer_potion("pv", 1))
 	# Inventaire, catégorie Divers
 	var MI := load("res://scripts/ecrans/menu_inventaire.gd")

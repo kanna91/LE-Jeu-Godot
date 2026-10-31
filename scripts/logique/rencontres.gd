@@ -33,7 +33,8 @@ const CHANCE_MENSONGE := 1.0 / 3.0
 ## Ce que les diablotins disent du Chevalier de la mort, dans cet ordre, **un élément à la fois** (demande de
 ## l'utilisateur, 2026-10-31 : avant, la première réponse listait toutes ses résistances d'un coup) : [clé, texte].
 ## Ces informations vont au **glossaire du compte** (``Compte``) : elles ne sont jamais redites, même dans une autre
-## partie. Fiche de l'utilisateur « chevalier de la mort.odt » ; règles dans ``Aventure.CHEVALIER``.
+## partie. Fiche de l'utilisateur « chevalier de la mort.odt » ; règles dans ``Aventure.CHEVALIER``. Sa limite de
+## dégâts subis (1 ou 2 par coup) reste **secrète** : aucun diablotin n'en parle (décision de l'utilisateur).
 const INFOS_CHEVALIER := [
 	["tranchant", "Le Chevalier de la mort ? Les lames glissent sur lui. Elles l'effleurent à peine."],
 	["lame", "Il frappe avec une grande lame... mais pas seulement avec elle. Hé hé."],
@@ -41,7 +42,6 @@ const INFOS_CHEVALIER := [
 	["ombre_lame", "Sa lame est trempée dans l'ombre : elle te blesse aussi avec des ténèbres."],
 	["perforant", "Les pointes, les flèches, les lances ? Elles ne le percent pas."],
 	["froid", "Le froid ne le ralentit pas. Il est déjà plus froid que la glace."],
-	["plafond", "Quoi que tu lui fasses, tes coups ne lui arrachent qu'une ou deux blessures... trois, avec beaucoup de chance."],
 	["contondant", "Les masses rebondissent sur lui. Tu peux taper, il ne plie pas."],
 	["foudre", "La foudre ne l'arrête pas. Elle le fait à peine frissonner."],
 	["mana", "Quand sa lame te touche, elle peut aspirer ta magie... et user tes forces."],
@@ -348,6 +348,18 @@ static func repondre(donjon, sujet: String) -> Array:
 	if ennemi != "":
 		Compte.apprendre(ennemi, info[0], info[1])
 	return info
+
+
+## Vrai si l'information ``cle`` sur un ennemi fait toujours partie du jeu (le glossaire d'un compte peut garder
+## une information retirée depuis, comme la limite de dégâts du Chevalier, apprise en v0.3 : elle n'est plus montrée).
+static func info_ennemi_valide(cle: String) -> bool:
+	for info in INFOS_CHEVALIER:
+		if "chevalier/" + info[0] == cle:
+			return true
+	for a in ASTUCES:
+		if "astuce/" + a[0] == cle and a[2] != "":
+			return true
+	return false
 
 
 ## Ennemi dont parle l'information ``cle`` (« » si elle ne parle pas d'un ennemi) : elle va alors au glossaire.

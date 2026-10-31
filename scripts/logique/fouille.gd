@@ -9,8 +9,7 @@ extends RefCounted
 ## dans la salle du plan (clé « objets », avec l'image pour laquelle il a été fait), donc dans la
 ## sauvegarde. Un objet ne se fouille qu'une fois (« fouille » : vrai) et le reste.
 ##
-## Résultats (``RESULTATS``, en %) : squelette : 35 rien, 35 or, 15 objet qu'il portait (équipement), 15 objet divers
-## (ObjetsDivers : argenterie, nourriture, objet cassé ; ajouté le 2026-10-31, part prise sur « rien », choix de Claude).
+## Résultats (``RESULTATS``, en %) : squelette : 50 rien, 35 or, 15 objet qu'il portait (équipement).
 ## Les coffres et les étagères ont été retirés le 2026-10-20 (ils juraient avec le décor) ; ceux d'une
 ## ancienne sauvegarde disparaissent au chargement de la salle (``objets_salle``).
 
@@ -18,7 +17,7 @@ extends RefCounted
 const NOMBRE_OBJETS := {0: 30, 1: 45, 2: 25}
 const VARIANTES := 4
 const RESULTATS := {
-	"squelette": [["rien", 35], ["or", 35], ["objet", 15], ["divers", 15]],
+	"squelette": [["rien", 50], ["or", 35], ["objet", 15]],
 }
 ## Or trouvé : [minimum, maximum] × l'étage (valeurs choisies par Claude ; un gobelin en donne ~30).
 const OR := {"squelette": [10, 30]}
@@ -111,8 +110,4 @@ static func fouiller(objet: Dictionary, joueur, donjon) -> String:
 		var trouve = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
 		var equipe = joueur.recevoir_objet(trouve)
 		return "Le squelette portait encore %s%s." % [trouve.nom, " (équipé)" if equipe else ""]
-	if resultat == "divers":
-		var babiole := ObjetsDivers.creer()
-		joueur.recevoir_objet(babiole)
-		return "Vous fouillez %s : %s (rangé dans Divers)." % [nom, babiole.nom]
 	return "Vous fouillez %s : rien d'intéressant." % nom

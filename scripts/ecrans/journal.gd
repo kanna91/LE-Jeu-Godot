@@ -45,8 +45,11 @@ func _remplir_glossaire() -> void:
 	var largeur := cadre.size.x - 50
 	var glossaire := Compte.glossaire()
 	for ennemi in glossaire:
+		var connues: Array = glossaire[ennemi].filter(func(e): return Rencontres.info_ennemi_valide(String(e.get("cle", ""))))
+		if connues.is_empty():
+			continue
 		lignes.append([ennemi, Ui.OR, 18, true])
-		for e in glossaire[ennemi]:
+		for e in connues:
 			var morceaux := Ui.decouper(String(e.get("texte", "")), 15, false, largeur)
 			for k in morceaux.size():
 				lignes.append([("• " if k == 0 else "   ") + String(morceaux[k]), Ui.TEXTE, 15, false])

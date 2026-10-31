@@ -119,8 +119,9 @@ stick droit pour choisir un bouton de l'interface.
     « Salles orientées comme la mini-carte ») ; le gardien, dont la classe est tirée dès la création de l'étage ;
   - un **coffre ancien** (cerclé de fer, sceau rouge) : l'**armure anti-boss** de l'étage (voir « Armure anti-boss ») ;
   - **diablotins** (`Rencontres.diablotin`, fiche de l'utilisateur) : ils transmettent les informations **au
-    compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (15 informations,
-    dans l'ordre, **un élément à la fois** depuis le 2026-10-31 : une résistance, son plafond de dégâts, sa lame...), **l'étage** (faiblesse puis force du gardien, direction du geôlier, du pupitre, d'une cachette,
+    compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (14 informations,
+    dans l'ordre, **un élément à la fois** depuis le 2026-10-31 : une résistance, sa lame... ; sa limite de dégâts subis reste
+    secrète, aucun diablotin n'en parle), **l'étage** (faiblesse puis force du gardien, direction du geôlier, du pupitre, d'une cachette,
     d'un chevalier, de la succube, d'une salle verrouillée), **« Mes affaires ? »** après une capture (où sont le
     coffre des confiscations et les porteurs) et **« Autre chose ? »** (conseils sur les mécaniques ; le lore viendra
     dans `Rencontres.LORE`). Les lieux sont donnés **depuis la salle du diablotin** (2026-10-30) : « à 3 salles d'ici,
@@ -147,9 +148,9 @@ stick droit pour choisir un bouton de l'interface.
     la salle où le héros se réveille (`Aventure.salle_du_coffre`, `COFFRE_PRES_DU_CACHOT`), jamais dans une salle
     fermée à clé ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
-    ne s'utilisent (argenterie, nourriture, objets cassés : `ObjetsDivers.CATALOGUE`, noms et prix choisis par
-    Claude, à valider), pour de futures quêtes ou la revente. Un squelette fouillé en donne un 15 fois sur 100 (part
-    prise sur « rien »). Les **clés** du héros s'y affichent en tête (« Clé rouillée ×N ») ;
+    ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
+    (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
+    inchangée). Les **clés** du héros s'y affichent en tête (« Clé rouillée ×N ») ;
   - **choix moraux** (`Rencontres`) : gobelin blessé (le soigner avec une potion : clé ou grimoire ; l'épargner : un
     secret vrai ; l'achever : un Chevalier de la mort de plus), prisonnier (briser ses chaînes : bruyant, les ennemis de la
     salle accourent, il donne une clé ; lui demander ce qu'il sait : il dit vrai), autel de sang (offrir des PV contre
@@ -841,6 +842,13 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Retours sur la v0.3
+- Les diablotins ne parlent plus de la **limite de dégâts subis** du Chevalier (elle reste secrète) : 14 informations.
+  Si un compte l'avait apprise en v0.3, le glossaire ne la montre plus (`Rencontres.info_ennemi_valide`).
+- **Objets divers** : catalogue vidé (l'utilisateur fera la liste) ; `ObjetsDivers.creer(nom, sorte, valeur,
+  description)` et `depuis_catalogue(nom)` sont prêts. **Fouille** remise comme avant (50 rien, 35 or, 15 objet).
+- Potions des ennemis en pourcentage : validé par l'utilisateur.
 
 ### 2026-10-31 — Chevalier caché, glossaire du compte, objets divers, potions, coffre près du cachot
 - **Chevalier de la mort** : fiche et info-bulle en « ??? » (aucun chiffre).

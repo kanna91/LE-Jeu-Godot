@@ -5,38 +5,32 @@ extends RefCounted
 ## à la revente chez le marchand (``valeur`` = prix de rachat). Catégorie « Divers » de l'inventaire et du marchand.
 ## Un objet divers : un ``Objet`` de ``type_objet`` « divers », avec ``sorte`` (clé de SORTES) et ``description``.
 ## Les objets identiques (même nom) s'empilent dans les listes.
-## **Noms, descriptions et prix choisis par Claude, à valider par l'utilisateur.**
+## **Le catalogue est vide** : l'utilisateur fournira lui-même la liste des objets (2026-10-31). Rien n'en donne
+## encore dans le jeu (ni fouille, ni marchand).
 
-## Sortes d'objets divers : {clé : nom lisible}.
+## Sortes d'objets divers : {clé : nom lisible} (les exemples de l'utilisateur).
 const SORTES := {"argenterie": "Argenterie", "nourriture": "Nourriture", "casse": "Objet cassé"}
-## Catalogue : [nom, sorte, prix de revente en or, description].
-const CATALOGUE := [
-	["Cuillère en argent", "argenterie", 25, "Une petite cuillère ternie, gravée d'un blason effacé."],
-	["Gobelet d'argent terni", "argenterie", 40, "Il a dû servir à de grands banquets, il y a longtemps."],
-	["Chandelier en argent", "argenterie", 60, "Lourd, cabossé, mais c'est bien de l'argent."],
-	["Croûton de pain rassis", "nourriture", 2, "Dur comme la pierre. Mieux vaut ne pas y goûter."],
-	["Morceau de fromage moisi", "nourriture", 3, "L'odeur suffit à faire fuir les rats."],
-	["Pomme ridée", "nourriture", 2, "Elle a connu des jours meilleurs."],
-	["Lame brisée", "casse", 8, "La moitié d'une épée. L'autre moitié est sans doute dans quelqu'un."],
-	["Bouclier fendu", "casse", 6, "Il ne protégerait plus personne."],
-	["Fiole fêlée", "casse", 1, "Vide, et elle fuirait de toute façon."],
-	["Os gravé", "casse", 5, "Des signes étranges y sont taillés."],
-]
+## Catalogue : [nom, sorte, prix de revente en or, description] — à remplir avec la liste de l'utilisateur.
+const CATALOGUE := []
 ## Clés rouillées du héros, montrées dans la catégorie « Divers » de l'inventaire (elles restent un simple
 ## compteur, ``joueur.cles`` : cet objet ne sert qu'à l'affichage).
 const NOM_CLE := "Clé rouillée"
 
 
-## Crée l'objet divers du catalogue nommé ``nom`` (un objet du catalogue au hasard si ``nom`` est vide).
-static func creer(nom := "") -> Objet:
-	var ligne: Array = CATALOGUE.pick_random()
+## Crée un objet divers : ``nom``, ``sorte`` (clé de SORTES), prix de revente ``valeur``, ``description``.
+static func creer(nom: String, sorte: String, valeur: int, description: String) -> Objet:
+	var o := Objet.nouveau(nom, "divers", description, valeur)
+	o._d["sorte"] = sorte
+	o._d["description"] = description
+	return o
+
+
+## Crée l'objet du catalogue nommé ``nom`` (null s'il n'y est pas).
+static func depuis_catalogue(nom: String):
 	for l in CATALOGUE:
 		if l[0] == nom:
-			ligne = l
-	var o := Objet.nouveau(ligne[0], "divers", ligne[3], ligne[2])
-	o._d["sorte"] = ligne[1]
-	o._d["description"] = ligne[3]
-	return o
+			return creer(l[0], l[1], l[2], l[3])
+	return null
 
 
 ## Objet d'affichage des clés du héros (jamais rangé dans l'inventaire).
