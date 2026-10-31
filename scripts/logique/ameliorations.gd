@@ -1,7 +1,7 @@
 class_name Ameliorations
 extends RefCounted
 ## Arbres d'amélioration des compétences : 10 niveaux, 3 options équilibrées par
-## niveau (puissance, technique, affliction/soutien) — ameliorations.py.
+## niveau (puissance, technique, affliction/soutien).
 ##
 ## Les options calculées pour chaque compétence sont lues dans
 ## donnees/ameliorations.json (exporté du jeu Python) ; une compétence absente du

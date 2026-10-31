@@ -1,5 +1,5 @@
 extends Ecran
-## Source de soin d'une salle bonus (menu_soin.py) : « Boire » applique le soin, « Laisser » la garde.
+## Source de soin d'une salle bonus : « Boire » applique le soin, « Laisser » la garde.
 
 var personnage
 var salle: Dictionary

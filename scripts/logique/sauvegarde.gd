@@ -1,6 +1,6 @@
 class_name Sauvegarde
 extends RefCounted
-## Sauvegarde et chargement des parties (sauvegarde.py).
+## Sauvegarde et chargement des parties.
 ##
 ## Une partie (héros, donjon, état global des ennemis et des objets) est écrite
 ## dans ``user://sauvegardes/<nom>.sav`` : un résumé lisible seul, puis la partie.

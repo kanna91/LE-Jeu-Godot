@@ -8,10 +8,11 @@ extends Ecran
 ## correspondante (fondu au noir, puis donjon.avancer : combats, coffres, pièges...). Les passages sans
 ## porte peinte (salles à 4 passages) gardent une flèche. Une porte sans salle derrière est condamnée.
 
-const ICONES := [["talents", "Talents", "Talents", "T"], ["magie", "Grimoire", "Grimoire", "M"],
+## Tuiles des menus (l'écran du sphérier, touche T, a été retiré le 2026-10-31 avec le sphérier).
+const ICONES := [["magie", "Grimoire", "Grimoire", "M"],
 	["caracteristiques", "Stats", "Caractéristiques", "C"], ["inventaire", "Sac", "Inventaire", "I"]]
 const TUILE := Vector2(78, 62)
-const X_TUILES := 622
+const X_TUILES := 704
 const Y_TUILES := 8
 const COULEUR_PICTO := Color8(232, 190, 110)
 const COULEUR_PICTO_SURVOL := Color8(255, 226, 150)
@@ -96,9 +97,9 @@ func _afficher_salle(arrivee: int) -> void:
 		ouvertes.append(arrivee)
 	salle_peinte.definir_portes(ouvertes, condamnees)
 	# Donjon d'aventure : ennemis qui rôdent, personnages, objets (Aventure, PresencesSalle)
-	if Aventure.ACTIF and not info.is_empty():
+	if not info.is_empty():
 		salle_peinte.placer_presences(Aventure.presences(donjon, s))
-	salle_peinte.pacte_voile = Aventure.ACTIF and Aventure.pacte_actif(donjon, "voile")
+	salle_peinte.pacte_voile = Aventure.pacte_actif(donjon, "voile")
 
 
 ## Retient les portes ouvertes de la salle affichée (dans le plan du donjon, donc dans la sauvegarde).
@@ -275,8 +276,6 @@ func tuiles_menus() -> Dictionary:
 
 ## Points à dépenser dans un menu (pastille sur la tuile).
 func points_a_depenser(cle: String) -> int:
-	if cle == "talents":
-		return int(U.num(joueur, "points_de_talent"))
 	if cle == "magie":
 		var total := 0
 		for c in joueur.magies_apprises + joueur.competence_de_base.values():
@@ -289,8 +288,6 @@ func points_a_depenser(cle: String) -> int:
 			if not noms.has(m.nom) and Sorts.peut_apprendre(joueur, m):
 				a_apprendre += 1
 		return total + mini(int(U.num(joueur, "nouvelle_magie_a_apprendre")), a_apprendre)
-	if cle == "caracteristiques":
-		return int(U.num(joueur, "points_a_distribuer") + U.num(joueur, "points_competence_passive_a_distribuer"))
 	return 0
 
 
@@ -324,7 +321,7 @@ func _mise_a_jour(_delta: float) -> void:
 	if not passage_en_cours and salle_affichee != [int(donjon.salle_actuelle[0]), int(donjon.salle_actuelle[1])]:
 		_afficher_salle(-1)
 	salle_peinte.actif = not passage_en_cours
-	if Aventure.ACTIF and not passage_en_cours and salle_peinte.presences != null and salle_peinte.actif:
+	if not passage_en_cours and salle_peinte.presences != null and salle_peinte.actif:
 		_faire_vivre_l_etage(_delta)
 
 
@@ -439,9 +436,7 @@ func _dessiner(ci: Control) -> void:
 		var lignes := ["Raccourci : touche %s" % icone_survolee[3]]
 		var points := points_a_depenser(icone_survolee[0])
 		if points:
-			lignes.append({"talents": "%d point(s) de talent à dépenser" % points,
-				"magie": "%d amélioration(s) ou magie(s) à choisir" % points,
-				"caracteristiques": "%d point(s) à répartir" % points}.get(icone_survolee[0], ""))
+			lignes.append({"magie": "%d amélioration(s) ou magie(s) à choisir" % points}.get(icone_survolee[0], ""))
 		Ui.infobulle(ci, icone_survolee[2], lignes, tuiles[icone_survolee[0]], 230)
 	elif direction_survolee != null:
 		var cible: Dictionary = donjon.plan_donjon[etage].get(str(salle["connections"][0]), {})
@@ -519,7 +514,7 @@ func _chasseur_parti(p: Dictionary, vers: String) -> void:
 ## Action bruyante (chaînes brisées) : le chevalier se rapproche (téléporté à 3 salles s'il était plus loin) et
 ## sait où est le héros ; les geôliers se dirigent vers la salle du bruit (Aventure.vacarme).
 func _bruit() -> void:
-	if not Aventure.ACTIF or salle_peinte == null:
+	if salle_peinte == null:
 		return
 	if Aventure.vacarme(donjon) > 0:
 		message_nav = "Quelque part, un pas de fer se met en marche... vers vous."
@@ -646,7 +641,7 @@ func _combattre(p: Dictionary) -> String:
 ## succube (il se réveille au cachot avec 1 PV : la salle est réaffichée et l'exploration reprend).
 func _apres_action() -> bool:
 	if Statistiques.mort:
-		if Aventure.ACTIF and Aventure.relever_par_pacte(donjon):
+		if Aventure.relever_par_pacte(donjon):
 			_relever.call_deferred()
 			return true
 		fermer(["mort", Statistiques.cause_mort])
@@ -677,8 +672,6 @@ func ouvrir_icone(cle: String) -> void:
 		await Ecrans.menu_caracteristique(joueur)
 	elif cle == "magie":
 		await Ecrans.menu_magie(donjon.personnage)
-	elif cle == "talents":
-		await Ecrans.menu_talents(joueur)
 
 
 func faire_action(action: String) -> String:
@@ -719,8 +712,6 @@ func _evenement(ev: Dictionary) -> void:
 			await ouvrir_icone("caracteristiques")
 		elif touche == KEY_M:
 			await ouvrir_icone("magie")
-		elif touche == KEY_T:
-			await ouvrir_icone("talents")
 		elif touche == KEY_TAB:
 			await Ecrans.carte_complete(donjon)
 		elif touche == KEY_J:

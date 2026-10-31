@@ -98,7 +98,7 @@ func _image() -> void:
 			elif x < 0.9:
 				_clic_zone(ecran, _zones(ecran))
 			else:
-				_touche(ecran, [KEY_I, KEY_C, KEY_M, KEY_T, KEY_TAB][alea.randi_range(0, 4)])
+				_touche(ecran, [KEY_I, KEY_C, KEY_M, KEY_TAB][alea.randi_range(0, 3)])
 		"menu_combat":
 			var z := _zones(ecran)
 			if alea.randf() < 0.6 and not ecran.boutons_actions.is_empty():

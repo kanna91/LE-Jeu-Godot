@@ -1,6 +1,6 @@
 class_name DescriptionObjet
 extends RefCounted
-## Description lisible des objets et des compétences, partagée par les écrans (description_objet.py).
+## Description lisible des objets et des compétences, partagée par les écrans.
 
 # [attribut, libellé, format] — format : « plat » (+5), « pourcent » (0.12 → +12 %)
 ## Ordre d'affichage. Les objets générés depuis la refonte du 2026-10-30 n'ont qu'une option (caractéristique, défense,

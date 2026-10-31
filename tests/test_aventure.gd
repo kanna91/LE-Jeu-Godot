@@ -148,15 +148,12 @@ func _recompenses() -> void:
 		var g := Gobelin.nouveau(donjon, 1).generer_gobelin(donjon, 1)
 		g.points_de_vie = 0
 		g.mort_au_combat(donjon)
-	verifier(joueur.experience_combat == 0 and joueur.piece_or_combat == 0 and joueur.piece_or == or_avant, "aucune expérience ni or des ennemis")
+	verifier(joueur.piece_or == or_avant, "aucun or des ennemis")
 	verifier(joueur.inventaire.size() == inv_avant, "aucun butin des ennemis ordinaires")
 	var chef = Aventure.ennemis_de(donjon, {"genre": "groupe", "nombre": 1, "chef": true})[0]
 	chef.points_de_vie = 0
 	chef.mort_au_combat(donjon)
 	verifier(joueur.inventaire.size() + joueur.equipements.values().filter(func(x): return x != null).size() > inv_avant, "le chef lâche un équipement")
-	joueur.experience = 5000
-	joueur.verifier_montee_niveau()
-	verifier(joueur.niveau == 1, "plus de montée de niveau")
 	# Les gobelins affrontés sont ceux dessinés dans la salle (membres tirés une fois, gardés dans la présence)
 	for genre in ["groupe", "porteur", "boss"]:
 		for _essai in 10:

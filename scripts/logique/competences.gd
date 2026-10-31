@@ -28,23 +28,12 @@ static func classes_de_sorts() -> Array:
 	return _ordre_sorts
 
 
-## Noms de classe des compétences de competence.py, par ordre alphabétique (inspect.getmembers).
+## Noms de classe des compétences, par ordre alphabétique.
 static func classes_de_competences() -> Array:
 	_charger()
 	var noms := _competences.keys()
 	noms.sort()
 	return noms
-
-
-static func est_sort(nom_classe: String) -> bool:
-	_charger()
-	return _sorts.has(nom_classe)
-
-
-## Fiche d'un sort ({"classe", "element", "palier", "fiche"}).
-static func donnees_sort(nom_classe: String) -> Dictionary:
-	_charger()
-	return _sorts.get(nom_classe, {})
 
 
 static func _valeur(v):
@@ -53,7 +42,7 @@ static func _valeur(v):
 	return U.entiers(v)
 
 
-## Crée une compétence (competence.py) ou un sort (sorts.py) par le nom de sa classe Python.
+## Crée une compétence ou un sort par le nom de sa classe Python.
 static func creer(nom_classe: String) -> Competence:
 	_charger()
 	var comp: Competence

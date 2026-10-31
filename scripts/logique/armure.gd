@@ -1,6 +1,6 @@
 class_name Armure
 extends Objet
-## Pièce d'armure ou bijou (objets.py : Armure ; ``type_armure`` « anneau » / « amulette » pour un bijou).
+## Pièce d'armure ou bijou (``type_armure`` « anneau » / « amulette » pour un bijou).
 
 
 static func nouvelle(nom: String, type_objet: String, type_armure: String, description := "", valeur = 0) -> Armure:

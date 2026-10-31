@@ -1,6 +1,6 @@
 class_name Talent
 extends Dyn
-## Nœud du sphérier : un talent et ses bonus (talent.py : Talent).
+## Nœud du sphérier : un talent et ses bonus.
 ## Attributs : ident, nom, stats, genre, branche, sous_branche, x, y, description.
 
 

@@ -1,5 +1,5 @@
 extends Ecran
-## Arbre d'amélioration d'une compétence (menu_améliorer_compétence.py) : 10
+## Arbre d'amélioration d'une compétence : 10
 ## niveaux × 3 options (une par voie). Clic : +1 point ; clic droit (X) : remplir
 ## l'option. Un niveau s'ouvre à 10 points investis dans le précédent.
 

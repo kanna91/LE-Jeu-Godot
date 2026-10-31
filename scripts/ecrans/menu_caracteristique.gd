@@ -2,11 +2,10 @@ extends Ecran
 ## Fiche de caractéristiques, refaite le 2026-10-29 avec les nouvelles règles (Caracteristiques) : en-tête (PV, mana,
 ## régénérations par minute, PA) et trois onglets — « Général » (les six caractéristiques et ce qu'elles donnent :
 ## ressources, précision, critiques), « Dégâts » (tous les types : dés, caractéristique, bonus, critique) et
-## « Défense ». Les triangles rouges n'apparaissent que s'il reste des points à répartir.
+## « Défense ». Plus de points à répartir depuis la suppression des niveaux (2026-10-31).
 
-## [touche de Personnage.distribuer_points, clé]
-const CARACTERISTIQUES := [["1", "endurance"], ["2", "force"], ["3", "dextérité"], ["4", "intelligence"],
-	["5", "sagesse"], ["6", Caracteristiques.MANA]]
+## Caractéristiques de l'onglet « Général », dans l'ordre.
+const CARACTERISTIQUES := ["endurance", "force", "dextérité", "intelligence", "sagesse", Caracteristiques.MANA]
 ## Types de dégâts de l'onglet « Dégâts », dans l'ordre : [type, libellé, caractéristique].
 const TYPES := [
 	["tranchant", "Tranchant", "Force"], ["perforant", "Perforant", "Force"], ["contondant", "Contondant", "Force"],
@@ -28,9 +27,6 @@ const BOUTON_FERMER := Rect2(Ui.LARGEUR - 140, Ui.HAUTEUR - 46, 120, 34)
 var joueur
 var onglet := "Général"
 var onglet_rects := {}
-var fleches := []
-var message := ""
-var message_fin := 0.0
 
 
 func preparer(j) -> Ecran:
@@ -135,18 +131,11 @@ func _dessiner(ci: Control) -> void:
 	Ui.texte(ci, "PV %d / %d   ·   Mana %d / %d   ·   PA %s" % [int(joueur.points_de_vie), int(joueur.points_de_vie_max),
 		int(joueur.mana), int(joueur.mana_max), str(joueur.points_d_action_max)],
 		Vector2(ENTETE.end.x - 16, ENTETE.position.y + 12), Ui.TEXTE, 15, false, null, "topright")
-	var points: int = joueur.points_a_distribuer
-	if points > 0:
-		Ui.texte(ci, "Points de caractéristique : %d" % points, Vector2(ENTETE.end.x - 16, ENTETE.position.y + 42),
-			Ui.VERT, 14, true, null, "topright")
 	for nom in ONGLETS:
 		Ui.onglet(ci, onglet_rects[nom], nom, nom == onglet, onglet_rects[nom].has_point(s))
-	fleches.clear()
 	var aide := ""
 	if onglet == "Général":
-		_dessiner_general(ci, s, points)
-		if points:
-			aide = "Cliquez sur un triangle rouge pour dépenser un point."
+		_dessiner_general(ci, s)
 	elif onglet == "Dégâts":
 		_dessiner_degats(ci)
 		aide = "Moyenne d'un coup : (dés + caractéristique + objets) × pourcentages, avant la défense de la cible."
@@ -159,33 +148,24 @@ func _dessiner(ci: Control) -> void:
 		aide = "2 points de défense = −1 dégât par coup (défense générale ou résistance spécifique, la meilleure). Pourcentages appliqués avant."
 	Ui.texte(ci, aide, Vector2(24, Ui.HAUTEUR - 36), Ui.DETAIL, 13)
 	Ui.bouton(ci, BOUTON_FERMER, "Fermer", Ui.BOUTON_ROUGE, BOUTON_FERMER.has_point(s))
-	if message != "" and Animations.temps() < message_fin:
-		Ui.message(ci, message, Vector2(680, 108), Ui.VERT)
 	var z := []
 	for nom in ONGLETS:
 		z.append([["onglet", nom], onglet_rects[nom]])
-	for f in fleches:
-		z.append([["fleche", f[0]], f[1]])
 	z.append([["fermer"], BOUTON_FERMER])
-	definir_zones(z, z[ONGLETS.size()][0] if not fleches.is_empty() else ["onglet", onglet])
+	definir_zones(z, ["onglet", onglet])
 
 
-func _dessiner_general(ci: Control, s: Vector2, points: int) -> void:
+func _dessiner_general(ci: Control, s: Vector2) -> void:
 	Ui.panneau(ci, PANNEAU_GAUCHE)
 	Ui.panneau(ci, PANNEAU_DROIT)
 	Ui.texte(ci, "Caractéristiques", PANNEAU_GAUCHE.position + Vector2(14, 8), Ui.OR, 17, true)
-	var triangle := Ui.texture("triangle_rouge.png")
 	for i in CARACTERISTIQUES.size():
-		var cle: String = CARACTERISTIQUES[i][1]
+		var cle: String = CARACTERISTIQUES[i]
 		var l := Rect2(PANNEAU_GAUCHE.position.x + 10, PANNEAU_GAUCHE.position.y + 36 + i * 52, PANNEAU_GAUCHE.size.x - 20, 48)
 		Ui.rect(ci, l, Ui.LIGNE_SURVOL if l.has_point(s) else Ui.LIGNE, 0, 5)
 		Ui.texte(ci, Caracteristiques.NOMS[cle], l.position + Vector2(40, 5), Ui.BLANC, 16, true)
 		Ui.texte(ci, U.g(U.ga(joueur, cle, 0)), Vector2(l.end.x - 12, l.position.y + 5), Ui.OR, 18, true, null, "topright")
 		Ui.texte(ci, "Par point : " + Caracteristiques.TEXTES[cle], l.position + Vector2(40, 28), Ui.DETAIL, 12, false, l.size.x - 52)
-		if points > 0:
-			var f := Rect2(l.position.x + 10, l.get_center().y - 11, 22, 22)
-			ci.draw_texture_rect(triangle, f, false)
-			fleches.append([CARACTERISTIQUES[i][0], f])
 	colonne(ci, PANNEAU_DROIT.grow_individual(-18, -12, -18, -12), lignes_effets(joueur))
 
 
@@ -228,11 +208,3 @@ func _evenement(ev: Dictionary) -> void:
 		for nom in ONGLETS:
 			if onglet_rects[nom].has_point(pos):
 				onglet = nom
-		for f in fleches:
-			if f[1].has_point(pos) and joueur.points_a_distribuer > 0:
-				joueur.distribuer_points(f[0])
-				for c in CARACTERISTIQUES:
-					if c[0] == f[0]:
-						message = "+1 " + Caracteristiques.NOMS[c[1]]
-				message_fin = Animations.temps() + 2
-				break

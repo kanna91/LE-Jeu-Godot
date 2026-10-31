@@ -1,6 +1,6 @@
 class_name Ennemis
 extends Dyn
-## Classe de base des ennemis (ennemis.py : Ennemis) : statistiques, équipement,
+## Classe de base des ennemis : statistiques, équipement,
 ## butin et intelligence artificielle (mecanique_ennemis).
 
 const CHANCE_SOIN_IA := 1.0 / 3
@@ -14,8 +14,8 @@ const ORIENTATION_PAR_CLASSE := {"guerrier": "physique", "mage": "magique", "sou
 ## Réduction commune des dégâts des ennemis (×0,68 jusqu'au 2026-10-27) : retirée à la demande de l'utilisateur
 ## quand le héros est passé à 100 PV ; gardée à 1 pour pouvoir la remettre.
 const MULTIPLICATEUR_DEGATS_ENNEMIS := 1.0
-const MINI_BOSS := {"pv": 6.0, "degats": 0.8, "taille": 1.35, "recompenses": 3, "pa": 1}
-const BOSS := {"pv": 14.0, "degats": 0.8, "taille": 1.7, "recompenses": 10, "pa": 1}
+const MINI_BOSS := {"pv": 6.0, "degats": 0.8, "taille": 1.35, "pa": 1}
+const BOSS := {"pv": 14.0, "degats": 0.8, "taille": 1.7, "pa": 1}
 const IMAGES_GOBELINS_PAR_SOUS_CLASSE := {
 	"archer": ["archer01.png", "archer02.png", "archer03.png", "archer04.png", "archer05.png"],
 	"lancier": ["lancier01.png", "lancier02.png"],
@@ -26,9 +26,6 @@ const IMAGES_GOBELINS_PAR_SOUS_CLASSE := {
 	"chaman": ["chaman01.png", "chaman02.png", "chaman03.png"],
 }
 const CHANCE_POTION_SOIN := 0.30
-## Chance qu'un ennemi lâche un objet (généré à sa mort, jamais porté), selon le nombre d'objets
-## équipés par le héros : [objets équipés au moins, chance], du palier le plus haut au plus bas.
-const PALIERS_BUTIN_OBJET := [[10, 0.25], [8, 0.30], [6, 0.35], [3, 0.40], [0, 0.50]]
 
 ## PV max par point d'endurance (héros et ennemis) : voir Caracteristiques (10 depuis le 2026-10-29, 2 avant).
 const PV_PAR_ENDURANCE := Caracteristiques.PV_PAR_ENDURANCE
@@ -36,22 +33,9 @@ const PV_PAR_ENDURANCE := Caracteristiques.PV_PAR_ENDURANCE
 ## 2026-10-29) : de quoi lancer leurs sorts en attendant la refonte des ennemis.
 const MANA_ENNEMIS := [2, 3]
 
-## Bonus de niveau et de caractéristiques appliqués à tous les ennemis créés ensuite.
+## Bonus de caractéristiques (un par repos) appliqués à tous les ennemis créés ensuite.
 
 static var bonus_globaux := {"niveau": 0, "force": 0, "dextérité": 0, "endurance": 0, "intelligence": 0, "sagesse": 0}
-
-
-## Nombre d'objets que porte le héros (emplacements d'équipement occupés).
-static func nombre_objets_heros(donjon) -> int:
-	var heros = U.ga(donjon, "personnage", null)
-	var equipements = U.ga(heros, "equipements", null)
-	if equipements == null:
-		return 0
-	var n := 0
-	for o in equipements.values():
-		if o != null:
-			n += 1
-	return n
 
 
 ## Remplit les attributs (``Ennemis.__init__``).
@@ -89,8 +73,6 @@ func initialiser_ennemi(a: Dictionary, donjon) -> void:
 	d["chance_esquive"] = a.get("chance_esquive", 0)
 	d["chance_de_toucher"] = a.get("chance_de_toucher", 0)
 	d["chance_de_parer"] = a.get("chance_de_parer", 0)
-	d["experience_combat"] = a.get("experience_combat", 0)
-	d["piece_or_combat"] = a.get("piece_or_combat", 0)
 	d["donjon"] = donjon
 	d["a_utilise_mecanique"] = false
 	d["taux_de_loot"] = 100
@@ -136,35 +118,11 @@ func calculer_stats() -> void:
 
 
 
-## Chance de lâcher un objet (PALIERS_BUTIN_OBJET), sans le bonus des talents.
-static func chance_butin_objet(donjon) -> float:
-	var n := nombre_objets_heros(donjon)
-	for palier in PALIERS_BUTIN_OBJET:
-		if n >= palier[0]:
-			return palier[1]
-	return PALIERS_BUTIN_OBJET[-1][1]
-
-
 ## Objet lâché : emplacement au hasard, orienté selon la classe de l'ennemi.
 func generer_objet_butin():
 	var cle: String = Objets.EMPLACEMENTS_EQUIPEMENT.pick_random()
 	return GenerationObjets.generer_objet("anneau" if cle.begins_with("anneau") else cle, null, null,
 		ORIENTATION_PAR_CLASSE.get(U.ga(self, "classe", null)))
-
-
-## Butin à la mort : les consommables portés, un objet (chance_butin_objet + bonus) et la potion.
-func loot(bonus := 0.0) -> Array:
-	var objets_lootes := []
-	for objet in _d["inventaire"]:
-		if objet is Consommable:
-			objets_lootes.append(objet)
-	if randf() < chance_butin_objet(U.ga(self, "donjon", null)) + bonus:
-		objets_lootes.append(generer_objet_butin())
-	if not U.ga(self, "potion_preparee", false):
-		var potion = _tirer_potion(bonus)
-		if potion != null:
-			objets_lootes.append(potion)
-	return objets_lootes
 
 
 func _tirer_potion(bonus := 0.0):
@@ -235,15 +193,6 @@ func utiliser_consommable(consommable) -> void:
 	print("%s boit %s et récupère %s PV." % [_d["nom"], consommable.nom, U.f(_d["points_de_vie"] - pv_avant)])
 
 
-## Augmente le niveau global des ennemis et répartit 5 points de bonus globaux.
-static func suivre_le_hero() -> void:
-	bonus_globaux["niveau"] += 1
-	print("🔼 Niveau global des ennemis augmenté à %d" % bonus_globaux["niveau"])
-	for _i in 5:
-		var c = ["force", "dextérité", "endurance", "intelligence", "sagesse"].pick_random()
-		bonus_globaux[c] += 1
-
-
 ## Bonus globaux aléatoires aux caractéristiques des futurs ennemis (un par repos).
 static func bonus_ennemis(compteur_repos: int) -> void:
 	for _i in compteur_repos:
@@ -257,37 +206,20 @@ func est_vivant() -> bool:
 	return _d["points_de_vie"] > 0
 
 
-## Traite la mort de l'ennemi (une seule fois) : expérience, or, butin.
+## Traite la mort de l'ennemi (une seule fois). Les ennemis ne donnent ni expérience, ni or, ni butin (décision de
+## l'utilisateur du 2026-10-26), sauf les rares qui portent un équipement (chef d'un groupe : un objet garanti ; un
+## porteur rend ses objets, Aventure.apres_victoire).
 func mort_au_combat(donjon) -> void:
 	if not _d["est_deja_mort"] and _d["points_de_vie"] <= 0:
 		_d["est_deja_mort"] = true
-		donjon.ennemis_mort_au_combat += 1
-		donjon.ennemis_definis -= 1
 		Statistiques.noter(donjon.personnage, "ennemis_tues")
-		print("%s est mort." % _d["nom"])
-		if not Aventure.RECOMPENSES_ENNEMIS:
-			# Donjon d'aventure (décision du 2026-10-26) : les ennemis ne donnent rien, sauf les rares qui portent
-			# un équipement (chef d'un groupe : un objet garanti ; un porteur rend ses objets, Aventure.apres_victoire).
-			if U.ga(self, "butin_garanti", false):
-				var objet = generer_objet_butin()
-				donjon.personnage.ajouter_objet_inventaire(objet)
-				print("%s a lâché %s" % [_d["nom"], objet.nom])
-			return
 		if U.ga(self, "est_boss", false):
 			Statistiques.noter(donjon.personnage, "boss_vaincus")
-		donjon.personnage.recevoir_experience_combat(donner_experience_combat())
-		donjon.personnage.recevoir_piece_or_combat(donner_piece_or_combat())
-		for objet in loot(U.num(donjon.personnage, "talent_butin")):
+		print("%s est mort." % _d["nom"])
+		if U.ga(self, "butin_garanti", false):
+			var objet = generer_objet_butin()
 			donjon.personnage.ajouter_objet_inventaire(objet)
 			print("%s a lâché %s" % [_d["nom"], objet.nom])
-
-
-func donner_experience_combat():
-	return _d["experience_combat"] if _d["points_de_vie"] <= 0 else 0
-
-
-func donner_piece_or_combat():
-	return _d["piece_or_combat"] if _d["points_de_vie"] <= 0 else 0
 
 
 func verifier_points_d_action_suffisants(cout_action) -> bool:

@@ -17,7 +17,7 @@ extends RefCounted
 ## Lumière (soins), brut, saignement et poison ne sont ni bloqués ni modifiés (plus de résistance au poison).
 ##
 ## Chaque fonction ``recevoir_degats_*`` est observée par EffetsCombat (PV avant
-## et après), comme l'enveloppe de effets_combat.py.
+## et après).
 
 const PHYSIQUES := ["tranchant", "perforant", "contondant"]
 const MAGIQUES := ["arcane", "ombre", "chaos"]
@@ -26,11 +26,9 @@ const TYPES := PHYSIQUES + MAGIQUES + ELEMENTAIRES
 const GROUPES := {"physique": PHYSIQUES, "magique": MAGIQUES, "elementaire": ELEMENTAIRES}
 ## Défense générale de chaque groupe.
 const DEFENSES := {"physique": "armure", "magique": "resistance_magique", "elementaire": "resistance_elementaire"}
-const NOMS_GROUPES := {"physique": "physiques", "magique": "magiques", "elementaire": "élémentaires"}
 ## Points de défense pour bloquer 1 dégât.
 const POINTS_PAR_DEGAT := 2
 const PLAFOND_RESISTANCE_POURCENT := 0.75
-const NON_REDUITS := ["brut", "saignement", "lumière", "poison", null]
 
 
 ## Groupe d'un type de dégâts : « physique », « magique », « elementaire » ou "" (lumière, poison, brut...).

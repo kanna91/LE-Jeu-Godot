@@ -1,6 +1,6 @@
 class_name Competence
 extends Dyn
-## Compétence (attaque, sort, soin, renforcement) : competence.py, classe Compétence.
+## Compétence (attaque, sort, soin, renforcement).
 ##
 ## Les sous-classes Python (Feu, Coup_d_epee...) ne différaient que par les
 ## arguments de leur constructeur : ils sont exportés dans donnees/competences.json
@@ -146,10 +146,6 @@ func verifier_niveau() -> void:
 		_d["niveau"] += 1
 		_d["points_amélioration"] += POINTS_PAR_NIVEAU
 		print("%s est monté au niveau %d !" % [_d["nom"], _d["niveau"]])
-
-
-func afficher_synthese() -> String:
-	return "%s: %s" % [_d["nom"], _d["description"]]
 
 
 func _to_string() -> String:

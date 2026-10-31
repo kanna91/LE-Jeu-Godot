@@ -1,6 +1,6 @@
 class_name EffetsCombat
 extends RefCounted
-## Animations de dégâts en combat (effets_combat.py) — enregistrement des coups.
+## Animations de dégâts en combat — enregistrement des coups.
 ##
 ## Le module observe les dégâts sans changer les calculs : Degats signale chaque
 ## coup (PV avant et après), Combat les critiques, les coups ratés et le
@@ -234,13 +234,3 @@ static func decalage(ennemi) -> Vector2:
 			dx += sin(age * 70) * amplitude
 			dy += absf(sin(age * 45)) * amplitude * 0.3
 	return Vector2(int(dx), int(dy))
-
-
-## Oublie les coups terminés (appelé par l'écran de combat).
-static func nettoyer() -> void:
-	var t := maintenant()
-	var restants := []
-	for imp in file:
-		if imp.debut == null or t < imp.debut + imp.duree() + 0.05:
-			restants.append(imp)
-	file = restants

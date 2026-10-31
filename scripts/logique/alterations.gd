@@ -1,6 +1,6 @@
 class_name Alterations
 extends RefCounted
-## Altérations d'état : malus et bonus temporaires (alteration.py, module et classe Alteration).
+## Altérations d'état : malus et bonus temporaires.
 ##
 ## Chaque altération est décrite une seule fois dans DEFINITIONS (voir defs()) :
 ## libellé, nature, durée, cumul maximal, puissance et effets déclaratifs

@@ -48,7 +48,3 @@ func jouer(chemin: String) -> void:
 		flux.loop = true  # MP3 / OGG : reboucle sans coupure
 	lecteur.stream = flux
 	lecteur.play()
-
-
-func arreter() -> void:
-	lecteur.stop()

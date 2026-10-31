@@ -1,6 +1,6 @@
 class_name Marchand
 extends Dyn
-## Marchand itinérant : vend, achète et rachète des objets (marchand.py).
+## Marchand itinérant : vend, achète et rachète des objets.
 
 const MAJORATION_ACHAT := 1.35
 const RANG_MAX_LOT := 5

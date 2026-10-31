@@ -1,12 +1,11 @@
 class_name Formules
 extends RefCounted
-## Formules de dégâts du combat, partagées par la fiche des ennemis et l'équilibrage (formules.py).
+## Formules de dégâts du combat, partagées par la fiche des ennemis et l'équilibrage.
 
 const TYPES_PHYSIQUES := ["tranchant", "perforant", "contondant"]
 const TYPES_MAGIQUES := ["feu", "froid", "foudre", "arcane", "chaos", "ombre", "lumière"]
 const TYPES_SPECIAUX := ["poison"]
 
-const DEGATS_PAR_FORCE := 0.5
 const PLAFOND_CRITIQUE := 0.75
 const PLAFOND_ESQUIVE := 0.60
 const PLAFOND_PARADE := 0.75

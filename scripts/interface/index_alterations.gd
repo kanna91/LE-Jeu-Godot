@@ -1,6 +1,6 @@
 class_name IndexAlterations
 extends RefCounted
-## Onglet « Altérations » du grimoire (index_alterations.py) : toutes les
+## Onglet « Altérations » du grimoire : toutes les
 ## altérations avec leur nature, durée, cumul, effet et les compétences qui les
 ## appliquent (d'emblée ou par amélioration). Filtre malus / bonus, défilement.
 

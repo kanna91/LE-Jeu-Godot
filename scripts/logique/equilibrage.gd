@@ -1,7 +1,7 @@
 class_name Equilibrage
 extends RefCounted
 ## Équilibrage des améliorations : valeur d'une compétence en « dégâts
-## équivalents » contre un adversaire de référence (equilibrage.py).
+## équivalents » contre un adversaire de référence.
 
 const NB_ENNEMIS := 2.5
 const PART_SOUS_MOITIE := 0.15
@@ -234,11 +234,6 @@ static func benefice_alteration(nom: String, porteur, adversaire, puissance = nu
 	return [maxf(0.0, tour), duree]
 
 
-static func valeur_alteration(nom: String, porteur, adversaire, puissance = null, duree_bonus = 0, lanceur = null) -> float:
-	var b := benefice_alteration(nom, porteur, adversaire, puissance, duree_bonus, lanceur)
-	return b[0] * b[1]
-
-
 static func valeur_par_utilisation(nom: String, probabilite: float, porteur, adversaire, utilisations: float,
 		puissance = null, duree_bonus = 0, lanceur = null) -> float:
 	if probabilite <= 0:
@@ -351,13 +346,6 @@ static func copie_competence(competence):
 	var types = U.ga(competence, "type_degats", null)
 	copie_c.type_degats = types.duplicate() if types != null else []
 	return copie_c
-
-
-## Gain de valeur apporté par un effet d'amélioration (Callable appliqué à une copie).
-static func valeur_option(competence, effet: Callable, brut := false) -> float:
-	var copie_c = copie_competence(competence)
-	effet.call(copie_c)
-	return valeur(copie_c, brut) - valeur(competence, brut)
 
 
 ## Intensité d'une option qui apporte un gain de valeur égal au budget : [intensité, gain].

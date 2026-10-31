@@ -11,16 +11,10 @@ extends RefCounted
 ## ``donjon.aventure[etage]``.
 ##
 ## Décisions de l'utilisateur : les ennemis ne donnent plus rien (sauf les rares qui portent un équipement), plus de
-## niveaux (désactivés, pas supprimés), deux sortes d'imbattables (imbattable : il faut fuir ; geôlier : capture),
+## niveaux (supprimés le 2026-10-31), deux sortes d'imbattables (imbattable : il faut fuir ; geôlier : capture),
 ## toute défaite = la mort, fuite de combat avec une chance d'échec, ennemis visibles qui rôdent (Fear & Hunger).
 ## **Toutes les valeurs chiffrées ci-dessous sont choisies par Claude, à valider par l'utilisateur.**
 
-## Le donjon d'aventure est actif (faux : ancien comportement, un combat en entrant dans chaque salle).
-const ACTIF := true
-## Les ennemis ordinaires donnent expérience, or et butin (désactivé par l'utilisateur le 2026-10-26).
-const RECOMPENSES_ENNEMIS := false
-## Montée de niveau par l'expérience (désactivée le 2026-10-26 ; sans expérience elle n'arrive plus de toute façon).
-const PROGRESSION_NIVEAUX := false
 
 # --- Population des salles (valeurs choisies par Claude) -------------------------------------------------
 ## Groupes de gobelins qui rôdent dans une salle ordinaire : {nombre : chance en %}. « Très peu » d'ennemis pour
@@ -243,7 +237,7 @@ static func ecarter_des_salles_paisibles(donjon, etage: int) -> void:
 
 ## Peuple un étage (une seule fois) : rôdeurs, boss, cachot, personnages, objets, salles verrouillées.
 static func preparer_etage(donjon, etage: int) -> void:
-	if not ACTIF or not donjon.plan_donjon.has(etage):
+	if not donjon.plan_donjon.has(etage):
 		return
 	var m := meta(donjon, etage)
 	if m.get("prepare", false):
@@ -491,8 +485,6 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 			for g in liste:
 				g._d["pacifique"] = true
 				g._d["nom"] = String(g._d["nom"]) + " (pacifique)"
-	for e in liste:
-		donjon.ennemis_genere += 1
 	return liste
 
 
@@ -1000,7 +992,7 @@ static func utiliser_objet(donjon, p: Dictionary) -> String:
 ## La salle ``dest`` de l'étage est-elle encore verrouillée ?
 static func verrouillee(donjon, dest: String) -> bool:
 	var salle: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])].get(dest, {})
-	return ACTIF and salle.get("verrouillee", false)
+	return salle.get("verrouillee", false)
 
 
 ## Essaie d'ouvrir la salle ``dest`` avec une clé : [ouverte, message].

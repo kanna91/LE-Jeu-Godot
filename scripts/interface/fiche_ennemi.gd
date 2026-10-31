@@ -1,6 +1,6 @@
 class_name FicheEnnemi
 extends RefCounted
-## Contenu de la fiche détaillée d'un ennemi et de son info-bulle en combat (fiche_ennemi.py).
+## Contenu de la fiche détaillée d'un ennemi et de son info-bulle en combat.
 
 const TYPES_PHYSIQUES := ["tranchant", "perforant", "contondant"]
 const TYPES_MAGIQUES := ["feu", "froid", "foudre", "arcane", "chaos", "ombre", "lumière"]
@@ -193,9 +193,6 @@ static func contenu_fiche(ennemi, joueur) -> Array:
 		l.append(["Aucune compétence connue.", "detail"])
 	for competence in ennemi.competences:
 		l.append_array(_decrire_competence(ennemi, competence, joueur))
-	l.append(["RÉCOMPENSES", "titre"])
-	l.append(["%s points d'expérience et %s pièces d'or à sa mort ; chaque objet qu'il porte a 10 %% de chance d'être lâché (%d objet(s))." % [
-		str(ennemi.experience_combat), str(ennemi.piece_or_combat), ennemi.inventaire.size()], "normal"])
 	return l
 
 

@@ -1,6 +1,6 @@
 class_name GenerateurEtage
 extends RefCounted
-## Génération des étages (d'après générateur_étage.py : generer_plan et _voie_principale).
+## Génération des étages.
 ##
 ## **Grands étages** (demande de l'utilisateur, 2026-10-27 : « les étages doivent être grands », croisements,
 ## cercles) : environ TAILLE_ETAGE salles (29 avant). Une voie principale du départ au gardien, puis des

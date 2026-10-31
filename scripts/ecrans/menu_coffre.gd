@@ -1,5 +1,5 @@
 extends Ecran
-## Coffre d'une salle bonus (menu_coffre.py) : or, objet (comparé à l'équipement) et potion éventuelle.
+## Coffre d'une salle bonus : or, objet (comparé à l'équipement) et potion éventuelle.
 ## « Prendre » vide le coffre ; « Laisser » (ou Échap) le garde pour plus tard.
 
 var joueur

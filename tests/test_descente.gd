@@ -30,18 +30,16 @@ func lancer() -> void:
 	if donjon.salle_actuelle[0] != 2:
 		print("ÉCHEC : le gardien vaincu, on ne monte pas.")
 		echecs += 1
-	var menace: int = donjon.compteur_menace
 	await donjon.descendre_etage()
-	if donjon.compteur_menace != menace:
+	if not donjon.boss_vaincu(1):
 		print("ÉCHEC : le boss de l'étage 1 est réapparu en redescendant.")
 		echecs += 1
 	if not donjon.est_salle_boss():
 		print("ÉCHEC : la descente n'arrive pas dans la salle du boss.")
 		echecs += 1
-	menace = donjon.compteur_menace
 	await donjon.monter_etage()
-	if donjon.compteur_menace != menace:
-		print("ÉCHEC : une rencontre a eu lieu en remontant dans la salle de départ visitée.")
+	if donjon.salle_actuelle[0] != 2:
+		print("ÉCHEC : on ne remonte pas à l'étage 2 (gardien de l'étage 1 déjà vaincu).")
 		echecs += 1
 	print("BILAN descente : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)

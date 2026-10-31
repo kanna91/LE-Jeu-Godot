@@ -1,6 +1,6 @@
 class_name MenuPartie
 extends RefCounted
-## Fonctions communes aux écrans de gestion de la partie (menu_partie.py).
+## Fonctions communes aux écrans de gestion de la partie.
 
 const CAUSES := {"combat": "Tombé au combat", "piège": "Tué par un piège"}
 

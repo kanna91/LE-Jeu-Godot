@@ -1,6 +1,6 @@
 class_name Icones
 extends RefCounted
-## Pictogrammes vectoriels des menus (icones.py) : talents, grimoire, caractéristiques, inventaire.
+## Pictogrammes vectoriels des menus : talents, grimoire, caractéristiques, inventaire.
 ## Dessinés sur une grille de 120 unités, mise à l'échelle de la taille demandée.
 
 const _BASE := 120.0

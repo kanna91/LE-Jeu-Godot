@@ -59,12 +59,6 @@ const RIRE_DISTANCE := 1.5
 const RIRE_ATTENTE := Vector2(8.0, 16.0)
 static var _images_diablotin := {}
 ## Images de la succube (détourées par ``outils/importer_succube.py``), une variante par succube.
-## Images du Chevalier de la mort et du geôlier (``outils/importer_creatures.py``).
-## Images fixes du chevalier et des geôliers : remplacées dans les salles par leur marche animée (2026-10-27 ;
-## geôlier le soir même), gardées pour référence.
-const IMAGES_CHEVALIER := [preload("res://images/pnj/chevalier_1.png")]
-const IMAGES_GEOLIER := [preload("res://images/pnj/geolier_1.png"), preload("res://images/pnj/geolier_2.png"),
-	preload("res://images/pnj/geolier_3.png"), preload("res://images/pnj/geolier_4.png")]
 const IMAGES_SUCCUBE := [preload("res://images/pnj/succube_1.png"), preload("res://images/pnj/succube_2.png"),
 	preload("res://images/pnj/succube_3.png")]
 ## Gobelins dessinés comme en combat : animation de repos (``images/combat_anime/gobelins``) des sortes animées,
@@ -789,15 +783,6 @@ func _gobelin_fixe(n: Node2D, fichier: String, pieds: Vector2, hauteur: float, t
 	return float(cadre.end.y - cadre.position.y) * echelle.y
 
 
-## Rôdeur dessiné avec son image (variante selon l'id), pieds au sol, tourné dans le sens où il marche.
-func _image_rodeur(n: Node2D, e: Dictionary, images: Array, hauteur: float) -> void:
-	var tex: Texture2D = images[int(e["p"].get("id", 0)) % images.size()]
-	var taille := Vector2(hauteur * tex.get_width() / float(tex.get_height()), hauteur)
-	n.draw_set_transform(Vector2.ZERO, 0, Vector2(-1.0 if e["regard"].x < -0.2 else 1.0, 1))
-	n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)
-	n.draw_set_transform(Vector2.ZERO)
-
-
 ## Marches animées de Grok (``outils/importer_animations_marche.py`` → ``images/pnj/<nom>_anim``) : Chevalier de la
 ## mort et geôlier (depuis le 2026-10-27). La vue suit la direction où il va (de dos s'il s'éloigne, de face s'il vient
 ## vers le spectateur, profil ou trois-quarts sur les côtés, miroir pour la gauche) ; immobile, il garde la première
@@ -855,11 +840,6 @@ func _marche_animee(n: Node2D, e: Dictionary, hauteur: float, nom: String) -> vo
 func _capsule(n: Node2D, base: Vector2, rayon: float, haut: float, couleur: Color) -> void:
 	n.draw_rect(Rect2(base + Vector2(-rayon, -haut + rayon), Vector2(rayon * 2, haut - rayon)), couleur)
 	n.draw_circle(base + Vector2(0, -haut + rayon), rayon, couleur)
-
-
-func _yeux(n: Node2D, centre: Vector2, ecart: float, couleur: Color) -> void:
-	n.draw_circle(centre + Vector2(-ecart, 0), maxf(0.8, ecart * 0.45), couleur)
-	n.draw_circle(centre + Vector2(ecart, 0), maxf(0.8, ecart * 0.45), couleur)
 
 
 func _couronne(n: Node2D, sommet: Vector2, taille: float, couleur: Color) -> void:

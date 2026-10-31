@@ -1,6 +1,6 @@
 class_name Sorts
 extends RefCounted
-## Sorts du grimoire : prérequis par palier, sorts de départ, catalogue (sorts.py).
+## Sorts du grimoire : prérequis par palier, sorts de départ, catalogue.
 
 const TYPES := ["tranchant", "perforant", "contondant", "feu", "froid", "foudre", "arcane", "chaos", "ombre", "lumière"]
 const ORDRE_ELEMENTS := ["feu", "froid", "foudre", "arcane", "chaos", "ombre", "lumière", "tranchant", "perforant", "contondant"]

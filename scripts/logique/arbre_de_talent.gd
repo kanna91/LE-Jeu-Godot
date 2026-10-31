@@ -1,6 +1,6 @@
 class_name ArbreDeTalent
 extends Dyn
-## Talents appris par un personnage (talent.py : ArbreDeTalent).
+## Talents appris par un personnage.
 ## La sauvegarde n'enregistre que les identifiants (``talents_ids``) : les talents
 ## redeviennent ceux du sphérier au chargement.
 

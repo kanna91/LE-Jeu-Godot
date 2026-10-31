@@ -1,7 +1,6 @@
 class_name CoucheParticules
 extends Node2D
-## Particules de feu qui s'échappent des foyers d'un fond d'écran (animations.py :
-## SystemeParticules), dessinées en mélange additif.
+## Particules de feu qui s'échappent des foyers d'un fond d'écran, dessinées en mélange additif.
 ##
 ## Un système par image de fond, conservé : en revenant sur un écran, les
 ## particules reprennent là où elles en étaient.

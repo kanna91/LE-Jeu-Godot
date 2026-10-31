@@ -1,6 +1,6 @@
 class_name Reference
 extends Dyn
-## Combattant de référence de l'équilibrage (equilibrage.py : Reference) : toute
+## Combattant de référence de l'équilibrage : toute
 ## statistique absente vaut 0 (1 pour un ``pourcentage_*``), et il ne meurt jamais.
 
 

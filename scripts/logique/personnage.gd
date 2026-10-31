@@ -1,6 +1,6 @@
 class_name Personnage
 extends Dyn
-## Personnage joueur : statistiques, progression, équipement, magies et talents (personnage.py).
+## Personnage joueur : statistiques, progression, équipement, magies et talents.
 
 const _TYPES_ITEM := ["degats_tranchant", "degats_perforant", "degats_contondant", "degats_feu", "degats_froid",
 	"degats_foudre", "degats_arcane", "degats_chaos", "degats_ombre", "degats_lumière", "penetration_resistance",
@@ -81,19 +81,13 @@ func _initialiser(nom: String) -> void:
 	d["chance_de_toucher"] = 0.85
 	d["chance_esquive"] = 0.05
 	d["niveau"] = 1
-	d["experience_combat"] = 0
-	d["experience"] = 0
 	d["piece_or"] = 0
-	d["piece_or_combat"] = 0
 	d["bonus_armure"] = 0
 	for t in _TYPES_ITEM:
 		d["item_" + t] = 0
 	for b in ["penetration_armure", "penetration_resistance", "chance_de_coup_critique", "degats_critique", "force",
 			"puissance_magique", "mana_max"]:
 		d["bonus_de_" + b] = 0
-	d["points_a_distribuer"] = 0
-	d["points_competence_passive_a_distribuer"] = 0
-	d["points_competence_a_distribuer"] = 0
 	d["nouvelle_magie_a_apprendre"] = 1
 	d["magies_apprises"] = []
 	d["magies_disponibles"] = [Competences.creer("Boule_de_feu"), Competences.creer("Soin"),
@@ -139,10 +133,6 @@ func _initialiser(nom: String) -> void:
 	d["alteration"] = {}
 	d["alterations_actives"] = {}
 	equiper_item(arme)
-
-
-func a_deja_noeud_talent(node_key) -> bool:
-	return node_key != null and U.ga(self, "talents_picked_keys", {}).has(node_key)
 
 
 func peut_apprendre_talent(talent_noeud) -> bool:
@@ -222,13 +212,6 @@ func regenerer(secondes: float) -> void:
 			_d[paire[0]] = min(actuel + gagne, maximum)
 
 
-## ``x // n`` de Python : entier si ``x`` est entier, plancher flottant sinon.
-static func _division_entiere(x, n: int):
-	if x is int:
-		return int(floor(float(x) / n))
-	return floor(float(x) / n)
-
-
 ## PV que rendrait un sort de soin lancé sur soi (formules du combat, sans critique).
 func soin_estime(competence) -> int:
 	var rendus := 0.0
@@ -264,33 +247,8 @@ func fin_alteration() -> void:
 	Alterations.retirer_tout(self)
 
 
-func ajouter_magie(magie) -> void:
-	if not (magie in _d["magies_apprises"]):
-		_d["magies_apprises"].append(magie)
-	print("magie '%s' ajoutée." % magie.nom)
-
-
-func restaurer_mana(quantite) -> void:
-	_d["mana"] = min(_d["mana"] + quantite, _d["mana_max"])
-	print("%s a restauré %s points de mana." % [_d["nom"], str(quantite)])
-
-
-func recuperation_mana() -> void:
-	if _d["mana"] < _d["mana_max"]:
-		_d["mana"] += _d["regen_de_mana"]
-		if _d["mana"] > _d["mana_max"]:
-			_d["mana"] = _d["mana_max"]
-
-
 func est_vivant() -> bool:
 	return _d["points_de_vie"] > 0
-
-
-func recuperation_points_de_vie() -> void:
-	if _d["points_de_vie"] < _d["points_de_vie_max"]:
-		_d["points_de_vie"] += _d["regen_de_points_de_vie"]
-		if _d["points_de_vie"] > _d["points_de_vie_max"]:
-			_d["points_de_vie"] = _d["points_de_vie_max"]
 
 
 func restaurer_points_d_action() -> void:
@@ -299,95 +257,6 @@ func restaurer_points_d_action() -> void:
 
 func verifier_points_d_action_suffisants(cout_action) -> bool:
 	return _d["points_d_action"] >= cout_action
-
-
-## Encaisse l'or gagné pendant le combat.
-func recevoir_piece_or(piece_or_combat) -> void:
-	_d["piece_or"] += _d["piece_or_combat"]
-	print("%s a gagné %s pieces d'or." % [_d["nom"], str(piece_or_combat)])
-	_d["piece_or_combat"] = 0
-
-
-func recevoir_piece_or_combat(piece_or_combat) -> void:
-	var gain := Talents.or_gagne(self, piece_or_combat)
-	_d["piece_or_combat"] += gain
-	Statistiques.noter(self, "or_gagne", gain)
-
-
-func utiliser_piece_or(montant) -> void:
-	if montant > 0:
-		if _d["piece_or"] >= montant:
-			_d["piece_or"] -= montant
-			Statistiques.noter(self, "or_depense", montant)
-
-
-func recevoir_experience_combat(experience_combat) -> void:
-	var gain := Talents.experience_gagnee(self, experience_combat)
-	_d["experience_combat"] += gain
-	Statistiques.noter(self, "experience_recue", gain)
-
-
-func recevoir_experience(experience_combat) -> void:
-	_d["experience"] += _d["experience_combat"]
-	print("%s a gagné %s points d'expérience." % [_d["nom"], str(experience_combat)])
-	_d["experience_combat"] = 0
-	verifier_montee_niveau()
-
-
-## Monte d'autant de niveaux que l'expérience le permet (seuil 100 × niveau, expérience non consommée).
-func verifier_montee_niveau() -> void:
-	if not Aventure.PROGRESSION_NIVEAUX:
-		return  # niveaux désactivés (donjon d'aventure, décision de l'utilisateur du 2026-10-26)
-	while _d["experience"] >= 100 * _d["niveau"]:
-		_d["niveau"] += 1
-		_d["points_a_distribuer"] += 2
-		_d["points_de_talent"] += Talents.POINTS_PAR_NIVEAU
-		print("Félicitations ! Vous êtes passé au niveau %d. Vous avez %d points à distribuer." % [_d["niveau"], _d["points_a_distribuer"]])
-		Ennemis.suivre_le_hero()
-		if _d["niveau"] % 3 == 0:
-			_d["points_competence_passive_a_distribuer"] += 1
-		if _d["niveau"] % 6 == 0:
-			_d["nouvelle_magie_a_apprendre"] += 1
-
-
-## Dépense un point de caractéristique : 1 endurance, 2 force, 3 dextérité, 4 intelligence, 5 sagesse.
-func distribuer_points(choix) -> void:
-	if _d["points_a_distribuer"] <= 0:
-		return
-	var c := str(choix)
-	if c == "1":
-		_d["endurance"] += 1
-	elif c == "2":
-		_d["force"] += 1
-	elif c == "3":
-		_d["dextérité"] += 1
-	elif c == "4":
-		_d["intelligence"] += 1
-	elif c == "5":
-		_d["sagesse"] += 1
-	elif c == "6":
-		_d[Caracteristiques.MANA] = int(U.ga(self, Caracteristiques.MANA, 0)) + 1
-	else:
-		return
-	_d["points_a_distribuer"] -= 1
-	calculer_stats()
-
-
-## Point de compétence passive : pourcentage de dégâts (1 physique +5 %... 9 lumière +15 %).
-func distribuer_points_competence_passive(choix) -> bool:
-	if _d["points_competence_passive_a_distribuer"] <= 0:
-		return false
-	var table := {"1": ["pourcentage_degats_physique", 0.05], "2": ["pourcentage_degats_tranchant", 0.08],
-		"3": ["pourcentage_degats_perforant", 0.08], "4": ["pourcentage_degats_contondant", 0.08],
-		"5": ["pourcentage_degats_magique", 0.05], "6": ["pourcentage_degats_feu", 0.08],
-		"7": ["pourcentage_degats_foudre", 0.08], "8": ["pourcentage_degats_ombre", 0.08],
-		"9": ["pourcentage_degats_lumière", 0.15]}
-	var c := str(choix)
-	if not table.has(c):
-		return false
-	_d[table[c][0]] += table[c][1]
-	_d["points_competence_passive_a_distribuer"] -= 1
-	return true
 
 
 ## Apprend une magie disponible (point de magie et prérequis du sort).
@@ -464,11 +333,6 @@ func recevoir_objet(objet):
 	if emplacement != null and _d["equipements"].get(emplacement) == null:
 		return equiper_item(objet)
 	return null
-
-
-func ajouter_item(item) -> void:
-	var equipe = recevoir_objet(item)
-	print("Item ajouté à l'inventaire : %s%s" % [item.nom, " (équipé)" if equipe else ""])
 
 
 func ajouter_objet_inventaire(objet) -> void:

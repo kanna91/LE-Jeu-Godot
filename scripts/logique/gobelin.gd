@@ -1,6 +1,6 @@
 class_name Gobelin
 extends Ennemis
-## Ennemi gobelin, décliné en classes et sous-classes (ennemis.py : Gobelin).
+## Ennemi gobelin, décliné en classes et sous-classes.
 
 static var compteur := 0
 
@@ -18,8 +18,8 @@ static func nouveau(donjon, _niveau = 0) -> Gobelin:
 		"regen_de_points_de_vie": 0, "regen_de_points_de_vie_combat": 0, "mana_max": 0, "regen_de_mana": 0,
 		"points_d_action_max": 1, "force": 0, "dextérité": 0, "endurance": 0, "intelligence": 0, "sagesse": 0,
 		"puissance_magique": 3, "degats_base": 3, "armure": 0, "coefficient_reduction_armure": 0.02,
-		"chance_esquive": 0, "chance_de_toucher": 0.85, "chance_de_parer": 0, "experience_combat": 20,
-		"piece_or_combat": randi_range(4, 30), "chance_de_coup_critique": 0, "degats_critique": 1.5,
+		"chance_esquive": 0, "chance_de_toucher": 0.85, "chance_de_parer": 0,
+		"chance_de_coup_critique": 0, "degats_critique": 1.5,
 		"arme": null, "competences": [], "magies_apprises": [],
 	}, donjon)
 	g._d["chance_de_coup_critique_magique"] = 0.0
@@ -51,7 +51,7 @@ func generer_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobelin:
 	return _completer(cs[0], cs[1])
 
 
-## Boss : PV × 14, dégâts × 0,8, 1 PA (2 avant le 2026-10-20), sprite bien plus grand, récompenses × 10.
+## Boss : PV × 14, dégâts × 0,8, 1 PA (2 avant le 2026-10-20), sprite bien plus grand.
 func generer_boss_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobelin:
 	if cs.is_empty():
 		cs = definir_classe_gobelin()
@@ -84,8 +84,6 @@ func appliquer_rang_special(regles: Dictionary) -> void:
 	_d["pourcentage_degats_magique"] *= regles["degats"]
 	_d["pourcentage_degats_elementaire"] *= regles["degats"]
 	_d["pourcentage_degats_lumière"] /= regles["degats"]
-	_d["experience_combat"] = int(_d["experience_combat"] * regles["recompenses"])
-	_d["piece_or_combat"] = int(_d["piece_or_combat"] * regles["recompenses"])
 	_d["points_d_action_max"] = max(_d["points_d_action_max"], regles["pa"])
 	_d["points_d_action"] = _d["points_d_action_max"]
 	_d["taille_affichage"] = regles["taille"]
@@ -232,21 +230,11 @@ static func definir_attribut_gobelin(g, classe: String, sous_classe: String) -> 
 	Degats.ajouter_pourcentages(g, VULNERABILITES_PAR_SOUS_CLASSE.get(sous_classe, {}), RESISTANCES_PAR_SOUS_CLASSE.get(sous_classe, {}))
 	var parade: Array = PARADE_PAR_SOUS_CLASSE.get(sous_classe, [0, 0])
 	g.chance_de_parer = randi_range(parade[0], parade[1]) / 100.0
-	if sous_classe == "archer":
-		g.piece_or_combat += 20
-	if classe == "mage":
-		g.experience_combat += 15
-		if sous_classe == "sorcier":
-			g.experience_combat += 5
-		elif sous_classe == "feticheur":
-			g.piece_or_combat += 15
-	elif sous_classe == "chaman":
-		g.experience_combat += 15
 	g.points_de_vie = g.points_de_vie_max
 	g.mana = g.mana_max
 	g.calculer_stats()
 
 
-## Les gobelins ne portent aucun équipement : leur butin est tiré à leur mort (Ennemis.loot).
+## Les gobelins ne portent aucun équipement : rien n'est lâché à leur mort.
 static func generer_inventaire_gobelin(g) -> void:
 	g.inventaire = []

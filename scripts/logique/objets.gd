@@ -1,6 +1,6 @@
 class_name Objets
 extends RefCounted
-## Fonctions du module objets.py : emplacements d'équipement et bonus des équipements.
+## Emplacements d'équipement et bonus des équipements.
 
 const EMPLACEMENTS_EQUIPEMENT := ["arme", "anneau_1", "anneau_2", "amulette", "gants",
 	"casque", "plastron", "ceinture", "jambières", "bottes"]

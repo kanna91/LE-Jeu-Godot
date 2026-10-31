@@ -1,6 +1,6 @@
 class_name Manette
 extends RefCounted
-## Prise en charge de la manette dans tous les écrans (manette.py).
+## Prise en charge de la manette dans tous les écrans.
 ##
 ## Les entrées de la manette sont traduites en événements souris/clavier :
 ## A = clic gauche, B = Échap, X = clic droit, Y = I, LB/RB = molette,

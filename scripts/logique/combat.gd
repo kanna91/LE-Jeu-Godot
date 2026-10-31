@@ -1,6 +1,6 @@
 class_name Combat
 extends Dyn
-## Combat au tour par tour entre le héros et un groupe d'ennemis (combat.py).
+## Combat au tour par tour entre le héros et un groupe d'ennemis.
 ##
 ## mener_combat() est une coroutine : le tour du joueur attend l'écran de combat
 ## (``await Ecrans.menu_combat(...)``). La mort du héros lève le drapeau
@@ -35,7 +35,7 @@ static func nouveau(personnage, fenetre, ennemis: Array, donjon) -> Combat:
 	return c
 
 
-## Termine le combat si tous les ennemis sont morts (récompenses, régénération, altérations retirées).
+## Termine le combat si tous les ennemis sont morts (altérations retirées, expérience des compétences).
 func verification_des_vivants() -> void:
 	var personnage = _d["personnage"]
 	if not personnage.est_vivant():
@@ -47,7 +47,6 @@ func verification_des_vivants() -> void:
 			vivants = true
 	if not vivants:
 		print("Tous les ennemis ont été vaincus.")
-		recompence(personnage.piece_or_combat, personnage.experience_combat)
 		personnage.restaurer_points_d_action()
 		# Plus de régénération en fin de combat : elle se fait en minutes réelles pendant l'exploration
 		# (Personnage.regenerer, décision de l'utilisateur, 2026-10-29).
@@ -348,14 +347,6 @@ func tenter_fuite() -> bool:
 	print("La fuite échoue !")
 	EffetsCombat.signaler_texte(_d["personnage"], "Fuite ratée !")
 	return false
-
-
-func recompence(piece_or_combat, experience_combat) -> void:
-	var p = _d["personnage"]
-	_d["piece_or"] = p.piece_or
-	_d["experience"] = p.experience
-	p.recevoir_experience(experience_combat)
-	p.recevoir_piece_or(piece_or_combat)
 
 
 ## Lance une compétence : coûts, cibles, attaques, frappe supplémentaire, paiement.

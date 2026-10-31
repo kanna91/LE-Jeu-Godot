@@ -1,6 +1,6 @@
 class_name SallesBonus
 extends RefCounted
-## Contenu des salles bonus (logique de menu_coffre.py, menu_bonus.py et menu_soin.py).
+## Contenu des salles bonus.
 
 const CHANCE_POTION_COFFRE := 0.6
 

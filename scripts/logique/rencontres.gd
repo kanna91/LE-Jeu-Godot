@@ -20,7 +20,6 @@ extends RefCounted
 ## Les choix sont comptés (``donjon.moralite`` : clémence, cruauté) pour de futures conséquences.
 ## **Textes et valeurs choisis par Claude, à valider.**
 
-const CHANCE_VERITE := 0.5
 ## Autel : part des PV max offerts, et caractéristiques possibles.
 const SANG_AUTEL := 0.4
 ## Mana ajoutée le 2026-10-29 (demande de l'utilisateur).

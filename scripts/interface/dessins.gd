@@ -1,6 +1,6 @@
 class_name Dessins
 extends RefCounted
-## Dessins propres au jeu, partagés par plusieurs écrans (menu_combat.py) :
+## Dessins propres au jeu, partagés par plusieurs écrans :
 ## boules de vie et de mana, pastilles d'altérations.
 
 

@@ -1,9 +1,8 @@
 class_name Animations
 extends RefCounted
-## Animations procédurales (animations.py) : respiration des sprites et réglages
+## Animations procédurales : respiration des sprites et réglages
 ## des particules de feu (voir CoucheParticules).
 
-const IMAGES_PAR_SECONDE := 60
 const EMISSION_PAR_SECONDE := 14.0
 const EMISSION_MIN := 5.0
 const EMISSION_MAX := 30.0

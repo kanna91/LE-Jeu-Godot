@@ -1,6 +1,6 @@
 class_name EffetsDessin
 extends RefCounted
-## Dessin des animations de dégâts (effets_combat.py, deuxième moitié) : un effet par
+## Dessin des animations de dégâts : un effet par
 ## type de dégâts, éclair sur le sprite touché, dissolution des ennemis vaincus,
 ## chiffres qui s'envolent, et effets de premier plan des coups reçus par le joueur
 ## (bord teinté, éclair de foudre, secousse de l'écran).

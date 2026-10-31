@@ -1,6 +1,6 @@
 class_name Consommable
 extends Objet
-## Objet à usage unique (potion) qui rend des PV et/ou du mana (objets.py : Consommable).
+## Objet à usage unique (potion) qui rend des PV et/ou du mana.
 ## ``effet`` : {"type": "pv" | "mana" | "mixte", "valeur": fraction du maximum}.
 
 

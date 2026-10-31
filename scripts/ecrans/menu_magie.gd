@@ -1,5 +1,5 @@
 extends Ecran
-## Grimoire (menu_magie.py). Onglet « Magies » : magies connues (clic : améliorer)
+## Grimoire. Onglet « Magies » : magies connues (clic : améliorer)
 ## et disponibles par élément et palier (double-clic : apprendre), filtres par
 ## élément et « Apprenables ». Onglet « Compétences » : compétences de l'arme et
 ## toutes les compétences de base. Onglet « Altérations » : index des altérations.

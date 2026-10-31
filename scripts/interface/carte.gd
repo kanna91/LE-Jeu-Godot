@@ -1,6 +1,6 @@
 class_name Carte
 extends RefCounted
-## Carte de l'étage (carte.py) : brouillard de guerre, pictogrammes des salles,
+## Carte de l'étage : brouillard de guerre, pictogrammes des salles,
 ## mini-carte de l'écran d'exploration et carte complète (EcranCarte).
 
 const COULEURS := {
@@ -53,7 +53,7 @@ static func etats_salles(donjon, etage = null) -> Dictionary:
 ## Le pacte « Carte de chair » de la succube révèle l'étage ``etage`` (contenu des salles, cachettes, geôliers et
 ## Sans-Visage).
 static func carte_de_chair(donjon, etage) -> bool:
-	if not Aventure.ACTIF or etage == null:
+	if etage == null:
 		return false
 	var tout = U.ga(donjon, "aventure", null)
 	return tout is Dictionary and tout.get(int(etage), {}).get("carte", false)

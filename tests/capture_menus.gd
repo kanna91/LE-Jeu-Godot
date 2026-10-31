@@ -36,8 +36,6 @@ func lancer() -> void:
 	for i in 6:
 		joueur.recevoir_objet(Arme.generer_arme() if i % 2 == 0 else Armure.generer_armure())
 	joueur.recevoir_objet(GenerationObjets.generer_anti_boss("foudre", 2))  # armure anti-boss (2026-10-30)
-	joueur.points_a_distribuer = 3
-	joueur.points_competence_passive_a_distribuer = 2
 	joueur.nouvelle_magie_a_apprendre = 1
 	Ecrans.menu_inventaire(joueur)
 	await capturer("10_inventaire")

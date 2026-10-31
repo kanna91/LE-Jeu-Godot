@@ -9,9 +9,10 @@
 2. Double-cliquer sur `LE_Jeu_Ultime.exe`. Rien à installer ; garder le dossier `images` à côté du .exe.
 3. Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
 
-Portage **2D fidèle** du RPG pygame (dossier parent) vers **Godot 4.7**, en GDScript :
-même fenêtre logique 960×540, mêmes images, mêmes menus, mêmes règles et mêmes
-formules. Le jeu Python reste la référence : ce portage le suit écran par écran.
+Jeu en **Godot 4.7**, en GDScript (fenêtre logique 960×540). Il est né d'un portage 2D du RPG
+pygame, dont il s'est ensuite écarté (donjon d'aventure). **La version Python a été supprimée le
+2026-10-31** (récupérable dans l'historique git, commit `60efa0c` et avant) : ce dossier est
+désormais la seule version du jeu.
 
 ## Lancer le jeu
 
@@ -28,7 +29,6 @@ formules. Le jeu Python reste la référence : ce portage le suit écran par éc
   pour ouvrir une salle précise). Voir « Éditeur de zones » ci-dessous.
 - La fenêtre s'ouvre en 1280×720 et s'adapte (canvas_items, proportions conservées).
 - Sauvegardes : `user://sauvegardes` (sous Windows : `%APPDATA%\Godot\app_userdata\LE Jeu Ultime\sauvegardes`).
-  Elles ne sont pas compatibles avec les sauvegardes pickle du jeu Python.
 - **Version jouable Windows (.exe) :** double-cliquer `exporter_windows.bat`. Il produit
   `..\export\windows\` (`LE_Jeu_Ultime.exe` + `images\salles_peintes` et `images\objets_salles`) et
   `..\export\LE_Jeu_Ultime_Windows.zip` à distribuer (dézipper puis lancer le .exe). Réglage : `export_presets.cfg`
@@ -41,26 +41,31 @@ l'exploration (salles peintes, voir plus bas) : flèches ou ZQSD (stick gauche o
 marcher, Maj pour passer de la marche à la course, **H** pour le soin hors combat (au lieu de S),
 stick droit pour choisir un bouton de l'interface.
 
-## Différences voulues avec la version pygame
+## Règles du jeu
 
-> **Obsolète, à reforger entièrement : le sphérier des talents et les améliorations de
-> compétences.** Ils datent de l'ancien système de combat et ne sont plus cohérents avec le
+> **Sphérier des talents supprimé le 2026-10-31** (il sera refait) : ses 791 talents, son écran
+> (`menu_talents.gd`, tuile « Talents », touche T) et son test de captures. `donnees/talents.json` ne garde que
+> les libellés des bonus (descriptions des effets uniques des objets). **Les fonctions sont gardées** pour le
+> futur sphérier : effets en combat (`Talents.multiplicateur_degats`, `reagir`, `debut_tour`... lus aussi pour
+> les effets uniques des objets), fonctions de l'arbre (`Talents.spherier`, `accessible`, `partie`,
+> `cle_a_malus`, vides pour l'instant), `Talent`, `ArbreDeTalent`, `Personnage.debloquer_talent`.
+>
+> **Obsolète, à reforger entièrement : les améliorations de compétences.** Ils datent de l'ancien système de combat et ne sont plus cohérents avec le
 > combat aux dés : options aux valeurs absurdes (« +399,5 dégâts (et +299 % de dégâts) » au
 > niveau 1 de toutes les compétences, sans effet en combat mais qui augmente le coût en mana),
 > option d'exécution jusqu'à +300 % de dégâts sous 50 % de PV (`bonus_execution`, toujours lu
 > par `Combat`), talents équilibrés sur les anciennes formules. Ne pas les rééquilibrer au cas
 > par cas : ils seront refaits complètement (décision de l'utilisateur, 2026-10-20).
 
-Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été modifié).
-
 - **Donjon d'aventure** (2026-10-26, liste de l'utilisateur `..\liste des cohse a ajouter.odt`, feuille de route
-  `FEUILLE_DE_ROUTE_AVENTURE.md`) : le jeu est centré sur l'exploration plutôt que sur le combat. Interrupteur
-  `Aventure.ACTIF` (faux : retour à un combat en entrant dans chaque salle). **Décisions de l'utilisateur** :
-  - **Les ennemis ne donnent plus rien** (ni expérience, ni or, ni butin : `Aventure.RECOMPENSES_ENNEMIS`, code gardé,
-    désactivé), sauf les rares qui portent un équipement : le **chef** d'un groupe (mini-boss) lâche un objet, un
+  `FEUILLE_DE_ROUTE_AVENTURE.md`) : le jeu est centré sur l'exploration plutôt que sur le combat (l'ancien mode,
+  un combat en entrant dans chaque salle, et son interrupteur `Aventure.ACTIF` ont été supprimés le 2026-10-31).
+  **Décisions de l'utilisateur** :
+  - **Les ennemis ne donnent plus rien** (ni expérience, ni or, ni butin ; code supprimé le
+    2026-10-31), sauf les rares qui portent un équipement : le **chef** d'un groupe (mini-boss) lâche un objet, un
     **porteur** rend les objets confisqués qu'il porte.
-  - **Plus de montée de niveau** (`Aventure.PROGRESSION_NIVEAUX`, `Personnage.verifier_montee_niveau` : désactivée, pas
-    supprimée). Le bandeau du haut montre l'or, les clés, les PA et les repos (plus le niveau ni l'expérience).
+  - **Plus de montée de niveau** (supprimée le 2026-10-31, avec l'expérience du héros, les points de caractéristique
+    et les points passifs ; le héros reste au niveau 1). Le bandeau du haut montre l'or, les clés, les PA et les repos (plus le niveau ni l'expérience).
   - **Plus de combat en entrant dans une salle : les ennemis y rôdent, visibles** (à la Fear & Hunger), en
     **formes géométriques** en attendant leurs animations (`PresencesSalle`). Ils patrouillent ; s'ils voient le héros
     (cône de vue devant eux, **coupé par les piliers et obstacles**) ou l'entendent (il **court**, ou marche tout
@@ -463,13 +468,9 @@ Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été mod
   combattant, lancier et défenseur, 0 pour les autres (`PARADE_PAR_SOUS_CLASSE`). Le
   critique ne vient que des caractéristiques (+1 % tous les 2 de dextérité, +0,5 % de
   critique magique tous les 2 d'intelligence). Les objets portés s'ajoutent.
-- **Objets des gobelins et butin** : les gobelins ne portent aucun équipement (leurs dégâts
-  viennent des dés de leurs compétences). À sa mort, un gobelin lâche un objet généré à ce
-  moment (emplacement au hasard, orienté selon sa classe — `Ennemis.generer_objet_butin`)
-  avec une chance qui baisse selon le nombre d'objets équipés par le héros
-  (`Ennemis.PALIERS_BUTIN_OBJET`, `chance_butin_objet`) : 0 à 2 → 50 %, 3 à 5 → 40 %,
-  6 et 7 → 35 %, 8 et 9 → 30 %, 10 (tout l'équipement) → 25 %. Le bonus de butin des
-  talents s'ajoute ; les potions ne changent pas.
+- **Objets des gobelins** : les gobelins ne portent aucun équipement (leurs dégâts
+  viennent des dés de leurs compétences) et ne lâchent rien à leur mort, sauf le chef d'un
+  groupe (objet généré à ce moment, orienté selon sa classe — `Ennemis.generer_objet_butin`).
 - **Coups multiples** (compétences avec `nombre_attaque` > 1 : Rafale de lance, Frénésie,
   Enchaînement, Lacération, Tir rapide, Blizzard, Projectiles arcaniques) : chaque coup
   lance 1d6 au lieu des dés du type, avec −2 dégâts (`Formules.DES_COUP_MULTIPLE`,
@@ -568,8 +569,6 @@ Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été mod
     réagisse (touché) ; sans attaque du héros (objet, tour passé), pas de pause.
   - Images préchargées au début de chaque combat (`CombatAnime.precharger`), sinon la première
     attaque saccade.
-- `test_controle` compare au jeu Python : les écarts sur les compétences (valeurs,
-  estimations, options d'amélioration) sont voulus depuis la refonte.
 
 ## Organisation
 
@@ -581,9 +580,9 @@ Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été mod
 | `scripts/logique/` | Règles du jeu, sans affichage : personnage, ennemis, combat, donjon, objets, compétences, sorts, altérations, talents, équilibrage, marchand, sauvegarde. |
 | `scripts/interface/` | Socle de l'affichage : `Ecran` (couches de dessin, entrées), `Ecrans` (ouverture des écrans), `Ui` (style commun), `Manette`, animations, effets de combat, cartes, info-bulles. |
 | `scripts/ecrans/` | Un script par menu pygame (`menu_combat.gd` ↔ `menu_combat.py`, etc.). |
-| `donnees/` | Données exportées du jeu Python (sphérier, sorts, compétences, améliorations, foyers des fonds). |
+| `donnees/` | Données du jeu en JSON (libellés des talents, sorts, compétences, améliorations, foyers des fonds). Exportées autrefois du jeu Python, elles sont maintenant la seule source : les modifier directement. |
 | `images/` | Copie des images du jeu ; `images/combat_anime/` : animations du combat (héros de dos, gobelins), copiées par `outils/importer_animations.py` ; `images/salles_peintes/` : salles peintes (image, vidéo du décor `decor.ogv`, masque) et héros en 8 directions, copiés par `outils/importer_salles.py` (≈ 84 Mo, `.gdignore` : lus à l'exécution, pas importés). |
-| `outils/` | Scripts Python d'export ; `importer_objets.py` copie et nettoie les objets à poser dans les salles ; `affiner_premier_plan.py` détoure au pixel le premier plan des salles de test_salle ; `importer_animations.py` copie les animations de `C:\ia image` et écrit `donnees/combat_anime.json` ; `importer_salles.py` copie les salles peintes de `test_salle` et écrit `donnees/salles_peintes/<id>.json` ; `importer_grandes_salles.py` fait de même pour les grandes salles (zones relevées à la main, image agrandie par IA) ; `importer_animations_diablotin.py` copie les animations du diablotin faites par Grok. |
+| `outils/` | Scripts Python de préparation des images et des données ; `importer_objets.py` copie et nettoie les objets à poser dans les salles ; `affiner_premier_plan.py` détoure au pixel le premier plan des salles de test_salle ; `importer_animations.py` copie les animations de `C:\ia image` et écrit `donnees/combat_anime.json` ; `importer_salles.py` copie les salles peintes de `test_salle` et écrit `donnees/salles_peintes/<id>.json` ; `importer_grandes_salles.py` fait de même pour les grandes salles (zones relevées à la main, image agrandie par IA) ; `importer_animations_diablotin.py` copie les animations du diablotin faites par Grok. |
 | `scripts/interface/salle_peinte.gd` | `SallePeinte` : moteur de salle peinte (port de `test_salle.gd` sans l'éditeur ; décor animé = vidéo Theora lue par un `VideoStreamPlayer` caché dont la texture remplace l'image fixe, `nouveau_lecteur`, `video_prete` ; `sortie_atteinte`). |
 | `scripts/logique/aventure.gd`, `rencontres.gd` | Donjon d'aventure : population des étages, combats des présences, fuite, capture, objets, clés (`Aventure`) ; personnages et choix moraux (`Rencontres`). |
 | `scripts/interface/presences_salle.gd` | `PresencesSalle` : ennemis qui rôdent, personnages et objets dans la salle peinte (formes, vue, ouïe, poursuite, contact). |
@@ -592,7 +591,7 @@ Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été mod
 | `scripts/ecrans/menu_options.gd` | Options (volume de la musique), depuis le menu principal et le menu pause (`Ecrans.options`). |
 | `scripts/logique/generation_objets.gd` | `GenerationObjets` : objets à une seule option (caractéristique, défense, dégâts, pénétration), type dans le nom, arme de départ nue, armure anti-boss. |
 | `scripts/logique/degats.gd` | `Degats` : pourcentages (vulnérabilités, résistances en %) puis blocage en points (2 points = 1 dégât, sans cumul défense générale / résistance spécifique). |
-| `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)` / `Musique.arreter()`). |
+| `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)`). |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
 ### Correspondance pygame → Godot
@@ -608,15 +607,11 @@ Ces règles ne valent que pour la version Godot (le jeu Python n'a pas été mod
   marchand, coffres...) sont des coroutines (`await`).
 - `MortDuHeros` (exception Python) devient `Statistiques.mort` / `Statistiques.cause_mort`.
 
-## Données exportées
+## Données du jeu
 
-Après une modification des compétences, sorts, talents ou de l'équilibrage dans le jeu
-Python (et `python outils/equilibrer_ameliorations.py` côté Python), régénérer les données :
-
-```powershell
-cd "..\"   # racine du jeu Python
-python godot/outils/exporter_donnees.py
-```
+Les fichiers de `donnees/` (talents, sorts, compétences, améliorations, foyers des fonds) venaient de
+`outils/exporter_donnees.py`, qui lisait le jeu Python. Cet outil a été supprimé avec la version Python
+(2026-10-31) : les JSON sont maintenant la source, à modifier directement.
 
 ## Testeur d'étage (durée de l'étage 1)
 
@@ -717,12 +712,11 @@ Toujours lancer d'abord un import (enregistre les classes) :
 $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . --import
 & $godot --headless --path . -s tests/compiler_tout.gd    # compile tous les scripts
-& $godot --headless --path . -s tests/test_controle.gd    # compare aux valeurs du jeu Python (outils/exporter_controle.py)
 & $godot --headless --path . -s tests/test_logique.gd     # partie complète jouée sans interface
 & $godot --headless --path . -s tests/test_descente.gd    # monter puis redescendre : pas de boss rejoué
 & $godot --headless --path . -s tests/test_des_armes.gd   # dés par type, caractéristiques, dés bonus (attaques de l'arme), défense (2 points = 1, sans cumul, pourcentages), options des armes, brûlure, % d'élément
 & $godot --headless --path . -s tests/test_magie_ecran.gd # écran de combat : un sort sur soi = une action
-& $godot --headless --path . -s tests/test_butin.gd       # gobelins sans équipement, butin par paliers
+& $godot --headless --path . -s tests/test_butin.gd       # gobelins sans équipement
 & $godot --headless --path . -s tests/test_soins.gd       # un soin par ennemi et par combat, héros à 1 PA
 & $godot --headless --path . -s tests/test_pv.gd          # PV = 70 (héros) + endurance × 2, caractéristiques du héros, ennemis par étage
 & $godot --path . -s tests/robot.gd -- 2 36000            # partie jouée par l'interface (graine, images)
@@ -760,7 +754,7 @@ franchit des sorties peintes au hasard (`_sortie_atteinte`) au lieu d'envoyer de
 salle du boss, départ de l'étage 2, salle ordinaire, salle avec un lit) et enregistre les
 captures 25 à 28 ; il affiche « BILAN navigation : 0 échec(s) » si tout est correct.
 
-`capture.gd`, `capture_menus.gd`, `capture_talents.gd` et `capture_combat_seul.gd` (ennemi seul centré, boss) enregistrent des captures
+`capture.gd`, `capture_menus.gd` et `capture_combat_seul.gd` (ennemi seul centré, boss) enregistrent des captures
 de contrôle dans `tests/captures/` (rendu interne de la fenêtre : rien n'est capturé
 du bureau). Pour ne pas gêner l'utilisateur, les placer dans une fenêtre hors écran et
 sans focus avec un `override.cfg` temporaire :
@@ -818,6 +812,31 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   image (`definir_zones`), Échap pour fermer, ouverture via une fonction de `Ecrans`.
 
 ## Journal des modifications
+
+### 2026-10-31 — Grand nettoyage du code
+- **Version Python supprimée** (décision de l'utilisateur) : les 188 fichiers de la racine (jeu pygame, `class/`,
+  `images/`, `donnees/`, `outils/`, `REFERENCE_JEU.md`, `DOC_*.md`), avec `outils/exporter_donnees.py`,
+  `outils/exporter_controle.py` et le test `test_controle` (≈ 290 écarts, la version Godot s'étant écartée).
+  Récupérable dans l'historique git. Les commentaires qui renvoyaient aux fichiers .py ont été retirés.
+- **Niveaux du héros supprimés** (et plus seulement désactivés) : expérience du héros, montée de niveau, points
+  de caractéristique (triangles rouges de l'écran des caractéristiques), points passifs, compteur « Expérience
+  reçue ». L'expérience des **compétences** (progression à l'usage) est conservée.
+- **Récompenses des ennemis supprimées** : expérience, or et butin à leur mort (`Ennemis.loot`, paliers de
+  butin, `Combat.recompence`, ligne « Récompenses » de la fiche d'un ennemi). Le chef d'un groupe lâche toujours
+  son objet ; « Boss vaincus » est toujours compté.
+- **Code mort retiré** : 21 fonctions jamais appelées (dont `Ui.texte_ombre`, `U.max_par`, `Musique.arreter`,
+  `Talents.immunise`, doublon d'une vérification d'`Alterations`), 9 constantes, 13 valeurs de départ du donjon
+  jamais lues (`nb_salle_par_etage = 15`, `nb_etages_donjon = 100`, compteurs d'ennemis...), 3 fichiers `.uid`
+  orphelins, 9 anciennes images (`pnj/chevalier_1`, `geolier_1` à `4`, `diablotin_1` et `2`, deux images de
+  `gobelins/`) et 8 images égarées (`salles_peintes/heros/course/*/idle_*.png`).
+- Les anciennes sauvegardes se chargent toujours (les clés disparues sont simplement ignorées).
+- Tests : `compiler_tout` et tous les `test_*` à 0 échec, sauf `test_emplacements` (36 échecs, déjà présents
+  avant le nettoyage).
+- **Deuxième passe** (demande de l'utilisateur) : **sphérier supprimé** (données, écran, tuile « Talents » et
+  touche T, test `capture_talents` ; les fonctions sont gardées, voir « Règles du jeu ») ; **ancien mode du
+  donjon supprimé** (`Aventure.ACTIF`, `Donjon.menace`, `menace_serieuse`, `compteur_menace` ; `test_descente`
+  vérifie maintenant que le gardien reste vaincu) ; lignes « Niveau atteint » et « Talents appris » retirées du
+  bilan de fin de partie ; dernières sauvegardes de la version Python effacées (`..\sauvegardes\`).
 
 ### 2026-10-31 — Lien de téléchargement
 - Lien vers la dernière release Windows en tête de ce README (et du README racine de LE-Jeu-Ultime).

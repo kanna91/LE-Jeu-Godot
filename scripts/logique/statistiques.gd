@@ -1,6 +1,6 @@
 class_name Statistiques
 extends RefCounted
-## Statistiques de la partie du héros et signal de fin de partie (statistiques.py).
+## Statistiques de la partie du héros et signal de fin de partie.
 ##
 ## Le héros porte un dictionnaire ``statistiques`` (créé par nouvelles()),
 ## alimenté au fil du jeu par noter() ; les ennemis n'en ont pas.
@@ -23,7 +23,6 @@ const COMPTEURS := [
 	["potions_bues", "Potions bues", "entier"],
 	["or_gagne", "Or gagné", "or"],
 	["or_depense", "Or dépensé", "or"],
-	["experience_recue", "Expérience reçue", "entier"],
 	["repos", "Repos", "entier"],
 	["objets_fouilles", "Objets fouillés", "entier"],
 	["fuites", "Fuites réussies", "entier"],
@@ -115,10 +114,8 @@ static func bilan(joueur, donjon) -> Array:
 			explorees += visitees + (1 if depart_visite else 0)
 	explorees += 0 if actuelle.get("visitee", false) else 1  # la salle où l'on se trouve
 	etages.append(donjon.salle_actuelle[0])
-	var lignes := [["Niveau atteint", str(joueur.niveau)],
-		["Étage le plus haut", str(etages.max())],
-		["Salles explorées", str(explorees)],
-		["Talents appris", str(maxi(0, U.ga(joueur, "talents_picked_keys", {}).size() - 1))]]
+	var lignes := [["Étage le plus haut", str(etages.max())],
+		["Salles explorées", str(explorees)]]
 	for c in COMPTEURS:
 		lignes.append([c[1], _formater(stats.get(c[0], 0), c[2])])
 	return lignes

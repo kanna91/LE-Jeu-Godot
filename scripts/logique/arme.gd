@@ -1,6 +1,6 @@
 class_name Arme
 extends Objet
-## Arme équipable (objets.py : Arme). Générée par GenerationObjets.
+## Arme équipable. Générée par GenerationObjets.
 
 
 static func nouvelle(nom: String, type_objet: String, type_arme: String, description := "", valeur = 0) -> Arme:

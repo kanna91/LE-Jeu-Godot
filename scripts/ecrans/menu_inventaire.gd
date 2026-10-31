@@ -1,5 +1,5 @@
 extends Ecran
-## Inventaire (menu_inventaire.py) : objets par catégorie (liste défilante, potions
+## Inventaire : objets par catégorie (liste défilante, potions
 ## empilées), dix emplacements d'équipement, résumé des statistiques. Double-clic
 ## (A A) : équiper / utiliser ; sur un emplacement : retirer.
 

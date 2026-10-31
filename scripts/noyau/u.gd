@@ -127,18 +127,6 @@ static func min_par(liste: Array, cle: Callable):
 	return meilleur
 
 
-## Élément dont la clé est la plus grande (``max(liste, key=...)``), le premier à égalité.
-static func max_par(liste: Array, cle: Callable):
-	var meilleur = null
-	var valeur_max = null
-	for e in liste:
-		var v = cle.call(e)
-		if valeur_max == null or v > valeur_max:
-			meilleur = e
-			valeur_max = v
-	return meilleur
-
-
 ## Copie triée par clé (tri stable, comme ``sorted(liste, key=...)``).
 static func trie_par(liste: Array, cle: Callable, inverse := false) -> Array:
 	var avec_cles := []

@@ -1,6 +1,6 @@
 class_name Objet
 extends Dyn
-## Classe de base de tous les objets (objets.py : Objet). Un objet porte des
+## Classe de base de tous les objets. Un objet porte des
 ## bonus de statistiques qui s'ajoutent à celles de son porteur.
 
 ## Étage courant, utilisé pour choisir le rang des objets générés.
@@ -35,17 +35,6 @@ static func nouveau(nom: String, type_objet: String, description := "", valeur =
 	var o := Objet.new()
 	o.initialiser(nom, type_objet, description, valeur)
 	return o
-
-
-## Tire au sort un bonus de critique magique (rang 2 et plus).
-static func ajouter_critique_magique(objet, rang) -> void:
-	if rang == null or rang < 2:
-		return
-	var chance := 0.40 if rang >= 4 else 0.30
-	if randf() < chance:
-		objet.chance_de_coup_critique_magique += U.arrondi(randf_range(0.01, 0.02) * rang, 2)
-	if randf() < chance:
-		objet.degats_critique_magiques += U.arrondi(randf_range(0.04, 0.06) * rang, 2)
 
 
 func est_arme() -> bool:

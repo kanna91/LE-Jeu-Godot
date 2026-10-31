@@ -1,6 +1,6 @@
 class_name ValeurCompetences
 extends RefCounted
-## Valeur des compétences en points (valeur_competences.py) : 10 points = un coup
+## Valeur des compétences en points : 10 points = un coup
 ## de l'attaque de base du lanceur de référence ; normalisation à la création.
 
 const POINTS_PAR_ATTAQUE := 10.0

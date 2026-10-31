@@ -1,5 +1,5 @@
 extends Ecran
-## Trois bonus mystiques permanents au choix (menu_bonus.py). « Laisser » garde le choix pour plus tard.
+## Trois bonus mystiques permanents au choix. « Laisser » garde le choix pour plus tard.
 
 var personnage
 var salle: Dictionary

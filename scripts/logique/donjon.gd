@@ -1,6 +1,6 @@
 class_name Donjon
 extends Dyn
-## État et logique d'exploration du donjon : étages, salles, position, rencontres (donjon.py : DonjonRPG).
+## État et logique d'exploration du donjon : étages, salles, position, rencontres.
 ##
 ## ``plan_donjon`` : {étage (int): {id de salle (String): salle (Dictionary)}} ;
 ## ``salle_actuelle`` : [étage, id de salle (int)]. Les méthodes qui ouvrent un
@@ -23,25 +23,11 @@ static func nouveau(personnage, fenetre = null) -> Donjon:
 	d._d["noms_possibles"] = noms.duplicate()
 	d._d["noms_initiaux"] = noms.duplicate()
 	d._d["noms_enregistres"] = []
-	d._d["nb_salle_par_etage"] = 15
-	d._d["nb_etages_donjon"] = 100
-	d._d["nb_etage_salle_bonus"] = 10
 	d._d["plan_donjon"] = {1: {"1": {"nom": "salle_debut", "type": "départ", "connections": [], "visitee": false}}}
-	d._d["compteur_salle"] = 1
 	d._d["types_salle"] = TYPES_SALLE.duplicate()
-	d._d["ennemis_genere"] = 0
-	d._d["ennemis_definis"] = 0
 	d._d["compteur_repos"] = 0
-	d._d["ennemis_mort_au_combat"] = 0
-	d._d["compteur_squelette"] = 0
-	d._d["compteur_gobelin"] = 0
-	d._d["total_ennemis_genere"] = 0
-	d._d["salle_compteur"] = 1
 	d._d["salle_actuelle"] = [1, 1]
-	d._d["compteur_etage"] = 1
-	d._d["salle_bonus"] = false
 	d._d["niveau_joueur"] = 1
-	d._d["compteur_menace"] = 0
 	d._d["marchand_rencontre"] = false
 	# Tout le donjon est généré au lancement de la partie (2026-10-30, demande de l'utilisateur) : NOMBRE_ETAGES étages
 	for e in range(1, NOMBRE_ETAGES + 1):
@@ -88,22 +74,20 @@ func generer_nombre_ennemis() -> Array:
 	if depuis >= RENCONTRES_ENTRE_MINI_BOSS and randf() < CHANCE_MINI_BOSS:
 		_d["rencontres_depuis_mini_boss"] = 0
 		ennemis.append(Gobelin.nouveau(self, _d["niveau_joueur"]).generer_mini_boss_gobelin(self, _d["niveau_joueur"]))
-		_d["ennemis_genere"] += 1
 		nombre = [0, 1].pick_random()
 	else:
 		_d["rencontres_depuis_mini_boss"] = depuis + 1
 	for _i in nombre:
 		ennemis.append(Gobelin.nouveau(self, _d["niveau_joueur"]).generer_gobelin(self, _d["niveau_joueur"]))
-		_d["ennemis_genere"] += 1
 	return ennemis
 
 
 func creer_boss_gobelin() -> Array:
-	_d["ennemis_genere"] += 1
 	return [Gobelin.nouveau(self, _d["niveau_joueur"]).generer_boss_gobelin(self, _d["niveau_joueur"])]
 
 
-## Événement de la salle actuelle : boss, piège (1 sur 15), marchand, ou combat.
+## Événement de la salle actuelle : piège (1 sur 15) ou marchand. Pas de combat d'office : les ennemis rôdent dans
+## la salle (Aventure, PresencesSalle) et le gardien garde la sienne.
 func generer_rencontre() -> void:
 	var etage = _d["salle_actuelle"][0]
 	var salle_id = _d["salle_actuelle"][1]
@@ -112,8 +96,6 @@ func generer_rencontre() -> void:
 		print("[INFO] Salle déjà visitée — aucune rencontre.")
 		return
 	if est_salle_boss(etage, salle_id):
-		if not Aventure.ACTIF:  # donjon d'aventure : le boss garde sa salle, on l'affronte en allant à lui
-			await menace_serieuse()
 		return
 	if salle != null and salle.get("type") == "bonus":
 		print("[INFO] Salle bonus détectée — aucune menace générée.")
@@ -125,24 +107,6 @@ func generer_rencontre() -> void:
 	if salle != null and salle.get("evenement") == "marchand" and salle.get("type") != "marchand":
 		await rencontre_marchand()
 		_d["marchand_rencontre"] = true
-		return
-	if Aventure.ACTIF:
-		return  # donjon d'aventure : les ennemis rôdent dans la salle (Aventure, SallePeinte), pas de combat d'office
-	await menace()
-
-
-func menace_serieuse() -> void:
-	print("Le boss de cet étage apparait !")
-	_d["compteur_menace"] += 2
-	var combat := Combat.nouveau(_d["personnage"], _d["fenetre"], creer_boss_gobelin(), self)
-	await combat.mener_combat()
-
-
-func menace() -> void:
-	print("Des ennemis apparaissent !")
-	_d["compteur_menace"] += 1
-	var combat := Combat.nouveau(_d["personnage"], _d["fenetre"], generer_nombre_ennemis(), self)
-	await combat.mener_combat()
 
 
 ## La salle devient celle du marchand, et son menu s'ouvre.
@@ -153,7 +117,6 @@ func rencontre_marchand() -> void:
 	print("Vous avez rencontré un marchand !")
 	var marchand := Marchand.nouveau()
 	salle["marchand"] = marchand
-	_d["compteur_menace"] = 0
 	await marchand.menu_marchand(self, _d["personnage"])
 
 
@@ -224,10 +187,8 @@ func monter_etage() -> void:
 	await generer_rencontre()
 
 
-## Le gardien de l'étage a été vaincu (donjon d'aventure : il garde sa salle ; ancien donjon : toujours vrai).
+## Le gardien de l'étage a été vaincu (il garde sa salle tant qu'il est actif).
 func boss_vaincu(etage = null) -> bool:
-	if not Aventure.ACTIF:
-		return true
 	if etage == null:
 		etage = _d["salle_actuelle"][0]
 	var salle: Dictionary = _d["plan_donjon"].get(etage, {}).get(str(salle_boss(etage)), {})
@@ -325,7 +286,6 @@ func _create_room_data(nom = null) -> Dictionary:
 	if nom in _d["noms_possibles"]:
 		_d["noms_possibles"].erase(nom)
 	_d["noms_enregistres"].append(nom)
-	_d["compteur_salle"] += 1
 	return {"nom": "%s (type %s)" % [nom, _d["types_salle"].pick_random()], "connections": [], "visitee": false}
 
 

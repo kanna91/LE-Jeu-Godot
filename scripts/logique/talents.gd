@@ -1,15 +1,13 @@
 class_name Talents
 extends RefCounted
-## Talents du héros : le sphérier et les effets des talents en combat (talent.py).
+## Talents du héros : le sphérier et les effets des talents en combat.
 ##
 ## Le sphérier (nœuds, liens, amas, parties des talents clés) est construit par
 ## le jeu Python et exporté dans donnees/talents.json (outils/exporter_donnees.py) :
 ## mêmes identifiants, mêmes positions, mêmes bonus.
 
 const POINTS_DE_DEPART := 0
-const POINTS_PAR_NIVEAU := 1
 const RACINE := "eveil"
-const BRANCHES := ["Dégâts", "Défense", "Utilitaire"]
 const PHYSIQUES := ["tranchant", "perforant", "contondant"]
 const MAGIQUES := ["feu", "froid", "foudre", "arcane", "chaos", "ombre"]
 const SEUIL_CIBLE_FAIBLE := 0.35
@@ -51,20 +49,23 @@ static var _libelles := {}
 # Sphérier
 # ---------------------------------------------------------------------------
 
+## Le sphérier (nœuds, liens, amas, talents clés en plusieurs parties). Ses données ont été supprimées le 2026-10-31
+## (il sera refait) : ``talents.json`` ne garde que les libellés des bonus, et le sphérier est vide. Les fonctions
+## restent prêtes pour le nouveau.
 static func spherier() -> Dictionary:
 	if _spherier.is_empty():
 		var donnees: Dictionary = U.charger_json("talents.json")
 		var noeuds := {}
 		var voisins := {}
-		for n in donnees["noeuds"]:
+		for n in donnees.get("noeuds", []):
 			var t := Talent.depuis_donnees(n)
 			noeuds[t.ident] = t
 			voisins[t.ident] = {}
-		for l in donnees["liens"]:
+		for l in donnees.get("liens", []):
 			voisins[l[0]][l[1]] = true
 			voisins[l[1]][l[0]] = true
-		_spherier = {"noeuds": noeuds, "liens": donnees["liens"], "amas": donnees["amas"],
-			"parties": donnees["parties"], "voisins": voisins}
+		_spherier = {"noeuds": noeuds, "liens": donnees.get("liens", []), "amas": donnees.get("amas", []),
+			"parties": donnees.get("parties", {}), "voisins": voisins}
 		for cle in donnees["libelles"]:
 			_libelles[cle] = donnees["libelles"][cle]
 	return _spherier
@@ -264,10 +265,6 @@ static func toucher_garanti(lanceur, competence) -> bool:
 	return false
 
 
-static func immunise(cible, nom_alteration) -> bool:
-	return nom_alteration in Alterations.CONTROLES and U.vrai(_val(cible, "talent_immunite_controle"))
-
-
 static func duree_bonus(lanceur, nom_alteration: String) -> int:
 	var attribut := "talent_duree_bienfaits" if Alterations.est_bonus(nom_alteration) else "talent_duree_alterations"
 	return int(_val(lanceur, attribut))
@@ -327,10 +324,6 @@ static func chance_initiative(personnage) -> float:
 
 static func or_gagne(personnage, montant) -> int:
 	return int(round(montant * (1 + _val(personnage, "talent_bonus_or"))))
-
-
-static func experience_gagnee(personnage, montant) -> int:
-	return int(round(montant * (1 + _val(personnage, "talent_bonus_experience"))))
 
 
 static func facteur_prix(personnage) -> float:

@@ -1,6 +1,6 @@
 class_name Ui
 extends RefCounted
-## Éléments d'interface communs aux écrans (interface.py) et outils de dessin.
+## Éléments d'interface communs aux écrans et outils de dessin.
 ##
 ## Toutes les fonctions dessinent dans un CanvasItem ``ci`` (pendant son _draw),
 ## avec les coordonnées de la fenêtre pygame d'origine (960 × 540) : panneaux
@@ -118,13 +118,6 @@ static func texte(ci: CanvasItem, contenu: String, position: Vector2, couleur :=
 	return r
 
 
-## Texte avec une ombre noire décalée d'un pixel.
-static func texte_ombre(ci: CanvasItem, contenu: String, position: Vector2, couleur := TEXTE, taille := 16, gras := false,
-		ancre := "topleft") -> Rect2:
-	texte(ci, contenu, position + Vector2(1, 1), NOIR, taille, gras, null, ancre)
-	return texte(ci, contenu, position, couleur, taille, gras, null, ancre)
-
-
 ## Découpe un texte en lignes qui tiennent dans une largeur (sauts de ligne respectés).
 static func decouper(contenu: String, taille: int, gras: bool, largeur: float) -> Array:
 	var lignes := []
@@ -240,7 +233,7 @@ static func fond(ci: CanvasItem, chemin: String) -> void:
 
 
 # ---------------------------------------------------------------------------
-# Composants (interface.py)
+# Composants
 # ---------------------------------------------------------------------------
 
 ## Panneau sombre semi-transparent aux coins arrondis.

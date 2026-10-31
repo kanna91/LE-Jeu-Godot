@@ -26,7 +26,6 @@ extends Node2D
 
 signal sortie_atteinte(index: int)
 
-const DOSSIER_HEROS := "res://images/salles_peintes/heros"
 const DIRECTIONS := ["right", "down_right", "down", "down_left", "left", "up_left", "up", "up_right"]
 const NOMBRE_IMAGES := 8
 const IMAGES_RESPIRATION := 12

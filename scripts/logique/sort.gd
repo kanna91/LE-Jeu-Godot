@@ -1,6 +1,6 @@
 class_name Sort
 extends Competence
-## Sort du grimoire décrit par une fiche (sorts.py : Sort). Les fiches sont
+## Sort du grimoire décrit par une fiche. Les fiches sont
 ## exportées dans donnees/sorts.json ; ELEMENT, PALIER, JOUEUR et
 ## renforcer_propres sont gardés comme attributs de l'instance.
 

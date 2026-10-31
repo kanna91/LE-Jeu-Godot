@@ -1,5 +1,5 @@
 extends Ecran
-## Boutique du marchand (menu_marchand.py) : onglets Acheter / Vendre / Rachat,
+## Boutique du marchand : onglets Acheter / Vendre / Rachat,
 ## cinq catégories, tri, vente en lot (onglet « Vendre », second clic pour
 ## confirmer), bouton « Inventaire ». Un clic (A) sur un article l'achète, le
 ## vend ou le rachète.

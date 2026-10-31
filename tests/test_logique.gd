@@ -50,12 +50,6 @@ func lancer() -> void:
 				print("== Combat contre %s : %s" % [p["genre"], combat.issue])
 			elif p["genre"] == "objet":
 				Aventure.utiliser_objet(donjon, p)
-		if joueur.points_de_talent > 0:
-			for t in Talents.get_liste_talents():
-				if joueur.debloquer_talent(t):
-					break
-		while joueur.points_a_distribuer > 0:
-			joueur.distribuer_points(randi_range(1, 5))
 	print("Fin : pas %d, mort %s, niveau %d, étage %d, or %d" % [pas, Statistiques.mort, joueur.niveau, donjon.salle_actuelle[0], joueur.piece_or])
 	print(Statistiques.bilan(joueur, donjon))
 	var t1 := Time.get_ticks_msec()

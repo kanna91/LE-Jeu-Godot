@@ -1,5 +1,5 @@
 extends Ecran
-## Choix du sort offensif de départ, au début d'une nouvelle partie (menu_sort_depart.py).
+## Choix du sort offensif de départ, au début d'une nouvelle partie.
 ## Résultat : sort appris, ou null (« Choisir plus tard » / Échap : le point de magie reste).
 
 const LARGEUR_CARTE := 280
