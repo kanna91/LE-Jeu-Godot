@@ -68,11 +68,11 @@ func generer_boss_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobeli
 	return self
 
 
-## Mini-boss : un gobelin normal, « Chef », PV × 6, dégâts × 0,8.
+## Élite (ancien mini-boss) : un gobelin normal, « Élite », PV × 6, dégâts × 0,8.
 func generer_mini_boss_gobelin(donjon = null, niveau = 0, cs: Array = []) -> Gobelin:
 	generer_gobelin(donjon, niveau, cs)
 	_d["est_mini_boss"] = true
-	_d["nom"] = "Chef " + _d["nom"]
+	_d["nom"] = "Élite " + _d["nom"]
 	appliquer_rang_special(MINI_BOSS)
 	return self
 

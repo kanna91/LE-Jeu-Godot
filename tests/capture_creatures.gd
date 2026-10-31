@@ -38,9 +38,9 @@ func lancer() -> void:
 	salle["objets"] = []
 	salle["objets_image"] = "porte2"
 	salle["presences"] = [
-		{"id": 801, "genre": "groupe", "etat": "actif", "nombre": 2, "chef": false, "pacifique": false,
+		{"id": 801, "genre": "groupe", "etat": "actif", "nombre": 2, "elite": false, "pacifique": false,
 			"membres": [{"classe": "soutien", "sous_classe": "chaman", "image": "chaman01.png"}, Creatures.membre("loup")]},
-		{"id": 802, "genre": "groupe", "etat": "actif", "nombre": 2, "chef": false, "pacifique": false,
+		{"id": 802, "genre": "groupe", "etat": "actif", "nombre": 2, "elite": false, "pacifique": false,
 			"membres": [Creatures.membre("squelette"), Creatures.membre("squelette")], "vitesse_poursuite": 0.45},
 	]
 	Aventure.meta(donjon, 1)["prepare"] = true

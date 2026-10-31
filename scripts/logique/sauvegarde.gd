@@ -148,6 +148,13 @@ static func charger(nom: String, fenetre = null) -> Array:
 	var donjon = racine["donjon"]
 	donjon.fenetre = fenetre
 	var joueur = racine["joueur"]
+	# Anciennes parties : le « chef » d'un groupe s'appelle « élite » depuis le 2026-10-31
+	for etage in donjon.plan_donjon:
+		for id in donjon.plan_donjon[etage]:
+			for p in donjon.plan_donjon[etage][id].get("presences", []):
+				if p is Dictionary and p.has("chef"):
+					p["elite"] = p["chef"]
+					p.erase("chef")
 	for cle in Objets.EMPLACEMENTS_EQUIPEMENT:
 		if not joueur.equipements.has(cle):
 			joueur.equipements[cle] = null

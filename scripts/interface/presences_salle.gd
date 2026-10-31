@@ -66,7 +66,7 @@ const IMAGES_SUCCUBE := [preload("res://images/pnj/succube_1.png"), preload("res
 ## (``marche_gobelin``, 2026-10-28), et ils avancent alors au rythme de cette marche (``vitesse_gobelins``). Chaque gobelin est celui qu'on affrontera (``Aventure.membres``).
 ## Sortes pour le gobelin blessé (pas de combat) : tirée de son id.
 const SORTES_GOBELINS := ["guerrier", "archer", "sorcier", "chaman", "feticheur"]
-## Hauteur d'un gobelin dans la salle, en hauteurs du héros (0,55 avant le 2026-10-27, jugé trop petit) ; chef et
+## Hauteur d'un gobelin dans la salle, en hauteurs du héros (0,55 avant le 2026-10-27, jugé trop petit) ; élite et
 ## porteur × MINI_BOSS.taille (1,35), gardien × BOSS.taille (1,7), comme en combat.
 const TAILLE_GOBELIN := 0.8
 ## Teinte des gobelins pacifiques (plus pâles).
@@ -559,7 +559,7 @@ func _ronde(e: Dictionary, delta: float) -> void:
 static func _hauteur_forme(p: Dictionary) -> float:
 	match p["genre"]:
 		"groupe":
-			return TAILLE_GOBELIN * (Ennemis.MINI_BOSS["taille"] if p.get("chef", false) else 1.0)
+			return TAILLE_GOBELIN * (Ennemis.MINI_BOSS["taille"] if p.get("elite", false) else 1.0)
 		"porteur":
 			return TAILLE_GOBELIN * Ennemis.MINI_BOSS["taille"]
 		"imbattable":
@@ -594,9 +594,9 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 			var ecart := h * TAILLE_GOBELIN * 0.6
 			for k in nombre:
 				var x := (k - (nombre - 1) / 2.0) * ecart
-				var t := hf if (k == 0 and p.get("chef", false)) else h * TAILLE_GOBELIN
+				var t := hf if (k == 0 and p.get("elite", false)) else h * TAILLE_GOBELIN
 				var tete := _gobelin(n, e, membres[k], k, Vector2(x, 0), t, teinte)
-				if k == 0 and p.get("chef", false):
+				if k == 0 and p.get("elite", false):
 					_couronne(n, Vector2(x, -tete), t * 0.18, Color8(230, 180, 60))
 		"porteur":
 			_gobelin(n, e, Aventure.membres(p)[0], 0, Vector2.ZERO, hf, Color.WHITE)
@@ -765,7 +765,7 @@ static func rapport_marche_gobelin(nom: String, sorte: String) -> float:
 
 ## Taille (hauteurs de héros) du ``k``-ième gobelin de ``p``, comme dans ``_dessiner``.
 static func taille_membre(p: Dictionary, k: int) -> float:
-	if p["genre"] != "groupe" or (k == 0 and p.get("chef", false)):
+	if p["genre"] != "groupe" or (k == 0 and p.get("elite", false)):
 		return _hauteur_forme(p)
 	return TAILLE_GOBELIN
 

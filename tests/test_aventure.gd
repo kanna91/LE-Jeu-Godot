@@ -152,14 +152,14 @@ func _recompenses() -> void:
 		g.mort_au_combat(donjon)
 	verifier(joueur.piece_or == or_avant, "aucun or des ennemis")
 	verifier(joueur.inventaire.size() == inv_avant, "aucun butin des ennemis ordinaires")
-	var chef = Aventure.ennemis_de(donjon, {"genre": "groupe", "nombre": 1, "chef": true})[0]
-	chef.points_de_vie = 0
-	chef.mort_au_combat(donjon)
-	verifier(joueur.inventaire.size() + joueur.equipements.values().filter(func(x): return x != null).size() > inv_avant, "le chef lâche un équipement")
+	var elite = Aventure.ennemis_de(donjon, {"genre": "groupe", "nombre": 1, "elite": true})[0]
+	elite.points_de_vie = 0
+	elite.mort_au_combat(donjon)
+	verifier(joueur.inventaire.size() + joueur.equipements.values().filter(func(x): return x != null).size() > inv_avant, "l'élite lâche un équipement")
 	# Les gobelins affrontés sont ceux dessinés dans la salle (membres tirés une fois, gardés dans la présence)
 	for genre in ["groupe", "porteur", "boss"]:
 		for _essai in 10:
-			var p := {"genre": genre, "nombre": randi_range(1, 3), "chef": randf() < 0.5}
+			var p := {"genre": genre, "nombre": randi_range(1, 3), "elite": randf() < 0.5}
 			var tires := Aventure.membres(p).duplicate(true)
 			var memes := true
 			for _fois in 2:

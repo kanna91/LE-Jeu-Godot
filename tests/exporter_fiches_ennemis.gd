@@ -45,7 +45,7 @@ func _initialize() -> void:
 		"vue": PresencesSalle.VUE, "angle_vue": PresencesSalle.ANGLE_VUE, "perte": PresencesSalle.PERTE,
 		"ouie": [PresencesSalle.OUIE_COURSE, PresencesSalle.OUIE_MARCHE, PresencesSalle.OUIE_CACHE],
 		"duree_recherche": PresencesSalle.DUREE_RECHERCHE, "chance_suivre": Aventure.CHANCE_SUIVRE,
-		"groupes_par_salle": Aventure.GROUPES_PAR_SALLE, "chance_chef": Aventure.CHANCE_CHEF,
+		"groupes_par_salle": Aventure.GROUPES_PAR_SALLE, "chance_elite": Aventure.CHANCE_ELITE,
 		"chance_pacifique": Aventure.CHANCE_PACIFIQUE, "ennemis_par_etage": Donjon.ENNEMIS_PAR_ETAGE,
 		"chevaliers": Aventure.CHEVALIERS_PAR_ETAGE, "geoliers": Aventure.GEOLIERS_PAR_ETAGE,
 		"diablotins": Aventure.DIABLOTINS_PAR_ETAGE, "mensonge": Rencontres.CHANCE_MENSONGE,

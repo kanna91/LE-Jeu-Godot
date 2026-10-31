@@ -22,11 +22,12 @@ extends RefCounted
 const GROUPES_PAR_SALLE := {0: 80, 1: 20}
 ## Ennemis par groupe au plus, loup compris (décision de l'utilisateur, 2026-10-30 ; 3 + un loup avant).
 const MAX_PAR_GROUPE := 2
-## Chance qu'un groupe soit mené par un chef (mini-boss, porte un équipement qu'il lâche).
-const CHANCE_CHEF := 0.12
+## Chance qu'un groupe soit mené par une **élite** (ancien « chef » / mini-boss ; porte un équipement qu'elle lâche).
+## Renommée « élite » le 2026-10-31 à la demande de l'utilisateur (il n'y a pas de « chef de groupe »).
+const CHANCE_ELITE := 0.12
 ## Chance qu'un groupe soit pacifique (gobelins qui ne veulent pas se battre : à ne pas tuer).
 const CHANCE_PACIFIQUE := 0.15
-## Loups et squelettes (Creatures, 2026-10-27 ; fréquences choisies par Claude, validées par l'utilisateur) : part des groupes (sans chef
+## Loups et squelettes (Creatures, 2026-10-27 ; fréquences choisies par Claude, validées par l'utilisateur) : part des groupes (sans élite
 ## ni pacifiques) qui sont des squelettes (1 à 3, seuls possible), chance qu'un féticheur gobelin mène un groupe de
 ## 2 squelettes ou plus, chance qu'un loup accompagne un groupe de gobelins qui compte un archer ou un chaman.
 const CHANCE_GROUPE_SQUELETTES := 0.25
@@ -370,12 +371,12 @@ static func preparer_etage(donjon, etage: int) -> void:
 
 
 ## Groupe de gobelins qui rôde : 1 ou 2 selon l'étage (Donjon.ENNEMIS_PAR_ETAGE, plafonné à MAX_PAR_GROUPE), parfois un
-## chef ou pacifique.
+## élite ou pacifique.
 static func nouveau_groupe(donjon, m: Dictionary, etage: int) -> Dictionary:
 	var g := {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif",
 		"nombre": mini(donjon.tirer_nombre_ennemis(etage), MAX_PAR_GROUPE),
-		"chef": randf() < CHANCE_CHEF, "pacifique": false}
-	if not g["chef"] and randf() < CHANCE_PACIFIQUE:
+		"elite": randf() < CHANCE_ELITE, "pacifique": false}
+	if not g["elite"] and randf() < CHANCE_PACIFIQUE:
 		g["pacifique"] = true
 	return g
 
@@ -415,7 +416,7 @@ static func est_rodeur(p: Dictionary) -> bool:
 # Combats
 # ---------------------------------------------------------------------------
 
-## Gobelins d'une présence (groupe, porteur, gardien) : [{classe, sous_classe, image}], le chef en premier.
+## Gobelins d'une présence (groupe, porteur, gardien) : [{classe, sous_classe, image}], l'élite en premier.
 ## Tirés une fois et gardés dans la présence (« membres ») : la salle les dessine et le combat les affronte,
 ## pour que l'image corresponde à l'ennemi. Les présences d'avant le 2026-10-27 les reçoivent à la première lecture.
 static func membres(p: Dictionary) -> Array:
@@ -423,7 +424,7 @@ static func membres(p: Dictionary) -> Array:
 		var liste := []
 		var groupe: bool = p.get("genre", "") == "groupe"
 		var nombre := maxi(1, int(p.get("nombre", 1))) if groupe else 1
-		if groupe and not p.get("chef", false) and not p.get("pacifique", false) and randf() < CHANCE_GROUPE_SQUELETTES:
+		if groupe and not p.get("elite", false) and not p.get("pacifique", false) and randf() < CHANCE_GROUPE_SQUELETTES:
 			# Squelettes : seuls ou en groupe, parfois menés par un féticheur gobelin
 			for _k in nombre:
 				liste.append(Creatures.membre("squelette"))
@@ -464,7 +465,7 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 		var mp: Dictionary = membres(p)[0]
 		var porteur := Gobelin.nouveau(donjon, n).generer_mini_boss_gobelin(donjon, n, [mp["classe"], mp["sous_classe"]])
 		porteur._d["image"] = mp["image"]
-		porteur._d["nom"] = "Porteur " + String(porteur._d["nom"]).trim_prefix("Chef ")
+		porteur._d["nom"] = "Porteur " + String(porteur._d["nom"]).trim_prefix("Élite ")
 		porteur._d["points_de_vie_max"] = int(porteur._d["points_de_vie_max"] * 1.5)
 		porteur._d["points_de_vie"] = porteur._d["points_de_vie_max"]
 		porteur._d["objets_portes"] = p.get("objets", [])
@@ -477,7 +478,7 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 			var g: Gobelin
 			if Creatures.est_creature(mg["sous_classe"]):
 				g = Creatures.creer(donjon, mg["sous_classe"])
-			elif k == 0 and p.get("chef", false):
+			elif k == 0 and p.get("elite", false):
 				g = Gobelin.nouveau(donjon, n).generer_mini_boss_gobelin(donjon, n, cs)
 				g._d["butin_garanti"] = true
 			else:
@@ -694,9 +695,9 @@ static func apres_victoire(donjon, p: Dictionary) -> String:
 # Cadavres et âmes (règles de l'utilisateur, 2026-10-31)
 # ---------------------------------------------------------------------------
 
-## Âmes d'un ennemi vaincu : 1 par ennemi ; un **chef** de groupe (élite) en vaut AMES_CHEF, le **gardien** de
+## Âmes d'un ennemi vaincu : 1 par ennemi ; une **élite** en vaut AMES_ELITE, le **gardien** de
 ## l'étage AMES_GARDIEN (décision de l'utilisateur).
-const AMES_CHEF := 3
+const AMES_ELITE := 3
 const AMES_GARDIEN := 5
 
 
@@ -704,8 +705,8 @@ static func ames_de(p: Dictionary) -> int:
 	if p["genre"] == "boss":
 		return AMES_GARDIEN
 	var n := membres(p).size()
-	if p.get("chef", false):
-		return AMES_CHEF + maxi(0, n - 1)
+	if p.get("elite", false):
+		return AMES_ELITE + maxi(0, n - 1)
 	return maxi(1, n)
 
 

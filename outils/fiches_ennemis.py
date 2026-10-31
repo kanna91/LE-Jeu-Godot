@@ -289,10 +289,10 @@ def regles_communes_gobelins(doc, c, renvoi=True):
         % " ; ".join("étage %s : %s %%" % (k, " / ".join(str(x) for x in v)) for k, v in e.items()),
         "La sorte de chaque gobelin est tirée au hasard : guerrier (moitié archer/combattant/lancier, moitié défenseur), "
         "mage (sorcier ou féticheur) ou soutien (chaman), une chance sur trois chacun.",
-        "**Chef** (%d %% des groupes) : un mini-boss en tête, PV × %s, dégâts × %s, plus grand ; il porte un objet "
-        "qu'il lâche à coup sûr." % (round(c["chance_chef"] * 100), nombre(c["mini_boss"]["pv"]), nombre(c["mini_boss"]["degats"])),
-        "**Pacifiques** (%d %% des groupes sans chef) : ils ne veulent pas se battre. En tuer appelle un Chevalier de la "
-        "mort de plus dans l'étage (la « colère »)." % round(c["chance_pacifique"] * 100),
+        "**Élite** (%d %% des groupes) : un gobelin plus fort en tête, PV × %s, dégâts × %s, plus grand ; il porte un "
+        "objet qu'il lâche à coup sûr et vaut 3 âmes." % (round(c["chance_elite"] * 100), nombre(c["mini_boss"]["pv"]), nombre(c["mini_boss"]["degats"])),
+        "**Pacifiques** (%d %% des groupes sans élite) : ils ne veulent pas se battre. Les épargner rapporte un peu d'or "
+        "(karma +1) ; les tuer coûte du karma (−1) mais donne leur âme." % round(c["chance_pacifique"] * 100),
         "**Porteur** : après une capture par un geôlier, un gobelin mini-boss (PV encore × 1,5) peut porter jusqu'à %d "
         "objets confisqués au héros ; les vaincre les rend." % c["objets_par_porteur"],
         "**Gardien de l'étage** (boss) : un gobelin PV × %s, dégâts × %s, très grand ; une faiblesse (%d %%) et une force "
@@ -300,12 +300,13 @@ def regles_communes_gobelins(doc, c, renvoi=True):
         "révèlent (vrai ou faux)." % (nombre(c["boss"]["pv"]), nombre(c["boss"]["degats"]), c["faiblesse_boss"],
                                        c["force_boss"]),
         "**Loups** : un groupe qui compte un archer ou un chaman est accompagné d'un loup %d %% du temps (jamais de loup "
-        "seul). **Squelettes** : %d %% des groupes sans chef ni pacifiques sont des squelettes (1 à 3, seuls possible), "
+        "seul). **Squelettes** : %d %% des groupes sans élite ni pacifiques sont des squelettes (1 à 3, seuls possible), "
         "menés par un féticheur gobelin %d %% du temps à partir de 2." % (round(c["chance_loup"] * 100),
                                                                          round(c["chance_groupe_squelettes"] * 100),
                                                                          round(c["chance_feticheur_squelettes"] * 100)),
-        "Les ennemis ordinaires ne donnent **ni expérience, ni or, ni butin** (décision du 2026-10-26), sauf les chefs "
-        "et les porteurs.",
+        "Les ennemis ne donnent **ni expérience ni or** directement : leur corps se fouille (comme un squelette) et leur "
+        "âme se siphonne (1 par ennemi, 3 par élite, 5 par gardien ; 3 âmes = 1 point de caractéristique). Les élites "
+        "et les porteurs lâchent aussi leurs objets.",
     ])
     doc.h1("Comportement dans les salles")
     doc.liste([
@@ -594,7 +595,7 @@ def main():
         "Il partage le sort du groupe : pacifique si le groupe l'est."],
         ["Il se déplace avec son groupe de gobelins (mêmes vitesse, vue et ouïe que les gobelins)."])
     fiche_creature(d, "squelette", "squelette", "Squelette", "Mort-vivant à l'épée rouillée.", [
-        "Dès le premier étage : %d %% des groupes sans chef ni pacifiques sont des squelettes, 1 à 3 selon l'étage "
+        "Dès le premier étage : %d %% des groupes sans élite ni pacifiques sont des squelettes, 1 à 3 selon l'étage "
         "(un squelette peut être seul)." % round(c["chance_groupe_squelettes"] * 100),
         "Seul compagnon possible pour l'instant : un féticheur gobelin, qui mène les groupes de 2 squelettes ou plus "
         "%d %% du temps (ta fiche permet aussi animaux, autres morts-vivants et nécromanciens, qui n'existent pas "

@@ -58,13 +58,13 @@ func lancer() -> void:
 	salle["objets"] = []
 	salle["objets_image"] = "porte2"
 	salle["presences"] = [
-		{"id": 901, "genre": "groupe", "etat": "actif", "nombre": 2, "chef": true, "pacifique": false},
+		{"id": 901, "genre": "groupe", "etat": "actif", "nombre": 2, "elite": true, "pacifique": false},
 		{"id": 902, "genre": "imbattable", "etat": "actif"},
 		{"id": 903, "genre": "geolier", "etat": "actif"},
 		{"id": 905, "genre": "objet", "sous": "pupitre", "etat": "actif"},
 		{"id": 906, "genre": "objet", "sous": "ratelier", "etat": "actif"},
 		{"id": 907, "genre": "objet", "sous": "cachette", "contenu": "cle", "etat": "actif"},
-		{"id": 908, "genre": "groupe", "etat": "actif", "nombre": 1, "chef": false, "pacifique": true},
+		{"id": 908, "genre": "groupe", "etat": "actif", "nombre": 1, "elite": false, "pacifique": true},
 	]
 	# Diablotin et succube arrivent plus tard : leur salle est « paisible » (pas d'autres ennemis, 2026-10-28)
 	Aventure.meta(donjon, 1)["prepare"] = true

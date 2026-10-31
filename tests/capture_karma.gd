@@ -38,7 +38,7 @@ func lancer() -> void:
 	var ecran = Ecrans.pile[-1]
 	await attendre(6)
 	var heros: Vector2 = ecran.salle_peinte.heros.position
-	var corps := Aventure.laisser_cadavre(donjon, {"genre": "groupe", "nombre": 2, "chef": true, "etat": "vaincu",
+	var corps := Aventure.laisser_cadavre(donjon, {"genre": "groupe", "nombre": 2, "elite": true, "etat": "vaincu",
 		"membres": [{"classe": "guerrier", "sous_classe": "combattant"}, {"classe": "tireur", "sous_classe": "archer"}]},
 		heros + Vector2(70, -25), "%s%s" % [ecran.salle_peinte.ident, "_m" if ecran.salle_peinte.miroir else ""])
 	ecran.salle_peinte.presences.ajouter_immobile(corps)

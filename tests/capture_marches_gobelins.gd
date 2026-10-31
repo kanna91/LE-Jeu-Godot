@@ -1,6 +1,6 @@
 extends SceneTree
 ## Marches animées des gobelins (2026-10-28, PresencesSalle._gobelin_en_marche) : un gobelin de chaque sorte qui a une
-## marche (guerrier, archer, chaman, féticheur) et un groupe mené par un chef, en marche dans la salle de la porte 2.
+## marche (guerrier, archer, chaman, féticheur) et un groupe mené par une élite, en marche dans la salle de la porte 2.
 ## Vérifie : chaque sorte a sa marche (pas le sorcier), au rythme de l'animation (2 s de marche = 24 images, même
 ## en « poursuite »), le groupe va à la vitesse du plus lent, un groupe de squelettes garde sa vitesse d'avant.
 ## Capture 110_marches_gobelins. Fenêtre hors écran (override.cfg, voir README). « BILAN marches gobelins : 0 échec(s) ».
@@ -48,7 +48,7 @@ func lancer() -> void:
 	salle["presences"] = []
 	for i in sortes.size():
 		salle["presences"].append({"id": 801 + i, "genre": "groupe", "etat": "actif", "nombre": 1, "membres": [membre(sortes[i])]})
-	salle["presences"].append({"id": 810, "genre": "groupe", "etat": "actif", "nombre": 3, "chef": true,
+	salle["presences"].append({"id": 810, "genre": "groupe", "etat": "actif", "nombre": 3, "elite": true,
 		"membres": [membre("combattant"), membre("archer"), membre("sorcier")]})
 	salle["presences"].append({"id": 811, "genre": "groupe", "etat": "actif", "nombre": 2,
 		"membres": [Creatures.membre("squelette"), Creatures.membre("squelette")], "vitesse_poursuite": Aventure.VITESSE_SQUELETTES})
@@ -91,7 +91,7 @@ func lancer() -> void:
 		* PresencesSalle.TAILLE_GOBELIN * PresencesSalle.rapport_marche_gobelin("gobelin_guerrier", "guerrier")) / 2.0
 	print("  guerrier en poursuite : %.2f hauteurs de héros/s, %.0f images/s" % [course, images_course])
 	verifier(absf(course - PresencesSalle.COURSE_GOBELINS) < 0.03, "poursuite à 0,85 hauteur de héros par seconde")
-	# Groupe avec chef : la vitesse du plus lent de ceux qui marchent (le sorcier suit)
+	# Groupe avec élite : la vitesse du plus lent de ceux qui marchent (le sorcier suit)
 	var g: Dictionary = pr.entites[4]
 	var attendu := INF
 	for k in 2:
@@ -99,7 +99,7 @@ func lancer() -> void:
 		var info := PresencesSalle.infos_marche("gobelin_" + sorte)
 		attendu = minf(attendu, float(info["foulee"]) * float(info["fps"]) * PresencesSalle.taille_membre(g["p"], k)
 			* PresencesSalle.rapport_marche_gobelin("gobelin_" + sorte, sorte))
-	verifier(absf(PresencesSalle.vitesse_gobelins(g["p"]) - attendu) < 0.001, "groupe avec chef : vitesse du plus lent (%.2f)" % attendu)
+	verifier(absf(PresencesSalle.vitesse_gobelins(g["p"]) - attendu) < 0.001, "groupe avec élite : vitesse du plus lent (%.2f)" % attendu)
 	verifier(PresencesSalle.vitesse_gobelins(pr.entites[5]["p"]) < 0.0, "squelettes : pas de marche, vitesse d'avant")
 	# Capture : les gobelins marchent dans plusieurs directions
 	var regards := [Vector2(1, 0), Vector2(-1, 0.1), Vector2(0, 1), Vector2(0, -1), Vector2(0.6, 0.6), Vector2(1, 0)]

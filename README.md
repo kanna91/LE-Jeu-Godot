@@ -62,7 +62,7 @@ stick droit pour choisir un bouton de l'interface.
   un combat en entrant dans chaque salle, et son interrupteur `Aventure.ACTIF` ont été supprimés le 2026-10-31).
   **Décisions de l'utilisateur** :
   - **Les ennemis ne donnent plus rien** (ni expérience, ni or, ni butin ; code supprimé le
-    2026-10-31), sauf les rares qui portent un équipement : le **chef** d'un groupe (mini-boss) lâche un objet, un
+    2026-10-31), sauf les rares qui portent un équipement : une **élite** (gobelin plus fort en tête d'un groupe) lâche un objet, un
     **porteur** rend les objets confisqués qu'il porte.
   - **Plus de montée de niveau** (supprimée le 2026-10-31, avec l'expérience du héros, les points de caractéristique
     et les points passifs ; le héros reste au niveau 1). Le bandeau du haut montre l'or, les clés, les PA et les repos (plus le niveau ni l'expérience).
@@ -101,7 +101,7 @@ stick droit pour choisir un bouton de l'interface.
     3 salles du départ (une capture ne rapproche pas du gardien, demande de l'utilisateur du 2026-10-27 ; repli
     s'il n'y a aucune prison : le cul-de-sac le plus loin du gardien), sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
     confiscations** (dans une autre salle, avec tout l'or), est **perdu**, ou est **porté par un porteur**
-    (gobelin rare, PV × 1,5 d'un chef, à vaincre pour le récupérer). **L'arme portée n'est jamais perdue** : elle
+    (gobelin rare, PV × 1,5 d'une élite, à vaincre pour le récupérer). **L'arme portée n'est jamais perdue** : elle
     est toujours dans le coffre des confiscations (rééquipée en l'ouvrant). Le geôlier repart dans une autre salle.
   - **Le boss garde sa salle** (on va à lui pour le combattre) ; « Monter » n'apparaît qu'une fois le gardien vaincu.
   - **Donjon de 5 étages, généré en entier au lancement** (décisions de l'utilisateur, 2026-10-30) :
@@ -112,7 +112,7 @@ stick droit pour choisir un bouton de l'interface.
 
   **Ce que contient un étage** (`Aventure.preparer_etage`, une fois, enregistré dans la partie : clé « presences »
   de chaque salle, réglages de l'étage dans `donjon.aventure`) :
-  - groupes de gobelins qui rôdent (salles ordinaires), parfois menés par un **chef**, parfois **pacifiques** (ils
+  - groupes de gobelins qui rôdent (salles ordinaires), parfois menés par une **élite** (appelée « chef » avant le 2026-10-31), parfois **pacifiques** (ils
     s'écartent ; au contact ils demandent grâce : les **épargner** (un peu d'or, parfois un objet, ils partent ;
     karma +1) ou les **attaquer** (karma −1 ; leur corps se fouille et leur âme se siphonne) : voir « Karma ») ;
   - Chevaliers de la mort et geôliers loin du départ ; le cachot (une cellule du **quartier des prisons**, voir
@@ -188,8 +188,8 @@ stick droit pour choisir un bouton de l'interface.
     le dos. Le gobelin blessé est dessiné en train de s'effondrer (milieu de son animation de mort) ; achevé, son
     animation va jusqu'au bout et son corps reste. Touche E : le **fouiller** (une
     fois : comme un squelette, 50 % rien, 35 % or, 15 % équipement ; corps d'un pacifique : 2 à 6 or × étage, 10 %
-    potion, 2 % équipement) ou **siphonner son âme** (il disparaît alors). **1 âme par ennemi, 3 pour un chef de
-    groupe (élite), 5 pour le gardien de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
+    potion, 2 % équipement) ou **siphonner son âme** (il disparaît alors). **1 âme par ennemi, 3 pour une élite, 5
+    pour le gardien de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
     des caractéristiques (triangles rouges, touche C). Pacifiques épargnés : 5 à 15 or × étage, 20 % une potion, 5 %
     un équipement (valeurs validées par l'utilisateur) ;
   - **succube** (`Rencontres.succube`, un étage sur deux : étages 1, 3, 5…) : pas de combat, elle propose un
@@ -212,7 +212,7 @@ stick droit pour choisir un bouton de l'interface.
     d'amélioration placés au hasard (`Aventure.lire_livre`, `ameliorer_au_hasard`) ; s'il connaît déjà tout, le
     grimoire améliore un de ses sorts. Rappel : les améliorations de compétences sont à reforger (valeurs absurdes,
     elles montent surtout le coût en mana) ;
-    équipement des coffres, du râtelier, des cachettes, des chefs et des squelettes. Les **compétences** (attaques
+    équipement des coffres, du râtelier, des cachettes, des élites et des squelettes. Les **compétences** (attaques
     d'arme) ne s'apprennent pas encore ainsi : à décider.
   - **Touche E** : parler, lire, fouiller le râtelier, examiner, ouvrir (la présence à portée passe avant le
     squelette).
@@ -222,7 +222,7 @@ stick droit pour choisir un bouton de l'interface.
   | Réglage | Valeur |
   |---|---|
   | Groupes par salle ordinaire | 0 : 80 %, 1 : 20 % (« très peu », décision de l'utilisateur du 2026-10-30 ; 35/50/15 avant) ; 2 ennemis au plus par groupe, loup compris (`Aventure.MAX_PAR_GROUPE`) ; ≈ 8 groupes par étage de 50 salles, ≈ 13 depuis les étages de 80 |
-  | Chef / pacifique | 12 % / 15 % des groupes |
+  | Élite / pacifique | 12 % / 15 % des groupes |
   | Chevalier de la mort par étage | 1 de base, + 1 par palier de 5 points de karma négatif |
   | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 2 / 7 (utilisateur) / 2 |
   | Pupitre, râtelier | pupitre un étage sur deux (50 %), râtelier 1 par étage |
@@ -528,7 +528,7 @@ stick droit pour choisir un bouton de l'interface.
   critique ne vient que des caractéristiques (+1 % tous les 2 de dextérité, +0,5 % de
   critique magique tous les 2 d'intelligence). Les objets portés s'ajoutent.
 - **Objets des gobelins** : les gobelins ne portent aucun équipement (leurs dégâts
-  viennent des dés de leurs compétences) et ne lâchent rien à leur mort, sauf le chef d'un
+  viennent des dés de leurs compétences) et ne lâchent rien à leur mort, sauf l'élite d'un
   groupe (objet généré à ce moment, orienté selon sa classe — `Ennemis.generer_objet_butin`).
 - **Coups multiples** (compétences avec `nombre_attaque` > 1 : Rafale de lance, Frénésie,
   Enchaînement, Lacération, Tir rapide, Blizzard, Projectiles arcaniques) : chaque coup
@@ -885,6 +885,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — « Chef » renommé « élite »
+- Le gobelin plus fort qui mène parfois un groupe s'appelle maintenant **élite** partout (nom affiché « Élite … »,
+  clé `elite`, `Aventure.CHANCE_ELITE`, `AMES_ELITE`) ; les anciennes sauvegardes sont converties au chargement.
+  Origine du « chef » : interprétation de Claude du 2026-10-26 (anciens mini-boss du jeu Python + « équipement sur
+  certains ennemis rares » de la liste de l'utilisateur), gardée telle quelle pour l'instant (décision de l'utilisateur).
+- Mesures : un étage fait **77 à 83 salles** (80 visées : les salles bonus, le bloc et les cercles font varier le total) ;
+  **2,6 groupes hostiles** en moyenne sur le chemin le plus court jusqu'au gardien, **aucun sur 6 % des étages**
+  (`GROUPES_PAR_SALLE` : un groupe dans 20 % des salles, décision de l'utilisateur du 2026-10-30).
+- Fichiers : `aventure.gd`, `presences_salle.gd`, `gobelin.gd`, `ennemis.gd`, `sauvegarde.gd`, `outils/fiches_ennemis.py`, tests.
 
 ### 2026-10-31 — Retours sur le karma
 - Le marchand **rachète toujours au même prix** (le karma ne change que ce qu'il vend).

@@ -207,7 +207,7 @@ func est_vivant() -> bool:
 
 
 ## Traite la mort de l'ennemi (une seule fois). Les ennemis ne donnent ni expérience, ni or, ni butin (décision de
-## l'utilisateur du 2026-10-26), sauf les rares qui portent un équipement (chef d'un groupe : un objet garanti ; un
+## l'utilisateur du 2026-10-26), sauf les rares qui portent un équipement (une élite : un objet garanti ; un
 ## porteur rend ses objets, Aventure.apres_victoire).
 func mort_au_combat(donjon) -> void:
 	if not _d["est_deja_mort"] and _d["points_de_vie"] <= 0:
