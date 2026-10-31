@@ -89,6 +89,11 @@ func _initialiser(nom: String) -> void:
 			"puissance_magique", "mana_max"]:
 		d["bonus_de_" + b] = 0
 	d["nouvelle_magie_a_apprendre"] = 1
+	# Âmes siphonnées sur les corps (3 âmes = 1 point de caractéristique) et karma (Karma), 2026-10-31
+	d["ames"] = 0
+	d["points_a_distribuer"] = 0
+	d["karma"] = 0
+	d["chevaliers_karma"] = 0
 	d["magies_apprises"] = []
 	d["magies_disponibles"] = [Competences.creer("Boule_de_feu"), Competences.creer("Soin"),
 		Competences.creer("Tempete_de_feu"), Competences.creer("Eclair")]
@@ -257,6 +262,34 @@ func restaurer_points_d_action() -> void:
 
 func verifier_points_d_action_suffisants(cout_action) -> bool:
 	return _d["points_d_action"] >= cout_action
+
+
+## Âmes siphonnées pour un point de caractéristique (règle de l'utilisateur, 2026-10-31).
+const AMES_PAR_POINT := 3
+
+
+## Ajoute ``n`` âmes ; chaque lot de AMES_PAR_POINT âmes devient un point de caractéristique. Renvoie les points gagnés.
+func gagner_ames(n: int) -> int:
+	var total := int(U.num(self, "ames")) + n
+	var points := total / AMES_PAR_POINT
+	_d["ames"] = total % AMES_PAR_POINT
+	_d["points_a_distribuer"] = int(U.num(self, "points_a_distribuer")) + points
+	Statistiques.noter(self, "ames_siphonnees", n)
+	return points
+
+
+## Dépense un point de caractéristique : 1 endurance, 2 force, 3 dextérité, 4 intelligence, 5 sagesse, 6 mana.
+func distribuer_points(choix) -> void:
+	if int(U.num(self, "points_a_distribuer")) <= 0:
+		return
+	var c := str(choix)
+	var cle: String = {"1": "endurance", "2": "force", "3": "dextérité", "4": "intelligence", "5": "sagesse",
+		"6": Caracteristiques.MANA}.get(c, "")
+	if cle == "":
+		return
+	_d[cle] = int(U.ga(self, cle, 0)) + 1
+	_d["points_a_distribuer"] = int(U.num(self, "points_a_distribuer")) - 1
+	calculer_stats()
 
 
 ## Apprend une magie disponible (point de magie et prérequis du sort).

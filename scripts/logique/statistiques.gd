@@ -28,6 +28,8 @@ const COMPTEURS := [
 	["fuites", "Fuites réussies", "entier"],
 	["captures", "Captures par un geôlier", "entier"],
 	["pacifiques_tues", "Gobelins pacifiques tués", "entier"],
+	["pacifiques_epargnes", "Gobelins pacifiques épargnés", "entier"],
+	["ames_siphonnees", "Âmes siphonnées", "entier"],
 	["secrets_trouves", "Cachettes trouvées", "entier"],
 	["livres_lus", "Grimoires lus", "entier"],
 	["pactes", "Pactes scellés", "entier"],
@@ -115,7 +117,8 @@ static func bilan(joueur, donjon) -> Array:
 	explorees += 0 if actuelle.get("visitee", false) else 1  # la salle où l'on se trouve
 	etages.append(donjon.salle_actuelle[0])
 	var lignes := [["Étage le plus haut", str(etages.max())],
-		["Salles explorées", str(explorees)]]
+		["Salles explorées", str(explorees)],
+		["Karma", "%+d" % Karma.valeur(joueur)]]
 	for c in COMPTEURS:
 		lignes.append([c[1], _formater(stats.get(c[0], 0), c[2])])
 	return lignes

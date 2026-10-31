@@ -45,8 +45,7 @@ static func contenu_coffre(salle: Dictionary) -> Dictionary:
 ## « Prendre » : or, objet (équipé si son emplacement est vide), potion ; le coffre est vidé.
 static func prendre_coffre(joueur, salle: Dictionary) -> void:
 	var contenu := contenu_coffre(salle)
-	joueur.piece_or += contenu["or"]
-	Statistiques.noter(joueur, "or_gagne", contenu["or"])
+	joueur.piece_or += Karma.or_gagne(joueur, int(contenu["or"]))
 	if joueur.recevoir_objet(contenu["objet"]):
 		print("%s équipé automatiquement." % contenu["objet"].nom)
 	if contenu.get("potion") != null:

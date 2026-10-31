@@ -288,6 +288,8 @@ func points_a_depenser(cle: String) -> int:
 			if not noms.has(m.nom) and Sorts.peut_apprendre(joueur, m):
 				a_apprendre += 1
 		return total + mini(int(U.num(joueur, "nouvelle_magie_a_apprendre")), a_apprendre)
+	if cle == "caracteristiques":
+		return int(U.num(joueur, "points_a_distribuer"))
 	return 0
 
 
@@ -379,8 +381,9 @@ func _dessiner(ci: Control) -> void:
 	var salle_id = donjon.salle_actuelle[1]
 	var salle: Dictionary = donjon.salle_courante()
 	Ui.panneau(ci, Rect2(8, 8, 540, 58), 190)
-	Ui.texte(ci, "Or %d  ·  Clés %d  ·  PA %d/%d  ·  Repos %d" % [int(joueur.piece_or), int(U.ga(joueur, "cles", 0)),
-		joueur.points_d_action, joueur.points_d_action_max, donjon.compteur_repos],
+	Ui.texte(ci, "Or %d  ·  Clés %d  ·  PA %d/%d  ·  Âmes %d/%d  ·  %s" % [int(joueur.piece_or), int(U.ga(joueur, "cles", 0)),
+		joueur.points_d_action, joueur.points_d_action_max, int(U.num(joueur, "ames")), Personnage.AMES_PAR_POINT,
+		Karma.texte(joueur)],
 		Vector2(20, 15), Ui.TEXTE, 15, false, 520)
 	var nom_salle := nom_lisible(salle.get("nom", ""))
 	# « (miroir) » : la salle peinte est affichée retournée (gauche et droite échangées, PlanSalles)
@@ -436,7 +439,8 @@ func _dessiner(ci: Control) -> void:
 		var lignes := ["Raccourci : touche %s" % icone_survolee[3]]
 		var points := points_a_depenser(icone_survolee[0])
 		if points:
-			lignes.append({"magie": "%d amélioration(s) ou magie(s) à choisir" % points}.get(icone_survolee[0], ""))
+			lignes.append({"magie": "%d amélioration(s) ou magie(s) à choisir" % points,
+				"caracteristiques": "%d point(s) à répartir" % points}.get(icone_survolee[0], ""))
 		Ui.infobulle(ci, icone_survolee[2], lignes, tuiles[icone_survolee[0]], 230)
 	elif direction_survolee != null:
 		var cible: Dictionary = donjon.plan_donjon[etage].get(str(salle["connections"][0]), {})
@@ -561,9 +565,11 @@ func _interagir() -> void:
 		if r[1]:
 			salle_peinte.presences.alerter()
 			_bruit()
+	elif p.get("sous") == "cadavre":
+		message = await Aventure.cadavre(donjon, p)
 	else:
 		message = Aventure.utiliser_objet(donjon, p)
-	if p.get("etat") != "actif" and (p["genre"] == "pnj" or p.get("sous") == "cachette"):
+	if p.get("etat") != "actif" and (p["genre"] == "pnj" or p.get("sous") in ["cachette", "cadavre"]):
 		salle_peinte.presences.retirer(p)
 	salle_peinte.presences.retirer_parties()  # Sans-Visage apaisé par la succube
 	salle_peinte.pacte_voile = Aventure.pacte_actif(donjon, "voile")
@@ -600,9 +606,10 @@ func _contact(p: Dictionary) -> void:
 		_afficher_salle(-1)
 		await salle_peinte.fondu(0.0)
 	elif p.get("pacifique", false) and not await Rencontres.pacifiques(donjon, p):
-		salle_peinte.presences.eloigner(p)
+		message = Rencontres.epargner_pacifiques(donjon, p)
+		salle_peinte.presences.retirer(p)
+		salle_peinte.presences.retirer_parties()  # chevalier du karma reparti
 		salle_peinte.presences.geler(2.0)
-		message = "Les gobelins s'écartent prudemment de votre chemin."
 	else:
 		message = await _combattre(p)
 		if _apres_action():
@@ -627,8 +634,14 @@ func _combattre(p: Dictionary) -> String:
 		salle_peinte.presences.eloigner(p)
 		salle_peinte.presences.geler(2.5)
 		return "Vous parvenez à fuir !"
+	var pos = salle_peinte.presences.position_de(p)
 	var suite := Aventure.apres_victoire(donjon, p)
 	salle_peinte.presences.retirer(p)
+	salle_peinte.presences.retirer_parties()
+	# Le corps reste là : à fouiller, et son âme à siphonner (2026-10-31)
+	var corps := Aventure.laisser_cadavre(donjon, p, pos, "%s%s" % [salle_peinte.ident, "_m" if salle_peinte.miroir else ""])
+	if not corps.is_empty():
+		salle_peinte.presences.ajouter_immobile(corps)
 	salle_peinte.presences.geler(1.0)
 	return ("Victoire ! " + suite).strip_edges()
 

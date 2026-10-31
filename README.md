@@ -81,8 +81,8 @@ stick droit pour choisir un bouton de l'interface.
     l'utilisateur : 300 PV, chaque coup subi ramené à 1 ou 2 dégâts, 3 sur un critique ; frappe 2d6 tranchant +
     1d6 ombre ; plus lent que le héros qui marche ; une fois lancé à sa poursuite, il le **traque sur au moins
     2 salles** sans perdre sa trace ; mieux vaut le fuir) et le **geôlier** (s'il touche le héros, il l'emmène au
-    cachot). **1 chevalier et 2 geôliers par étage** (décision de l'utilisateur, 2026-10-27 ; la colère ajoute des
-    chevaliers).
+    cachot). **1 chevalier et 2 geôliers par étage** (décision de l'utilisateur, 2026-10-27 ; le karma négatif en
+    ajoute un tous les 5 points, voir « Karma »).
   - **L'étage vit** (règles de l'utilisateur, 2026-10-27 ; `Aventure` « chasseurs », `menu_navigation._faire_vivre_l_etage`) :
     le chevalier part du **milieu de l'étage** (`Aventure.centre_etage` : la salle d'où la plus lointaine est la plus
     proche), les geôliers loin du départ. Ensuite tous vont de salle en salle **au hasard** (jamais dans la salle du
@@ -113,8 +113,8 @@ stick droit pour choisir un bouton de l'interface.
   **Ce que contient un étage** (`Aventure.preparer_etage`, une fois, enregistré dans la partie : clé « presences »
   de chaque salle, réglages de l'étage dans `donjon.aventure`) :
   - groupes de gobelins qui rôdent (salles ordinaires), parfois menés par un **chef**, parfois **pacifiques** (ils
-    s'écartent ; au contact ils demandent grâce : les laisser, ou les attaquer — **les tuer fait apparaître un
-    Chevalier de la mort de plus dans l'étage** : ennemis qu'on ne doit pas tuer) ;
+    s'écartent ; au contact ils demandent grâce : les **épargner** (un peu d'or, parfois un objet, ils partent ;
+    karma +1) ou les **attaquer** (karma −1 ; leur corps se fouille et leur âme se siphonne) : voir « Karma ») ;
   - Chevaliers de la mort et geôliers loin du départ ; le cachot (une cellule du **quartier des prisons**, voir
     « Salles orientées comme la mini-carte ») ; le gardien, dont la classe est tirée dès la création de l'étage ;
   - un **coffre ancien** (cerclé de fer, sceau rouge) : l'**armure anti-boss** de l'étage (voir « Armure anti-boss ») ;
@@ -165,9 +165,26 @@ stick droit pour choisir un bouton de l'interface.
     (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
     inchangée). Les **clés** du héros s'y affichent en tête (« Clé rouillée ×N ») ;
   - **choix moraux** (`Rencontres`) : gobelin blessé (le soigner avec une potion : clé ou grimoire ; l'épargner : un
-    secret vrai ; l'achever : un Chevalier de la mort de plus), prisonnier (briser ses chaînes : bruyant, les ennemis de la
+    secret vrai ; l'achever : son corps reste, à fouiller et à siphonner), prisonnier (briser ses chaînes : bruyant, les ennemis de la
     salle accourent, il donne une clé ; lui demander ce qu'il sait : il dit vrai), autel de sang (offrir des PV contre
-    +1 dans une caractéristique). Clémence et cruauté sont comptées (`donjon.moralite`) pour plus tard ;
+    +1 dans une caractéristique). Clémence (+1) et cruauté (−1) changent le **karma** (`donjon.moralite` les compte) ;
+  - **Karma** (règles de l'utilisateur, 2026-10-31 ; `Karma`, gardé dans le héros, affiché dans le bandeau et l'écran
+    des caractéristiques) : épargner des pacifiques, soigner ou épargner le gobelin blessé, libérer le prisonnier
+    donnent +1 ; tuer des pacifiques ou achever le gobelin blessé −1. **Négatif**, par point : diablotins +5 % de
+    mensonges, prix des marchands +5 % ; **tous les 5 points, un Chevalier de la mort de plus sur chaque étage**,
+    qui ne repart qu'en remontant de 5 points depuis le palier qui l'a fait venir (créé à −5, il repart à 0 ; créé à
+    −10, il repart à −5) ; il reste toujours le chevalier de base. **Positif**, par point : diablotins +5 % de vérité,
+    prix −5 % (jamais sous 25 %, choix de Claude), **or gagné +5 % de toutes les sources** (fouilles, cachettes,
+    coffres, pacifiques, ventes au marchand). Habitants plus froids ou plus chaleureux selon le karma (accueil des
+    diablotins). **Pas encore fait** : les quêtes (plus ou moins nombreuses, meilleures récompenses tous les +5),
+    faute de système de quêtes ;
+  - **Corps et âmes** (règles de l'utilisateur, 2026-10-31) : un ennemi vaincu (groupe, porteur, gardien) laisse son
+    **corps** dans la salle (`Aventure.laisser_cadavre`, enregistré avec la salle). Touche E : le **fouiller** (une
+    fois : comme un squelette, 50 % rien, 35 % or, 15 % équipement ; corps d'un pacifique : 2 à 6 or × étage, 10 %
+    potion, 2 % équipement) ou **siphonner son âme** (il disparaît alors). **1 âme par ennemi, 3 pour un chef de
+    groupe (élite), 5 pour le gardien de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
+    des caractéristiques (triangles rouges, touche C). Pacifiques épargnés : 5 à 15 or × étage, 20 % une potion, 5 %
+    un équipement (valeurs validées par l'utilisateur) ;
   - **succube** (`Rencontres.succube`, un étage sur deux : étages 1, 3, 5…) : pas de combat, elle propose un
     **pacte** contre une part des **PV max, perdus pour toujours** (`Aventure.PACTES`, `sceller_pacte`), puis
     disparaît (on peut refuser et revenir). Petits pactes (25 % des PV max) : **Voile** (jusqu'à la fin de
@@ -199,8 +216,8 @@ stick droit pour choisir un bouton de l'interface.
   |---|---|
   | Groupes par salle ordinaire | 0 : 80 %, 1 : 20 % (« très peu », décision de l'utilisateur du 2026-10-30 ; 35/50/15 avant) ; 2 ennemis au plus par groupe, loup compris (`Aventure.MAX_PAR_GROUPE`) ; ≈ 8 groupes par étage de 50 salles, ≈ 13 depuis les étages de 80 |
   | Chef / pacifique | 12 % / 15 % des groupes |
-  | Chevalier de la mort par étage | 0 à l'étage 1, 1 ensuite, + 1 par pacifique (ou gobelin blessé) tué |
-  | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ colère) / 2 / 7 (utilisateur) / 2 |
+  | Chevalier de la mort par étage | 1 de base, + 1 par palier de 5 points de karma négatif |
+  | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 2 / 7 (utilisateur) / 2 |
   | Pupitre, râtelier | pupitre un étage sur deux (50 %), râtelier 1 par étage |
   | Cachettes | 2 à 3 par étage, au moins une clé par salle verrouillée ; le reste : or 45, objet 40, grimoire 15 (poids) |
   | Grimoire | sort de palier 0 à l'étage (5 au plus), amélioré de 2 + 2 × étage points ; gobelin soigné : grimoire 25 %, clé 75 % |
@@ -629,6 +646,7 @@ stick droit pour choisir un bouton de l'interface.
 | `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)`). |
 | `scripts/noyau/compte.gd` | `Compte` : ce que le joueur garde d'une partie à l'autre (glossaire des ennemis), `user://compte.json`. |
 | `scripts/logique/blocs_salles.gd` + `outils/importer_blocs.py` | `BlocsSalles` : blocs de salles (plan, liens porte à porte, entrées) ; import de leurs images et de leurs zones. |
+| `scripts/logique/karma.gd` | `Karma` : karma du héros, paliers des Chevaliers de la mort, effets sur les prix, l'or et les diablotins. |
 | `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers et affichage des clés. |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
@@ -761,6 +779,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
 & $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
+& $godot --headless --path . -s tests/test_karma.gd               # karma (paliers des chevaliers, prix, or, mensonges), pacifiques, corps et âmes
+& $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
@@ -858,6 +878,21 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-10-31 — Karma, corps à fouiller, âmes
+- **Karma** : clémence +1, cruauté −1 ; effets sur les mensonges des diablotins, les prix, l'or gagné, l'accueil des
+  diablotins ; un Chevalier de la mort de plus sur chaque étage tous les 5 points négatifs (par paliers, il repart en
+  remontant de 5). Remplace l'ancienne règle (« tuer un pacifique = un chevalier de plus » aussitôt).
+- **Pacifiques** : les épargner rapporte un peu d'or et parfois un objet ; les tuer donne une âme.
+- **Corps** : les ennemis vaincus laissent un corps à fouiller (comme un squelette) ; siphonner son âme le fait
+  disparaître. **Âmes** : 1 par ennemi, 3 par chef, 5 par gardien ; 3 âmes = 1 point de caractéristique (les
+  triangles rouges de l'écran des caractéristiques reviennent).
+- Pas encore fait : quêtes (aucun système de quêtes pour l'instant).
+- Fichiers : `scripts/logique/karma.gd` (nouveau), `aventure.gd` (`laisser_cadavre`, `cadavre`, `ames_de`),
+  `rencontres.gd` (`epargner_pacifiques`, `accueil_diablotin`, `_noter_moralite`), `fouille.gd` (`fouiller_corps`),
+  `personnage.gd` (`gagner_ames`, `distribuer_points`), `marchand.gd` (`prix_rachat`), `presences_salle.gd` (corps),
+  `menu_navigation.gd`, `menu_caracteristique.gd`, `menu_marchand.gd`, `salles_bonus.gd`, `statistiques.gd` ;
+  tests `test_karma.gd`, `capture_karma.gd`.
 
 ### 2026-10-31 — Premier bloc de salles : la cuisine
 - **Blocs de salles** (`BlocsSalles`) : des lots d'images reliés porte à porte, posés tels quels dans l'étage ; le

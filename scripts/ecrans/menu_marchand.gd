@@ -61,7 +61,12 @@ static func filtrer_objets(liste: Array, categorie: String) -> Array:
 
 
 func prix_affiche(objet) -> int:
-	return Marchand.prix_achat(objet, joueur) if onglet == "Acheter" else Marchand.prix_vente(objet)
+	match onglet:
+		"Acheter":
+			return Marchand.prix_achat(objet, joueur)
+		"Rachat":
+			return Marchand.prix_rachat(objet, joueur)
+	return Marchand.prix_vente(objet, joueur)
 
 
 func source_onglet() -> Array:
@@ -171,7 +176,7 @@ func _dessiner(ci: Control) -> void:
 				Ui.texte(ci, "%d objet(s)" % a_vendre.size(), r.position + Vector2(12, 18), DescriptionObjet.COULEUR_DETAIL, 12)
 			var gain := 0
 			for o in a_vendre:
-				gain += Marchand.prix_vente(o)
+				gain += Marchand.prix_vente(o, joueur)
 			Ui.texte(ci, "+%d PO" % gain, Vector2(r.end.x - 10, r.position.y + 9), Ui.OR if not a_vendre.is_empty() else Color8(110, 110, 120), 15, true, null, "topright")
 	Ui.rect(ci, ZONE_LISTE.grow(4), Color8(12, 10, 16, 205), 0, 8)
 	Ui.rect(ci, ZONE_LISTE.grow(4), BORDURE, 1, 8)

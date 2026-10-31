@@ -59,7 +59,7 @@ const ASTUCES := [
 	["ombre", "Reste immobile dans les coins les plus sombres : personne ne te verra. Marche dans l'ombre, et on te verra de moitié moins loin.", ""],
 	["course", "Courir, c'est bruyant. Les gobelins de la salle t'entendent de loin.", "Gobelins"],
 	["piliers", "Les piliers et les obstacles coupent la vue. Mets-les entre toi et ceux qui te cherchent.", ""],
-	["pacifiques", "Les gobelins qui lèvent les mains ne veulent pas se battre. Tue-les, et un Chevalier de la mort de plus se mettra à errer.", "Gobelins"],
+	["pacifiques", "Les gobelins qui lèvent les mains ne veulent pas se battre. Épargne-les, ils te le rendront. Tue-les trop souvent, et les Chevaliers de la mort se multiplieront.", "Gobelins"],
 	["geolier", "Le geôlier ne tue pas : il t'assomme et t'enferme au cachot. Tes affaires finissent dans un coffre, perdues, ou dans les poches de gobelins... sauf ton arme, toujours dans le coffre.", "Geôlier"],
 	["cachettes", "Certains murs cachent des choses : une petite lueur quand tu passes tout près. Les clés des salles fermées y dorment souvent.", ""],
 	["succube", "Si tu croises une dame aux ailes de cuir, elle te vendra ce que tu veux. Le prix, c'est ta vie. Pour toujours.", ""],
@@ -81,12 +81,14 @@ const EFFETS_PACTES := {
 }
 
 
-static func _noter_moralite(donjon, cle: String) -> void:
+## Note un choix moral (``moralite`` : clémence, cruauté) et change le karma (+1 / −1) ; renvoie le message du karma.
+static func _noter_moralite(donjon, cle: String) -> String:
 	var m = U.ga(donjon, "moralite", null)
 	if not (m is Dictionary):
 		m = {"clemence": 0, "cruaute": 0}
 		donjon._d["moralite"] = m
 	m[cle] = int(m.get(cle, 0)) + 1
+	return Karma.changer(donjon, 1 if cle == "clemence" else -1)
 
 
 ## Sorties d'une salle peinte, vues par le héros (toujours tourné vers le nord, comme la carte).
@@ -336,7 +338,7 @@ static func repondre(donjon, sujet: String) -> Array:
 	var infos := infos_diablotin(donjon, sujet)
 	var mensonges := mensonges_diablotin(donjon) if sujet == "etage" else []
 	var info: Array
-	if not mensonges.is_empty() and (infos.is_empty() or randf() < CHANCE_MENSONGE):
+	if not mensonges.is_empty() and (infos.is_empty() or randf() < Karma.chance_mensonge(donjon.personnage, CHANCE_MENSONGE)):
 		info = mensonges.pick_random()
 		for cle in info[3]:
 			_dits(donjon)[cle] = true
@@ -373,11 +375,22 @@ static func ennemi_de(cle: String) -> String:
 	return ""
 
 
+## Accueil du diablotin selon le karma du héros (les habitants sont plus froids avec un héros cruel).
+static func accueil_diablotin(joueur) -> String:
+	var k := Karma.valeur(joueur)
+	if k <= -Karma.PALIER:
+		return "Le diablotin recule en sifflant. « Toi... Je sais ce que tu as fait. Une question, peut-être deux. Pas plus. »"
+	if k < 0:
+		return "Le diablotin te jauge, méfiant. « Hmm. Pose tes questions. Vite. »"
+	if k >= Karma.PALIER:
+		return "Le diablotin bat joyeusement des ailes. « Ah, c'est toi ! On parle de ta bonté jusque dans les murs. Demande, demande ! »"
+	return "Un petit diablotin rouge ricane en voletant. « Tu veux savoir des choses, hein ? Pose tes questions... mais pas trop. »"
+
+
 ## Conversation avec un diablotin : il répond à DIABLOTIN_REPONSES questions au plus (une information nouvelle
 ## à chaque fois, notée dans le journal), puis disparaît. Renvoie le message de fin.
 static func diablotin(donjon, p: Dictionary) -> String:
-	var texte := "Un petit diablotin rouge ricane en voletant. « Tu veux savoir des choses, hein ? Pose tes questions... " + \
-		"mais pas trop. »"
+	var texte := accueil_diablotin(donjon.personnage)
 	var reponses := 0
 	while reponses < DIABLOTIN_REPONSES:
 		var sujets := []
@@ -488,14 +501,17 @@ static func gobelin_blesse(donjon, p: Dictionary) -> String:
 		p["etat"] = "utilise"
 		_noter_moralite(donjon, "clemence")
 		return "« Merci... » souffle-t-il. « %s »" % phrase(donjon, "etage", true)
-	p["etat"] = "vaincu"
-	_noter_moralite(donjon, "cruaute")
-	var etage := int(donjon.salle_actuelle[0])
-	var m := Aventure.meta(donjon, etage)
-	m["colere"] = int(m.get("colere", 0)) + 1
-	Aventure.ajouter_menace(donjon, etage, "imbattable")
 	Statistiques.noter(joueur, "pacifiques_tues")
-	return "Vous l'achevez. Quelque part dans l'étage, un Chevalier de la mort se met en marche."
+	# Son corps reste là : on peut le fouiller et siphonner son âme
+	var sorte: String = PresencesSalle.SORTES_GOBELINS[int(p.get("id", 0)) * 7 % PresencesSalle.SORTES_GOBELINS.size()]
+	p["genre"] = "objet"
+	p["sous"] = "cadavre"
+	p["etat"] = "actif"
+	p["ames"] = 1
+	p["pacifique"] = true
+	p["nom_corps"] = "le gobelin"
+	p["membres"] = [{"sous_classe": CombatAnime.TYPES.find_key(sorte)}]
+	return ("Vous l'achevez. " + _noter_moralite(donjon, "cruaute")).strip_edges()
 
 
 ## Prisonnier enchaîné ; renvoie [message, bruit] (bruit : les ennemis de la salle accourent).
@@ -549,6 +565,35 @@ static func parler(donjon, p: Dictionary) -> Array:
 				return ["L'autel est sec. Il a eu ce qu'il voulait.", false]
 			return [await autel(donjon, p), false]
 	return ["", false]
+
+
+## Ce que donnent des gobelins pacifiques épargnés (règles de l'utilisateur, 2026-10-31 ; valeurs validées) : un peu
+## d'or (× étage), parfois une potion, plus rarement un équipement ; puis ils disparaissent (karma +1).
+const PACIFIQUES_EPARGNES := {"or": [5, 15], "potion": 0.20, "equipement": 0.05}
+
+
+## Le héros épargne le groupe de pacifiques ``p`` : il reçoit leur cadeau, ils s'en vont. Renvoie le message.
+static func epargner_pacifiques(donjon, p: Dictionary) -> String:
+	var joueur = donjon.personnage
+	var etage := int(donjon.salle_actuelle[0])
+	var n := Aventure.membres(p).size()
+	p["etat"] = "parti"
+	Statistiques.noter(joueur, "pacifiques_epargnes", n)
+	var cadeaux := []
+	var gain := Karma.or_gagne(joueur, randi_range(PACIFIQUES_EPARGNES["or"][0], PACIFIQUES_EPARGNES["or"][1]) * maxi(1, etage))
+	joueur.piece_or += gain
+	cadeaux.append("%d pièces d'or" % gain)
+	if randf() < PACIFIQUES_EPARGNES["potion"]:
+		var potion := Consommable.creer_potion("pv", Consommable.niveau_potion_etage(etage))
+		joueur.recevoir_objet(potion)
+		cadeaux.append(potion.nom)
+	if randf() < PACIFIQUES_EPARGNES["equipement"]:
+		var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
+		joueur.recevoir_objet(objet)
+		cadeaux.append(objet.nom)
+	var texte := "%s vous remercie%s et vous laisse%s %s avant de disparaître dans l'ombre." % [
+		"Le gobelin" if n == 1 else "Les gobelins", "" if n == 1 else "nt", "" if n == 1 else "nt", ", ".join(cadeaux)]
+	return (texte + " " + _noter_moralite(donjon, "clemence")).strip_edges()
 
 
 ## Groupe de gobelins pacifiques touché : [attaquer ?]. Vrai : le joueur choisit de les attaquer.

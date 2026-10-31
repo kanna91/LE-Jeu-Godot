@@ -153,6 +153,32 @@ func faire_venir(p: Dictionary, retard: float, entree := Vector2.INF, cherche :=
 	entites.append(e)
 
 
+## Position (pixels de l'image) de la présence ``p`` affichée, ou null.
+func position_de(p: Dictionary):
+	for e in entites:
+		if e["p"] == p:
+			return e["pos"]
+	return null
+
+
+## Affiche une nouvelle présence immobile (corps d'un ennemi vaincu) à sa place, ``p["pos"]`` si elle en a une.
+func ajouter_immobile(p: Dictionary) -> void:
+	var cle_image := "%s%s" % [salle.ident, "_m" if salle.miroir else ""]
+	if p.get("pos_image", "") != cle_image:
+		var q := _point_libre(1.2, false, true)
+		p["pos"] = [q.x, q.y]
+		p["pos_image"] = cle_image
+	var e := {"p": p, "etat": "immobile", "t": 0.0, "pause": 0.0, "retard": 0.0, "regard": Vector2(0, 1),
+		"vu_pos": Vector2.ZERO, "hors_champ": false, "pos": Vector2(p["pos"][0], p["pos"][1])}
+	e["cible"] = e["pos"]
+	var noeud := Node2D.new()
+	noeud.position = e["pos"]
+	noeud.draw.connect(_dessiner.bind(noeud, e))
+	salle.tri.add_child(noeud)
+	e["noeud"] = noeud
+	entites.append(e)
+
+
 ## Retire une présence de l'affichage (vaincue, utilisée...).
 func retirer(p: Dictionary) -> void:
 	for e in entites.duplicate():
@@ -544,7 +570,8 @@ static func _hauteur_forme(p: Dictionary) -> float:
 			return TAILLE_GOBELIN * Ennemis.BOSS["taille"]
 		"pnj":
 			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65, "autel": 0.45}.get(p["sous"], 0.6)
-	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35}.get(p.get("sous", ""), 0.5)
+	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35,
+		"cadavre": TAILLE_GOBELIN * 0.4}.get(p.get("sous", ""), 0.5)
 
 
 func _dessiner(n: Node2D, e: Dictionary) -> void:
@@ -635,6 +662,19 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 					n.draw_rect(Rect2(Vector2(-hf * 0.55, -hf * 0.62), Vector2(hf * 1.1, hf * 0.12)), Color8(150, 155, 165))
 					if not utilise:
 						n.draw_circle(Vector2(0, -hf * 0.56), hf * 0.1, Color8(170, 25, 25))
+				"cadavre":
+					# Corps à terre (dernière image de la mort de chaque gobelin), flaque de sang ; une âme pâle flotte
+					# au-dessus tant qu'elle n'est pas siphonnée
+					var liste: Array = p.get("membres", [{}])
+					n.draw_set_transform(Vector2(hf * 0.3, -hf * 0.05), 0, Vector2(1, 0.3))
+					n.draw_circle(Vector2.ZERO, hf * (0.8 + 0.35 * (liste.size() - 1)), Color(0.45, 0.03, 0.03, 0.8))
+					n.draw_set_transform(Vector2.ZERO)
+					var ecart := h * TAILLE_GOBELIN * 0.5
+					for k in liste.size():
+						var x := (k - (liste.size() - 1) / 2.0) * ecart
+						_gobelin(n, e, liste[k], k, Vector2(x, 0), h * TAILLE_GOBELIN, Color.WHITE, "mort")
+					var a := 0.35 + 0.25 * sin(temps * 2.5 + int(p.get("id", 0)))
+					n.draw_circle(Vector2(0, -h * 0.55), h * 0.05, Color(0.75, 0.85, 1.0, a))
 				"cachette":
 					# Invisible ; une lueur discrète quand le héros passe tout près
 					var d := _distance(e["pos"], salle.heros.position)

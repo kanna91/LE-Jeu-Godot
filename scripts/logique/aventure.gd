@@ -366,6 +366,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 	for c in contenus:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
+	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
 
 
 ## Groupe de gobelins qui rôde : 1 ou 2 selon l'étage (Donjon.ENNEMIS_PAR_ETAGE, plafonné à MAX_PAR_GROUPE), parfois un
@@ -400,7 +401,7 @@ static func presences(donjon, salle: Dictionary) -> Array:
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
 	var liste := []
 	for p in salle.get("presences", []):
-		if p.get("etat", "actif") == "actif" or (p["genre"] == "objet" and p["sous"] != "cachette"):
+		if p.get("etat", "actif") == "actif" or (p["genre"] == "objet" and not p["sous"] in ["cachette", "cadavre"]):
 			liste.append(p)
 	return liste
 
@@ -669,19 +670,16 @@ static func chance_fuite(joueur, ennemis: Array) -> float:
 	return clampf(c, FUITE_BORNES[0], FUITE_BORNES[1])
 
 
-## Après un combat gagné contre la présence ``p`` : elle disparaît ; tuer des pacifiques attise la colère
-## du donjon (un imbattable de plus sur l'étage) ; un porteur rend les objets qu'il portait.
+## Après un combat gagné contre la présence ``p`` : elle disparaît (son corps reste : ``laisser_cadavre``) ; tuer
+## des pacifiques est un acte de cruauté (karma −1, Karma) ; un porteur rend les objets qu'il portait.
 ## Renvoie le message à afficher.
 static func apres_victoire(donjon, p: Dictionary) -> String:
 	p["etat"] = "vaincu"
-	var etage := int(donjon.salle_actuelle[0])
 	var messages := []
 	if p.get("pacifique", false):
-		var m := meta(donjon, etage)
-		m["colere"] = int(m.get("colere", 0)) + 1
-		ajouter_menace(donjon, etage, "imbattable")
-		Statistiques.noter(donjon.personnage, "pacifiques_tues")
-		messages.append("Ils ne voulaient pas se battre... Un hurlement lointain répond à leur mort : un Chevalier de la mort de plus rôde dans l'étage.")
+		Statistiques.noter(donjon.personnage, "pacifiques_tues", membres(p).size())
+		messages.append("Ils ne voulaient pas se battre...")
+		messages.append(Rencontres._noter_moralite(donjon, "cruaute"))
 	if p["genre"] == "porteur":
 		for objet in p.get("objets", []):
 			donjon.personnage.recevoir_objet(objet)
@@ -689,6 +687,76 @@ static func apres_victoire(donjon, p: Dictionary) -> String:
 		p["objets"] = []
 	if p["genre"] == "boss":
 		Statistiques.noter(donjon.personnage, "boss_vaincus")
+	return " ".join(messages.filter(func(x): return x != ""))
+
+
+# ---------------------------------------------------------------------------
+# Cadavres et âmes (règles de l'utilisateur, 2026-10-31)
+# ---------------------------------------------------------------------------
+
+## Âmes d'un ennemi vaincu : 1 par ennemi ; un **chef** de groupe (élite) en vaut AMES_CHEF, le **gardien** de
+## l'étage AMES_GARDIEN (décision de l'utilisateur).
+const AMES_CHEF := 3
+const AMES_GARDIEN := 5
+
+
+static func ames_de(p: Dictionary) -> int:
+	if p["genre"] == "boss":
+		return AMES_GARDIEN
+	var n := membres(p).size()
+	if p.get("chef", false):
+		return AMES_CHEF + maxi(0, n - 1)
+	return maxi(1, n)
+
+
+## Laisse le corps de la présence vaincue ``p`` dans la salle actuelle, à ``pos`` (pixels de l'image, ou rien) :
+## une présence « objet / cadavre » à fouiller, qui ne disparaît que quand on siphonne son âme. Renvoie le corps.
+static func laisser_cadavre(donjon, p: Dictionary, pos = null, cle_image := "") -> Dictionary:
+	if not p["genre"] in ["groupe", "porteur", "boss"]:
+		return {}
+	var etage := int(donjon.salle_actuelle[0])
+	var m := meta(donjon, etage)
+	var corps := {"id": _nouvel_id(m), "genre": "objet", "sous": "cadavre", "etat": "actif", "ames": ames_de(p),
+		"pacifique": p.get("pacifique", false), "fouille": false, "membres": membres(p).duplicate(true),
+		"nom_corps": "le gardien" if p["genre"] == "boss" else ("les corps" if membres(p).size() > 1 else "le corps")}
+	if pos is Vector2:
+		corps["pos"] = [pos.x, pos.y]
+		corps["pos_image"] = cle_image
+	var salle: Dictionary = donjon.salle_courante()
+	if not salle.has("presences"):
+		salle["presences"] = []
+	salle["presences"].append(corps)
+	return corps
+
+
+## Le héros s'approche d'un corps : le fouiller (une fois), siphonner son âme (il disparaît), ou partir.
+## Renvoie le message à afficher.
+static func cadavre(donjon, p: Dictionary) -> String:
+	var joueur = donjon.personnage
+	var messages := []
+	while p.get("etat") == "actif":
+		var n := int(p.get("ames", 1))
+		var boutons := []
+		if not p.get("fouille", false):
+			boutons.append("Fouiller %s" % p.get("nom_corps", "le corps"))
+		boutons.append("Siphonner %s (%d)" % ["son âme" if n == 1 else "leurs âmes", n])
+		boutons.append("Partir")
+		var texte: String = "Le corps gît sur les dalles." if messages.is_empty() else messages[-1]
+		var choix := await Ecrans.dialogue("Cadavre", texte, boutons, Color8(150, 120, 170))
+		var action: String = boutons[choix] if choix < boutons.size() else "Partir"
+		if action.begins_with("Fouiller"):
+			p["fouille"] = true
+			messages.append(Fouille.fouiller_corps(joueur, donjon, p.get("pacifique", false)))
+		elif action.begins_with("Siphonner"):
+			p["etat"] = "siphonne"
+			var points: int = joueur.gagner_ames(n)
+			var texte_ames := "Vous aspirez %d âme%s. Une force froide vous traverse (âmes : %d / %d)." % [
+				n, "s" if n > 1 else "", int(U.num(joueur, "ames")), Personnage.AMES_PAR_POINT]
+			if points > 0:
+				texte_ames += " +%d point%s de caractéristique à répartir (touche C)." % [points, "s" if points > 1 else ""]
+			messages.append(texte_ames)
+		else:
+			break
 	return " ".join(messages)
 
 
@@ -910,7 +978,7 @@ static func action(p: Dictionary) -> String:
 	if p["genre"] == "pnj":
 		return {"autel": "Examiner l'autel", "gobelin_blesse": "S'approcher"}.get(p["sous"], "Parler")
 	return {"pupitre": "Lire", "ratelier": "Fouiller le râtelier", "cachette": "Examiner",
-		"coffre_confisque": "Ouvrir le coffre", "coffre_gardien": "Ouvrir le coffre"}.get(p["sous"], "Utiliser")
+		"coffre_confisque": "Ouvrir le coffre", "coffre_gardien": "Ouvrir le coffre", "cadavre": "Examiner le corps"}.get(p["sous"], "Utiliser")
 
 
 ## Un grimoire : le héros apprend un sort tiré au hasard (palier 0 à l'étage), déjà amélioré (POINTS_LIVRE).
@@ -999,7 +1067,7 @@ static func utiliser_objet(donjon, p: Dictionary) -> String:
 					var equipe = joueur.recevoir_objet(trouve)
 					return "Une cache secrète : %s%s !" % [trouve.nom, " (équipé)" if equipe else ""]
 				_:
-					var gain := randi_range(20, 50) * maxi(1, etage)
+					var gain := Karma.or_gagne(joueur, randi_range(20, 50) * maxi(1, etage))
 					joueur.piece_or += gain
 					return "Une bourse oubliée dans une fissure : %d pièces d'or." % gain
 	return ""

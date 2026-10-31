@@ -44,14 +44,19 @@ func menu_marchand(donjon, personnage) -> void:
 	await Ecrans.menu_marchand(U.ga(donjon, "fenetre", null), self, personnage)
 
 
-## Prix de vente du marchand : valeur + 35 %, moins les talents de marchandage.
+## Prix de vente du marchand : valeur + 35 %, moins les talents de marchandage, ± 5 % par point de karma.
 static func prix_achat(objet, acheteur = null) -> int:
-	return int(objet.valeur * MAJORATION_ACHAT * Talents.facteur_prix(acheteur))
+	return int(objet.valeur * MAJORATION_ACHAT * Talents.facteur_prix(acheteur) * Karma.facteur_prix(acheteur))
 
 
-## Prix de rachat d'un objet au joueur : sa valeur.
-static func prix_vente(objet) -> int:
-	return int(objet.valeur)
+## Or que le marchand donne au joueur pour un objet : sa valeur (+5 % par point de karma positif, comme tout l'or).
+static func prix_vente(objet, vendeur = null) -> int:
+	return int(round(objet.valeur * Karma.facteur_or(vendeur)))
+
+
+## Prix pour racheter un objet vendu : sa valeur, ± 5 % par point de karma (comme les autres prix).
+static func prix_rachat(objet, acheteur = null) -> int:
+	return int(objet.valeur * Karma.facteur_prix(acheteur))
 
 
 func acheter(objet, personnage) -> bool:
@@ -72,7 +77,7 @@ func acheter(objet, personnage) -> bool:
 
 func racheter(objet, personnage) -> bool:
 	var proposes: Array = U.ga(self, "objets_a_racheter", [])
-	var prix := prix_vente(objet)
+	var prix := prix_rachat(objet, personnage)
 	if not (objet in proposes):
 		return false
 	if personnage.piece_or < prix:
@@ -89,8 +94,10 @@ func racheter(objet, personnage) -> bool:
 func vendre(objet, personnage) -> bool:
 	if objet in personnage.inventaire:
 		personnage.inventaire.erase(objet)
-		personnage.piece_or += prix_vente(objet)
-		print("%s a vendu %s pour %d or." % [personnage.nom, objet.nom, prix_vente(objet)])
+		var gain := prix_vente(objet, personnage)
+		personnage.piece_or += gain
+		Statistiques.noter(personnage, "or_gagne", gain)
+		print("%s a vendu %s pour %d or." % [personnage.nom, objet.nom, gain])
 		if not personnage.possede("vente_historique"):
 			personnage.vente_historique = []
 		personnage.vente_historique.append(objet)
@@ -118,7 +125,7 @@ func vendre_lot(liste: Array, personnage) -> Array:
 	var nombre := 0
 	var gain := 0
 	for objet in liste.duplicate():
-		var prix := prix_vente(objet)
+		var prix := prix_vente(objet, personnage)
 		if vendre(objet, personnage):
 			nombre += 1
 			gain += prix

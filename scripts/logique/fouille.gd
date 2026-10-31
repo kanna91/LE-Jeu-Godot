@@ -48,6 +48,41 @@ static func _tirer_pondere(table) -> Variant:
 	return table[0][0]
 
 
+## Fouille d'un corps d'ennemi vaincu (Aventure.cadavre, 2026-10-31) : comme un squelette (RESULTATS, OR) ; celui
+## d'un gobelin pacifique tué rapporte moins (CORPS_PACIFIQUE : un peu d'or, parfois une potion, rarement un
+## équipement). Renvoie le message.
+const CORPS_PACIFIQUE := {"or": [2, 6], "potion": 0.10, "equipement": 0.02}
+
+
+static func fouiller_corps(joueur, donjon, pacifique: bool) -> String:
+	var etage: int = int(donjon.salle_actuelle[0])
+	Statistiques.noter(joueur, "objets_fouilles")
+	if pacifique:
+		var trouve := []
+		var gain := Karma.or_gagne(joueur, randi_range(CORPS_PACIFIQUE["or"][0], CORPS_PACIFIQUE["or"][1]) * maxi(1, etage))
+		joueur.piece_or += gain
+		trouve.append("%d pièces d'or" % gain)
+		if randf() < CORPS_PACIFIQUE["potion"]:
+			var potion := Consommable.creer_potion("pv", Consommable.niveau_potion_etage(etage))
+			joueur.recevoir_objet(potion)
+			trouve.append(potion.nom)
+		if randf() < CORPS_PACIFIQUE["equipement"]:
+			var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
+			joueur.recevoir_objet(objet)
+			trouve.append(objet.nom)
+		return "Vous fouillez le corps : " + ", ".join(trouve) + "."
+	var resultat = _tirer_pondere(RESULTATS["squelette"])
+	if resultat == "or":
+		var gain := Karma.or_gagne(joueur, randi_range(OR["squelette"][0], OR["squelette"][1]) * maxi(1, etage))
+		joueur.piece_or += gain
+		return "Vous fouillez le corps : %d pièces d'or." % gain
+	if resultat == "objet":
+		var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
+		var equipe = joueur.recevoir_objet(objet)
+		return "Vous fouillez le corps : %s%s." % [objet.nom, " (équipé)" if equipe else ""]
+	return "Vous fouillez le corps : rien d'intéressant."
+
+
 ## Objets de la salle du plan ``salle`` affichée avec l'image ``image`` (tirés à la première visite).
 static func objets_salle(salle: Dictionary, image: String) -> Array:
 	if salle.get("objets_image", "") == image and salle.get("objets") is Array:
@@ -102,9 +137,8 @@ static func fouiller(objet: Dictionary, joueur, donjon) -> String:
 	var nom: String = NOMS.get(genre, "l'objet")
 	if resultat == "or":
 		var bornes: Array = OR.get(genre, [10, 30])
-		var gain := randi_range(bornes[0], bornes[1]) * maxi(1, etage)
+		var gain := Karma.or_gagne(joueur, randi_range(bornes[0], bornes[1]) * maxi(1, etage))
 		joueur.piece_or += gain
-		Statistiques.noter(joueur, "or_gagne", gain)
 		return "Vous fouillez %s : %d pièces d'or !" % [nom, gain]
 	if resultat == "objet":
 		var trouve = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
