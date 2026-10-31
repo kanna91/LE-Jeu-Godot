@@ -1,5 +1,14 @@
 # LE Jeu — portage Godot
 
+## ⬇️ Télécharger le jeu (Windows)
+
+**[Télécharger LE_Jeu_Ultime_Windows.zip](https://github.com/kanna91/LE-Jeu-Godot/releases/latest/download/LE_Jeu_Ultime_Windows.zip)**
+(environ 650 Mo, dernière version) — [toutes les versions](https://github.com/kanna91/LE-Jeu-Godot/releases)
+
+1. Dézipper le fichier (clic droit > Extraire tout).
+2. Double-cliquer sur `LE_Jeu_Ultime.exe`. Rien à installer ; garder le dossier `images` à côté du .exe.
+3. Si Windows affiche « Windows a protégé votre ordinateur » : « Informations complémentaires » puis « Exécuter quand même ».
+
 Portage **2D fidèle** du RPG pygame (dossier parent) vers **Godot 4.7**, en GDScript :
 même fenêtre logique 960×540, mêmes images, mêmes menus, mêmes règles et mêmes
 formules. Le jeu Python reste la référence : ce portage le suit écran par écran.
@@ -809,6 +818,9 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   image (`definir_zones`), Échap pour fermer, ouverture via une fonction de `Ecrans`.
 
 ## Journal des modifications
+
+### 2026-10-31 — Lien de téléchargement
+- Lien vers la dernière release Windows en tête de ce README (et du README racine de LE-Jeu-Ultime).
 
 ### 2026-10-31 — Version exécutable Windows
 - **Le jeu s'exporte en .exe** (demande de l'utilisateur, pour faire jouer d'autres personnes) :
