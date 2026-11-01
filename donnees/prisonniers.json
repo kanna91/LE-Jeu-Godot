@@ -1,0 +1,6 @@
+{
+  "_lisez_moi": "Prisonniers des cellules (ébauche du 2026-11-01). À remplir par l'utilisateur : 'accueil' (phrases quand on s'approche), 'informations' (petits conseils sur le jeu ou les ennemis, un par discussion, jamais deux fois). Les quêtes viendront plus tard ('quetes' : tuer des ennemis, rapporter la clé de la cellule, une potion, de la nourriture des cuisines ; récompenses : petite récompense, parfois karma +1, parfois 1 point de caractéristique).",
+  "accueil": [],
+  "informations": [],
+  "quetes": []
+}

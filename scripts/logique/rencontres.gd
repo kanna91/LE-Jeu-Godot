@@ -509,6 +509,52 @@ static func gobelin_blesse(donjon, p: Dictionary) -> String:
 	return ("Vous l'achevez. " + Karma.acte(donjon, "achever_gobelin_blesse")).strip_edges()
 
 
+# ---------------------------------------------------------------------------
+# Prisonniers des cellules (ébauche du 2026-11-01, textes et quêtes à venir de l'utilisateur)
+# ---------------------------------------------------------------------------
+
+static var _textes_prisonniers := {}
+
+
+## Textes des prisonniers (``donnees/prisonniers.json`` : accueil, informations, quêtes ; à remplir par l'utilisateur).
+static func textes_prisonniers() -> Dictionary:
+	if _textes_prisonniers.is_empty():
+		var lu = U.charger_json("prisonniers.json")
+		_textes_prisonniers = lu if lu is Dictionary else {}
+	return _textes_prisonniers
+
+
+## Prisonnier dans sa cellule : parler (une petite information, jamais deux fois dans la partie), le tuer (karma −1 :
+## son corps reste, son âme se siphonne), ou partir. Quêtes : pas encore (la liste ``quetes`` est vide).
+## Renvoie le message de fin.
+static func prisonnier_cellule(donjon, p: Dictionary) -> String:
+	var t := textes_prisonniers()
+	var accueil: Array = t.get("accueil", [])
+	var texte: String = accueil.pick_random() if not accueil.is_empty() else "Un prisonnier vous regarde à travers les barreaux."
+	var choix := await Ecrans.dialogue("Prisonnier", texte, ["Parler", "Le tuer", "Partir"], Color8(170, 160, 140))
+	if choix == 0:
+		var dits := _dits(donjon)
+		for k in t.get("informations", []).size():
+			var cle := "prisonnier/info/%d" % k
+			if not dits.has(cle):
+				dits[cle] = true
+				var info := String(t["informations"][k])
+				noter_journal(donjon, "Prisonniers", info)
+				return "« %s »" % info
+		return "Le prisonnier n'a rien à vous dire."
+	if choix == 1:
+		Statistiques.noter(donjon.personnage, "prisonniers_tues")
+		p["genre"] = "objet"
+		p["sous"] = "cadavre"
+		p["etat"] = "actif"
+		p["ames"] = 1
+		p["humain"] = true
+		p["nom_corps"] = "le prisonnier"
+		p["t_mort"] = Animations.temps()
+		return ("Vous le tuez entre ses barreaux. " + Karma.acte(donjon, "tuer_prisonnier_cellule")).strip_edges()
+	return "Vous laissez le prisonnier à sa cellule."
+
+
 ## Prisonnier enchaîné ; renvoie [message, bruit] (bruit : les ennemis de la salle accourent).
 static func prisonnier(donjon, p: Dictionary) -> Array:
 	var joueur = donjon.personnage
@@ -553,6 +599,8 @@ static func parler(donjon, p: Dictionary) -> Array:
 			return [await gobelin_blesse(donjon, p), false]
 		"prisonnier":
 			return await prisonnier(donjon, p)
+		"prisonnier_cellule":
+			return [await prisonnier_cellule(donjon, p), false]
 		"succube":
 			return [await succube(donjon, p), false]
 		"autel":

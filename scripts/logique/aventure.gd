@@ -145,7 +145,7 @@ const NOMS_DEGATS_ANTI_BOSS := {"tranchant": "tranchants", "perforant": "perfora
 ## Genres de présences qui se déplacent (rôdeurs).
 const RODEURS := ["groupe", "imbattable", "geolier", "porteur"]
 const NOMS := {"groupe": "Gobelins", "imbattable": "Chevalier de la mort", "geolier": "Geôlier", "porteur": "Porteur",
-	"boss": "Boss de l'étage", "diablotin": "Diablotin", "gobelin_blesse": "Gobelin blessé", "prisonnier": "Prisonnier",
+	"boss": "Boss de l'étage", "diablotin": "Diablotin", "prisonnier_cellule": "Prisonnier", "gobelin_blesse": "Gobelin blessé", "prisonnier": "Prisonnier",
 	"autel": "Autel de sang", "pupitre": "Pupitre", "ratelier": "Râtelier d'armes", "cachette": "Cachette",
 	"coffre_confisque": "Coffre des confiscations", "coffre_gardien": "Coffre ancien", "succube": "Succube"}
 
@@ -381,8 +381,29 @@ static func preparer_etage(donjon, etage: int) -> void:
 	for c in contenus:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
+	_poser_prisonniers(donjon, etage, m)
 	_poser_cle_boss(donjon, etage, m, salles_ordinaires(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
 	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
+
+
+## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier sur chaque point « prisonniers » de l'image de la
+## salle (posés avec l'éditeur de zones, touche 5), à sa place exacte (retournée si la salle est en miroir).
+static func _poser_prisonniers(donjon, etage: int, m: Dictionary) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	for i in salles:
+		var info: Dictionary = salles[i].get("salle_peinte", {})
+		var image := String(info.get("image", ""))
+		if image == "" or salles[i].get("boss", false):
+			continue
+		var miroir := bool(info.get("miroir", false))
+		for pt in SallePeinte.lire_salle(image).get("prisonniers", []):
+			var x := float(pt[0])
+			if miroir:
+				x = 768.0 - x  # fonds de 768 px de large, comme SallePeinte._appliquer_miroir
+			if not salles[i].has("presences"):
+				salles[i]["presences"] = []
+			salles[i]["presences"].append({"id": _nouvel_id(m), "genre": "pnj", "sous": "prisonnier_cellule", "etat": "actif",
+				"pos": [x, float(pt[1])], "pos_image": "%s%s" % [image, "_m" if miroir else ""]})
 
 
 ## La salle du boss est fermée ; sa clé est confiée à une élite loin du départ (une élite existante, sinon un groupe

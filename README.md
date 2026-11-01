@@ -160,6 +160,13 @@ stick droit pour choisir un bouton de l'interface.
     d'orientation voulue : on entre dans un cellier par le bas de son image. Zones relevées à la main
     (`outils/importer_blocs.py`, planche `C:\IA\pont-blender\bloc_cuisine\planche_zones.png`, retouchables dans
     l'éditeur de zones) ;
+  - **Prisonniers des cellules** (ébauche, 2026-11-01 ; l'utilisateur fournira dialogues, informations et quêtes) :
+    un prisonnier sur chaque point « prisonniers » posé avec l'éditeur de zones (`Aventure._poser_prisonniers`). On
+    peut lui **parler** (une petite information de `donnees/prisonniers.json`, jamais deux fois, notée au journal),
+    le **tuer** (karma −1, `Karma.ACTES` « tuer_prisonnier_cellule » ; son corps reste, 1 âme à siphonner) ou partir.
+    `donnees/prisonniers.json` est **vide** pour l'instant (accueil, informations, quêtes : à remplir). Les quêtes
+    (tuer des ennemis, rapporter la clé de la cellule, une potion, de la nourriture des cuisines ; petites
+    récompenses, parfois karma +1 ou 1 point de caractéristique) ne sont **pas encore faites** ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
     (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
@@ -378,11 +385,14 @@ stick droit pour choisir un bouton de l'interface.
   - **Éditeur de zones** (2026-10-27, pour que l'utilisateur trace lui-même les zones) : `editeur_zones.bat`
     → `scenes/outils/editeur_zones.tscn` (script `scripts/outils/editeur_zones.gd`), dans le moteur du jeu (même
     salle, même héros, mêmes collisions). Couches : **1** sol où l'on marche (vert), **2** obstacles (rouge),
-    **3** premier plan qui passe devant le héros (bleu), **4** sorties (jaune).
+    **3** premier plan qui passe devant le héros (bleu), **4** sorties (jaune), **5 prisonniers** (violet,
+    2026-11-01 : des **points**, pas des zones ; le jeu met un prisonnier sur chaque point, surtout dans les
+    cellules des prisons ; enregistrés dans la clé « prisonniers » du .json de la salle).
     | Commande | Effet |
     |---|---|
     | Tab | passer de l'édition à la marche (essayer la salle avec le héros, sorties murées) |
     | 1 à 4 | choisir la couche |
+    | 5 | couche des prisonniers : clic = poser, glisser = déplacer, clic droit = retirer |
     | clic gauche | ajouter un point ; Entrée ou clic sur le premier point : fermer la zone ; Échap : abandonner |
     | glisser un point | le déplacer |
     | Maj + clic sur un bord | ajouter un point sur ce bord (et le glisser) |
@@ -897,6 +907,13 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Prisonniers des cellules (ébauche) et leur placement dans l'éditeur
+- **Éditeur de zones** : couche **5 « Prisonniers »** (points) pour décider où seront les prisonniers de chaque salle.
+- **Jeu** : un prisonnier sur chaque point ; parler (informations de `donnees/prisonniers.json`, vide pour l'instant),
+  le tuer (karma −1, corps et âme) ou partir. Quêtes : pas encore.
+- Fichiers : `editeur_zones.gd`, `aventure.gd` (`_poser_prisonniers`), `rencontres.gd` (`prisonnier_cellule`),
+  `karma.gd`, `presences_salle.gd`, `statistiques.gd`, `donnees/prisonniers.json` ; test `test_editeur_zones.gd`.
 
 ### 2026-11-01 — Boss plus loin et fermé à clé, ennemis isolés, « gardien » devient « boss »
 - **Boss** à 35-40 salles du départ (15-24 avant), sans raccourci ; sa salle ne s'ouvre qu'avec la **clé du boss**,

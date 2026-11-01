@@ -5,14 +5,18 @@ extends Control
 ## ``editeur_zones.bat`` (ou ``Godot --path . res://scenes/outils/editeur_zones.tscn [-- <salle>]``).
 ##
 ## Couches : 1 sol où l'on marche (vert), 2 obstacles (rouge), 3 premier plan qui passe devant le héros (bleu),
-## 4 sorties (jaune : on peut seulement déplacer leurs points, leur nombre et leur ordre comptent pour le plan).
+## 4 sorties (jaune : on peut seulement déplacer leurs points, leur nombre et leur ordre comptent pour le plan),
+## 5 prisonniers (violet, 2026-11-01 : des **points**, pas des zones — un clic pose un prisonnier, glisser le déplace,
+## clic droit le retire ; le jeu met un prisonnier sur chaque point, surtout dans les cellules des prisons).
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
 const COUCHES := ["marche", "obstacles", "premier_plan", "sorties"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties"}
 const COULEURS := {"marche": Color(0.25, 1, 0.35), "obstacles": Color(1, 0.25, 0.2),
-	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15)}
+	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15), "prisonniers": Color(0.85, 0.45, 1)}
+## Couche de points (touche 5) : emplacements des prisonniers, ``donnees["prisonniers"]`` = [Vector2, ...].
+const PRISONNIERS := "prisonniers"
 ## Distance (pixels de l'écran) pour attraper un point ou une arête.
 const PRISE := 9.0
 const ZOOM_MAX := 6.0
@@ -57,7 +61,7 @@ func _ready() -> void:
 	calque.editeur = self
 	texte = _etiquette(Vector2(12, 8), 15)
 	aide = _etiquette(Vector2(12, 484), 12)
-	aide.text = "Tab : éditer / marcher   1-4 : couche   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
+	aide.text = "Tab : éditer / marcher   1-4 : couche   5 : prisonniers (points)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
 		+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
 		+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer   " \
 		+ "Page préc./suiv. : salle   H : héros visible   F2 : zones visibles en marchant"
@@ -88,6 +92,10 @@ func _charger() -> void:
 		f.close()
 	salle.charger(id, -1, false)
 	salle.murer(range(salle.donnees["sorties"].size()))
+	var points := []
+	for p in salle.donnees.get(PRISONNIERS, []):
+		points.append(Vector2(p[0], p[1]) if p is Array else p)
+	salle.donnees[PRISONNIERS] = points
 	echelle_base = salle.monde.scale
 	position_base = salle.monde.position
 	zoom = 1.0
@@ -136,7 +144,9 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		_bouton(ev)
 	elif ev is InputEventMouseMotion:
-		if not glisse.is_empty():
+		if not glisse.is_empty() and glisse[0] == PRISONNIERS:
+			salle.donnees[PRISONNIERS][glisse[1]] = _borne(souris())
+		elif not glisse.is_empty():
 			var poly: PackedVector2Array = salle.donnees[glisse[0]][glisse[1]]
 			poly[glisse[2]] = _borne(souris())
 			salle.donnees[glisse[0]][glisse[1]] = poly
@@ -176,6 +186,10 @@ func _touche(ev: InputEventKey) -> void:
 			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3}
 			couche = COUCHES[n[ev.keycode]]
 			trace.clear()
+		KEY_5, KEY_KP_5:
+			couche = PRISONNIERS
+			trace.clear()
+			message = "Prisonniers : clic = poser un prisonnier, glisser = le déplacer, clic droit = le retirer"
 		KEY_ENTER, KEY_KP_ENTER:
 			_fermer_trace()
 		KEY_0, KEY_KP_0:
@@ -197,6 +211,14 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		_vue(zoom / 1.2, ev.position)
 	elif ev.button_index == MOUSE_BUTTON_MIDDLE:
 		deplacement = ev.pressed
+	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed and couche == PRISONNIERS:
+		_memoriser()
+		var k := _prisonnier_proche(m)
+		if k >= 0:
+			glisse = [PRISONNIERS, k]
+		else:
+			salle.donnees[PRISONNIERS].append(m)
+			_change()
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		if not trace.is_empty():
 			if trace.size() >= 3 and m.distance_to(trace[0]) * echelle() < PRISE:
@@ -231,6 +253,14 @@ func _bouton(ev: InputEventMouseButton) -> void:
 
 
 func _clic_droit(m: Vector2) -> void:
+	if couche == PRISONNIERS:
+		var k := _prisonnier_proche(m)
+		if k >= 0:
+			_memoriser()
+			salle.donnees[PRISONNIERS].remove_at(k)
+			_change()
+			message = "Prisonnier retiré (Ctrl+Z pour annuler)"
+		return
 	if not trace.is_empty():
 		trace.remove_at(trace.size() - 1)
 		return
@@ -266,6 +296,19 @@ func _fermer_trace() -> void:
 	salle.donnees[couche].append(PackedVector2Array(trace))
 	trace.clear()
 	_change()
+
+
+## Index du prisonnier le plus proche de ``m`` (à portée de clic), ou −1.
+func _prisonnier_proche(m: Vector2) -> int:
+	var meilleur := -1
+	var d_min := PRISE * 1.5 / echelle()
+	var points: Array = salle.donnees[PRISONNIERS]
+	for k in points.size():
+		var d: float = points[k].distance_to(m)
+		if d < d_min:
+			d_min = d
+			meilleur = k
+	return meilleur
 
 
 ## Point de la couche active (ou des autres si rien dans la couche active) le plus proche de ``m``.
@@ -329,6 +372,7 @@ func _memoriser() -> void:
 		for poly in salle.donnees[c]:
 			polys.append(PackedVector2Array(poly))
 		copie[c] = polys
+	copie[PRISONNIERS] = salle.donnees[PRISONNIERS].duplicate()
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -341,6 +385,7 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
+	salle.donnees[PRISONNIERS] = copie.get(PRISONNIERS, [])
 	glisse = []
 	_change()
 
@@ -382,8 +427,9 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
+	zones[PRISONNIERS] = _en_liste([salle.donnees[PRISONNIERS]])[0]
 	var donnees := SallePeinte.lire_salle(id)
-	for c in COUCHES:
+	for c in COUCHES + [PRISONNIERS]:
 		donnees[c] = zones[c]
 	var f := FileAccess.open("res://donnees/salles_peintes/%s.json" % id, FileAccess.WRITE)
 	if f == null:
@@ -407,7 +453,7 @@ func _enregistrer() -> void:
 func _process(_delta: float) -> void:
 	var id: String = salles[numero] if not salles.is_empty() else "?"
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : couche %s" % NOMS[couche]) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : couche %s" % NOMS.get(couche, "Prisonniers (%d)" % salle.donnees[PRISONNIERS].size())) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f" % [m.x, m.y, zoom])
@@ -439,6 +485,14 @@ class Calque extends Node2D:
 					for p in poly:
 						draw_circle(p, 3.5 * e, Color.WHITE)
 						draw_circle(p, 2.2 * e, col)
+		var actif_p: bool = ed.edition and ed.couche == PRISONNIERS
+		for p in ed.salle.donnees.get(PRISONNIERS, []):
+			var h: float = ed.salle.hauteur(p.y)
+			var col_p: Color = COULEURS[PRISONNIERS]
+			draw_line(p, p - Vector2(0, h * 0.75), Color(col_p, 0.9 if actif_p else 0.5), (3.0 if actif_p else 2.0) * e)
+			draw_circle(p - Vector2(0, h * 0.82), h * 0.08, Color(col_p, 0.9 if actif_p else 0.5))
+			draw_circle(p, 4.0 * e, Color.WHITE)
+			draw_circle(p, 2.6 * e, col_p)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]
 			var pts := PackedVector2Array(ed.trace)

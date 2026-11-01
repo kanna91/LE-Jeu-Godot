@@ -1,5 +1,5 @@
 extends SceneTree
-## Éditeur de zones : tracer une zone, annuler, déplacer un point, enregistrer (porte2).
+## Éditeur de zones : tracer une zone, annuler, déplacer un point, poser des prisonniers, enregistrer (porte2).
 ## « BILAN éditeur de zones : 0 échec(s) ». Le test écrit donnees/salles_peintes/porte2.json et
 ## outils/zones_manuelles/porte2.json, puis remet le premier comme avant et efface le second.
 
@@ -37,6 +37,34 @@ func _initialize() -> void:
 	var relu := SallePeinte.lire_salle("porte2")
 	verifier(relu["marche"][0][0] == [p0.x - 1, p0.y], "point déplacé relu")
 	verifier(FileAccess.file_exists("res://outils/zones_manuelles/porte2.json"), "copie dans zones_manuelles")
+	# Prisonniers (couche 5, 2026-11-01) : des points posés, annulés, enregistrés, puis placés par le jeu
+	ed.couche = ed.PRISONNIERS
+	ed._memoriser()
+	ed.salle.donnees[ed.PRISONNIERS].append(Vector2(200, 450))
+	ed.salle.donnees[ed.PRISONNIERS].append(Vector2(560, 440))
+	verifier(ed._prisonnier_proche(Vector2(201, 451)) == 0, "prisonnier attrapé au clic")
+	ed._memoriser()
+	ed.salle.donnees[ed.PRISONNIERS].remove_at(1)
+	ed._annuler()
+	verifier(ed.salle.donnees[ed.PRISONNIERS].size() == 2, "Ctrl+Z remet le prisonnier retiré")
+	ed._enregistrer()
+	relu = SallePeinte.lire_salle("porte2")
+	verifier(str(relu.get("prisonniers", [])) == str([[200.0, 450.0], [560.0, 440.0]]), "prisonniers enregistrés : %s" % str(relu.get("prisonniers")))
+	var poses := 0
+	var bien_places := 0
+	for k in 5:
+		var donjon := Donjon.nouveau(Personnage.nouveau())
+		for e in donjon.plan_donjon:
+			for i in donjon.plan_donjon[e]:
+				var info: Dictionary = donjon.plan_donjon[e][i].get("salle_peinte", {})
+				for p in donjon.plan_donjon[e][i].get("presences", []):
+					if p.get("sous") == "prisonnier_cellule":
+						poses += 1
+						var x: float = 768.0 - 200 if info.get("miroir", false) else 200.0
+						var x2: float = 768.0 - 560 if info.get("miroir", false) else 560.0
+						if info.get("image") == "porte2" and (is_equal_approx(p["pos"][0], x) or is_equal_approx(p["pos"][0], x2)):
+							bien_places += 1
+	verifier(poses > 0 and poses == bien_places, "le jeu pose un prisonnier sur chaque point (%d / %d)" % [bien_places, poses])
 	var f := FileAccess.open("res://donnees/salles_peintes/porte2.json", FileAccess.WRITE)
 	f.store_string(original)
 	f.close()

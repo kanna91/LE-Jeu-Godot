@@ -29,6 +29,7 @@ const ACTES := {
 	"epargner_gobelin_blesse": [1, "clemence"],
 	"achever_gobelin_blesse": [-1, "cruaute"],
 	"liberer_prisonnier": [1, "clemence"],
+	"tuer_prisonnier_cellule": [-1, "cruaute"],
 }
 ## Effet par point de karma : {effet : {"negatif": par point négatif, "positif": par point positif}}, en part
 ## (0.05 = 5 %), signe compris : + augmente, − diminue.

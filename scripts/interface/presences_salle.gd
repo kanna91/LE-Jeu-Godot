@@ -569,7 +569,8 @@ static func _hauteur_forme(p: Dictionary) -> float:
 		"boss":
 			return TAILLE_GOBELIN * Ennemis.BOSS["taille"]
 		"pnj":
-			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65, "autel": 0.45}.get(p["sous"], 0.6)
+			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65,
+				"prisonnier_cellule": 0.9, "autel": 0.45}.get(p["sous"], 0.6)
 	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35,
 		"cadavre": TAILLE_GOBELIN * 0.4}.get(p.get("sous", ""), 0.5)
 
@@ -630,6 +631,9 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 					n.draw_set_transform(Vector2.ZERO)
 					var sorte: String = SORTES_GOBELINS[int(p.get("id", 0)) * 7 % SORTES_GOBELINS.size()]
 					_gobelin(n, e, {"sous_classe": CombatAnime.TYPES.find_key(sorte)}, 0, Vector2.ZERO, h * TAILLE_GOBELIN, Color.WHITE, "mort")
+				"prisonnier_cellule":
+					# Ébauche : silhouette simple en attendant une image
+					_capsule(n, Vector2.ZERO, hf * 0.22, hf, Color8(150, 140, 120))
 				"prisonnier":
 					_capsule(n, Vector2.ZERO, hf * 0.25, hf, Color8(170, 160, 140))
 					n.draw_line(Vector2(-hf * 0.2, -hf * 0.4), Vector2(-hf * 0.7, -hf * 0.9), Color8(110, 110, 120), maxf(1.0, hf * 0.04))
@@ -665,6 +669,14 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 				"cadavre":
 					# Corps à terre (dernière image de la mort de chaque gobelin), flaque de sang ; une âme pâle flotte
 					# au-dessus tant qu'elle n'est pas siphonnée
+					if p.get("humain", false):
+						# Corps d'un humain (prisonnier) : silhouette couchée dans une flaque de sang
+						n.draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
+						n.draw_circle(Vector2.ZERO, h * 0.35, Color(0.45, 0.03, 0.03, 0.8))
+						n.draw_set_transform(Vector2(-h * 0.3, -h * 0.06), PI / 2.0, Vector2.ONE)
+						_capsule(n, Vector2.ZERO, h * 0.12, h * 0.6, Color8(120, 112, 98))
+						n.draw_set_transform(Vector2.ZERO)
+						return
 					var liste: Array = p.get("membres", [{}])
 					n.draw_set_transform(Vector2(hf * 0.3, -hf * 0.05), 0, Vector2(1, 0.3))
 					n.draw_circle(Vector2.ZERO, hf * (0.8 + 0.35 * (liste.size() - 1)), Color(0.45, 0.03, 0.03, 0.8))

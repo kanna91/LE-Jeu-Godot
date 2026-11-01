@@ -29,6 +29,7 @@ const COMPTEURS := [
 	["captures", "Captures par un geôlier", "entier"],
 	["pacifiques_tues", "Gobelins pacifiques tués", "entier"],
 	["pacifiques_epargnes", "Gobelins pacifiques épargnés", "entier"],
+	["prisonniers_tues", "Prisonniers tués", "entier"],
 	["ames_siphonnees", "Âmes siphonnées", "entier"],
 	["secrets_trouves", "Cachettes trouvées", "entier"],
 	["livres_lus", "Grimoires lus", "entier"],
