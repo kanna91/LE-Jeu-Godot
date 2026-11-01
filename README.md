@@ -486,11 +486,15 @@ stick droit pour choisir un bouton de l'interface.
     | Fracasser, Boule de feu, Givre, Trait arcanique, Trait de l'ombre, Estafilade, Bourrade | 8d2 | Boule de feu, Grand coup de gourdin, Projectile de l'ombre, Enflammer, Trait de l'ombre | 5d2 |
     | Balayage (chaque cible) | 3d2 | Rafale de lance (3 coups), Caresse des ombres, Silence, Coup de bâton | 2d2 |
     | Éclair | 6d3 | Soin mineur | 7d2 + 15 % des PV max de la cible (`PV_CIBLE_ENNEMIS`) |
-    | Souffle du chaos (chaos + **ombre**, plus feu) | 4d2 + 4d2 | | |
+    | Souffle du chaos (chaos + feu) ; Enchaînement (2 coups, sans étourdissement) | 4d2 + 4d2 ; 3d2 | Botte secrète | 3d2 |
     | Dard empoisonné | 6d2 perforant + 2d2 poison | | |
     | Soin | 20d2 | | |
 
-    Enchaînement garde ses dés du type (1d6 − 2 par coup, 2 coups) en attendant les valeurs de l'utilisateur.
+    Coup de poing et Enchaînement : leurs options d'amélioration « étourdissement » sont devenues « trauma »
+    (choix de Claude, pour garder trois choix par niveau). Gobelin combattant : **Cri de guerre** quand il a au
+    moins un allié vivant et que personne n'est déjà en rage, sinon Coup d'épée (choix de Claude : pas de cri tant
+    que la rage dure) ; sinon **Botte secrète une fois sur trois** (choix de Claude, comme le lancier), Coup d'épée
+    le reste du temps.
     **Tempête de feu est retirée** des sorts du héros. Murmure des ombres s'appelle **Trait de l'ombre**.
     Compétences retirées des gobelins : Soin et Soin majeur (chaman), Soin (féticheur), Éclair, Enflammer et
     Blizzard (sorcier). Élites : dégâts × 1,4 ; boss : × 1,6 (× 0,8 avant).
@@ -844,6 +848,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
 & $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
+& $godot --headless --path . -s tests/test_cri_de_guerre.gd       # gobelin combattant : Cri de guerre s'il est accompagné, sinon Coup d'épée
 & $godot --headless --path . -s tests/test_boss_cle.gd            # boss à 35-40 salles sans raccourci, salle fermée, clé portée par une élite, ennemis isolés
 & $godot --headless --path . -s tests/test_karma.gd               # karma (paliers des chevaliers, prix, or, mensonges), pacifiques, corps et âmes
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
@@ -944,6 +949,12 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Revue des dégâts, suite
+
+- Enchaînement 3d2 par coup ; Botte secrète 3d2 ; Souffle du chaos 4d2 chaos + 4d2 feu (l'ombre redevient du feu).
+- Plus d'étourdissement pour Coup de poing et Enchaînement, ni de base ni dans leurs améliorations (devenu trauma).
+- Le gobelin combattant pousse son Cri de guerre quand il est accompagné, et utilise Botte secrète une fois sur trois.
 
 ### 2026-11-01 — Revue des dégâts du niveau 1
 

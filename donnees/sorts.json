@@ -507,18 +507,18 @@
   "palier": 0,
   "fiche": {
    "nom": "Souffle du chaos",
-   "description": "Un souffle instable de chaos et d'ombre.",
+   "description": "Un souffle instable de chaos et de flammes.",
    "mana": 2,
    "types": [
     "chaos",
-    "ombre"
+    "feu"
    ],
    "degats": {
     "chaos": 7,
-    "ombre": 3
+    "feu": 3
    },
    "facteurs_types": {
-    "ombre": 0.4
+    "feu": 0.4
    },
    "alterations": {
     "corruption": 15,

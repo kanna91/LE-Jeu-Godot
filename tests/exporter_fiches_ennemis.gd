@@ -14,7 +14,7 @@ const STATS := ["points_de_vie_max", "endurance", "force", "dextérité", "intel
 	"resistance_elementaire", "points_d_action_max"]
 ## Compétences que l'IA choisit (Ennemis.mecanique_ennemis) : elle va les chercher même si elles ne sont pas dans la
 ## liste de départ (Ennemis._competence).
-const IA := {"combattant": ["Coup_d_epee"], "lancier": ["Coup_de_lance", "Perforation", "Rafale_de_lance"],
+const IA := {"combattant": ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre"], "lancier": ["Coup_de_lance", "Perforation", "Rafale_de_lance"],
 	"archer": ["Précision", "Tir", "Tir_precis", "Tir_empoisonne"],
 	"defenseur": ["Coup_de_gourdin", "Protection", "Grand_coup_de_gourdin"],
 	"sorcier": ["Boule_de_feu", "Trait_des_Ombres", "Projectile_des_ombres", "Coup_de_baton"],

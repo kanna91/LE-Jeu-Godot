@@ -72,18 +72,18 @@ const MALUS_COUP_MULTIPLE := 2
 const DES_HEROS := {
 	"Coup_d_epee": {"tranchant": [[6, 2]]}, "Frenesie": {"tranchant": [[4, 2]]},
 	"Coup_de_marteau": {"contondant": [[6, 2]]}, "Fracasser": {"contondant": [[8, 2]]},
-	"Coup_de_poing": {"contondant": [[4, 2]]},
+	"Coup_de_poing": {"contondant": [[4, 2]]}, "Enchainement": {"contondant": [[3, 2]]},
 	"Coup_de_lance": {"perforant": [[6, 2]]}, "Balayage": {"perforant": [[3, 2]]},
 	"Soin": {"lumière": [[20, 2]]},
 	"Boule_de_feu": {"feu": [[8, 2]]}, "Givre": {"froid": [[8, 2]]}, "Eclair": {"foudre": [[6, 3]]},
-	"Trait_arcanique": {"arcane": [[8, 2]]}, "Souffle_du_chaos": {"chaos": [[4, 2]], "ombre": [[4, 2]]},
+	"Trait_arcanique": {"arcane": [[8, 2]]}, "Souffle_du_chaos": {"chaos": [[4, 2]], "feu": [[4, 2]]},
 	"Murmure_des_ombres": {"ombre": [[8, 2]]}, "Estafilade": {"tranchant": [[8, 2]]},
 	"Dard_empoisonne": {"perforant": [[6, 2]], "poison": [[2, 2]]}, "Bourrade": {"contondant": [[8, 2]]},
 }
 const DES_ENNEMIS := {
 	"Tir": {"perforant": [[4, 2]]}, "Tir_precis": {"perforant": [[3, 2]]}, "Tir_empoisonne": {"perforant": [[3, 2]]},
 	"Boule_de_feu": {"feu": [[5, 2]]}, "Soin_mineur": {"lumière": [[7, 2]]},
-	"Coup_d_epee": {"tranchant": [[4, 2]]},
+	"Coup_d_epee": {"tranchant": [[4, 2]]}, "Botte_secrete": {"tranchant": [[3, 2]]},
 	"Coup_de_gourdin": {"contondant": [[3, 2]]}, "Grand_coup_de_gourdin": {"contondant": [[5, 2]]},
 	"Projectile_des_ombres": {"ombre": [[5, 2]]}, "Caresse_des_ombres": {"ombre": [[2, 2]]},
 	"Enflammer": {"feu": [[5, 2]]}, "Silence": {"ombre": [[2, 2]]},

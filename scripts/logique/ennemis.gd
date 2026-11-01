@@ -278,7 +278,24 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 			competence = _d["competences"][0]  # loup, squelette : leur seule attaque (Creatures)
 		elif classe == "guerrier":
 			if sous_classe == "combattant":
-				competence = _competence("Coup_d_epee")
+				# Cri de guerre (2026-11-01) : s'il a au moins un allié vivant et que personne n'est déjà en rage
+				# (la rage dure 3 tours) ; sinon Botte secrète une fois sur trois, Coup d'épée le reste du temps.
+				# Le Chevalier de la mort (même IA) garde toujours sa Lame de la mort.
+				var allies := 0
+				var en_rage := false
+				for e in donjon.ennemis:
+					if e.est_vivant():
+						if e != self:
+							allies += 1
+						if e.a_l_alteration("rage"):
+							en_rage = true
+				var chevalier: bool = U.ga(self, "anim_combat", "") == "chevalier"
+				if chevalier:
+					competence = _competence("Coup_d_epee")
+				elif allies >= 1 and not en_rage:
+					competence = _competence("Cri_de_guerre")
+				else:
+					competence = _competence("Botte_secrete" if randf() < 1.0 / 3 else "Coup_d_epee")
 			elif sous_classe == "lancier":
 				if randf() < 2.0 / 3:
 					competence = _competence("Coup_de_lance")
