@@ -1,16 +1,16 @@
 extends SceneTree
 ## Testeur automatique de l'étage 1 (demande de l'utilisateur, 2026-10-28) : combien de temps faut-il à un joueur
-## pour trouver et vaincre le gardien ? Objectif de l'utilisateur : environ une heure pour un joueur moyen.
+## pour trouver et vaincre le boss ? Objectif de l'utilisateur : environ une heure pour un joueur moyen.
 ##
 ## Le testeur joue comme un joueur, dans le vrai jeu (écran d'exploration, salles peintes, ennemis qui rôdent) :
 ## - il se déplace dans chaque salle en donnant une direction au héros (``SallePeinte.pilote``, comme un stick), en
 ##   courant, sur un chemin calculé entre les obstacles (grille de PAS_GRILLE px), puis pousse vers la sortie ;
 ## - il ne connaît pas la carte : seulement les salles visitées et les sorties qu'il y a vues (ce que montre la
-##   mini-carte) ; il va toujours vers la salle inconnue la plus proche, jusqu'à trouver le gardien, puis il l'attaque ;
+##   mini-carte) ; il va toujours vers la salle inconnue la plus proche, jusqu'à trouver le boss, puis il l'attaque ;
 ## - un ennemi qui le touche lance le combat, joué par le joueur automatique (Auto : il fuit le Chevalier de la mort) ;
 ##   un geôlier peut le capturer (réveil au cachot, sans ses affaires) ; il ne parle pas aux diablotins, ne fouille
 ##   pas, ne ramasse rien ;
-## - le joueur automatique joue mal (il frappe et se soigne au hasard) : pour mesurer le temps jusqu'au gardien, le
+## - le joueur automatique joue mal (il frappe et se soigne au hasard) : pour mesurer le temps jusqu'au boss, le
 ##   héros qui meurt **se relève** au cachot, soigné (comme le Pacte de mort de la succube, offert à chaque fois) ;
 ##   chaque mort est comptée dans le rapport. Option ``sans-relever`` : la première mort termine la partie ;
 ## - les sorties qu'il n'arrive pas à prendre sont listées (salle, sortie) : elles signalent des zones mal tracées.
@@ -35,7 +35,7 @@ const LIMITE := 3600.0
 const PAS_GRILLE := 6.0
 ## Sans progrès pendant BLOCAGE secondes : nouveau chemin ; ESSAIS fois de suite sur la même sortie : on l'oublie.
 const BLOCAGE := 6.0
-## Défaites contre le gardien avant d'arrêter la partie (le joueur automatique ne sait pas le battre).
+## Défaites contre le boss avant d'arrêter la partie (le joueur automatique ne sait pas le battre).
 const DEFAITES_GARDIEN := 3
 const ESSAIS := 3
 
@@ -109,14 +109,14 @@ func lancer() -> void:
 	# Résumé
 	var finies := resultats.filter(func(r): return r["gardien"])
 	rapporter("")
-	rapporter("== RÉSUMÉ : gardien vaincu dans %d partie(s) sur %d" % [finies.size(), resultats.size()])
+	rapporter("== RÉSUMÉ : boss vaincu dans %d partie(s) sur %d" % [finies.size(), resultats.size()])
 	if not finies.is_empty():
 		var totaux: Array = finies.map(func(r): return r["total"])
 		totaux.sort()
 		var somme := 0.0
 		for t in totaux:
 			somme += t
-		rapporter("   temps estimé jusqu'au gardien vaincu : moyenne %s (de %s à %s)" % [duree(somme / totaux.size()),
+		rapporter("   temps estimé jusqu'au boss vaincu : moyenne %s (de %s à %s)" % [duree(somme / totaux.size()),
 			duree(totaux[0]), duree(totaux[-1])])
 	var trouves: Array = resultats.filter(func(r): return r["atteint"] >= 0).map(func(r): return r["atteint"])
 	if not trouves.is_empty():
@@ -143,7 +143,7 @@ func lancer() -> void:
 	for r in resultats:
 		if not r["gardien"]:
 			rapporter("   partie %d : %s" % [r["graine"], r["fin"]])
-	print("BILAN testeur d'étage : %d partie(s), gardien vaincu dans %d" % [resultats.size(), finies.size()])
+	print("BILAN testeur d'étage : %d partie(s), boss vaincu dans %d" % [resultats.size(), finies.size()])
 	quit()
 
 
@@ -185,7 +185,7 @@ func partie(graine: int) -> Dictionary:
 	var gardien := false
 	var temps_gardien := 0.0
 	while true:
-		# Au moins une image de jeu par décision : sinon, collé au gardien sans combat, la boucle tournait sans fin
+		# Au moins une image de jeu par décision : sinon, collé au boss sans combat, la boucle tournait sans fin
 		await process_frame
 		if not is_instance_valid(nav) or nav._ferme or Statistiques.mort:
 			fin = "mort du héros (%s)" % Statistiques.cause_mort if Statistiques.mort else "écran fermé"
@@ -195,7 +195,7 @@ func partie(graine: int) -> Dictionary:
 			break
 		if trace and horloge.temps - _derniere_trace > 30.0:
 			_derniere_trace = horloge.temps
-			print("TRACE %s : salle %s (%s), héros %s, gardien vu en %s, PV %d" % [duree(horloge.temps - debut),
+			print("TRACE %s : salle %s (%s), héros %s, boss vu en %s, PV %d" % [duree(horloge.temps - debut),
 				donjon.salle_actuelle[1], nav.salle_peinte.ident if nav.salle_peinte != null else "?",
 				nav.salle_peinte.heros.position if nav.salle_peinte != null else Vector2.ZERO, salle_gardien,
 				int(joueur.points_de_vie)])
@@ -209,7 +209,7 @@ func partie(graine: int) -> Dictionary:
 			if not Auto.journal_combats.is_empty() and Auto.journal_combats[-1].get("boss", false):
 				defaites_gardien += 1
 				if defaites_gardien >= DEFAITES_GARDIEN:
-					fin = "le joueur automatique ne bat pas le gardien (%d défaites)" % defaites_gardien
+					fin = "le joueur automatique ne bat pas le boss (%d défaites)" % defaites_gardien
 					break
 			joueur._d["points_de_vie"] = joueur.points_de_vie_max
 			joueur._d["mana"] = joueur.mana_max
@@ -242,7 +242,7 @@ func partie(graine: int) -> Dictionary:
 				if donjon.salle_actuelle != avant_f:
 					passages += 1
 				continue
-		# Le gardien est ici : on va à lui
+		# Le boss est ici : on va à lui
 		var boss := _entite(sp, "boss")
 		if not boss.is_empty():
 			if salle_gardien == "":
@@ -253,15 +253,15 @@ func partie(graine: int) -> Dictionary:
 		if _gardien_vaincu():
 			gardien = true
 			temps_gardien = horloge.temps - debut
-			fin = "gardien vaincu"
+			fin = "boss vaincu"
 			break
-		# Gardien déjà vu (et pas vaincu) : on y retourne ; sinon la salle inconnue la plus proche
+		# Boss déjà vu (et pas vaincu) : on y retourne ; sinon la salle inconnue la plus proche
 		var cible := _premier_pas(ici, aretes, visitees, salle_gardien)
 		if cible < 0 and salle_gardien != "":
-			# Chemin vers le gardien inconnu (réveil au cachot, loin de ce qu'il connaît) : il explore pour le retrouver
+			# Chemin vers le boss inconnu (réveil au cachot, loin de ce qu'il connaît) : il explore pour le retrouver
 			cible = _premier_pas(ici, aretes, visitees)
 		if cible < 0:
-			fin = "plus aucune salle à explorer (gardien introuvable)"
+			fin = "plus aucune salle à explorer (boss introuvable)"
 			break
 		var avant: Array = donjon.salle_actuelle.duplicate()
 		var ok := await _prendre_sortie(sp, cible)
@@ -287,7 +287,7 @@ func partie(graine: int) -> Dictionary:
 			personnages.size(), duree(visitees.size() * TEMPS_DECOUVERTE)])
 	rapporter("   GARDIEN TROUVÉ après (estimé) : %s" % (duree(atteint) if atteint >= 0 else "jamais"))
 	rapporter("   TOTAL ESTIMÉ : %s%s ; morts (relevé au cachot) : %d ; fuites devant un chasseur : %d" % [duree(total),
-		"" if gardien else " (sans avoir vaincu le gardien)", morts, evitements])
+		"" if gardien else " (sans avoir vaincu le boss)", morts, evitements])
 	for a in abandonnees:
 		rapporter("   SORTIE ABANDONNÉE (zones à revoir ?) : %s" % a)
 	if not gardien:
@@ -453,7 +453,7 @@ func _aller_vers(sp: SallePeinte, cible: Callable, arret: float, zone := PackedV
 			meilleure = INF
 			t_progres = horloge.temps
 		await process_frame
-		# Cible qui bouge (gardien) : chemin refait de temps en temps ; un chasseur arrive : on arrête pour fuir
+		# Cible qui bouge (boss) : chemin refait de temps en temps ; un chasseur arrive : on arrête pour fuir
 		if not _chasseur_menacant(sp).is_empty() and zone.is_empty():
 			break
 		if zone.is_empty() and arret == 0.0 and Engine.get_process_frames() % 30 == 0:

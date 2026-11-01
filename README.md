@@ -86,7 +86,7 @@ stick droit pour choisir un bouton de l'interface.
   - **L'étage vit** (règles de l'utilisateur, 2026-10-27 ; `Aventure` « chasseurs », `menu_navigation._faire_vivre_l_etage`) :
     le chevalier part du **milieu de l'étage** (`Aventure.centre_etage` : la salle d'où la plus lointaine est la plus
     proche), les geôliers loin du départ. Ensuite tous vont de salle en salle **au hasard** (jamais dans la salle du
-    gardien, sans revenir sur leurs pas sauf impasse) à leur vitesse, **même dans les salles où le héros n'est pas** :
+    boss, sans revenir sur leurs pas sauf impasse) à leur vitesse, **même dans les salles où le héros n'est pas** :
     seul l'affichage est réservé à sa salle. Traverser une salle prend 6 hauteurs de héros à leur vitesse de
     poursuite (`Aventure.duree_salle` : chevalier ≈ 9 s ; geôlier 6 s, fixé par l'utilisateur dans `DUREE_SALLE`). Un chasseur qui entre dans la salle du
     héros apparaît devant la porte de la salle d'où il vient ; dans la salle du héros, il fait sa ronde puis repart
@@ -97,16 +97,16 @@ stick droit pour choisir un bouton de l'interface.
     salle** (ils l'entendent de plus loin), pas le reste de l'étage (décision de l'utilisateur). **Toute défaite est
     la mort** ; seul le geôlier mène en prison.
   - **Capture** (`Aventure.capturer`) : le héros se réveille dans la **salle du cachot** de l'étage : depuis le
-    2026-10-30, une **cellule du quartier des prisons** (salle à image « prison »), la plus loin du gardien, à au moins
-    3 salles du départ (une capture ne rapproche pas du gardien, demande de l'utilisateur du 2026-10-27 ; repli
-    s'il n'y a aucune prison : le cul-de-sac le plus loin du gardien), sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
+    2026-10-30, une **cellule du quartier des prisons** (salle à image « prison »), la plus loin du boss, à au moins
+    3 salles du départ (une capture ne rapproche pas du boss, demande de l'utilisateur du 2026-10-27 ; repli
+    s'il n'y a aucune prison : le cul-de-sac le plus loin du boss), sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
     confiscations** (dans une autre salle, avec tout l'or), est **perdu**, ou est **porté par un porteur**
     (gobelin rare, PV × 1,5 d'une élite, à vaincre pour le récupérer). **L'arme portée n'est jamais perdue** : elle
     est toujours dans le coffre des confiscations (rééquipée en l'ouvrant). Le geôlier repart dans une autre salle.
-  - **Le boss garde sa salle** (on va à lui pour le combattre) ; « Monter » n'apparaît qu'une fois le gardien vaincu.
+  - **Le boss garde sa salle** (on va à lui pour le combattre) ; « Monter » n'apparaît qu'une fois le boss vaincu.
   - **Donjon de 5 étages, généré en entier au lancement** (décisions de l'utilisateur, 2026-10-30) :
     `Donjon.nouveau` crée les `Donjon.NOMBRE_ETAGES` étages d'un coup (plan, images des salles, population ;
-    ≈ 400 salles en 0,6 s). Vaincre le gardien du 5e étage puis « Monter » termine la partie : **écran de victoire**
+    ≈ 400 salles en 0,6 s). Vaincre le boss du 5e étage puis « Monter » termine la partie : **écran de victoire**
     (l'écran de fin, titre « VICTOIRE », `principal.gd` résultat `["victoire"]`). Avant, le donjon était sans fin et
     chaque étage était créé à la montée. Taille d'un étage : environ 80 salles (`GenerateurEtage.TAILLE_ETAGE`).
 
@@ -116,12 +116,12 @@ stick droit pour choisir un bouton de l'interface.
     s'écartent ; au contact ils demandent grâce : les **épargner** (un peu d'or, parfois un objet, ils partent ;
     karma +1) ou les **attaquer** (karma −1 ; leur corps se fouille et leur âme se siphonne) : voir « Karma ») ;
   - Chevaliers de la mort et geôliers loin du départ ; le cachot (une cellule du **quartier des prisons**, voir
-    « Salles orientées comme la mini-carte ») ; le gardien, dont la classe est tirée dès la création de l'étage ;
+    « Salles orientées comme la mini-carte ») ; le boss, dont la classe est tirée dès la création de l'étage ;
   - un **coffre ancien** (cerclé de fer, sceau rouge) : l'**armure anti-boss** de l'étage (voir « Armure anti-boss ») ;
   - **diablotins** (`Rencontres.diablotin`, fiche de l'utilisateur) : ils transmettent les informations **au
     compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (14 informations,
     dans l'ordre, **un élément à la fois** depuis le 2026-10-31 : une résistance, sa lame... ; sa limite de dégâts subis reste
-    secrète, aucun diablotin n'en parle), **l'étage** (faiblesse puis force du gardien, direction du geôlier, du pupitre, d'une cachette,
+    secrète, aucun diablotin n'en parle), **l'étage** (faiblesse puis force du boss, direction du geôlier, du pupitre, d'une cachette,
     d'un chevalier, de la succube, d'une salle verrouillée), **« Mes affaires ? »** après une capture (où sont le
     coffre des confiscations et les porteurs) et **« Autre chose ? »** (conseils sur les mécaniques ; le lore viendra
     dans `Rencontres.LORE`). Les lieux sont donnés **depuis la salle du diablotin** (2026-10-30) : « à 3 salles d'ici,
@@ -182,14 +182,14 @@ stick droit pour choisir un bouton de l'interface.
     point d'entrée aux futurs systèmes). Habitants plus froids ou plus chaleureux selon le karma (accueil des
     diablotins). **Pas encore fait** : les quêtes (plus ou moins nombreuses, meilleures récompenses tous les +5),
     faute de système de quêtes ;
-  - **Corps et âmes** (règles de l'utilisateur, 2026-10-31) : un ennemi vaincu (groupe, porteur, gardien) laisse son
+  - **Corps et âmes** (règles de l'utilisateur, 2026-10-31) : un ennemi vaincu (groupe, porteur, boss) laisse son
     **corps** dans la salle (`Aventure.laisser_cadavre`, enregistré avec la salle) : la dernière image de son
     animation de mort, ou, pour une sorte sans animation de mort (squelette, loup...), son image de base couchée sur
     le dos. Le gobelin blessé est dessiné en train de s'effondrer (milieu de son animation de mort) ; achevé, son
     animation va jusqu'au bout et son corps reste. Touche E : le **fouiller** (une
     fois : comme un squelette, 50 % rien, 35 % or, 15 % équipement ; corps d'un pacifique : 2 à 6 or × étage, 10 %
     potion, 2 % équipement) ou **siphonner son âme** (il disparaît alors). **1 âme par ennemi, 3 pour une élite, 5
-    pour le gardien de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
+    pour le boss de l'étage** ; **3 âmes = 1 point de caractéristique** à répartir dans l'écran
     des caractéristiques (triangles rouges, touche C). Pacifiques épargnés : 5 à 15 or × étage, 20 % une potion, 5 %
     un équipement (valeurs validées par l'utilisateur) ;
   - **succube** (`Rencontres.succube`, un étage sur deux : étages 1, 3, 5…) : pas de combat, elle propose un
@@ -206,6 +206,17 @@ stick droit pour choisir un bouton de l'interface.
     clé, grimoire, objet d'un rang de plus, ou or) ;
   - **salles verrouillées** : une partie des salles bonus (coffre, choix de bonus) ; il faut une **clé** (cachettes,
     prisonnier, gobelin soigné) ; leur coffre a un rang de plus et 50 % d'or en plus. Cadenas sur la carte.
+  - **Salle du boss fermée** (décision de l'utilisateur, 2026-11-01) : elle ne s'ouvre qu'avec la **clé du boss** de
+    l'étage, unique, portée par une **élite** loin du départ (au moins `Aventure.DISTANCE_CLE_BOSS` = 8 salles) : il
+    faut la vaincre puis fouiller son corps (siphonner son âme fait aussi tomber la clé). Les clés rouillées n'y font
+    rien. Les **diablotins** peuvent dire où rôde l'élite qui la porte (vrai : elle touche un ennemi). La clé du boss
+    s'affiche dans la catégorie « Divers » de l'inventaire ;
+  - **Boss loin du départ** (décision de l'utilisateur, 2026-11-01) : **35 salles à l'étage 1 à 40 au dernier**, par
+    le plus court chemin (`GenerateurEtage.DISTANCE_BOSS`, `distance_boss`) ; aucune boucle ni entrée de bloc ne
+    peut raccourcir ce chemin (`_raccourcit`) ;
+  - **Ennemis isolés** (décision de l'utilisateur, 2026-11-01 : plus d'ennemis, pas plus de groupes) : dans une salle
+    ordinaire sans groupe, un ennemi rôde seul une fois sur six (`Aventure.CHANCE_ISOLE` ; jamais élite, pacifique
+    ni loup). Mesure : ≈ 9 ennemis isolés et ≈ 30 ennemis hostiles par étage (≈ 19 avant) ;
   - **Sorts et équipement viennent de l'exploration** : le joueur ne choisit un sort **qu'au tout début** de la
     partie ; ensuite, chaque **grimoire** (pupitre, cachettes, gobelin soigné) lui apprend un **sort tiré au hasard**
     (palier 0 jusqu'à l'étage, 5 au plus, sans prérequis), **déjà amélioré** de 2 + 2 × l'étage points
@@ -231,12 +242,12 @@ stick droit pour choisir un bouton de l'interface.
   | Salles bonus verrouillées | la moitié (au moins une) des coffres et choix de bonus |
   | Fuite | 45 % + 3 % par point de dextérité − 10 % par ennemi au-delà du premier, entre 15 et 90 % ; boss 15 % |
   | Confiscation | 50 % coffre, 25 % perdu, 25 % porteur (3 objets par porteur) |
-  | Vitesse des rôdeurs (× la course du héros, qui marche à 0,45) | ronde 0,22 ; poursuite : gobelins 0,58, porteur 0,5, Chevalier de la mort 0,36, geôlier 0,64, gardien 0,48 (ralenties de 20 % le 2026-10-26) |
-  | Vue (hauteurs du héros), cône | gobelins 2,4, Chevalier de la mort 3, geôlier 2,8, gardien 1,6 ; 120° |
+  | Vitesse des rôdeurs (× la course du héros, qui marche à 0,45) | ronde 0,22 ; poursuite : gobelins 0,58, porteur 0,5, Chevalier de la mort 0,36, geôlier 0,64, boss 0,48 (ralenties de 20 % le 2026-10-26) |
+  | Vue (hauteurs du héros), cône | gobelins 2,4, Chevalier de la mort 3, geôlier 2,8, boss 1,6 ; 120° |
   | Ouïe | course 1,8 ; marche 0,7 ; caché (s'il bouge) 0,45 |
   | Perte de vue avant la recherche | 2,5 s (Chevalier de la mort 5 s, geôlier 3,5 s) ; recherche 4 s |
   | Suivre dans la salle suivante | gobelins 50 %, porteur 40 %, Chevalier de la mort 100 %, geôlier 80 % |
-  | Faiblesse / force du gardien | résistance −50 / +60 dans deux types tirés pour l'étage |
+  | Faiblesse / force du boss | résistance −50 / +60 dans deux types tirés pour l'étage |
   | Diablotin | ment sur le donjon 1 réponse « Cet étage ? » sur 3 (utilisateur), jamais sur les ennemis ; jamais deux fois la même chose dans la partie ; 2 réponses puis disparaît (choix de Claude) ; rit quand le héros approche à 1,5 hauteur de héros, puis toutes les 8 à 16 s (choix de Claude) |
   | Chevalier de la mort (fiche de l'utilisateur) | 300 PV ; coups subis ramenés à 1-2 (3 en critique) ; **12d2 tranchant + 6d2 ombre** (2d6 + 1d6 puis 2d12 + 1d2 avant, le 27/10) en entier (dés fixes, pas réduits d'un cran ; l'armure et les résistances du héros s'appliquent) ; traque sur 2 salles ; vitesse 0,36 (choix de Claude : « plus lent que la marche ») ; part du milieu de l'étage, erre de salle en salle (≈ 9 s par salle, choix de Claude), attiré par les combats, téléporté à 3 salles par une action bruyante (utilisateur) |
   | Autel | 40 % des PV max contre +1 dans une caractéristique au hasard |
@@ -260,7 +271,7 @@ stick droit pour choisir un bouton de l'interface.
     (49 images × miroir) sont réparties sur tout l'étage d'un coup (affectation au meilleur total, méthode
     hongroise `PlanSalles._affectation`), sans perte de qualité mesurable (`test_cartographie_salles`).
     **Quartier des prisons** (2026-10-30) : les images « prison » ne vont que dans le quart de l'étage le plus loin
-    du gardien par le chemin (`PlanSalles.quartier_prisons`, `PART_QUARTIER_PRISONS` = 0,25 ; bonus 25 dans le
+    du boss par le chemin (`PlanSalles.quartier_prisons`, `PART_QUARTIER_PRISONS` = 0,25 ; bonus 25 dans le
     quartier, malus 60 ailleurs) ; le cachot est pris parmi elles.
     **Le bas de l'image peut toujours être fermé** : il est hors de l'image (derrière le spectateur).
     Sans salle en dessous, la sortie du bas devient un mur invisible (`SallePeinte.murer`) : le héros
@@ -568,7 +579,7 @@ stick droit pour choisir un bouton de l'interface.
   magiques est séparé de l'élémentaire (`pourcentage_degats_elementaire`). La valeur en or suit le rang.
   À venir (idées de l'utilisateur) : armes spéciales à gros dégâts critiques (+100 %, critique plafonné à 5 %),
   armes qui infligent une vulnérabilité, arme anti-boss portée par un élite.
-- **Armure anti-boss** (2026-10-30) : la classe du gardien est tirée **à la création de l'étage** (présence
+- **Armure anti-boss** (2026-10-30) : la classe du boss est tirée **à la création de l'étage** (présence
   « boss », `membres`), son type de dégâts principal calculé sur ses compétences (`Gobelin.type_degats_principal` :
   le plus fréquent, à égalité le plus fort ; provisoire, en attendant la refonte des ennemis) et noté
   `boss_type_degats` dans les réglages de l'étage. Un **coffre ancien** (présence « objet » / `coffre_gardien`, cerclé
@@ -680,14 +691,14 @@ Les fichiers de `donnees/` (talents, sorts, compétences, améliorations, foyers
 
 `testeur_etage.bat [parties] [graine]` (ou `Godot_v4.7.2-stable_win64_console.exe --headless --fixed-fps 60 --path .
 -s tests/testeur_etage.gd -- [parties] [graine] [options]`) : un testeur automatique joue l'étage 1 **dans le vrai
-jeu** et mesure combien de temps il faut pour trouver et vaincre le gardien (objectif de l'utilisateur : environ une
+jeu** et mesure combien de temps il faut pour trouver et vaincre le boss (objectif de l'utilisateur : environ une
 heure pour un joueur moyen). Rapport : `tests/rapports/testeur_etage.txt`.
 
 - **Déplacements réels** : il donne une direction au héros comme un stick (`SallePeinte.pilote`), en courant, sur un
   chemin calculé entre les obstacles (grille de 6 px, raccourcis en ligne droite, autres sorties évitées), puis pousse
   vers la sortie (les portes s'ouvrent comme pour un joueur).
 - **Sans connaître la carte** : il ne sait que ce que montre la mini-carte (salles visitées, sorties vues) et va vers la
-  salle inconnue la plus proche ; quand il a vu le gardien, il y retourne jusqu'à le vaincre. Salles verrouillées
+  salle inconnue la plus proche ; quand il a vu le boss, il y retourne jusqu'à le vaincre. Salles verrouillées
   ignorées (il ne cherche pas les clés).
 - **Ennemis réels** : ils rôdent et le poursuivent ; un contact lance le combat, joué par le joueur automatique
   (`Auto`, qui fuit le Chevalier de la mort) ; les geôliers peuvent le capturer. Quand un geôlier ou le Chevalier le
@@ -699,10 +710,10 @@ heure pour un joueur moyen). Rapport : `tests/rapports/testeur_etage.txt`.
   personnages croisés (`TEMPS_PERSONNAGE` = 20 s) et la découverte de chaque nouvelle salle (`TEMPS_DECOUVERTE` = 8 s).
 - **Morts** : le joueur automatique joue mal (il frappe et se soigne au hasard) ; pour mesurer quand même la durée, le
   héros qui meurt se relève au cachot, soigné (Pacte de mort offert à chaque fois) ; chaque mort est comptée.
-  Option `sans-relever` : la première mort termine la partie. Après `DEFAITES_GARDIEN` (3) défaites contre le gardien,
-  la partie s'arrête (« le joueur automatique ne bat pas le gardien ») : le rapport donne alors le **temps pour
-  trouver le gardien** (estimé au moment où il le voit pour la première fois).
-- **Ce que dit le rapport** (écrit après chaque partie) : temps pour trouver le gardien, temps mesuré, estimé et total, salles visitées, passages, chaque combat (ennemis,
+  Option `sans-relever` : la première mort termine la partie. Après `DEFAITES_GARDIEN` (3) défaites contre le boss,
+  la partie s'arrête (« le joueur automatique ne bat pas le boss ») : le rapport donne alors le **temps pour
+  trouver le boss** (estimé au moment où il le voit pour la première fois).
+- **Ce que dit le rapport** (écrit après chaque partie) : temps pour trouver le boss, temps mesuré, estimé et total, salles visitées, passages, chaque combat (ennemis,
   actions, issue), captures, morts, **sorties abandonnées** (impossibles à prendre : zones à revoir) et salles jamais
   visitées (verrouillées, entrée jamais vue).
 - Options : `trace` (où il en est toutes les 30 s de jeu), `limite=N` (N minutes de jeu au plus par partie ; 60 par
@@ -756,7 +767,7 @@ gobelin_guerrier gobelin_archer gobelin_chaman gobelin_feticheur` → `images/pn
 (`PresencesSalle`) : un gobelin **qui se déplace** joue sa marche (vue selon la direction, comme le geôlier, image selon
 la distance parcourue), à la taille de son image de repos du combat (`rapport_marche_gobelin`) ; arrêté, il reprend sa
 respiration de combat. Le sorcier, le lancier, le défenseur, les squelettes et les loups gardent leur image de repos.
-**Vitesse** (décisions de l'utilisateur) : un groupe, un porteur ou le gardien qui a au moins un gobelin avec une
+**Vitesse** (décisions de l'utilisateur) : un groupe, un porteur ou le boss qui a au moins un gobelin avec une
 marche avance en ronde à la vitesse naturelle du plus lent de ceux-là (`vitesse_gobelins`, environ 0,13 à 0,19
 hauteur de héros par seconde ; le héros marche à 0,81, court à 1,8) et **poursuit à 0,85** (`COURSE_GOBELINS`) : sa
 marche défile alors environ 5 fois plus vite (≈ 60 images/s pour le guerrier), l'image suivant toujours la distance.
@@ -786,12 +797,13 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
 & $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
+& $godot --headless --path . -s tests/test_boss_cle.gd            # boss à 35-40 salles sans raccourci, salle fermée, clé portée par une élite, ennemis isolés
 & $godot --headless --path . -s tests/test_karma.gd               # karma (paliers des chevaliers, prix, or, mensonges), pacifiques, corps et âmes
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
-& $godot --headless --path . -s tests/test_aventure.gd      # donjon d'aventure : peuplement, pas de récompense, Chevalier de la mort, fuite, capture, clés, personnages, sauvegarde, coffre du gardien, objets à une option, 5 étages au départ, quartier des prisons
+& $godot --headless --path . -s tests/test_aventure.gd      # donjon d'aventure : peuplement, pas de récompense, Chevalier de la mort, fuite, capture, clés, personnages, sauvegarde, coffre du boss, objets à une option, 5 étages au départ, quartier des prisons
 & $godot --path . -s tests/capture_aventure.gd            # rôdeurs à l'écran : ombre, vue coupée, repérage, combat au contact, diablotin, capture (captures 92-100, hors écran)
 & $godot --path . -s tests/sonde_cachettes.gd             # outil : part du sol caché (ombre, premier plan) de chaque salle (hors écran)
 & $godot --headless --path . -s tests/test_fouille.gd       # fouille : 0 à 2 objets par salle, résultats et leurs effets (milliers de tirages)
@@ -885,6 +897,15 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Boss plus loin et fermé à clé, ennemis isolés, « gardien » devient « boss »
+- **Boss** à 35-40 salles du départ (15-24 avant), sans raccourci ; sa salle ne s'ouvre qu'avec la **clé du boss**,
+  portée par une élite (les diablotins aident à la trouver).
+- **Ennemis isolés** en plus des groupes (une salle sans groupe sur six) : ≈ 30 ennemis hostiles par étage.
+- Le « gardien » s'appelle **boss** partout (textes du jeu, commentaires, README ; les clés internes ne changent pas).
+- Fichiers : `generateur_etage.gd` (`DISTANCE_BOSS`, `_raccourcit`), `aventure.gd` (`CHANCE_ISOLE`,
+  `_poser_cle_boss`, `ouvrir_verrou`, clé sur le corps), `rencontres.gd` (indice des diablotins), `objets_divers.gd`,
+  `menu_inventaire.gd` ; test `test_boss_cle.gd`.
 
 ### 2026-10-31 — « Chef » renommé « élite »
 - Le gobelin plus fort qui mène parfois un groupe s'appelle maintenant **élite** partout (nom affiché « Élite … »,

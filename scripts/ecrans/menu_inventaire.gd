@@ -134,6 +134,9 @@ func _liste() -> Array:
 	var liste := DescriptionObjet.trier(DescriptionObjet.regrouper(objets_de_categorie(joueur, categorie_active)), tri_actif)
 	if categorie_active == "Divers" and nombre_cles(joueur) > 0:
 		liste.push_front([ObjetsDivers.objet_cles(), nombre_cles(joueur), "cles"])  # les clés en tête
+	if categorie_active == "Divers":
+		for e in U.ga(joueur, "cles_boss", []):
+			liste.push_front([ObjetsDivers.objet_cle_boss(int(e)), 1, "cle_boss_%d" % int(e)])
 	return liste
 
 
@@ -144,7 +147,7 @@ static func nombre_cles(j) -> int:
 
 ## Nombre affiché sur le bouton d'une catégorie (« Divers » compte aussi les clés).
 static func compte_categorie(j, categorie: String) -> int:
-	return objets_de_categorie(j, categorie).size() + (nombre_cles(j) if categorie == "Divers" else 0)
+	return objets_de_categorie(j, categorie).size() + ((nombre_cles(j) + U.ga(j, "cles_boss", []).size()) if categorie == "Divers" else 0)
 
 
 func _mise_a_jour(_delta: float) -> void:

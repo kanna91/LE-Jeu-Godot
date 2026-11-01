@@ -295,7 +295,7 @@ def regles_communes_gobelins(doc, c, renvoi=True):
         "(karma +1) ; les tuer coûte du karma (−1) mais donne leur âme." % round(c["chance_pacifique"] * 100),
         "**Porteur** : après une capture par un geôlier, un gobelin mini-boss (PV encore × 1,5) peut porter jusqu'à %d "
         "objets confisqués au héros ; les vaincre les rend." % c["objets_par_porteur"],
-        "**Gardien de l'étage** (boss) : un gobelin PV × %s, dégâts × %s, très grand ; une faiblesse (%d %%) et une force "
+        "**Boss de l'étage** : un gobelin PV × %s, dégâts × %s, très grand ; une faiblesse (%d %%) et une force "
         "(+%d %%) tirées au hasard parmi feu, froid, foudre, tranchant, perforant, contondant, que les diablotins "
         "révèlent (vrai ou faux)." % (nombre(c["boss"]["pv"]), nombre(c["boss"]["degats"]), c["faiblesse_boss"],
                                        c["force_boss"]),
@@ -305,7 +305,7 @@ def regles_communes_gobelins(doc, c, renvoi=True):
                                                                          round(c["chance_groupe_squelettes"] * 100),
                                                                          round(c["chance_feticheur_squelettes"] * 100)),
         "Les ennemis ne donnent **ni expérience ni or** directement : leur corps se fouille (comme un squelette) et leur "
-        "âme se siphonne (1 par ennemi, 3 par élite, 5 par gardien ; 3 âmes = 1 point de caractéristique). Les élites "
+        "âme se siphonne (1 par ennemi, 3 par élite, 5 par boss ; 3 âmes = 1 point de caractéristique). Les élites "
         "et les porteurs lâchent aussi leurs objets.",
     ])
     doc.h1("Comportement dans les salles")
@@ -461,7 +461,7 @@ def fiche_geolier(d):
         "coffre des confiscations, %s %% perdus, %s %% portés par un gobelin « porteur » (%d objets au plus par porteur). "
         "L'arme portée va toujours dans le coffre." % (c["confiscation"]["coffre"], c["confiscation"]["perdu"],
                                                       c["confiscation"]["porteur"], c["objets_par_porteur"]),
-        "Le héros se réveille au **cachot** : le cul-de-sac le plus loin de la salle du gardien, à au moins 3 salles du "
+        "Le héros se réveille au **cachot** : le cul-de-sac le plus loin de la salle du boss, à au moins 3 salles du "
         "départ (une capture ne rapproche pas du boss).",
         "Pacte « Baiser du geôlier » de la succube : la prochaine capture échoue, le geôlier s'enfuit dans une autre salle.",
     ])
@@ -494,8 +494,8 @@ def fiche_diablotin(d):
         "**%d par étage**. Il ne se bat pas et ne bouge pas." % c["diablotins"][0],
         "**Salle paisible** : aucun autre ennemi dans sa salle (ni groupe, ni porteur ; ceux qui poursuivent le héros "
         "ne l'y suivent pas), sauf le Chevalier de la mort et les geôliers, qui vont partout.",
-        "Le héros lui parle avec E : « Le gardien de l'étage ? », « Et cet étage ? », « Les ennemis ? ».",
-        "Gardien : sa faiblesse et sa force (vraies ou fausses). Ennemis : les règles du Chevalier de la mort, petit à "
+        "Le héros lui parle avec E : « Le boss de l'étage ? », « Et cet étage ? », « Les ennemis ? ».",
+        "Boss : sa faiblesse et sa force (vraies ou fausses). Ennemis : les règles du Chevalier de la mort, petit à "
         "petit (il résiste à tout, frappe tranchant et ombre, il vaut mieux fuir, le bruit l'attire).",
         "Étage : une réponse sur %d est un **mensonge**, seulement sur le donjon (fausse direction du pupitre ou d'une "
         "cachette, fausse salle secrète, faux coffre, lame bénie « qui blesse le Chevalier de la mort »). Jamais sur les "

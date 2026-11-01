@@ -38,7 +38,7 @@ static func nouveau(personnage, fenetre = null) -> Donjon:
 	return d
 
 
-## Nombre d'étages du donjon, tous générés au lancement (décision de l'utilisateur, 2026-10-30) ; vaincre le gardien
+## Nombre d'étages du donjon, tous générés au lancement (décision de l'utilisateur, 2026-10-30) ; vaincre le boss
 ## du dernier étage et « Monter » termine la partie (écran de victoire).
 const NOMBRE_ETAGES := 5
 
@@ -90,7 +90,7 @@ func creer_boss_gobelin() -> Array:
 
 
 ## Événement de la salle actuelle : piège (CHANCE_PIEGE, désactivés) ou marchand. Pas de combat d'office : les ennemis rôdent dans
-## la salle (Aventure, PresencesSalle) et le gardien garde la sienne.
+## la salle (Aventure, PresencesSalle) et le boss garde la sienne.
 func generer_rencontre() -> void:
 	var etage = _d["salle_actuelle"][0]
 	var salle_id = _d["salle_actuelle"][1]
@@ -190,7 +190,7 @@ func monter_etage() -> void:
 	await generer_rencontre()
 
 
-## Le gardien de l'étage a été vaincu (il garde sa salle tant qu'il est actif).
+## Le boss de l'étage a été vaincu (il garde sa salle tant qu'il est actif).
 func boss_vaincu(etage = null) -> bool:
 	if etage == null:
 		etage = _d["salle_actuelle"][0]
@@ -309,7 +309,7 @@ func generer_etage(etage: int) -> void:
 			data["visitee"] = true
 			data["depart"] = true
 		elif salle["role"] == "boss":
-			data = _create_room_data("Antre du gardien")
+			data = _create_room_data("Antre du boss")
 			data["boss"] = true
 		elif salle["role"] == "bloc":
 			data = _create_room_data(BlocsSalles.BLOCS[salle["bloc"]]["salles"][salle["bloc_salle"]]["nom"])

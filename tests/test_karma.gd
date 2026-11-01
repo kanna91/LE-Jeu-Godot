@@ -2,7 +2,7 @@ extends SceneTree
 ## Karma, cadavres et âmes (règles de l'utilisateur, 2026-10-31) : paliers des Chevaliers de la mort du karma (un de
 ## plus tous les 5 points négatifs, repart en remontant de 5), un par étage ; prix ±5 %, or +5 % (karma positif),
 ## mensonges des diablotins ±5 % ; pacifiques épargnés (or, karma +1, ils partent) ou tués (karma −1, corps) ;
-## corps à fouiller, âmes à siphonner (1 par ennemi, 3 pour une élite, 5 pour le gardien), 3 âmes = 1 point.
+## corps à fouiller, âmes à siphonner (1 par ennemi, 3 pour une élite, 5 pour le boss), 3 âmes = 1 point.
 ## godot --headless --path . -s tests/test_karma.gd
 
 var echecs := 0
@@ -134,7 +134,7 @@ func _pacifiques() -> void:
 	verifier(absf(equipements / 2000.0 - 0.05) < 0.03, "épargnés : ~5 % d'équipements")
 
 
-## Corps et âmes : 1 âme par ennemi, élite 3, gardien 5 ; siphonner fait disparaître le corps ; 3 âmes = 1 point.
+## Corps et âmes : 1 âme par ennemi, élite 3, boss 5 ; siphonner fait disparaître le corps ; 3 âmes = 1 point.
 func _cadavres() -> void:
 	Sauvegarde.reinitialiser_monde()
 	var joueur := Personnage.nouveau()
@@ -142,7 +142,7 @@ func _cadavres() -> void:
 	donjon.salle_courante()["presences"] = []
 	verifier(Aventure.ames_de({"genre": "groupe", "nombre": 2, "elite": false, "membres": [{}, {}]}) == 2, "groupe de 2 : 2 âmes")
 	verifier(Aventure.ames_de({"genre": "groupe", "nombre": 2, "elite": true, "membres": [{}, {}]}) == 4, "élite + 1 : 4 âmes")
-	verifier(Aventure.ames_de({"genre": "boss", "membres": [{}]}) == 5, "gardien : 5 âmes")
+	verifier(Aventure.ames_de({"genre": "boss", "membres": [{}]}) == 5, "boss : 5 âmes")
 	var corps := Aventure.laisser_cadavre(donjon, {"genre": "groupe", "nombre": 1, "membres": [{}], "etat": "vaincu"})
 	verifier(corps["sous"] == "cadavre" and corps["etat"] == "actif", "un corps reste dans la salle")
 	verifier(corps in Aventure.presences(donjon, donjon.salle_courante()), "le corps est affiché")

@@ -67,7 +67,7 @@ const IMAGES_SUCCUBE := [preload("res://images/pnj/succube_1.png"), preload("res
 ## Sortes pour le gobelin blessé (pas de combat) : tirée de son id.
 const SORTES_GOBELINS := ["guerrier", "archer", "sorcier", "chaman", "feticheur"]
 ## Hauteur d'un gobelin dans la salle, en hauteurs du héros (0,55 avant le 2026-10-27, jugé trop petit) ; élite et
-## porteur × MINI_BOSS.taille (1,35), gardien × BOSS.taille (1,7), comme en combat.
+## porteur × MINI_BOSS.taille (1,35), boss × BOSS.taille (1,7), comme en combat.
 const TAILLE_GOBELIN := 0.8
 ## Teinte des gobelins pacifiques (plus pâles).
 const TEINTE_PACIFIQUE := Color(0.8, 1.0, 0.8, 0.9)

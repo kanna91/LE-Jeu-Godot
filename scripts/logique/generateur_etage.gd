@@ -3,7 +3,7 @@ extends RefCounted
 ## Génération des étages.
 ##
 ## **Grands étages** (demande de l'utilisateur, 2026-10-27 : « les étages doivent être grands », croisements,
-## cercles) : environ TAILLE_ETAGE salles (29 avant). Une voie principale du départ au gardien, puis des
+## cercles) : environ TAILLE_ETAGE salles (29 avant). Une voie principale du départ au boss, puis des
 ## **branches** qui partent de préférence des salles à 1 ou 2 passages (elles deviennent des **carrefours** à 3 ou
 ## 4 passages, où le jeu met les grandes salles), puis des **cercles** : des tours de salles en rectangle qui
 ## partent d'une salle et y reviennent (on peut tourner en rond et semer un poursuivant), puis des **boucles** :
@@ -13,8 +13,13 @@ extends RefCounted
 
 ## Nombre de salles visé par étage, salles bonus comprises (décision de l'utilisateur : environ 80 depuis le 2026-10-30, 50 avant).
 const TAILLE_ETAGE := 80
-## Longueur de la voie principale (départ → gardien) : VOIE_BASE + étage − 1, au plus VOIE_BASE + 8.
-const VOIE_BASE := 16
+## Distance du boss au départ (en salles, par le plus court chemin) : de DISTANCE_BOSS.x à l'étage 1 à
+## DISTANCE_BOSS.y au dernier étage (décision de l'utilisateur, 2026-11-01 : « 35 à 40 salles » ; 15 à 24 avant).
+## La voie principale fait cette longueur, et **rien ne la raccourcit** : les boucles et les entrées des blocs qui
+## créeraient un chemin plus court vers le boss sont refusées (``_raccourcit``).
+const DISTANCE_BOSS := Vector2i(35, 40)
+## Ancienne longueur de base de la voie principale (gardée pour les outils qui la lisent).
+const VOIE_BASE := 35
 ## Longueur d'une branche, en salles.
 const BRANCHE := Vector2i(2, 6)
 ## Grands cercles par étage, et écart minimal (en salles, par le chemin) entre les deux salles qu'ils relient.
@@ -100,6 +105,34 @@ static func _rectangle(p: Vector2i, l: int, h: int, sx: int, sy: int) -> Array:
 	return cases
 
 
+## Distance voulue du boss au départ à l'étage ``etage`` (DISTANCE_BOSS, réparti sur les Donjon.NOMBRE_ETAGES étages).
+static func distance_boss(etage: int) -> int:
+	var n := maxi(1, Donjon.NOMBRE_ETAGES - 1)
+	var t := clampf(float(etage - 1) / n, 0.0, 1.0)
+	return int(round(lerpf(DISTANCE_BOSS.x, DISTANCE_BOSS.y, t)))
+
+
+## Distances (en salles) de toutes les salles du plan à la salle ``depuis``.
+static func _distances_plan(salles: Dictionary, depuis: int) -> Dictionary:
+	var d := {depuis: 0}
+	var file := [depuis]
+	while not file.is_empty():
+		var c: int = file.pop_front()
+		for v in salles[c]["connexions"]:
+			if not d.has(v):
+				d[v] = d[c] + 1
+				file.append(v)
+	return d
+
+
+## Vrai si relier ``a`` et ``b`` par un chemin de ``longueur`` passages raccourcirait le trajet du départ au boss
+## (``ds`` : distances au départ, ``db`` : distances au boss, ``voulu`` : distance à garder).
+static func _raccourcit(ds: Dictionary, db: Dictionary, a: int, b: int, longueur: int, voulu: int) -> bool:
+	if not (ds.has(a) and ds.has(b) and db.has(a) and db.has(b)):
+		return false
+	return ds[a] + longueur + db[b] < voulu or ds[b] + longueur + db[a] < voulu
+
+
 ## Nombre de salles à traverser pour aller de ``a`` à ``b`` (parcours en largeur).
 static func _ecart(salles: Dictionary, a: int, b: int) -> int:
 	var distances := {a: 0}
@@ -117,7 +150,7 @@ static func _ecart(salles: Dictionary, a: int, b: int) -> int:
 
 ## Pose le bloc ``nom`` (BlocsSalles) dans le plan : ses salles (rôle « bloc », clés « bloc », « bloc_salle »,
 ## « bloc_instance ») sur des cases libres, reliées par ses liens, et ses entrées raccordées à des salles existantes
-## (branche ou voie principale, ni départ ni gardien). On préfère un emplacement où **toutes** les entrées tombent
+## (branche ou voie principale, ni départ ni boss). On préfère un emplacement où **toutes** les entrées tombent
 ## sur une salle existante ; une entrée sans salle derrière reçoit une nouvelle salle de branche. Sans aucun
 ## emplacement possible, le bloc n'est pas posé.
 static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case: Dictionary, interdites: Array,
@@ -129,6 +162,25 @@ static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case
 			hotes.append(i)
 	var meilleurs := []
 	var meilleur_score := -1
+	var ds := _distances_plan(salles, 1)
+	var db := _distances_plan(salles, boss)
+	var voulu: int = ds.get(boss, 1 << 20)
+	# Longueur du chemin à travers le bloc d'une entrée à l'autre (en passages)
+	var traversee := 0
+	if b["entrees"].size() >= 2:
+		var cases_rel := {}
+		for cle in b["salles"]:
+			cases_rel[cle] = b["salles"][cle]["position"]
+		var d_bloc := {b["entrees"][0][0]: 0}
+		var file := [b["entrees"][0][0]]
+		while not file.is_empty():
+			var c: String = file.pop_front()
+			for l in b["liens"]:
+				for paire in [[l[0], l[2]], [l[2], l[0]]]:
+					if paire[0] == c and not d_bloc.has(paire[1]):
+						d_bloc[paire[1]] = d_bloc[c] + 1
+						file.append(paire[1])
+		traversee = int(d_bloc.get(b["entrees"][1][0], 0)) + 2
 	for h in hotes:
 		for e in b["entrees"]:
 			var origine: Vector2i = salles[h]["position"] - b["salles"][e[0]]["position"] - e[2]
@@ -147,6 +199,13 @@ static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case
 					score += 1
 				elif autre or r[1] in interdites or r[1].y < 0 or r[1] in cases.values():
 					score = -100  # entrée bouchée (salle spéciale, case interdite) : emplacement refusé
+			# Les deux entrées ne doivent pas faire un raccourci vers le boss
+			var r := BlocsSalles.raccords(nom, origine)
+			if r.size() >= 2 and score >= 2:
+				var h1: int = par_case.get(r[0][1], 0)
+				var h2: int = par_case.get(r[1][1], 0)
+				if _raccourcit(ds, db, h1, h2, traversee, voulu):
+					continue
 			if score > meilleur_score:
 				meilleur_score = score
 				meilleurs = [origine]
@@ -174,7 +233,7 @@ static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case
 
 ## Plan d'un étage : {id: {"position": Vector2i, "connexions": {id: true}, "role", "effet_bonus", "evenement"}}.
 static func generer_plan(etage: int) -> Dictionary:
-	var longueur := VOIE_BASE + mini(8, etage - 1)
+	var longueur := distance_boss(etage) + 1
 	var voie := _voie_principale(longueur)
 	var salles := {}
 	var par_case := {}
@@ -270,15 +329,22 @@ static func generer_plan(etage: int) -> Dictionary:
 				paires.append([ident, autre])
 	paires.shuffle()
 	var grandes := 0
+	var voulu := voie.size() - 1
+	var ds := _distances_plan(salles, 1)
+	var db := _distances_plan(salles, boss)
 	for p in paires:
 		if grandes >= GRANDES_BOUCLES:
 			break
-		if _ecart(salles, p[0], p[1]) >= BOUCLE_MIN:
+		if _ecart(salles, p[0], p[1]) >= BOUCLE_MIN and not _raccourcit(ds, db, p[0], p[1], 1, voulu):
 			relier.call(p[0], p[1])
 			grandes += 1
+			ds = _distances_plan(salles, 1)
+			db = _distances_plan(salles, boss)
 	for p in paires:
-		if not salles[p[0]]["connexions"].has(p[1]) and randf() < PETITES_BOUCLES:
+		if not salles[p[0]]["connexions"].has(p[1]) and randf() < PETITES_BOUCLES and not _raccourcit(ds, db, p[0], p[1], 1, voulu):
 			relier.call(p[0], p[1])
+			ds = _distances_plan(salles, 1)
+			db = _distances_plan(salles, boss)
 	var distances := {1: 0}
 	var file := [1]
 	while not file.is_empty():

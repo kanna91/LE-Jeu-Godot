@@ -22,6 +22,14 @@ extends RefCounted
 const GROUPES_PAR_SALLE := {0: 80, 1: 20}
 ## Ennemis par groupe au plus, loup compris (décision de l'utilisateur, 2026-10-30 ; 3 + un loup avant).
 const MAX_PAR_GROUPE := 2
+## Ennemis isolés (décision de l'utilisateur, 2026-11-01 : plus d'ennemis, sans plus de groupes) : dans une salle
+## ordinaire sans groupe, chance qu'un ennemi rôde seul (jamais d'élite, de pacifique ni de loup ; valeur proposée
+## par Claude et retenue par l'utilisateur).
+const CHANCE_ISOLE := 1.0 / 6.0
+## Clé du boss (décision de l'utilisateur, 2026-11-01) : la salle du boss est fermée ; sa clé, unique, est portée par
+## une élite de l'étage (il faut la vaincre et fouiller son corps ; les diablotins aident à la trouver). L'élite qui
+## la porte est au moins à DISTANCE_CLE_BOSS salles du départ.
+const DISTANCE_CLE_BOSS := 8
 ## Chance qu'un groupe soit mené par une **élite** (ancien « chef » / mini-boss ; porte un équipement qu'elle lâche).
 ## Renommée « élite » le 2026-10-31 à la demande de l'utilisateur (il n'y a pas de « chef de groupe »).
 const CHANCE_ELITE := 0.12
@@ -130,14 +138,14 @@ const NOMS_ELEMENTS_DE := {"feu": "du feu", "froid": "du froid", "foudre": "de l
 const FAIBLESSE_BOSS := 0.50
 const FORCE_BOSS := 0.60
 
-## Type de dégâts du gardien, pour le message du coffre ancien.
+## Type de dégâts du boss, pour le message du coffre ancien.
 const NOMS_DEGATS_ANTI_BOSS := {"tranchant": "tranchants", "perforant": "perforants", "contondant": "contondants",
 	"feu": "de feu", "froid": "de froid", "foudre": "de foudre", "arcane": "d'arcane", "ombre": "d'ombre", "chaos": "de chaos"}
 
 ## Genres de présences qui se déplacent (rôdeurs).
 const RODEURS := ["groupe", "imbattable", "geolier", "porteur"]
 const NOMS := {"groupe": "Gobelins", "imbattable": "Chevalier de la mort", "geolier": "Geôlier", "porteur": "Porteur",
-	"boss": "Gardien de l'étage", "diablotin": "Diablotin", "gobelin_blesse": "Gobelin blessé", "prisonnier": "Prisonnier",
+	"boss": "Boss de l'étage", "diablotin": "Diablotin", "gobelin_blesse": "Gobelin blessé", "prisonnier": "Prisonnier",
 	"autel": "Autel de sang", "pupitre": "Pupitre", "ratelier": "Râtelier d'armes", "cachette": "Cachette",
 	"coffre_confisque": "Coffre des confiscations", "coffre_gardien": "Coffre ancien", "succube": "Succube"}
 
@@ -249,15 +257,15 @@ static func preparer_etage(donjon, etage: int) -> void:
 	m["colere"] = int(m.get("colere", 0))
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	var dist := distances(salles)
-	# Cachot : un cul-de-sac (une seule voisine), le plus loin possible de la salle du gardien (une capture ne doit
-	# pas rapprocher le héros du gardien, demande de l'utilisateur 2026-10-27 ; avant : le plus loin du départ, donc
-	# souvent tout près du gardien), à au moins CACHOT_DEPART salles du départ
+	# Cachot : un cul-de-sac (une seule voisine), le plus loin possible de la salle du boss (une capture ne doit
+	# pas rapprocher le héros du boss, demande de l'utilisateur 2026-10-27 ; avant : le plus loin du départ, donc
+	# souvent tout près du boss), à au moins CACHOT_DEPART salles du départ
 	var dist_boss := {}
 	for i in salles:
 		if salles[i].get("boss", false):
 			dist_boss = distances_depuis(salles, i)
 	# Depuis le 2026-10-30 (décision de l'utilisateur) : le cachot est une salle à image de prison, la plus loin du
-	# gardien (quartier des prisons, PlanSalles.quartier_prisons) ; sinon, comme avant, un cul-de-sac loin du gardien.
+	# boss (quartier des prisons, PlanSalles.quartier_prisons) ; sinon, comme avant, un cul-de-sac loin du boss.
 	PlanSalles.attribuer(donjon, etage)
 	var cellules := []
 	for i in salles_ordinaires(donjon, etage):
@@ -275,8 +283,8 @@ static func preparer_etage(donjon, etage: int) -> void:
 		salles[cellules[0]]["cachot"] = true
 	elif not candidats.is_empty():
 		candidats.sort_custom(func(a, b): return dist_boss.get(a, 0) > dist_boss.get(b, 0))
-		# Tous les culs-de-sac sont près du gardien (plus près que la moitié des salles) : le cachot va dans la salle
-		# ordinaire la plus loin du gardien, même si ce n'est pas un cul-de-sac (cas rare, 2026-10-28)
+		# Tous les culs-de-sac sont près du boss (plus près que la moitié des salles) : le cachot va dans la salle
+		# ordinaire la plus loin du boss, même si ce n'est pas un cul-de-sac (cas rare, 2026-10-28)
 		# (« plus près » au sens strict : avec la médiane, les salles à égalité de distance faisaient passer un cachot à
 		# la limite, vu sur les étages de 80 salles, 2026-10-30)
 		var d_cachot := int(dist_boss.get(candidats[0], 0))
@@ -299,7 +307,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 		if not s.has("presences"):
 			s["presences"] = []
 		if s.get("boss", false):
-			# Classe du gardien tirée dès la création de l'étage (2026-10-30) : l'armure anti-boss en dépend
+			# Classe du boss tirée dès la création de l'étage (2026-10-30) : l'armure anti-boss en dépend
 			var gardien := {"id": _nouvel_id(m), "genre": "boss", "etat": "actif"}
 			var mb: Dictionary = membres(gardien)[0]
 			m["boss_type_degats"] = Gobelin.type_degats_principal(mb["classe"], mb["sous_classe"])
@@ -309,6 +317,12 @@ static func preparer_etage(donjon, etage: int) -> void:
 	for i in ordinaires:
 		for _g in _pondere(GROUPES_PAR_SALLE):
 			salles[i]["presences"].append(nouveau_groupe(donjon, m, etage))
+	# Ennemis isolés : dans les salles ordinaires sans groupe
+	for i in ordinaires:
+		var deja: bool = salles[i]["presences"].any(func(q): return q["genre"] == "groupe")
+		if not deja and randf() < CHANCE_ISOLE:
+			salles[i]["presences"].append({"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1,
+				"elite": false, "pacifique": false, "seul": true})
 	# Imbattables et geôliers, loin du départ
 	var loin := []
 	for i in ordinaires:
@@ -341,7 +355,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 	if randf() < CHANCE_PUPITRE:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "pupitre", "etat": "actif"})
 	poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "ratelier", "etat": "actif"})
-	# Coffre du gardien : l'armure anti-boss de l'étage (GenerationObjets.generer_anti_boss)
+	# Coffre du boss : l'armure anti-boss de l'étage (GenerationObjets.generer_anti_boss)
 	if m.has("boss_type_degats"):
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "coffre_gardien", "type_degats": m["boss_type_degats"],
 			"etat": "actif"})
@@ -367,7 +381,56 @@ static func preparer_etage(donjon, etage: int) -> void:
 	for c in contenus:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
+	_poser_cle_boss(donjon, etage, m, salles_ordinaires(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
 	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
+
+
+## La salle du boss est fermée ; sa clé est confiée à une élite loin du départ (une élite existante, sinon un groupe
+## hostile qui en devient une, sinon une nouvelle élite).
+static func _poser_cle_boss(donjon, etage: int, m: Dictionary, ordinaires: Array, dist: Dictionary) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	var boss := ""
+	for i in salles:
+		if salles[i].get("boss", false):
+			boss = i
+	if boss == "":
+		return
+	salles[boss]["verrouillee"] = true
+	salles[boss]["cle_boss"] = true
+	var loin := ordinaires.filter(func(i): return int(dist.get(i, 0)) >= DISTANCE_CLE_BOSS and not salle_paisible(salles[i]))
+	if loin.is_empty():
+		loin = ordinaires.duplicate()
+	var elites := []
+	var hostiles := []
+	for i in loin:
+		for p in salles[i]["presences"]:
+			if p["genre"] == "groupe" and not p.get("pacifique", false) and not p.get("seul", false):
+				(elites if p.get("elite", false) else hostiles).append(p)
+	var porteur: Dictionary = {}
+	if not elites.is_empty():
+		porteur = elites.pick_random()
+	elif not hostiles.is_empty():
+		porteur = hostiles.pick_random()
+		porteur["elite"] = true
+	elif not loin.is_empty():
+		porteur = {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1, "elite": true, "pacifique": false}
+		salles[loin.pick_random()]["presences"].append(porteur)
+	if not porteur.is_empty():
+		porteur["cle_boss"] = etage
+
+
+## Le héros a-t-il la clé du boss de l'étage ``etage`` ?
+static func a_cle_boss(joueur, etage: int) -> bool:
+	return etage in U.ga(joueur, "cles_boss", [])
+
+
+## Donne au héros la clé du boss de l'étage ``etage`` ; renvoie le message.
+static func donner_cle_boss(joueur, etage: int) -> String:
+	if not (U.ga(joueur, "cles_boss", null) is Array):
+		joueur._d["cles_boss"] = []
+	if not etage in joueur._d["cles_boss"]:
+		joueur._d["cles_boss"].append(etage)
+	return "Vous trouvez la **clé du boss** de l'étage %d !" % etage
 
 
 ## Groupe de gobelins qui rôde : 1 ou 2 selon l'étage (Donjon.ENNEMIS_PAR_ETAGE, plafonné à MAX_PAR_GROUPE), parfois un
@@ -416,7 +479,7 @@ static func est_rodeur(p: Dictionary) -> bool:
 # Combats
 # ---------------------------------------------------------------------------
 
-## Gobelins d'une présence (groupe, porteur, gardien) : [{classe, sous_classe, image}], l'élite en premier.
+## Gobelins d'une présence (groupe, porteur, boss) : [{classe, sous_classe, image}], l'élite en premier.
 ## Tirés une fois et gardés dans la présence (« membres ») : la salle les dessine et le combat les affronte,
 ## pour que l'image corresponde à l'ennemi. Les présences d'avant le 2026-10-27 les reçoivent à la première lecture.
 static func membres(p: Dictionary) -> Array:
@@ -440,7 +503,7 @@ static func membres(p: Dictionary) -> Array:
 				liste.append({"classe": cs[0], "sous_classe": cs[1],
 					"image": Ennemis.IMAGES_GOBELINS_PAR_SOUS_CLASSE.get(cs[1], ["gobelin_defaut.png"]).pick_random()})
 			# Un loup n'est jamais seul : il accompagne un archer ou un chaman
-			if groupe and dresseur and liste.size() < MAX_PAR_GROUPE and randf() < CHANCE_LOUP:
+			if groupe and dresseur and not p.get("seul", false) and liste.size() < MAX_PAR_GROUPE and randf() < CHANCE_LOUP:
 				liste.append(Creatures.membre("loup"))
 		p["membres"] = liste
 	return p["membres"]
@@ -571,7 +634,7 @@ static func duree_salle(p: Dictionary) -> float:
 
 
 ## Salle suivante du chasseur ``p`` qui est dans ``ici`` : un pas vers sa destination (« but ») s'il en a une, sinon
-## une voisine au hasard (pas celle d'où il vient, sauf impasse ; jamais la salle du gardien).
+## une voisine au hasard (pas celle d'où il vient, sauf impasse ; jamais la salle du boss).
 static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 	var salles: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])]
 	if p.has("but") and str(p["but"]) == ici:
@@ -695,15 +758,15 @@ static func apres_victoire(donjon, p: Dictionary) -> String:
 # Cadavres et âmes (règles de l'utilisateur, 2026-10-31)
 # ---------------------------------------------------------------------------
 
-## Âmes d'un ennemi vaincu : 1 par ennemi ; une **élite** en vaut AMES_ELITE, le **gardien** de
-## l'étage AMES_GARDIEN (décision de l'utilisateur).
+## Âmes d'un ennemi vaincu : 1 par ennemi ; une **élite** en vaut AMES_ELITE, le **boss** de
+## l'étage AMES_BOSS (décision de l'utilisateur).
 const AMES_ELITE := 3
-const AMES_GARDIEN := 5
+const AMES_BOSS := 5
 
 
 static func ames_de(p: Dictionary) -> int:
 	if p["genre"] == "boss":
-		return AMES_GARDIEN
+		return AMES_BOSS
 	var n := membres(p).size()
 	if p.get("elite", false):
 		return AMES_ELITE + maxi(0, n - 1)
@@ -719,7 +782,9 @@ static func laisser_cadavre(donjon, p: Dictionary, pos = null, cle_image := "") 
 	var m := meta(donjon, etage)
 	var corps := {"id": _nouvel_id(m), "genre": "objet", "sous": "cadavre", "etat": "actif", "ames": ames_de(p),
 		"pacifique": p.get("pacifique", false), "fouille": false, "membres": membres(p).duplicate(true),
-		"nom_corps": "le gardien" if p["genre"] == "boss" else ("les corps" if membres(p).size() > 1 else "le corps")}
+		"nom_corps": "le boss" if p["genre"] == "boss" else ("les corps" if membres(p).size() > 1 else "le corps")}
+	if p.has("cle_boss"):
+		corps["cle_boss"] = p["cle_boss"]
 	if pos is Vector2:
 		corps["pos"] = [pos.x, pos.y]
 		corps["pos_image"] = cle_image
@@ -748,8 +813,15 @@ static func cadavre(donjon, p: Dictionary) -> String:
 		if action.begins_with("Fouiller"):
 			p["fouille"] = true
 			messages.append(Fouille.fouiller_corps(joueur, donjon, p.get("pacifique", false)))
+			if p.has("cle_boss") and not p.get("cle_prise", false):
+				p["cle_prise"] = true
+				messages.append(donner_cle_boss(joueur, int(p["cle_boss"])))
 		elif action.begins_with("Siphonner"):
 			p["etat"] = "siphonne"
+			if p.has("cle_boss") and not p.get("cle_prise", false):
+				# La clé ne disparaît pas avec le corps : elle tombe à terre
+				p["cle_prise"] = true
+				messages.append("Le corps se dissipe... et une clé tinte sur les dalles. " + donner_cle_boss(joueur, int(p["cle_boss"])))
 			var points: int = joueur.gagner_ames(n)
 			var texte_ames := "Vous aspirez %d âme%s. Une force froide vous traverse (âmes : %d / %d)." % [
 				n, "s" if n > 1 else "", int(U.num(joueur, "ames")), Personnage.AMES_PAR_POINT]
@@ -1046,7 +1118,7 @@ static func utiliser_objet(donjon, p: Dictionary) -> String:
 			var type_degats := String(p.get("type_degats", "tranchant"))
 			var armure = GenerationObjets.generer_anti_boss(type_degats, clampi(etage, 1, 6))
 			var porte = joueur.recevoir_objet(armure)
-			return "Dans un vieux coffre : %s%s. Elle protège des dégâts %s du gardien de l'étage." % [
+			return "Dans un vieux coffre : %s%s. Elle protège des dégâts %s du boss de l'étage." % [
 				armure.nom, " (équipé)" if porte else "", NOMS_DEGATS_ANTI_BOSS.get(type_degats, type_degats)]
 		"coffre_confisque":
 			for objet in p.get("objets", []):
@@ -1086,8 +1158,16 @@ static func verrouillee(donjon, dest: String) -> bool:
 
 ## Essaie d'ouvrir la salle ``dest`` avec une clé : [ouverte, message].
 static func ouvrir_verrou(donjon, dest: String) -> Array:
-	var salle: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])].get(dest, {})
+	var etage := int(donjon.salle_actuelle[0])
+	var salle: Dictionary = donjon.plan_donjon[etage].get(dest, {})
 	var joueur = donjon.personnage
+	if salle.get("cle_boss", false):
+		# La salle du boss ne s'ouvre qu'avec sa clé, portée par une élite de l'étage
+		if not a_cle_boss(joueur, etage):
+			return [false, "La porte de la salle du boss est scellée. Sa clé est portée par une élite de l'étage."]
+		joueur._d["cles_boss"].erase(etage)
+		salle["verrouillee"] = false
+		return [true, "La clé du boss tourne dans la serrure. La porte s'ouvre lentement..."]
 	if int(U.ga(joueur, "cles", 0)) <= 0:
 		return [false, "Cette porte est verrouillée. Il vous faudrait une clé."]
 	joueur._d["cles"] = int(joueur.cles) - 1

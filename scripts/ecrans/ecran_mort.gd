@@ -1,6 +1,6 @@
 extends Ecran
 ## Écran de fin de partie (menu_partie.afficher_ecran_mort) : statistiques et « Recommencer ». Cause « victoire »
-## (gardien du dernier étage vaincu, puis « Monter », 2026-10-30) : même écran, titre « VICTOIRE ».
+## (boss du dernier étage vaincu, puis « Monter », 2026-10-30) : même écran, titre « VICTOIRE ».
 ## Résultat : « recommencer », « menu » ou « quitter ».
 
 var joueur
@@ -17,7 +17,7 @@ func preparer(j, donjon, cause := "combat") -> Ecran:
 	lignes = Statistiques.bilan(j, donjon)
 	victoire = cause == "victoire"
 	if victoire:
-		sous_titre = "Le gardien du dernier étage est vaincu : vous sortez du donjon"
+		sous_titre = "Le boss du dernier étage est vaincu : vous sortez du donjon"
 	else:
 		sous_titre = "%s à l'étage %d, salle %d" % [MenuPartie.CAUSES.get(cause, "Mort"), donjon.salle_actuelle[0], donjon.salle_actuelle[1]]
 	var noms := ["Recommencer", "Menu principal", "Quitter"]

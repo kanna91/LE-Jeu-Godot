@@ -167,7 +167,7 @@ static func _salle_avec(donjon, filtre: Callable) -> String:
 # Diablotin
 # ---------------------------------------------------------------------------
 
-## Une réponse du diablotin sur ``sujet`` (« gardien », « etage », « ennemis ») : vraie si ``vraie``.
+## Une réponse du diablotin sur ``sujet`` (« boss », « etage », « ennemis ») : vraie si ``vraie``.
 static func phrase(donjon, sujet: String, vraie: bool) -> String:
 	var m := Aventure.meta(donjon, int(donjon.salle_actuelle[0]))
 	match sujet:
@@ -179,7 +179,7 @@ static func phrase(donjon, sujet: String, vraie: bool) -> String:
 				autres.erase(faible)
 				fort = faible
 				faible = autres.pick_random()
-			return "Le gardien de cet étage craint %s... mais il se moque %s. Hé hé." % [
+			return "Le boss de cet étage craint %s... mais il se moque %s. Hé hé." % [
 				Aventure.NOMS_ELEMENTS[faible], Aventure.NOMS_ELEMENTS_DE[fort]]
 		"etage":
 			var sujets := [
@@ -270,21 +270,25 @@ static func infos_diablotin(donjon, sujet: String) -> Array:
 			var rubrique := "Étage %d" % etage
 			var faits := []
 			if m.has("boss_faiblesse"):
-				faits.append(["gardien_faible", "Le gardien de cet étage craint %s." % Aventure.NOMS_ELEMENTS[m["boss_faiblesse"]]])
-				faits.append(["gardien_fort", "Le gardien de cet étage se moque %s. Garde-les pour un autre." % Aventure.NOMS_ELEMENTS_DE[m["boss_force"]]])
+				faits.append(["gardien_faible", "Le boss de cet étage craint %s." % Aventure.NOMS_ELEMENTS[m["boss_faiblesse"]]])
+				faits.append(["gardien_fort", "Le boss de cet étage se moque %s. Garde-les pour un autre." % Aventure.NOMS_ELEMENTS_DE[m["boss_force"]]])
 			var reperes := [
 				["geolier", "Le geôlier rôde %s. Évite-le si tu tiens à tes affaires.", func(p): return p["genre"] == "geolier"],
 				["pupitre", "Les livres du savoir dorment %s.", func(p): return p.get("sous") == "pupitre"],
 				["cachette", "Une cachette secrète attend %s. Regarde bien les murs !", func(p): return p.get("sous") == "cachette"],
 				["chevalier", "Un Chevalier de la mort erre %s. Ne fais pas de bruit.", func(p): return p["genre"] == "imbattable"],
 				["succube", "Une dame aux ailes de cuir attend %s.", func(p): return p.get("sous") == "succube"],
+				["cle_boss", "La clé du boss ? Une élite la garde sur elle. Elle rôde %s.",
+					func(p): return p.has("cle_boss") and p["genre"] == "groupe" and p.get("etat") == "actif"],
+				["cle_boss_corps", "La clé du boss est restée sur un corps, %s. Fouille-le !",
+					func(p): return p.has("cle_boss") and p.get("sous") == "cadavre" and not p.get("cle_prise", false)],
 			]
 			for r in reperes:
 				var salle := _salle_avec(donjon, r[2])
 				if salle != "":
 					faits.append([r[0], r[1] % direction(donjon, salle)])
 			for i in donjon.plan_donjon[etage]:
-				if donjon.plan_donjon[etage][i].get("verrouillee", false):
+				if donjon.plan_donjon[etage][i].get("verrouillee", false) and not donjon.plan_donjon[etage][i].get("cle_boss", false):
 					faits.append(["verrou", "Une salle fermée à clé se trouve %s." % direction(donjon, i)])
 					break
 			for f in faits:

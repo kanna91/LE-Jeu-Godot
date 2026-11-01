@@ -689,7 +689,7 @@ func ouvrir_icone(cle: String) -> void:
 
 func faire_action(action: String) -> String:
 	if not action_possible(action):
-		return {"Monter": "On ne monte que depuis la salle du boss, une fois le gardien vaincu (voir la carte : Tab).",
+		return {"Monter": "On ne monte que depuis la salle du boss, une fois le boss vaincu (voir la carte : Tab).",
 			"Descendre": "On ne descend que depuis la salle de départ, hors premier étage.",
 			"Se reposer": "Il faut un lit pour se reposer."}.get(action, "Impossible ici.")
 	if action == "Se reposer":

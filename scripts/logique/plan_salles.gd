@@ -39,7 +39,7 @@ const BONUS_IMAGE_PREFEREE := 15
 const BONUS_CARREFOUR := 20
 const PENALITE_GRANDE_HORS_CARREFOUR := 40
 ## Quartier des prisons (2026-10-30, décision de l'utilisateur) : les images « prison » vont dans la part de l'étage
-## la plus loin du gardien (PART_QUARTIER_PRISONS des salles, par le chemin) ; le cachot est pris parmi elles
+## la plus loin du boss (PART_QUARTIER_PRISONS des salles, par le chemin) ; le cachot est pris parmi elles
 ## (Aventure.preparer_etage). Bonus inférieur à PENALITE_PORTE_CONDAMNEE : une prison ne condamne pas de porte en plus.
 const PART_QUARTIER_PRISONS := 0.25
 const PREFIXE_PRISON := "prison"
@@ -200,7 +200,7 @@ static func _position(salle: Dictionary) -> Vector2i:
 	return p if p is Vector2i else Vector2i(int(p[0]), int(p[1]))
 
 
-## Salles du quartier des prisons : {id: true}, les PART_QUARTIER_PRISONS de l'étage les plus loin du gardien par le
+## Salles du quartier des prisons : {id: true}, les PART_QUARTIER_PRISONS de l'étage les plus loin du boss par le
 ## chemin (sans la salle de départ, qui garde son image).
 static func quartier_prisons(salles: Dictionary) -> Dictionary:
 	var boss := ""

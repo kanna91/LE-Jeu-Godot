@@ -1,6 +1,6 @@
 extends SceneTree
 ## Grands étages (GenerateurEtage, 2026-10-27) : sur ETAGES_TESTES étages générés, vérifie la taille (environ
-## 50 salles), qu'on peut aller partout depuis le départ, le gardien au bout de la voie principale, les
+## 50 salles), qu'on peut aller partout depuis le départ, le boss au bout de la voie principale, les
 ## carrefours (salles à 3 ou 4 passages), les boucles (grands cercles : deux salles voisines reliées alors que le
 ## chemin entre elles faisait au moins GenerateurEtage.BOUCLE_MIN salles) et les salles bonus.
 ## Affiche aussi un étage dessiné en texte. « BILAN grands étages : 0 échec(s) ».
@@ -59,7 +59,7 @@ func _initialize() -> void:
 		for i in plan:
 			if plan[i]["role"] == "boss":
 				boss_n += 1
-		verifier(boss_n == 1, "un seul gardien par étage")
+		verifier(boss_n == 1, "un seul boss par étage")
 		if n == 0:
 			dessiner(plan)
 	var moy := func(l: Array) -> float:
@@ -79,7 +79,7 @@ func _initialize() -> void:
 	quit()
 
 
-## Dessine le plan en texte : D départ, G gardien, + bonus, o salle ; - et | les passages.
+## Dessine le plan en texte : D départ, G boss, + bonus, o salle ; - et | les passages.
 func dessiner(plan: Dictionary) -> void:
 	var par_case := {}
 	var x0 := 1000

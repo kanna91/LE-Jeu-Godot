@@ -51,7 +51,7 @@ const PENETRATION_PAR_ORIENTATION := {"physique": "penetration_armure", "magique
 const TYPES_PAR_ORIENTATION := {"magique": ["arcane", "ombre", "chaos"], "elementaire": ["feu", "froid", "foudre"]}
 
 ## Armure anti-boss (une par étage, dans un coffre) : défense normale + résistance spécifique au type de dégâts
-## principal du gardien, en points et en pourcentage. Valeurs provisoires de l'utilisateur (2026-10-30).
+## principal du boss, en points et en pourcentage. Valeurs provisoires de l'utilisateur (2026-10-30).
 const ANTI_BOSS_RESISTANCE := 6
 const ANTI_BOSS_RESISTANCE_POURCENT := 0.20
 
@@ -279,7 +279,7 @@ static func generer_bijou(rang = null, orient = null):
 
 
 ## Armure anti-boss : une pièce d'armure à option « défense », plus ANTI_BOSS_RESISTANCE points et
-## ANTI_BOSS_RESISTANCE_POURCENT de résistance au type de dégâts ``type_degats`` (celui du gardien de l'étage).
+## ANTI_BOSS_RESISTANCE_POURCENT de résistance au type de dégâts ``type_degats`` (celui du boss de l'étage).
 ## Nom : « Plastron élémentaire commun anti-foudre ».
 static func generer_anti_boss(type_degats: String, rang = null):
 	var emplacement: String = ARMURES.pick_random()

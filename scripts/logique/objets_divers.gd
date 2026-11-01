@@ -33,6 +33,13 @@ static func depuis_catalogue(nom: String):
 	return null
 
 
+## Objet d'affichage de la clé du boss de l'étage ``etage`` (jamais rangé dans l'inventaire).
+static func objet_cle_boss(etage: int) -> Objet:
+	var o := Objet.nouveau("Clé du boss (étage %d)" % etage, "cle", "", 0)
+	o._d["description"] = "Ouvre la salle du boss de l'étage %d, et elle seule." % etage
+	return o
+
+
 ## Objet d'affichage des clés du héros (jamais rangé dans l'inventaire).
 static func objet_cles() -> Objet:
 	var o := Objet.nouveau(NOM_CLE, "cle", "", 0)

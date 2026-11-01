@@ -108,7 +108,7 @@ func _peuplement() -> void:
 			verifier(c.get("geolier", 0) == Aventure.GEOLIERS_PAR_ETAGE, "geôliers par étage")
 			verifier(c.get("imbattable", 0) == Aventure.CHEVALIERS_PAR_ETAGE, "un Chevalier de la mort à l'étage %d" % etage)
 			verifier(salles.has(String(m.get("cachot", ""))) and salles[m["cachot"]].get("cachot", false), "salle du cachot")
-			# Cachot loin du gardien : au moins aussi loin que la moitié des salles de l'étage
+			# Cachot loin du boss : au moins aussi loin que la moitié des salles de l'étage
 			var boss_id := ""
 			for i in salles:
 				if salles[i].get("boss", false):
@@ -118,13 +118,15 @@ func _peuplement() -> void:
 			for i in salles:
 				if db.get(i, 0) < db.get(String(m["cachot"]), 0):
 					plus_pres += 1
-			verifier(plus_pres >= salles.size() / 2, "cachot loin du gardien (%d salles plus près du gardien sur %d)" % [plus_pres, salles.size()])
+			verifier(plus_pres >= salles.size() / 2, "cachot loin du boss (%d salles plus près du boss sur %d)" % [plus_pres, salles.size()])
 			verifier(c.get("pnj/diablotin", 0) == 7, "7 diablotins à l'étage %d (%d)" % [etage, c.get("pnj/diablotin", 0)])
 			var verrous := 0
 			for i in salles:
-				if salles[i].get("verrouillee", false):
+				if salles[i].get("verrouillee", false) and salles[i].get("cle_boss", false):
+					verifier(salles[i].get("boss", false), "la serrure à clé du boss est sur la salle du boss")
+				elif salles[i].get("verrouillee", false):
 					verrous += 1
-					verifier(salles[i].get("type") == "bonus", "seules les salles bonus sont verrouillées")
+					verifier(salles[i].get("type") == "bonus", "seules les salles bonus sont verrouillées (clés rouillées)")
 				var s: Dictionary = salles[i]
 				if s.get("depart", false) or s.get("cachot", false) or s.get("type") == "bonus":
 					for p in s.get("presences", []):
@@ -220,7 +222,7 @@ func _imbattable_et_fuite() -> void:
 	donjon.salle_actuelle = [etage, 1]
 	Aventure.preparer_etage(donjon, etage)
 	var salles: Dictionary = donjon.plan_donjon[etage]
-	# Coffre du gardien (2026-10-30) : classe du gardien tirée avec l'étage, coffre ancien avec l'armure anti-boss
+	# Coffre du boss (2026-10-30) : classe du boss tirée avec l'étage, coffre ancien avec l'armure anti-boss
 	var m_gardien := Aventure.meta(donjon, etage)
 	var coffres := []
 	var gardiens := []
@@ -231,11 +233,11 @@ func _imbattable_et_fuite() -> void:
 			if p["genre"] == "boss":
 				gardiens.append(p)
 	verifier(coffres.size() == 1 and m_gardien.has("boss_type_degats"), "un coffre ancien par étage")
-	verifier(gardiens.size() == 1 and gardiens[0].has("membres"), "classe du gardien tirée avec l'étage")
+	verifier(gardiens.size() == 1 and gardiens[0].has("membres"), "classe du boss tirée avec l'étage")
 	if coffres.size() == 1 and gardiens.size() == 1:
 		var mb: Dictionary = gardiens[0]["membres"][0]
 		var t: String = coffres[0]["type_degats"]
-		verifier(t == Gobelin.type_degats_principal(mb["classe"], mb["sous_classe"]), "le coffre suit le type de dégâts du gardien (%s, %s)" % [mb["sous_classe"], t])
+		verifier(t == Gobelin.type_degats_principal(mb["classe"], mb["sous_classe"]), "le coffre suit le type de dégâts du boss (%s, %s)" % [mb["sous_classe"], t])
 		var anti = GenerationObjets.generer_anti_boss(t, 2)
 		verifier(U.num(anti, "resistance_" + t) == 6 and is_equal_approx(U.num(anti, "resistance_pct_" + t), 0.20)
 			and String(anti.nom).ends_with("anti-" + t), "armure anti-boss : +6 et 20 %% contre %s (%s)" % [t, anti.nom])
@@ -250,7 +252,7 @@ func _imbattable_et_fuite() -> void:
 			if U.num(o, attr) != 0:
 				une_option = false
 	verifier(une_option, "objets générés : une seule option, sans statistiques retirées")
-	# Donjon complet dès le départ (5 étages), quartier des prisons opposé au gardien, cachot dans une cellule (2026-10-30)
+	# Donjon complet dès le départ (5 étages), quartier des prisons opposé au boss, cachot dans une cellule (2026-10-30)
 	var neuf = Donjon.nouveau(Personnage.nouveau())
 	verifier(neuf.plan_donjon.size() == Donjon.NOMBRE_ETAGES, "les %d étages existent dès le départ" % Donjon.NOMBRE_ETAGES)
 	var prisons_ok := true
@@ -264,7 +266,7 @@ func _imbattable_et_fuite() -> void:
 		var cachot := String(Aventure.meta(neuf, et).get("cachot", ""))
 		if cachot == "" or not PlanSalles.est_prison(String(sl[cachot]["salle_peinte"]["image"])) or not q.has(cachot):
 			cachots_ok = false
-	verifier(prisons_ok, "toutes les prisons sont dans le quartier opposé au gardien")
+	verifier(prisons_ok, "toutes les prisons sont dans le quartier opposé au boss")
 	verifier(cachots_ok, "le cachot est une cellule du quartier des prisons")
 	var chevalier := {}
 	var depart_chevalier := ""
@@ -277,7 +279,7 @@ func _imbattable_et_fuite() -> void:
 	for i in Aventure.salles_ordinaires(donjon, etage):
 		ecart_min = mini(ecart_min, Aventure.distances_depuis(salles, i).values().max())
 	verifier(ecart_milieu == ecart_min, "le chevalier part du milieu de l'étage (%d salles au plus de tout)" % ecart_milieu)
-	# Errance : en 10 minutes de jeu, chacun visite plusieurs salles, jamais celle du gardien
+	# Errance : en 10 minutes de jeu, chacun visite plusieurs salles, jamais celle du boss
 	var visitees := {}
 	var ici := ""
 	for i in Aventure.salles_ordinaires(donjon, etage):
@@ -290,7 +292,7 @@ func _imbattable_et_fuite() -> void:
 		for c in Aventure.avancer_chasseurs(donjon, 1.0):
 			pass
 		for c in Aventure.chasseurs(donjon, etage):
-			verifier(not salles[c[1]].get("boss", false), "jamais dans la salle du gardien")
+			verifier(not salles[c[1]].get("boss", false), "jamais dans la salle du boss")
 			if not visitees.has(c[0]["id"]):
 				visitees[c[0]["id"]] = {}
 			visitees[c[0]["id"]][c[1]] = true
@@ -473,8 +475,8 @@ func _personnages() -> void:
 			verifier(String(r[0]) != "", "message de %s" % sous)
 	for sujet in ["gardien", "etage", "ennemis"]:
 		verifier(Rencontres.phrase(donjon, sujet, true) != "" and Rencontres.phrase(donjon, sujet, false) != "", "phrases %s" % sujet)
-	print("Exemple de diablotin (vrai) : %s" % Rencontres.phrase(donjon, "gardien", true))
-	print("Exemple de diablotin (faux) : %s" % Rencontres.phrase(donjon, "gardien", false))
+	print("Exemple de diablotin (vrai) : %s" % Rencontres.phrase(donjon, "boss", true))
+	print("Exemple de diablotin (faux) : %s" % Rencontres.phrase(donjon, "boss", false))
 
 
 ## Pactes de la succube : prix en PV max (pour toujours), effets, usage unique du baiser et du pacte de mort.
