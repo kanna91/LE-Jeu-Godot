@@ -507,18 +507,18 @@
   "palier": 0,
   "fiche": {
    "nom": "Souffle du chaos",
-   "description": "Un souffle instable de chaos et de flammes.",
+   "description": "Un souffle instable de chaos et d'ombre.",
    "mana": 2,
    "types": [
     "chaos",
-    "feu"
+    "ombre"
    ],
    "degats": {
     "chaos": 7,
-    "feu": 3
+    "ombre": 3
    },
    "facteurs_types": {
-    "feu": 0.4
+    "ombre": 0.4
    },
    "alterations": {
     "corruption": 15,
@@ -687,7 +687,7 @@
   "element": "ombre",
   "palier": 0,
   "fiche": {
-   "nom": "Murmure des ombres",
+   "nom": "Trait de l'ombre",
    "description": "Un murmure glacé qui sape les forces de la cible.",
    "mana": 2,
    "types": [

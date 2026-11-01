@@ -189,8 +189,9 @@ func _imbattable_et_fuite() -> void:
 	Degats.recevoir("tranchant", e, 500, 0, 0, combat)
 	verifier(avant_crit - e.points_de_vie == 3, "Chevalier : 3 dégâts sur un critique")
 	EffetsCombat.critique = false
-	verifier(Formules.des_type(e, "tranchant") == [[12, 2]] and Formules.des_type(e, "ombre") == [[6, 2]], "Chevalier : frappe 12d2 tranchant + 6d2 ombre")
-	verifier(e.competences.size() == 1 and e.competences[0].type_degats == ["tranchant", "ombre"], "Chevalier : une lame tranchant et ombre")
+	verifier(Formules.des_type(e, "tranchant") == [[13, 2]] and Formules.part_pv_cible(e, e.competences[0], "tranchant") == 0.15,
+		"Chevalier : frappe 13d2 tranchant + 15 % des PV max de la cible (2026-11-01)")
+	verifier(e.competences.size() == 1 and e.competences[0].type_degats == ["tranchant"], "Chevalier : une lame tranchante (l'ombre vient du mana retiré)")
 	verifier(CombatAnime.type_gobelin(e) == "chevalier", "Chevalier : ses propres animations de combat, pas celles du gobelin")
 	# Chaque coup qui touche : Usure une fois sur deux, 6d2 de mana retirés (demande de l'utilisateur, 2026-10-27)
 	var touches := 0
@@ -213,7 +214,7 @@ func _imbattable_et_fuite() -> void:
 	var p_usure := float(usures) / maxi(1, touches)
 	print("  Chevalier : %d coups touchés sur 400, Usure %d %%, mana retiré %d à %d" % [touches, roundi(p_usure * 100), pertes.min(), pertes.max()])
 	verifier(p_usure >= 0.42 and p_usure <= 0.75, "Chevalier : Usure environ une fois sur deux (et parfois par le tranchant)")
-	verifier(pertes.min() >= 6 and pertes.max() <= 12, "Chevalier : 6d2 de mana retirés à chaque coup qui touche")
+	verifier(pertes.min() >= 20 and pertes.max() <= 26, "Chevalier : 6d2 + 15 %% du mana max (14 sur 99) retirés à chaque coup qui touche")
 	# Chasseurs : le chevalier part du milieu de l'étage, tous errent, un combat les attire, le vacarme rapproche le
 	# chevalier (téléporté à 3 salles) et dirige les geôliers vers la salle du bruit
 	var etage := 2

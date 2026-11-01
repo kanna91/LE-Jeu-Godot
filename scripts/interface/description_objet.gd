@@ -342,7 +342,7 @@ static func lignes_competence(comp, lanceur = null) -> Array:
 		if degats:
 			lignes.append(["≈ %s dégâts par utilisation, avant résistances" % U.f(degats * comp.nombre_attaque), COULEUR_PLUS])
 		if soin:
-			var part := U.num(comp, "soin_pourcentage_pv")
+			var part := U.num(comp, "soin_pourcentage_pv") + Formules.part_pv_cible(lanceur, comp, "lumière")
 			lignes.append(["≈ %s PV rendus (lumière)%s" % [U.f(soin), (" + %s %% des PV max de la cible" % U.f(part * 100)) if part else ""], COULEUR_PLUS])
 	var bonus := []
 	if U.ga(comp, "multiplicateur_degats", 1) != 1:

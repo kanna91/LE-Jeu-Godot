@@ -239,7 +239,7 @@ func _attaques_arme() -> int:
 	var coup := Competences.creer("Coup_de_marteau")
 	var sort := Competences.creer("Marteau_de_givre")
 	marteau.set("de_bonus", {"faces": 6, "type": "contondant"})
-	if Formules.moyenne(Formules.des_type(porteur, "contondant", coup)) != 10.5:
+	if Formules.moyenne(Formules.des_type(porteur, "contondant", coup)) != 12.5:  # 6d2 (2026-11-01) + 1d6
 		print("ÉCHEC : Coup de marteau sans le dé bonus contondant.")
 		echecs += 1
 	if Formules.moyenne(Formules.des_type(porteur, "contondant", sort)) != 7.0:
@@ -301,8 +301,20 @@ func _des_ennemis() -> int:
 		print("ÉCHEC : le héros garde 2d6 tranchants.")
 		echecs += 1
 	var rafale := Competences.creer("Rafale_de_lance")
-	if Formules.des_type(gobelin, "perforant", rafale) != [[1, 4]]:
-		print("ÉCHEC : coup multiple d'un ennemi en 1d4.")
+	if Formules.des_type(gobelin, "perforant", rafale) != [[2, 2]] or Formules.valeur_jet(gobelin, rafale, "perforant", true) != 3.0:
+		print("ÉCHEC : Rafale de lance d'un ennemi en 2d2 par coup, sans malus (2026-11-01).")
+		echecs += 1
+	# Dés propres des compétences (2026-11-01) : héros et ennemis ont les leurs pour une même compétence
+	if Formules.des_type({"force": 0}, "feu", Competences.creer("Boule_de_feu")) != [[8, 2]] 			or Formules.des_type(gobelin, "feu", Competences.creer("Boule_de_feu")) != [[5, 2]]:
+		print("ÉCHEC : Boule de feu 8d2 pour le héros, 5d2 pour un gobelin.")
+		echecs += 1
+	# Soin mineur d'un gobelin : 7d2 + 15 % des PV max de la cible
+	var soin := Competences.creer("Soin_mineur")
+	if absf(Formules.bonus_pv_cible(gobelin, soin, gobelin, "lumière") - 0.15 * gobelin.points_de_vie_max) > 0.001:
+		print("ÉCHEC : Soin mineur + 15 % des PV max de la cible.")
+		echecs += 1
+	if Ennemis.MINI_BOSS["degats"] != 1.4 or Ennemis.BOSS["degats"] != 1.6:
+		print("ÉCHEC : élites × 1,4 et boss × 1,6.")
 		echecs += 1
 	print("Dés ennemis : tranchant %s, perforant %s, contondant %s" % [Formules.texte(Formules.des_type(gobelin, "tranchant")),
 		Formules.texte(Formules.des_type(gobelin, "perforant")), Formules.texte(Formules.des_type(gobelin, "contondant"))])

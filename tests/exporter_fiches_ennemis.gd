@@ -17,9 +17,9 @@ const STATS := ["points_de_vie_max", "endurance", "force", "dextérité", "intel
 const IA := {"combattant": ["Coup_d_epee"], "lancier": ["Coup_de_lance", "Perforation", "Rafale_de_lance"],
 	"archer": ["Précision", "Tir", "Tir_precis", "Tir_empoisonne"],
 	"defenseur": ["Coup_de_gourdin", "Protection", "Grand_coup_de_gourdin"],
-	"sorcier": ["Boule_de_feu", "Blizzard", "Eclair", "Trait_des_Ombres", "Projectile_des_ombres", "Enflammer", "Coup_de_baton"],
-	"feticheur": ["Caresse_des_ombres", "Enflammer", "Silence", "Projectile_des_ombres", "Soin", "Soin_mineur"],
-	"chaman": ["Soin", "Soin_mineur", "Soin_majeur", "Recupe", "Boule_de_feu"]}
+	"sorcier": ["Boule_de_feu", "Trait_des_Ombres", "Projectile_des_ombres", "Coup_de_baton"],
+	"feticheur": ["Caresse_des_ombres", "Enflammer", "Silence", "Projectile_des_ombres", "Soin_mineur"],
+	"chaman": ["Soin_mineur", "Recupe", "Boule_de_feu"]}
 ## Résistances et vulnérabilités en pourcentage, au format des fiches : {type: points} (négatif = faiblesse).
 static func _pourcentages(e) -> Dictionary:
 	var p := Degats.pourcentages(e)

@@ -23,8 +23,8 @@ func _initialize() -> void:
 	print("loup : PV %d, squelette : PV %d" % [loup.points_de_vie_max, sq.points_de_vie_max])
 	verifier(loup.points_de_vie_max in [10, 20], "loup : 10 ou 20 PV (endurance 1 ou 2, 2026-10-29)")
 	verifier(sq.points_de_vie_max >= 18 and sq.points_de_vie_max <= 22, "squelette : 18 à 22 PV")
-	verifier(Formules.des_type(sq, "tranchant", sq.competences[0]) == [[1, 10]], "squelette : 1d10 tranchant, pas réduit")
-	verifier(Formules.des_type(loup, "perforant", loup.competences[0]) == [[1, 8]], "loup : 1d8 perforant, pas réduit")
+	verifier(Formules.des_type(sq, "tranchant", sq.competences[0]) == [[4, 2]], "squelette : 4d2 tranchant, pas réduit (2026-11-01)")
+	verifier(Formules.des_type(loup, "perforant", loup.competences[0]) == [[4, 2]], "loup : 4d2 perforant, pas réduit (2026-11-01)")
 	verifier(sq.competences[0].type_degats == ["tranchant"] and loup.competences[0].type_degats == ["perforant"], "types d'attaque")
 	# Faiblesses et résistance : 20 points de dégâts bruts
 	var feu := Degats.degats_subis(loup, "feu", 20.0)

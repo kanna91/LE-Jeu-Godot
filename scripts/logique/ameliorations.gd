@@ -42,10 +42,11 @@ const BASES := {
 		"décrépitude": 25, "esprit embrumé": 25}},
 	"Silence": {"alterations": {"silence": 60, "brûlure de mana": 30}},
 	"Recupe": {"alterations": {"régénération": 100}, "degats_lumière": 12, "soin_pourcentage_pv": 0.05},
-	"Soin_mineur": {"degats_lumière": 15, "soin_pourcentage_pv": 0.08},
-	"Soin": {"degats_lumière": 50, "soin_pourcentage_pv": 0.12},
-	"Soin_majeur": {"degats_lumière": 60, "soin_pourcentage_pv": 0.20},
-	"Coup_de_poing": {"alterations": {"stun": 25}},
+	# Soins : leur part des PV max de la cible est dans Formules.PV_CIBLE_ENNEMIS (2026-11-01)
+	"Soin_mineur": {"degats_lumière": 15},
+	"Soin": {"degats_lumière": 50},
+	"Soin_majeur": {"degats_lumière": 60},
+	# Coup de poing : plus d'étourdissement (2026-11-01)
 	"Fracasser": {"alterations": {"stun": 15}},
 	"Grand_coup_de_gourdin": {"alterations": {"stun": 20, "affaiblissement": 25, "trauma": 25}},
 	"Coup_de_gourdin": {"alterations": {"trauma": 20}},

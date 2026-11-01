@@ -107,7 +107,11 @@ const NOMS_PACTES := {"voile": "Voile", "carte": "Carte de chair", "baiser": "Ba
 ## Chaque coup qui touche : une chance sur deux de poser **Usure** et **6d2 de mana retirés** au héros (demande de
 ## l'utilisateur, 2026-10-27).
 const CHEVALIER := {"pv": 300, "plafond": [1, 2], "plafond_critique": 3,
-	"des": {"tranchant": [[12, 2]], "ombre": [[6, 2]]}, "taille_combat": 1.6, "usure": 50, "vol_mana": [[6, 2]]}
+	"des": {"tranchant": [[13, 2]]}, "taille_combat": 1.6, "usure": 50, "vol_mana": [[6, 2]],
+	"pv_cible": 0.15, "vol_mana_part": 0.15, "ombre_par_mana": 0.5}
+## Lame de la mort (2026-11-01, valeurs de l'utilisateur) : 13d2 tranchant + 15 % des PV max de la cible ; chaque coup
+## qui touche retire 6d2 + 15 % du mana max de la cible, et la moitié du mana retiré (arrondie en dessous) inflige
+## autant de dégâts d'ombre.
 ## Il suit le héros sur au moins TRAQUE_SALLES salles une fois lancé à sa poursuite (sans perdre sa trace).
 const TRAQUE_SALLES := 2
 
@@ -597,11 +601,14 @@ static func creer_imbattable(donjon) -> Gobelin:
 	e._d["stats_cachees"] = true  # fiche et info-bulle : « ??? » partout (demande de l'utilisateur, 2026-10-31)
 	var lame = Competences.creer("Coup_d_epee")
 	lame._d["nom"] = "Lame de la mort"
-	lame._d["type_degats"] = ["tranchant", "ombre"]
+	lame._d["type_degats"] = ["tranchant"]
 	lame._d["cout_mana"] = 0
 	lame._d["type_alteration"] = {"usure": CHEVALIER["usure"]}
 	e._d["competences"] = [lame]
 	e._d["vol_mana_des"] = CHEVALIER["vol_mana"].duplicate(true)
+	e._d["vol_mana_part"] = CHEVALIER["vol_mana_part"]
+	e._d["ombre_par_mana"] = CHEVALIER["ombre_par_mana"]
+	e._d["pourcentage_pv_cible"] = {"tranchant": CHEVALIER["pv_cible"]}
 	e._d["des_fixes"] = CHEVALIER["des"].duplicate(true)
 	# Ses dés comptent en entier, même si la réduction commune des ennemis revenait (Ennemis.MULTIPLICATEUR_DEGATS_ENNEMIS)
 	e._d["pourcentage_degats_physique"] = 1.0

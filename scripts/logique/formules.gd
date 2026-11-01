@@ -65,6 +65,66 @@ static func de_bonus(arme) -> Dictionary:
 const DES_COUP_MULTIPLE := [[1, 6]]
 const MALUS_COUP_MULTIPLE := 2
 
+## Dés propres à chaque compétence (revue des dégâts de l'utilisateur, 2026-11-01) : nom de classe -> {type: dés}.
+## Ils remplacent les dés du type (DES_TYPES), sans le malus des coups multiples (les dés sont ceux d'un coup ;
+## Frénésie frappe 2 fois 4d2, Balayage 3d2 sur chaque cible) ni le palier plus bas des ennemis.
+## Le dé bonus d'une arme s'ajoute toujours aux attaques de l'arme.
+const DES_HEROS := {
+	"Coup_d_epee": {"tranchant": [[6, 2]]}, "Frenesie": {"tranchant": [[4, 2]]},
+	"Coup_de_marteau": {"contondant": [[6, 2]]}, "Fracasser": {"contondant": [[8, 2]]},
+	"Coup_de_poing": {"contondant": [[4, 2]]},
+	"Coup_de_lance": {"perforant": [[6, 2]]}, "Balayage": {"perforant": [[3, 2]]},
+	"Soin": {"lumière": [[20, 2]]},
+	"Boule_de_feu": {"feu": [[8, 2]]}, "Givre": {"froid": [[8, 2]]}, "Eclair": {"foudre": [[6, 3]]},
+	"Trait_arcanique": {"arcane": [[8, 2]]}, "Souffle_du_chaos": {"chaos": [[4, 2]], "ombre": [[4, 2]]},
+	"Murmure_des_ombres": {"ombre": [[8, 2]]}, "Estafilade": {"tranchant": [[8, 2]]},
+	"Dard_empoisonne": {"perforant": [[6, 2]], "poison": [[2, 2]]}, "Bourrade": {"contondant": [[8, 2]]},
+}
+const DES_ENNEMIS := {
+	"Tir": {"perforant": [[4, 2]]}, "Tir_precis": {"perforant": [[3, 2]]}, "Tir_empoisonne": {"perforant": [[3, 2]]},
+	"Boule_de_feu": {"feu": [[5, 2]]}, "Soin_mineur": {"lumière": [[7, 2]]},
+	"Coup_d_epee": {"tranchant": [[4, 2]]},
+	"Coup_de_gourdin": {"contondant": [[3, 2]]}, "Grand_coup_de_gourdin": {"contondant": [[5, 2]]},
+	"Projectile_des_ombres": {"ombre": [[5, 2]]}, "Caresse_des_ombres": {"ombre": [[2, 2]]},
+	"Enflammer": {"feu": [[5, 2]]}, "Silence": {"ombre": [[2, 2]]},
+	"Coup_de_lance": {"perforant": [[4, 2]]}, "Rafale_de_lance": {"perforant": [[2, 2]]},
+	"Perforation": {"perforant": [[3, 2]]},
+	"Coup_de_baton": {"contondant": [[2, 2]]}, "Trait_des_Ombres": {"ombre": [[5, 2]]},
+}
+## Part des PV max de la cible ajoutée aux dégâts (ou aux soins) d'une compétence d'ennemi : nom -> {type: part}.
+## Soin mineur des gobelins : 7d2 + 15 % des PV max de la cible (2026-11-01). Un lanceur peut aussi avoir sa
+## propre table ``pourcentage_pv_cible`` (Chevalier de la mort : +15 % en tranchant).
+const PV_CIBLE_ENNEMIS := {"Soin_mineur": {"lumière": 0.15}}
+
+
+## Dés propres de la compétence pour ce type ([] : ceux du type).
+static func des_competence(lanceur, competence, type_degats: String) -> Array:
+	if competence == null:
+		return []
+	var table: Dictionary = DES_ENNEMIS if lanceur is Ennemis else DES_HEROS
+	var par_type = table.get(U.ga(competence, "nom_classe", ""), null)
+	if par_type is Dictionary and par_type.has(type_degats):
+		return par_type[type_degats]
+	return []
+
+
+## Part des PV max de la cible ajoutée à ce type de dégâts (0 : aucune).
+static func part_pv_cible(lanceur, competence, type_degats: String) -> float:
+	var part := 0.0
+	var propre = U.ga(lanceur, "pourcentage_pv_cible", null) if lanceur != null else null
+	if propre is Dictionary:
+		part += float(propre.get(type_degats, 0.0))
+	if lanceur is Ennemis and competence != null:
+		part += float(PV_CIBLE_ENNEMIS.get(U.ga(competence, "nom_classe", ""), {}).get(type_degats, 0.0))
+	return part
+
+
+## Dégâts (ou soins) en plus, en part des PV max de la cible.
+static func bonus_pv_cible(lanceur, competence, cible, type_degats: String) -> float:
+	if cible == null:
+		return 0.0
+	return part_pv_cible(lanceur, competence, type_degats) * U.num(cible, "points_de_vie_max")
+
 
 static func est_coup_multiple(competence) -> bool:
 	return competence != null and U.num(competence, "nombre_attaque") > 1
@@ -100,12 +160,15 @@ static func des_type(lanceur, type_degats: String, competence = null) -> Array:
 	var fixes = U.ga(lanceur, "des_fixes", null) if lanceur != null else null
 	if fixes is Dictionary and fixes.has(type_degats):
 		return fixes[type_degats]  # dés imposés (Chevalier de la mort), ni dé d'arme ni palier ennemi
-	var des: Array = DES_COUP_MULTIPLE if est_coup_multiple(competence) else DES_TYPES.get(type_degats, [])
+	var propres := des_competence(lanceur, competence, type_degats)
+	var des: Array = propres
+	if propres.is_empty():
+		des = DES_COUP_MULTIPLE if est_coup_multiple(competence) else DES_TYPES.get(type_degats, [])
 	var bonus := de_bonus(_arme(lanceur))
 	if (not bonus.is_empty() and bonus["type"] == type_degats and type_degats_arme(lanceur) == type_degats
 			and est_attaque_arme(lanceur, competence)):
 		des = des + [[1, bonus["faces"]]]
-	if lanceur is Ennemis and type_degats != "lumière":
+	if lanceur is Ennemis and type_degats != "lumière" and propres.is_empty():
 		return des_reduits(des)
 	return des
 
@@ -204,7 +267,8 @@ static func base_degats(lanceur, type_degats: String, valeur_jet: float) -> floa
 static func valeur_jet(lanceur, competence, type_degats: String, en_moyenne := false) -> float:
 	var des := des_type(lanceur, type_degats, competence)
 	var valeur: float = moyenne(des) if en_moyenne else float(jet(des))
-	return valeur - (MALUS_COUP_MULTIPLE if est_coup_multiple(competence) else 0)
+	var malus := est_coup_multiple(competence) and des_competence(lanceur, competence, type_degats).is_empty()
+	return valeur - (MALUS_COUP_MULTIPLE if malus else 0)
 
 
 ## Dégâts d'un dé bonus d'un autre type : le jet × pourcentages du type.
@@ -287,6 +351,8 @@ static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array
 		if not (type_degats in TYPES_PHYSIQUES + TYPES_MAGIQUES + TYPES_SPECIAUX):
 			continue
 		var brut := degats_bruts(lanceur, competence, type_degats) if type_degats in types else 0.0
+		if type_degats in types:
+			brut += bonus_pv_cible(lanceur, competence, cible, type_degats)
 		if not bonus.is_empty() and type_degats == bonus[0]:
 			brut += base_de_bonus(lanceur, type_degats, (bonus[1] + 1) / 2.0)
 		if type_degats == "lumière":

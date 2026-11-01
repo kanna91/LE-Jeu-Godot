@@ -263,7 +263,7 @@ stick droit pour choisir un bouton de l'interface.
   | Suivre dans la salle suivante | gobelins 50 %, porteur 40 %, Chevalier de la mort 100 %, geôlier 80 % |
   | Faiblesse / force du boss | résistance −50 / +60 dans deux types tirés pour l'étage |
   | Diablotin | ment sur le donjon 1 réponse « Cet étage ? » sur 3 (utilisateur), jamais sur les ennemis ; jamais deux fois la même chose dans la partie ; 2 réponses puis disparaît (choix de Claude) ; rit quand le héros approche à 1,5 hauteur de héros, puis toutes les 8 à 16 s (choix de Claude) |
-  | Chevalier de la mort (fiche de l'utilisateur) | 300 PV ; coups subis ramenés à 1-2 (3 en critique) ; **12d2 tranchant + 6d2 ombre** (2d6 + 1d6 puis 2d12 + 1d2 avant, le 27/10) en entier (dés fixes, pas réduits d'un cran ; l'armure et les résistances du héros s'appliquent) ; traque sur 2 salles ; vitesse 0,36 (choix de Claude : « plus lent que la marche ») ; part du milieu de l'étage, erre de salle en salle (≈ 9 s par salle, choix de Claude), attiré par les combats, téléporté à 3 salles par une action bruyante (utilisateur) |
+  | Chevalier de la mort (fiche de l'utilisateur) | 300 PV ; coups subis ramenés à 1-2 (3 en critique) ; **13d2 tranchant + 15 % des PV max de la cible** (2026-11-01 ; 12d2 tranchant + 6d2 ombre avant) ; chaque coup qui touche retire **6d2 + 15 % du mana max** de la cible, et **la moitié du mana retiré** (arrondie en dessous) inflige autant de dégâts d'ombre ; dés (dés fixes, pas réduits d'un cran ; l'armure et les résistances du héros s'appliquent) ; traque sur 2 salles ; vitesse 0,36 (choix de Claude : « plus lent que la marche ») ; part du milieu de l'étage, erre de salle en salle (≈ 9 s par salle, choix de Claude), attiré par les combats, téléporté à 3 salles par une action bruyante (utilisateur) |
   | Autel | 40 % des PV max contre +1 dans une caractéristique au hasard |
   | Succube (décidé par l'utilisateur) | taille 1,3 hauteur de héros ; un étage sur deux ; Voile, Carte de chair, Baiser du geôlier : 25 % des PV max ; Apaisement, Pacte de mort : 50 % (arrondi au-dessus, pour toujours) ; étages impairs (choix de Claude) |
 
@@ -475,6 +475,25 @@ stick droit pour choisir un bouton de l'interface.
   | lumière (soin) | 3d6 | la plus forte des deux |
   | poison | 1d2 | aucune |
 
+  - **Dés propres à chaque compétence** (revue des dégâts de l'utilisateur, 2026-11-01 ; `Formules.DES_HEROS`,
+    `DES_ENNEMIS`) : ils remplacent les dés du type ci-dessus, sans malus des coups multiples ni palier plus bas.
+    Le dé bonus d'une arme s'ajoute toujours aux attaques de l'arme. Les dés d'un coup multiple sont ceux d'un coup.
+
+    | Héros | Dés | Ennemis | Dés |
+    |---|---|---|---|
+    | Coup d'épée, Coup de marteau, Coup de lance | 6d2 | Tir à l'arc ; Coup d'épée, Coup de lance (gobelins) ; morsure du loup, épée rouillée du squelette | 4d2 |
+    | Frénésie (2 coups) ; Coup de poing (sans étourdissement) | 4d2 | Tir précis, Tir empoisonné, Coup de gourdin, Perforation | 3d2 |
+    | Fracasser, Boule de feu, Givre, Trait arcanique, Trait de l'ombre, Estafilade, Bourrade | 8d2 | Boule de feu, Grand coup de gourdin, Projectile de l'ombre, Enflammer, Trait de l'ombre | 5d2 |
+    | Balayage (chaque cible) | 3d2 | Rafale de lance (3 coups), Caresse des ombres, Silence, Coup de bâton | 2d2 |
+    | Éclair | 6d3 | Soin mineur | 7d2 + 15 % des PV max de la cible (`PV_CIBLE_ENNEMIS`) |
+    | Souffle du chaos (chaos + **ombre**, plus feu) | 4d2 + 4d2 | | |
+    | Dard empoisonné | 6d2 perforant + 2d2 poison | | |
+    | Soin | 20d2 | | |
+
+    Enchaînement garde ses dés du type (1d6 − 2 par coup, 2 coups) en attendant les valeurs de l'utilisateur.
+    **Tempête de feu est retirée** des sorts du héros. Murmure des ombres s'appelle **Trait de l'ombre**.
+    Compétences retirées des gobelins : Soin et Soin majeur (chaman), Soin (féticheur), Éclair, Enflammer et
+    Blizzard (sorcier). Élites : dégâts × 1,4 ; boss : × 1,6 (× 0,8 avant).
   - **Ennemis : chaque dé un palier plus bas** (2026-10-20, `Formules.PALIERS_DES` : 1d2, 1d4, 1d6,
     1d10, 1d12 ; `des_type`) : 1d12 → 1d10, 1d10 → 1d6, 1d8 → 1d6, 1d6 → 1d4, 1d4 → 1d2 ; 1d2 reste 1d2.
     Un gobelin fait donc 2d4 tranchants, 1d10 perforants, 1d6 + 1d2 contondants, 2d4 de feu, 3d2 de
@@ -925,6 +944,18 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Revue des dégâts du niveau 1
+
+- Valeurs de l'utilisateur pour toutes les compétences et sorts du héros et des ennemis : **dés propres à chaque
+  compétence** (`Formules.DES_HEROS`, `DES_ENNEMIS`, voir « Dégâts aux dés »), nouveau bonus en part des PV max de
+  la cible (`Formules.PV_CIBLE_ENNEMIS`, `pourcentage_pv_cible` d'un lanceur) : Soin mineur des gobelins, Lame de la mort.
+- Chevalier de la mort : 13d2 tranchant + 15 % des PV max ; mana retiré 6d2 + 15 % du mana max ; la moitié du mana
+  retiré en dégâts d'ombre.
+- Tempête de feu retirée ; Murmure des ombres renommé Trait de l'ombre ; Souffle du chaos chaos + ombre ; Coup de poing
+  sans étourdissement ; soins et sorts retirés au chaman, au féticheur et au sorcier ; élites × 1,4, boss × 1,6.
+- `soin_pourcentage_pv` retiré de Soin, Soin mineur et Soin majeur (jamais lu par le combat, seulement affiché).
+- Nouvel outil `tests/exporter_revue_heros.gd` (compétences et sorts du héros au niveau 1, avec dégâts moyens).
 
 ### 2026-11-01 — Zones de cachette, nouvelles salles retouchées
 - **Cachettes** : couche 6 de l'éditeur de zones ; dans une cachette, le héros n'est ni vu ni entendu et les ennemis

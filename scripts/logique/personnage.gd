@@ -96,7 +96,7 @@ func _initialiser(nom: String) -> void:
 	d["chevaliers_karma"] = 0
 	d["magies_apprises"] = []
 	d["magies_disponibles"] = [Competences.creer("Boule_de_feu"), Competences.creer("Soin"),
-		Competences.creer("Tempete_de_feu"), Competences.creer("Eclair")]
+		Competences.creer("Eclair")]  # Tempête de feu retirée (2026-11-01)
 	Sorts.completer_catalogue(self)
 	# Soin est connu dès le départ, sans point de magie
 	var soin = null

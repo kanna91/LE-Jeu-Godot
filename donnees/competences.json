@@ -360,7 +360,7 @@
   "classe": "Coup_de_poing",
   "args": {
    "nom": "Coup de poing",
-   "description": "Une attaque de base infligeant des dégâts tranchants.",
+   "description": "Une attaque à mains nues infligeant des dégâts contondants.",
    "niveau": 0,
    "points_amélioration": 0,
    "cout_mana": 0,
@@ -391,7 +391,7 @@
    "penetration_armure": 0,
    "penetration_resistance": 0,
    "type_alteration": {
-    "stun": 100,
+    "stun": 0,
     "brulure": 0,
     "poison": 0,
     "saignement": 0,

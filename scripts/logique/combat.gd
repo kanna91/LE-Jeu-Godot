@@ -570,7 +570,8 @@ func _infliger_degats(lanceur, competence, cible, personnage) -> void:
 	var coups := []
 	for t in Formules.TYPES_PHYSIQUES + Formules.TYPES_MAGIQUES + Formules.TYPES_SPECIAUX:
 		if t in types:
-			coups.append([t, Formules.degats_competence(lanceur, competence, t, Formules.valeur_jet(lanceur, competence, t))])
+			coups.append([t, Formules.degats_competence(lanceur, competence, t, Formules.valeur_jet(lanceur, competence, t))
+				+ Formules.bonus_pv_cible(lanceur, competence, cible, t)])
 	var bonus := Formules.de_bonus_autre_type(lanceur, types, competence)
 	if not bonus.is_empty():
 		coups.append([bonus[0], Formules.base_de_bonus(lanceur, bonus[0], randi_range(1, bonus[1]))])
@@ -586,14 +587,20 @@ func _infliger_degats(lanceur, competence, cible, personnage) -> void:
 	_d["_bases_coup"] = null
 	if offensive:
 		_ajouter_degats_talents(lanceur, competence, cible, bases)
-	# Mana retiré à la cible par un coup qui touche (Chevalier de la mort : « vol_mana_des », dés à lancer)
+	# Mana retiré à la cible par un coup qui touche (Chevalier de la mort : « vol_mana_des », dés à lancer, plus
+	# « vol_mana_part » du mana max de la cible) ; « ombre_par_mana » de ce mana retiré devient des dégâts d'ombre
+	# (arrondis en dessous, 2026-11-01).
 	var vol_mana = U.ga(lanceur, "vol_mana_des", null)
 	if vol_mana is Array and offensive and attaque_reussie and not coup_partiel and cible.est_vivant():
-		var perte := mini(int(cible.mana), Formules.jet(vol_mana))
+		var voulu := Formules.jet(vol_mana) + floori(U.num(lanceur, "vol_mana_part") * U.num(cible, "mana_max"))
+		var perte := mini(int(cible.mana), voulu)
 		if perte > 0:
 			cible.mana -= perte
 			print("%s perd %d points de mana." % [cible.nom, perte])
 			EffetsCombat.signaler_texte(cible, "−%d mana" % perte, Color8(120, 170, 255), true)
+			var ombre := floori(perte * U.num(lanceur, "ombre_par_mana"))
+			if ombre > 0 and cible.est_vivant():
+				Degats.recevoir("ombre", cible, ombre, 0, pen_res, self, lanceur)
 	if attaque_reussie and not coup_partiel:
 		for nom in competence.type_alteration:
 			Alterations.appliquer_alterations(cible, nom, lanceur, competence.type_alteration[nom],

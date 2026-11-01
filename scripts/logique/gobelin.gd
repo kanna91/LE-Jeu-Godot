@@ -172,12 +172,11 @@ static func definir_competence_gobelin(classe: String, sous_classe: String) -> A
 	elif classe == "mage":
 		noms = ["Coup_de_baton", "Boule_de_feu"]
 		if sous_classe == "sorcier":
-			noms += ["Eclair", "Trait_des_Ombres", "Projectile_des_ombres", "Enflammer"]
+			noms += ["Trait_des_Ombres", "Projectile_des_ombres"]  # sans Éclair, Enflammer ni Blizzard (2026-11-01)
 		elif sous_classe == "feticheur":
-			noms += ["Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur", "Soin"]
+			noms += ["Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur"]
 	elif classe == "soutien":
-		noms = ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Silence", "Soin_mineur", "Soin",
-			"Soin_majeur", "Recupe"]
+		noms = ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"]
 	var competences := []
 	for nom in noms:
 		competences.append(Competences.creer(nom))

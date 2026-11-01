@@ -13,7 +13,7 @@ const PART_CONTAGION := 0.5
 const BUDGETS := {1: 0.28, 2: 0.30, 3: 0.32, 4: 0.35, 5: 0.70, 6: 0.38, 7: 0.40, 8: 0.42, 9: 0.45, 10: 0.90}
 const BUDGET_VOIE := {"puissance": 1.4, "technique": 1.0, "affliction": 1.0}
 const COMPETENCES_DU_JOUEUR := ["Coup_d_epee", "Frenesie", "Coup_de_marteau", "Fracasser", "Coup_de_poing", "Enchainement",
-	"Coup_de_lance", "Balayage", "Boule_de_feu", "Soin", "Tempete_de_feu", "Eclair"]
+	"Coup_de_lance", "Balayage", "Boule_de_feu", "Soin", "Eclair"]
 
 static var _coefficients = null
 static var _joueur_ref: Reference = null

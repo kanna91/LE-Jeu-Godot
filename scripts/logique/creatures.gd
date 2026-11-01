@@ -24,11 +24,11 @@ const SORTES := {
 	"loup": {"nom": "Loup", "type_ennemi": "bête", "image": "loup01.png",
 		"endurance": [1, 2], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
 		"attaque": "Morsure", "description": "Morsure : des crocs qui percent la chair.",
-		"des": {"perforant": [[1, 8]]}, "vulnerabilites": {"feu": 0.40}, "resistances_pct": {}},
+		"des": {"perforant": [[4, 2]]}, "vulnerabilites": {"feu": 0.40}, "resistances_pct": {}},
 	"squelette": {"nom": "Squelette", "type_ennemi": "mort-vivant", "image": "squelette01.png",
 		"endurance": [2, 2], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
 		"attaque": "Épée rouillée", "description": "Un coup d'épée rouillée, lent mais lourd.",
-		"des": {"tranchant": [[1, 10]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 }
 
 

@@ -80,9 +80,7 @@
  },
  "Coup_de_poing": {
   "multiplicateur_degats": 1.85,
-  "type_alteration": {
-   "stun": 35
-  },
+  "type_alteration": {},
   "alterations_lanceur": {},
   "puissance_alterations": {},
   "facteur": 1.8502,

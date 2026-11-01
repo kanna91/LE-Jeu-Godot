@@ -14,8 +14,9 @@ const ORIENTATION_PAR_CLASSE := {"guerrier": "physique", "mage": "magique", "sou
 ## Réduction commune des dégâts des ennemis (×0,68 jusqu'au 2026-10-27) : retirée à la demande de l'utilisateur
 ## quand le héros est passé à 100 PV ; gardée à 1 pour pouvoir la remettre.
 const MULTIPLICATEUR_DEGATS_ENNEMIS := 1.0
-const MINI_BOSS := {"pv": 6.0, "degats": 0.8, "taille": 1.35, "pa": 1}
-const BOSS := {"pv": 14.0, "degats": 0.8, "taille": 1.7, "pa": 1}
+## Dégâts × 1,4 pour les élites et × 1,6 pour le boss (2026-11-01, × 0,8 avant).
+const MINI_BOSS := {"pv": 6.0, "degats": 1.4, "taille": 1.35, "pa": 1}
+const BOSS := {"pv": 14.0, "degats": 1.6, "taille": 1.7, "pa": 1}
 const IMAGES_GOBELINS_PAR_SOUS_CLASSE := {
 	"archer": ["archer01.png", "archer02.png", "archer03.png", "archer04.png", "archer05.png"],
 	"lancier": ["lancier01.png", "lancier02.png"],
@@ -308,7 +309,7 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 				if _d["magie"] == true:
 					if _d["mana"] > 5:
 						var disponibles := []
-						for c in ["Boule_de_feu", "Blizzard", "Eclair", "Trait_des_Ombres", "Projectile_des_ombres", "Enflammer"]:
+						for c in ["Boule_de_feu", "Trait_des_Ombres", "Projectile_des_ombres"]:
 							disponibles.append(_competence(c))
 						var trouve := false
 						while not disponibles.is_empty():
@@ -341,7 +342,7 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 				for c in ["Caresse_des_ombres", "Enflammer", "Silence"]:
 					sorts_f.append(_competence(c))
 				var soins := []
-				for c in ["Soin", "Soin_mineur"]:
+				for c in ["Soin_mineur"]:
 					var s = _competence(c)
 					if _utilisable(s):
 						soins.append(s)
@@ -361,7 +362,7 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 				if e.est_vivant() and e.points_de_vie <= e.points_de_vie_max * 0.50 and e.peut_etre_soigne():
 					cibles_possibles.append(e)
 			var soins := []
-			for c in ["Soin", "Soin_mineur", "Soin_majeur", "Recupe"]:
+			for c in ["Soin_mineur", "Recupe"]:
 				var s = _competence(c)
 				if _utilisable(s):
 					soins.append(s)
