@@ -161,6 +161,10 @@ func _franchir(dest: String, sortie := -1) -> void:
 		var prises: Dictionary = info.get("sortie_prise", {})
 		prises[dest] = sortie
 		info["sortie_prise"] = prises
+		# Endroit exact où il franchit la sortie : il y réapparaîtra en revenant de ``dest``
+		var lieux: Dictionary = info.get("lieu_sortie", {})
+		lieux[dest] = [salle_peinte.heros.position.x, salle_peinte.heros.position.y]
+		info["lieu_sortie"] = lieux
 	await salle_peinte.fondu(1.0)
 	var etage_depart: int = donjon.salle_actuelle[0]
 	await donjon.avancer(lettre)
@@ -180,7 +184,13 @@ func _franchir(dest: String, sortie := -1) -> void:
 			if not donjon.salle_courante().has("presences"):
 				donjon.salle_courante()["presences"] = []
 			donjon.salle_courante()["presences"].append(p)
-	_afficher_salle(PlanSalles.sortie_vers(donjon.salle_courante(), origine))
+	var arrivee := PlanSalles.sortie_vers(donjon.salle_courante(), origine)
+	_afficher_salle(arrivee)
+	# De retour dans une salle déjà quittée par cette sortie : là où le héros l'avait franchie
+	var ici_info: Dictionary = donjon.salle_courante().get("salle_peinte", {})
+	var lieu = ici_info.get("lieu_sortie", {}).get(origine, null)
+	if arrivee >= 0 and lieu is Array and int(ici_info.get("sortie_prise", {}).get(origine, -1)) == arrivee:
+		salle_peinte.placer_au_retour(Vector2(float(lieu[0]), float(lieu[1])), arrivee)
 	await salle_peinte.fondu(0.0)
 	salle_peinte.actif = true
 	passage_en_cours = false

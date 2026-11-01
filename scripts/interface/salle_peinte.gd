@@ -887,6 +887,23 @@ func _placer(arrivee: int) -> void:
 	heros.position = sur_le_sol(p)
 
 
+## Retour dans une salle (2026-11-02) : le héros réapparaît là où il avait franchi la sortie ``i`` pour en partir
+## (``p``, pixels de l'image), avancé juste assez vers l'intérieur pour ne plus être dans la sortie.
+func placer_au_retour(p: Vector2, i: int) -> void:
+	var but := point_entree(i)
+	var q := p
+	var pas := (but - p).normalized() * 4.0
+	for _k in 120:
+		if libre(q) and _sortie_sous(q) < 0:
+			break
+		if q.distance_to(but) <= 4.0:
+			q = but
+			break
+		q += pas
+	heros.position = q if libre(q) else but
+	sortie_actuelle = _sortie_sous(heros.position)
+
+
 ## Miroir des données de la salle : abscisses x → largeur − x, gauche et droite des sorties échangées.
 func _appliquer_miroir(largeur: float) -> void:
 	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes"]:

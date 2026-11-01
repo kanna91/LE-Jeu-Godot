@@ -436,7 +436,10 @@ stick droit pour choisir un bouton de l'interface.
     ouvert pendant ce temps (un Ctrl+S y réécrirait la salle avec son état à lui).
   - **Passage** : marcher dans une sortie → fondu au noir (0,35 s), `donjon.avancer` (combat, coffre,
     piège... comme avant), puis la nouvelle salle, le héros **devant la porte par laquelle il est
-    entré** (ou en bas de l'image, de dos, pour une entrée par le bas).
+    entré** (ou en bas de l'image, de dos, pour une entrée par le bas). **Retour dans une salle déjà quittée**
+    (2026-11-02) : le héros réapparaît **là où il avait franchi la sortie** pour en partir (`lieu_sortie`, retenu
+    par `menu_navigation._franchir`), juste assez avancé pour ne plus être dans la sortie
+    (`SallePeinte.placer_au_retour`).
   - Monter, descendre, charger une partie : on arrive en bas de l'image de la salle.
   - Les images des salles spéciales (coffre, source, bonus, piège, marchand, boss) ne sont plus
     affichées en fond ; les boutons d'action de la salle restent (en bas au centre).
@@ -491,9 +494,9 @@ stick droit pour choisir un bouton de l'interface.
     | Soin | 20d2 | | |
 
     Coup de poing et Enchaînement : leurs options d'amélioration « étourdissement » sont devenues « trauma »
-    (choix de Claude, pour garder trois choix par niveau). Gobelin combattant : **Cri de guerre** quand il a au
-    moins un allié vivant et que personne n'est déjà en rage, sinon Coup d'épée (choix de Claude : pas de cri tant
-    que la rage dure) ; sinon **Botte secrète une fois sur trois** (choix de Claude, comme le lancier), Coup d'épée
+    (validé par l'utilisateur, pour garder trois choix par niveau). Gobelin combattant : **Cri de guerre** quand il a
+    au moins un allié vivant et que personne n'est déjà en rage (validé par l'utilisateur : pas de cri tant que la
+    rage dure) ; sinon **Botte secrète une fois sur trois** (validé par l'utilisateur, comme le lancier), Coup d'épée
     le reste du temps.
     **Tempête de feu est retirée** des sorts du héros. Murmure des ombres s'appelle **Trait de l'ombre**.
     Compétences retirées des gobelins : Soin et Soin majeur (chaman), Soin (féticheur), Éclair, Enflammer et
@@ -862,6 +865,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_emplacements.gd  # emplacements : aucune sortie bloquée, chaque objet accessible (toutes les salles, miroir)
 & $godot --path . -s tests/capture_fouille.gd             # fouille à l'écran : « Fouiller (E) », E, objet assombri ; objets de chaque salle (captures 74-91, hors écran)
 & $godot --headless --path . -s tests/test_arrivees.gd           # arrivée par l'ouverture qui mène à la salle quittée (porte plutôt que passage, retour par l'ouverture prise)
+& $godot --headless --path . -s tests/test_retour_salle.gd       # retour dans la salle précédente : là où le héros avait franchi la sortie
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
@@ -949,6 +953,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — Retour dans la salle précédente
+
+- **Pour le joueur** : en revenant dans une salle, le héros réapparaît là où il avait franchi la sortie pour en
+  partir, et plus au milieu du bas de l'image (sortie par le bas) ou à un point d'arrivée fixe loin de la porte.
+- `menu_navigation._franchir` retient la position du héros par salle voisine (`lieu_sortie`, sauvegardé avec le
+  plan) ; `SallePeinte.placer_au_retour` l'y replace, avancé vers l'intérieur hors de la sortie. Première arrivée
+  dans une salle : inchangée.
+- Nouveau test `tests/test_retour_salle.gd` (12 allers-retours, sorties bas, gauche, droite et du fond : 0 échec) ;
+  `test_arrivees` : 0 échec.
 
 ### 2026-11-01 — Revue des dégâts, suite
 
