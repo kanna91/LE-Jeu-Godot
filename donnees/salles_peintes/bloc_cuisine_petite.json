@@ -44,12 +44,32 @@
     418
    ],
    [
-    640,
-    410
+    649,
+    414
    ],
    [
-    470,
-    405
+    636,
+    419
+   ],
+   [
+    601,
+    411
+   ],
+   [
+    586,
+    413
+   ],
+   [
+    572,
+    406
+   ],
+   [
+    568,
+    398
+   ],
+   [
+    498,
+    386
    ],
    [
     460,
@@ -239,5 +259,6 @@
  },
  "bloc": "cuisine",
  "ips": 24,
- "source": "cuisine et salle a manger/petite porte de la cuisine.jpeg"
+ "source": "cuisine et salle a manger/petite porte de la cuisine.jpeg",
+ "prisonniers": []
 }

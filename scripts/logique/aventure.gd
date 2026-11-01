@@ -386,8 +386,9 @@ static func preparer_etage(donjon, etage: int) -> void:
 	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
 
 
-## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier sur chaque point « prisonniers » de l'image de la
-## salle (posés avec l'éditeur de zones, touche 5), à sa place exacte (retournée si la salle est en miroir).
+## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier par **zone de dialogue** « prisonniers » de l'image
+## de la salle (tracées avec l'éditeur de zones, touche 5). Le prisonnier est peint dans l'image : la présence n'est
+## pas dessinée, elle sert à parler quand le héros entre dans sa zone (``zone``, retournée si la salle est en miroir).
 static func _poser_prisonniers(donjon, etage: int, m: Dictionary) -> void:
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	for i in salles:
@@ -396,14 +397,20 @@ static func _poser_prisonniers(donjon, etage: int, m: Dictionary) -> void:
 		if image == "" or salles[i].get("boss", false):
 			continue
 		var miroir := bool(info.get("miroir", false))
-		for pt in SallePeinte.lire_salle(image).get("prisonniers", []):
-			var x := float(pt[0])
-			if miroir:
-				x = 768.0 - x  # fonds de 768 px de large, comme SallePeinte._appliquer_miroir
+		for z in SallePeinte.lire_salle(image).get("prisonniers", []):
+			if not (z is Array) or z.size() < 3 or not (z[0] is Array):
+				continue  # anciens points d'essai : ignorés
+			var zone := []
+			var centre := Vector2.ZERO
+			for p in z:
+				var q := Vector2(768.0 - float(p[0]) if miroir else float(p[0]), float(p[1]))  # fonds de 768 px
+				zone.append([q.x, q.y])
+				centre += q
+			centre /= z.size()
 			if not salles[i].has("presences"):
 				salles[i]["presences"] = []
 			salles[i]["presences"].append({"id": _nouvel_id(m), "genre": "pnj", "sous": "prisonnier_cellule", "etat": "actif",
-				"pos": [x, float(pt[1])], "pos_image": "%s%s" % [image, "_m" if miroir else ""]})
+				"zone": zone, "pos": [centre.x, centre.y], "pos_image": "%s%s" % [image, "_m" if miroir else ""]})
 
 
 ## La salle du boss est fermée ; sa clé est confiée à une élite loin du départ (une élite existante, sinon un groupe

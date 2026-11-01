@@ -48,12 +48,12 @@
     398
    ],
    [
-    610,
-    378
+    668,
+    348
    ],
    [
-    560,
-    357
+    589,
+    351
    ],
    [
     450,
@@ -142,5 +142,6 @@
  "arrivees": {},
  "bloc": "cuisine",
  "ips": 24,
- "source": "cuisine et salle a manger/cellier droit.jpeg"
+ "source": "cuisine et salle a manger/cellier droit.jpeg",
+ "prisonniers": []
 }

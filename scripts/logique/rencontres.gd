@@ -524,8 +524,9 @@ static func textes_prisonniers() -> Dictionary:
 	return _textes_prisonniers
 
 
-## Prisonnier dans sa cellule : parler (une petite information, jamais deux fois dans la partie), le tuer (karma −1 :
-## son corps reste, son âme se siphonne), ou partir. Quêtes : pas encore (la liste ``quetes`` est vide).
+## Prisonnier dans sa cellule (peint dans l'image ; on lui parle depuis sa zone de dialogue) : parler (une petite
+## information, jamais deux fois dans la partie), le tuer (karma −1 : son âme se siphonne depuis la même zone ; l'image
+## ne change pas), ou partir. Quêtes : pas encore (la liste ``quetes`` est vide).
 ## Renvoie le message de fin.
 static func prisonnier_cellule(donjon, p: Dictionary) -> String:
 	var t := textes_prisonniers()

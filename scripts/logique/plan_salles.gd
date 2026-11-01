@@ -96,7 +96,10 @@ static func attribuer(donjon, etage: int) -> void:
 	var prises := {}
 	for id in salles:
 		var info: Dictionary = salles[id].get("salle_peinte", {})
-		if int(info.get("v", 0)) == VERSION and images().has(String(info.get("image", ""))):
+		# Gardée si elle est à jour et que l'image a toujours le même nombre de sorties (l'éditeur de zones peut en
+		# ajouter ou en retirer depuis le 2026-11-01)
+		if int(info.get("v", 0)) == VERSION and images().has(String(info.get("image", ""))) \
+				and info.get("sorties", []).size() == images()[String(info["image"])].size():
 			prises["%s|%s" % [info["image"], bool(info.get("miroir", false))]] = true
 			continue
 		a_faire.append(String(id))

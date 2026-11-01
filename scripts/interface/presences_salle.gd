@@ -269,6 +269,14 @@ func proche() -> Dictionary:
 	for e in entites:
 		if e["etat"] != "immobile":
 			continue
+		if e["p"].has("zone"):
+			# Prisonnier peint dans l'image : on lui parle quand le héros est dans sa zone de dialogue
+			var poly := PackedVector2Array()
+			for q in e["p"]["zone"]:
+				poly.append(Vector2(q[0], q[1]))
+			if Geometry2D.is_point_in_polygon(salle.heros.position, poly):
+				return e["p"]
+			continue
 		var d := _distance(e["pos"], salle.heros.position)
 		if d < PORTEE_ACTION and d < distance:
 			meilleure = e["p"]
@@ -582,6 +590,8 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 	var genre: String = p["genre"]
 	var sous: String = p.get("sous", "")
 	var utilise: bool = p.get("etat") != "actif"
+	if p.has("zone"):
+		return  # prisonnier peint dans l'image : rien à dessiner
 	# Ombre au sol
 	if sous != "cachette":
 		n.draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.25))
@@ -631,9 +641,6 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 					n.draw_set_transform(Vector2.ZERO)
 					var sorte: String = SORTES_GOBELINS[int(p.get("id", 0)) * 7 % SORTES_GOBELINS.size()]
 					_gobelin(n, e, {"sous_classe": CombatAnime.TYPES.find_key(sorte)}, 0, Vector2.ZERO, h * TAILLE_GOBELIN, Color.WHITE, "mort")
-				"prisonnier_cellule":
-					# Ébauche : silhouette simple en attendant une image
-					_capsule(n, Vector2.ZERO, hf * 0.22, hf, Color8(150, 140, 120))
 				"prisonnier":
 					_capsule(n, Vector2.ZERO, hf * 0.25, hf, Color8(170, 160, 140))
 					n.draw_line(Vector2(-hf * 0.2, -hf * 0.4), Vector2(-hf * 0.7, -hf * 0.9), Color8(110, 110, 120), maxf(1.0, hf * 0.04))

@@ -5,18 +5,27 @@ extends Control
 ## ``editeur_zones.bat`` (ou ``Godot --path . res://scenes/outils/editeur_zones.tscn [-- <salle>]``).
 ##
 ## Couches : 1 sol où l'on marche (vert), 2 obstacles (rouge), 3 premier plan qui passe devant le héros (bleu),
-## 4 sorties (jaune : on peut seulement déplacer leurs points, leur nombre et leur ordre comptent pour le plan),
-## 5 prisonniers (violet, 2026-11-01 : des **points**, pas des zones — un clic pose un prisonnier, glisser le déplace,
-## clic droit le retire ; le jeu met un prisonnier sur chaque point, surtout dans les cellules des prisons).
+## 4 sorties (jaune), 5 prisonniers (violet : **zones de dialogue** — quand le héros entre dans une de ces zones,
+## il peut parler au prisonnier peint dans l'image ; 2026-11-01).
+## Sorties (2026-11-01, demande de l'utilisateur) : on peut en tracer de nouvelles (direction devinée d'après leur
+## place : bas de l'image = retour, bords = gauche / droite, sinon le fond ; touche D sur une sortie pour la
+## changer), les supprimer (clic droit dedans) et les déplacer d'un bloc (glisser l'intérieur, comme les prisonniers).
+## Changer de salle : boutons ◀ ▶ et liste en haut à droite, ou Page préc. / suiv. ; la salle quittée est
+## enregistrée automatiquement si elle a été modifiée.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
-const COUCHES := ["marche", "obstacles", "premier_plan", "sorties"]
-const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties"}
+const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers"]
+const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
+	"prisonniers": "Prisonniers (zones de dialogue)"}
 const COULEURS := {"marche": Color(0.25, 1, 0.35), "obstacles": Color(1, 0.25, 0.2),
 	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15), "prisonniers": Color(0.85, 0.45, 1)}
-## Couche de points (touche 5) : emplacements des prisonniers, ``donnees["prisonniers"]`` = [Vector2, ...].
-const PRISONNIERS := "prisonniers"
+## Couches qu'on déplace d'un bloc en glissant leur intérieur (les autres : un clic dedans commence un tracé).
+const DEPLACABLES := ["sorties", "prisonniers"]
+## Données parallèles aux sorties (une valeur par sortie, dans le même ordre).
+const INFOS_SORTIES := ["noms_sorties", "directions_sorties", "types_sorties"]
+const DIRECTIONS := ["devant", "gauche", "droite", "bas"]
+const NOMS_DIRECTIONS := {"devant": "fond", "gauche": "gauche", "droite": "droite", "bas": "retour"}
 ## Distance (pixels de l'écran) pour attraper un point ou une arête.
 const PRISE := 9.0
 const ZOOM_MAX := 6.0
@@ -25,6 +34,7 @@ var salle: SallePeinte
 var calque: Calque
 var texte: Label
 var aide: Label
+var liste_salles: OptionButton
 var salles: Array = []
 var numero := 0
 var couche := "marche"
@@ -33,16 +43,22 @@ var voir_zones := true
 ## Héros visible pendant l'édition (H) ; caché par défaut pour ne pas masquer la salle.
 var heros_en_edition := false
 var trace := PackedVector2Array()
-## Point déplacé : [couche, polygone, point] (vide sinon).
+## Point déplacé : [couche, polygone, point] ; zone déplacée d'un bloc : [couche, polygone, -1, départ, copie].
 var glisse: Array = []
 var deplacement := false  # vue déplacée au clic du milieu
 var annulations: Array = []
 var modifie := false
 var message := ""
-var confirmer_changement := 0
 var echelle_base := Vector2.ONE
 var position_base := Vector2.ZERO
 var zoom := 1.0
+## Aide détaillée affichée (F1 pour la replier ; affichée par défaut, demande de l'utilisateur).
+var aide_complete := true
+const AIDE := "Tab : éditer / marcher   1-5 : couche   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
+	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
+	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction\n" \
+	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer\n" \
+	+ "◀ ▶ / Page préc./suiv. : salle (enregistre la salle quittée)   H : héros visible   P : poser le héros   " 	+ "R (en marchant) : héros au départ   F2 : zones en marchant   F1 : replier l'aide"
 
 
 func _ready() -> void:
@@ -60,11 +76,8 @@ func _ready() -> void:
 	calque = Calque.new()
 	calque.editeur = self
 	texte = _etiquette(Vector2(12, 8), 15)
-	aide = _etiquette(Vector2(12, 484), 12)
-	aide.text = "Tab : éditer / marcher   1-4 : couche   5 : prisonniers (points)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
-		+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
-		+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer   " \
-		+ "Page préc./suiv. : salle   H : héros visible   F2 : zones visibles en marchant"
+	aide = _etiquette(Vector2(12, 520), 12)
+	_barre_salles()
 	_charger()
 	if "--capture" in demande:  # vérification hors écran
 		for _i in 20:
@@ -84,18 +97,72 @@ func _etiquette(p: Vector2, taille: int) -> Label:
 	return l
 
 
+## Boutons ◀ ▶ et liste des salles, en haut à droite (changer de salle sans quitter l'éditeur).
+func _barre_salles() -> void:
+	var barre := HBoxContainer.new()
+	barre.position = Vector2(560, 6)
+	barre.z_index = 100
+	add_child(barre)
+	var prec := Button.new()
+	prec.text = "◀"
+	prec.focus_mode = Control.FOCUS_NONE
+	prec.pressed.connect(func(): changer_salle(numero - 1))
+	barre.add_child(prec)
+	liste_salles = OptionButton.new()
+	liste_salles.focus_mode = Control.FOCUS_NONE
+	liste_salles.custom_minimum_size = Vector2(250, 0)
+	for id in salles:
+		liste_salles.add_item(id)
+	liste_salles.item_selected.connect(func(k): changer_salle(k))
+	barre.add_child(liste_salles)
+	var suiv := Button.new()
+	suiv.text = "▶"
+	suiv.focus_mode = Control.FOCUS_NONE
+	suiv.pressed.connect(func(): changer_salle(numero + 1))
+	barre.add_child(suiv)
+
+
+## Passe à la salle ``k`` (la salle quittée est enregistrée si elle a été modifiée).
+func changer_salle(k: int) -> void:
+	var avant := ""
+	if modifie:
+		_enregistrer()
+		avant = message + " — "
+	numero = posmod(k, salles.size())
+	_charger()
+	message = avant + message
+
+
 func _charger() -> void:
 	var id: String = salles[numero]
-	var f := FileAccess.open("user://editeur_zones_derniere_salle.txt", FileAccess.WRITE)
-	if f != null:
-		f.store_string(id)
-		f.close()
+	# Dernière salle travaillée (pas pendant les tests : ils ne doivent pas changer celle de l'utilisateur)
+	if get_tree().current_scene == self:
+		var f := FileAccess.open("user://editeur_zones_derniere_salle.txt", FileAccess.WRITE)
+		if f != null:
+			f.store_string(id)
+			f.close()
 	salle.charger(id, -1, false)
 	salle.murer(range(salle.donnees["sorties"].size()))
-	var points := []
-	for p in salle.donnees.get(PRISONNIERS, []):
-		points.append(Vector2(p[0], p[1]) if p is Array else p)
-	salle.donnees[PRISONNIERS] = points
+	# Prisonniers : zones (polygones) ; les anciens points d'essai deviennent de petites zones carrées
+	var zones := []
+	for z in salle.donnees.get("prisonniers", []):
+		if z is Array and z.size() == 2 and not (z[0] is Array):
+			var c := Vector2(z[0], z[1])
+			zones.append(PackedVector2Array([c + Vector2(-20, -10), c + Vector2(20, -10), c + Vector2(20, 10), c + Vector2(-20, 10)]))
+		elif z is Array:
+			var poly := PackedVector2Array()
+			for p in z:
+				poly.append(Vector2(p[0], p[1]))
+			zones.append(poly)
+	salle.donnees["prisonniers"] = zones
+	# Données des sorties : une valeur par sortie (complétées si elles manquent)
+	var n: int = salle.donnees["sorties"].size()
+	for cle in INFOS_SORTIES:
+		var l: Array = salle.donnees.get(cle, []).duplicate()
+		while l.size() < n:
+			l.append({"noms_sorties": "sortie %d" % (l.size() + 1), "directions_sorties": "devant", "types_sorties": "passage"}[cle])
+		salle.donnees[cle] = l
+	salle.donnees["arrivees"] = salle.donnees.get("arrivees", {}).duplicate()
 	echelle_base = salle.monde.scale
 	position_base = salle.monde.position
 	zoom = 1.0
@@ -107,7 +174,8 @@ func _charger() -> void:
 	glisse = []
 	annulations.clear()
 	modifie = false
-	confirmer_changement = 0
+	if liste_salles != null:
+		liste_salles.select(numero)
 	message = "Salle %s chargée" % id
 	if salle.masque_piliers != null:
 		message += " — premier plan au pixel (masque) : les zones bleues ne changent pas l'affichage, seulement la vue des ennemis"
@@ -121,6 +189,9 @@ func _appliquer_mode() -> void:
 		trace.clear()
 		glisse = []
 		_vue(1.0, Vector2.ZERO)
+		# Héros posé dans un obstacle ou hors du sol (touche P, zones retouchées) : remis sur le sol le plus proche
+		if not salle.libre(salle.heros.position):
+			salle.heros.position = salle.sur_le_sol(salle.heros.position)
 
 
 func souris() -> Vector2:
@@ -144,8 +215,13 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		_bouton(ev)
 	elif ev is InputEventMouseMotion:
-		if not glisse.is_empty() and glisse[0] == PRISONNIERS:
-			salle.donnees[PRISONNIERS][glisse[1]] = _borne(souris())
+		if not glisse.is_empty() and glisse[2] == -1:
+			# Zone déplacée d'un bloc
+			var decalage: Vector2 = _borne(souris()) - glisse[3]
+			var poly := PackedVector2Array()
+			for p in glisse[4]:
+				poly.append(_borne(p + decalage))
+			salle.donnees[glisse[0]][glisse[1]] = poly
 		elif not glisse.is_empty():
 			var poly: PackedVector2Array = salle.donnees[glisse[0]][glisse[1]]
 			poly[glisse[2]] = _borne(souris())
@@ -156,8 +232,6 @@ func _unhandled_input(ev: InputEvent) -> void:
 
 func _touche(ev: InputEventKey) -> void:
 	message = ""
-	if ev.keycode != KEY_PAGEDOWN and ev.keycode != KEY_PAGEUP:
-		confirmer_changement = 0
 	if ev.ctrl_pressed and ev.keycode == KEY_S:
 		_enregistrer()
 		return
@@ -170,37 +244,48 @@ func _touche(ev: InputEventKey) -> void:
 			_appliquer_mode()
 		KEY_F2:
 			voir_zones = not voir_zones
-		KEY_PAGEDOWN, KEY_PAGEUP:
-			if modifie and confirmer_changement == 0:
-				confirmer_changement = 1
-				message = "Modifications non enregistrées : appuyer encore pour changer de salle sans enregistrer"
-				return
-			numero = posmod(numero + (1 if ev.keycode == KEY_PAGEDOWN else -1), salles.size())
-			_charger()
+		KEY_F1:
+			aide_complete = not aide_complete
+		KEY_PAGEDOWN:
+			changer_salle(numero + 1)
+		KEY_PAGEUP:
+			changer_salle(numero - 1)
 		KEY_ESCAPE:
 			trace.clear()
+		KEY_R:  # en marchant : le héros revient au point de départ de la salle
+			if not edition:
+				salle.heros.position = salle.sur_le_sol(Vector2(salle.donnees["depart"][0], salle.donnees["depart"][1]))
+				message = "Héros remis au départ"
 	if not edition:
 		return
 	match ev.keycode:
-		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4:
-			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3}
+		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4, KEY_5, KEY_KP_5:
+			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3,
+				KEY_5: 4, KEY_KP_5: 4}
 			couche = COUCHES[n[ev.keycode]]
 			trace.clear()
-		KEY_5, KEY_KP_5:
-			couche = PRISONNIERS
-			trace.clear()
-			message = "Prisonniers : clic = poser un prisonnier, glisser = le déplacer, clic droit = le retirer"
+			if couche == "prisonniers":
+				message = "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image"
 		KEY_ENTER, KEY_KP_ENTER:
 			_fermer_trace()
 		KEY_0, KEY_KP_0:
 			_vue(1.0, Vector2.ZERO)
+		KEY_D:  # direction de la sortie sous la souris
+			if couche == "sorties":
+				var i := _zone_sous("sorties", _borne(souris()))
+				if i >= 0:
+					_memoriser()
+					var dirs: Array = salle.donnees["directions_sorties"]
+					dirs[i] = DIRECTIONS[(DIRECTIONS.find(dirs[i]) + 1) % DIRECTIONS.size()]
+					_change()
+					message = "Sortie %d : %s" % [i + 1, NOMS_DIRECTIONS[dirs[i]]]
 		KEY_H:  # montrer ou cacher le héros pendant l'édition
 			heros_en_edition = not heros_en_edition
 			salle.heros.visible = heros_en_edition
 		KEY_P:  # poser le héros sous la souris (et le montrer)
 			heros_en_edition = true
 			salle.heros.visible = true
-			salle.heros.position = souris()
+			salle.heros.position = salle.sur_le_sol(_borne(souris()))
 
 
 func _bouton(ev: InputEventMouseButton) -> void:
@@ -211,14 +296,6 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		_vue(zoom / 1.2, ev.position)
 	elif ev.button_index == MOUSE_BUTTON_MIDDLE:
 		deplacement = ev.pressed
-	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed and couche == PRISONNIERS:
-		_memoriser()
-		var k := _prisonnier_proche(m)
-		if k >= 0:
-			glisse = [PRISONNIERS, k]
-		else:
-			salle.donnees[PRISONNIERS].append(m)
-			_change()
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		if not trace.is_empty():
 			if trace.size() >= 3 and m.distance_to(trace[0]) * echelle() < PRISE:
@@ -240,9 +317,12 @@ func _bouton(ev: InputEventMouseButton) -> void:
 				salle.donnees[couche][a[0]] = poly
 				glisse = [couche, a[0], a[1] + 1]
 				return
-		if couche == "sorties":
-			message = "Sorties : on déplace seulement leurs points (Maj+clic sur un bord pour en ajouter un)"
-			return
+		if couche in DEPLACABLES:
+			var i := _zone_sous(couche, m)
+			if i >= 0:
+				_memoriser()
+				glisse = [couche, i, -1, m, PackedVector2Array(salle.donnees[couche][i])]
+				return
 		trace.append(m)
 	elif ev.button_index == MOUSE_BUTTON_LEFT and not ev.pressed:
 		if not glisse.is_empty():
@@ -253,14 +333,6 @@ func _bouton(ev: InputEventMouseButton) -> void:
 
 
 func _clic_droit(m: Vector2) -> void:
-	if couche == PRISONNIERS:
-		var k := _prisonnier_proche(m)
-		if k >= 0:
-			_memoriser()
-			salle.donnees[PRISONNIERS].remove_at(k)
-			_change()
-			message = "Prisonnier retiré (Ctrl+Z pour annuler)"
-		return
 	if not trace.is_empty():
 		trace.remove_at(trace.size() - 1)
 		return
@@ -275,17 +347,17 @@ func _clic_droit(m: Vector2) -> void:
 		else:
 			message = "Une zone garde au moins 3 points (clic droit dans la zone pour la retirer)"
 		return
-	if couche == "sorties":
-		message = "Les sorties ne se retirent pas (leur nombre compte pour le plan du donjon)"
+	var i := _zone_sous(couche, m)
+	if i < 0:
 		return
-	var polys: Array = salle.donnees[couche]
-	for i in range(polys.size() - 1, -1, -1):
-		if Geometry2D.is_point_in_polygon(m, polys[i]):
-			_memoriser()
-			polys.remove_at(i)
-			_change()
-			message = "Zone retirée (Ctrl+Z pour annuler)"
-			return
+	_memoriser()
+	if couche == "sorties":
+		_retirer_sortie(i)
+		message = "Sortie retirée : la salle perd ce passage (Ctrl+Z pour annuler)"
+	else:
+		salle.donnees[couche].remove_at(i)
+		message = "Zone retirée (Ctrl+Z pour annuler)"
+	_change()
 
 
 func _fermer_trace() -> void:
@@ -293,25 +365,55 @@ func _fermer_trace() -> void:
 		message = "Il faut au moins 3 points"
 		return
 	_memoriser()
-	salle.donnees[couche].append(PackedVector2Array(trace))
+	if couche == "sorties":
+		_ajouter_sortie(PackedVector2Array(trace))
+	else:
+		salle.donnees[couche].append(PackedVector2Array(trace))
 	trace.clear()
 	_change()
 
 
-## Index du prisonnier le plus proche de ``m`` (à portée de clic), ou −1.
-func _prisonnier_proche(m: Vector2) -> int:
-	var meilleur := -1
-	var d_min := PRISE * 1.5 / echelle()
-	var points: Array = salle.donnees[PRISONNIERS]
-	for k in points.size():
-		var d: float = points[k].distance_to(m)
-		if d < d_min:
-			d_min = d
-			meilleur = k
-	return meilleur
+## Nouvelle sortie : direction devinée d'après sa place (bas = retour, bords = gauche / droite, sinon le fond).
+func _ajouter_sortie(poly: PackedVector2Array) -> void:
+	var c := Vector2.ZERO
+	for p in poly:
+		c += p
+	c /= poly.size()
+	var largeur := float(salle.fond.get_width())
+	var direction := "devant"
+	if c.y > float(salle.fond.get_height()) - 40:
+		direction = "bas"
+	elif c.x < largeur * 0.16:
+		direction = "gauche"
+	elif c.x > largeur * 0.84:
+		direction = "droite"
+	salle.donnees["sorties"].append(poly)
+	var n: int = salle.donnees["sorties"].size()
+	salle.donnees["noms_sorties"].append("passage %d" % n)
+	salle.donnees["directions_sorties"].append(direction)
+	salle.donnees["types_sorties"].append("passage")
+	message = "Sortie %d ajoutée : %s (touche D sur elle pour changer)" % [n, NOMS_DIRECTIONS[direction]]
 
 
-## Point de la couche active (ou des autres si rien dans la couche active) le plus proche de ``m``.
+func _retirer_sortie(i: int) -> void:
+	var nom := String(salle.donnees["noms_sorties"][i])
+	salle.donnees["sorties"].remove_at(i)
+	for cle in INFOS_SORTIES:
+		salle.donnees[cle].remove_at(i)
+	if not nom in salle.donnees["noms_sorties"]:
+		salle.donnees["arrivees"].erase(nom)
+
+
+## Index de la zone de ``c`` qui contient ``m`` (la plus récente d'abord), ou −1.
+func _zone_sous(c: String, m: Vector2) -> int:
+	var polys: Array = salle.donnees[c]
+	for i in range(polys.size() - 1, -1, -1):
+		if polys[i].size() >= 3 and Geometry2D.is_point_in_polygon(m, polys[i]):
+			return i
+	return -1
+
+
+## Point de la couche active le plus proche de ``m``.
 func _point_proche(m: Vector2) -> Array:
 	var meilleur: Array = []
 	var d_min := PRISE / echelle()
@@ -372,7 +474,9 @@ func _memoriser() -> void:
 		for poly in salle.donnees[c]:
 			polys.append(PackedVector2Array(poly))
 		copie[c] = polys
-	copie[PRISONNIERS] = salle.donnees[PRISONNIERS].duplicate()
+	for cle in INFOS_SORTIES:
+		copie[cle] = salle.donnees[cle].duplicate()
+	copie["arrivees"] = salle.donnees["arrivees"].duplicate()
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -385,7 +489,8 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
-	salle.donnees[PRISONNIERS] = copie.get(PRISONNIERS, [])
+	for cle in INFOS_SORTIES + ["arrivees"]:
+		salle.donnees[cle] = copie[cle]
 	glisse = []
 	_change()
 
@@ -427,9 +532,10 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
-	zones[PRISONNIERS] = _en_liste([salle.donnees[PRISONNIERS]])[0]
+	for cle in INFOS_SORTIES + ["arrivees"]:
+		zones[cle] = salle.donnees[cle]
 	var donnees := SallePeinte.lire_salle(id)
-	for c in COUCHES + [PRISONNIERS]:
+	for c in zones:
 		donnees[c] = zones[c]
 	var f := FileAccess.open("res://donnees/salles_peintes/%s.json" % id, FileAccess.WRITE)
 	if f == null:
@@ -440,7 +546,7 @@ func _enregistrer() -> void:
 	DirAccess.make_dir_recursive_absolute(ProjectSettings.globalize_path("res://outils/zones_manuelles"))
 	f = FileAccess.open("res://outils/zones_manuelles/%s.json" % id, FileAccess.WRITE)
 	if f != null:
-		f.store_string(JSON.stringify(zones, "", false))
+		f.store_string(JSON.stringify(_entiers(zones), "", false))
 		f.close()
 	modifie = false
 	message = "Enregistré : %s (le jeu et les importeurs utiliseront ces zones)" % id
@@ -452,15 +558,20 @@ func _enregistrer() -> void:
 
 func _process(_delta: float) -> void:
 	var id: String = salles[numero] if not salles.is_empty() else "?"
+	var nom_couche: String = NOMS[couche]
+	if couche == "prisonniers":
+		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : couche %s" % NOMS.get(couche, "Prisonniers (%d)" % salle.donnees[PRISONNIERS].size())) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : couche %s" % nom_couche) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f" % [m.x, m.y, zoom])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
-	aide.visible = edition
+	aide.visible = true
+	aide.text = (AIDE if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
+	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
 
@@ -471,10 +582,13 @@ class Calque extends Node2D:
 	func _draw() -> void:
 		var ed = editeur
 		var e: float = 1.0 / ed.echelle()
+		var police := ThemeDB.fallback_font
 		for c in COUCHES:
 			var col: Color = COULEURS[c]
 			var actif: bool = ed.edition and c == ed.couche
-			for poly in ed.salle.donnees[c]:
+			var polys: Array = ed.salle.donnees[c]
+			for i in polys.size():
+				var poly: PackedVector2Array = polys[i]
 				if poly.size() < 3:
 					continue
 				draw_colored_polygon(poly, Color(col, 0.30 if actif else 0.12))
@@ -485,14 +599,20 @@ class Calque extends Node2D:
 					for p in poly:
 						draw_circle(p, 3.5 * e, Color.WHITE)
 						draw_circle(p, 2.2 * e, col)
-		var actif_p: bool = ed.edition and ed.couche == PRISONNIERS
-		for p in ed.salle.donnees.get(PRISONNIERS, []):
-			var h: float = ed.salle.hauteur(p.y)
-			var col_p: Color = COULEURS[PRISONNIERS]
-			draw_line(p, p - Vector2(0, h * 0.75), Color(col_p, 0.9 if actif_p else 0.5), (3.0 if actif_p else 2.0) * e)
-			draw_circle(p - Vector2(0, h * 0.82), h * 0.08, Color(col_p, 0.9 if actif_p else 0.5))
-			draw_circle(p, 4.0 * e, Color.WHITE)
-			draw_circle(p, 2.6 * e, col_p)
+				# Étiquette des sorties (numéro et direction) et des prisonniers
+				if (c == "sorties" or c == "prisonniers") and (actif or ed.voir_zones):
+					var centre := Vector2.ZERO
+					for p in poly:
+						centre += p
+					centre /= poly.size()
+					var t := "prisonnier %d" % (i + 1)
+					if c == "sorties":
+						var dirs: Array = ed.salle.donnees["directions_sorties"]
+						t = "%d : %s" % [i + 1, NOMS_DIRECTIONS.get(dirs[i] if i < dirs.size() else "", "?")]
+					draw_set_transform(centre, 0, Vector2(e, e))
+					draw_string_outline(police, Vector2(-30, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 60, 14, 4, Color.BLACK)
+					draw_string(police, Vector2(-30, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Color.WHITE)
+					draw_set_transform(Vector2.ZERO)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]
 			var pts := PackedVector2Array(ed.trace)

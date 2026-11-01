@@ -161,7 +161,8 @@ stick droit pour choisir un bouton de l'interface.
     (`outils/importer_blocs.py`, planche `C:\IA\pont-blender\bloc_cuisine\planche_zones.png`, retouchables dans
     l'éditeur de zones) ;
   - **Prisonniers des cellules** (ébauche, 2026-11-01 ; l'utilisateur fournira dialogues, informations et quêtes) :
-    un prisonnier sur chaque point « prisonniers » posé avec l'éditeur de zones (`Aventure._poser_prisonniers`). On
+    un prisonnier par **zone de dialogue** « prisonniers » tracée avec l'éditeur de zones (`Aventure._poser_prisonniers`) ;
+    il est peint dans l'image (rien n'est dessiné par-dessus) et on lui parle quand le héros est dans sa zone. On
     peut lui **parler** (une petite information de `donnees/prisonniers.json`, jamais deux fois, notée au journal),
     le **tuer** (karma −1, `Karma.ACTES` « tuer_prisonnier_cellule » ; son corps reste, 1 âme à siphonner) ou partir.
     `donnees/prisonniers.json` est **vide** pour l'instant (accueil, informations, quêtes : à remplir). Les quêtes
@@ -386,13 +387,21 @@ stick droit pour choisir un bouton de l'interface.
     → `scenes/outils/editeur_zones.tscn` (script `scripts/outils/editeur_zones.gd`), dans le moteur du jeu (même
     salle, même héros, mêmes collisions). Couches : **1** sol où l'on marche (vert), **2** obstacles (rouge),
     **3** premier plan qui passe devant le héros (bleu), **4** sorties (jaune), **5 prisonniers** (violet,
-    2026-11-01 : des **points**, pas des zones ; le jeu met un prisonnier sur chaque point, surtout dans les
-    cellules des prisons ; enregistrés dans la clé « prisonniers » du .json de la salle).
+    2026-11-01 : **zones de dialogue** — le héros qui entre dans une zone peut parler au prisonnier peint dans
+    l'image ; clé « prisonniers » du .json de la salle). **Sorties** (2026-11-01) : glisser l'intérieur les déplace
+    d'un bloc, clic droit dedans les supprime, tracer une forme en crée une (direction devinée d'après sa place),
+    **D** sur une sortie change sa direction ; chacune est étiquetée (« 1 : fond »...). **Changer de salle sans
+    quitter** : boutons ◀ ▶ et liste en haut à droite (la salle quittée est enregistrée si elle a été modifiée).
+    Une salle dont le nombre de sorties change est réattribuée dans les parties en cours (`PlanSalles.attribuer`).
     | Commande | Effet |
     |---|---|
     | Tab | passer de l'édition à la marche (essayer la salle avec le héros, sorties murées) |
     | 1 à 4 | choisir la couche |
-    | 5 | couche des prisonniers : clic = poser, glisser = déplacer, clic droit = retirer |
+    | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
+    | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
+    | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
+    | R | en marchant : héros remis au départ (un héros posé hors du sol est aussi remis sur le sol) |
+    | F1 | replier / afficher l'aide |
     | clic gauche | ajouter un point ; Entrée ou clic sur le premier point : fermer la zone ; Échap : abandonner |
     | glisser un point | le déplacer |
     | Maj + clic sur un bord | ajouter un point sur ce bord (et le glisser) |
@@ -907,6 +916,18 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Éditeur de zones plus souple, zones de dialogue des prisonniers, premières salles retouchées
+- **Éditeur** : prisonniers en **zones de dialogue** (et non plus en points) ; sorties déplaçables d'un bloc,
+  supprimables, ajoutables, direction changeable (D), étiquetées ; changement de salle sans quitter (◀ ▶, liste) ;
+  aide affichée (F1 pour la replier) ; héros jamais bloqué hors du sol (P le pose sur le sol, R le ramène au départ).
+- **Jeu** : on parle au prisonnier quand le héros est dans sa zone ; une salle dont le nombre de sorties change est
+  réattribuée dans les parties en cours.
+- **Salles retouchées par l'utilisateur** (en cours, d'autres sessions suivront) : prison1, prison2 (2 prisonniers),
+  prison5, grande1, grande5, porte2 (petite porte de gauche retirée), porte6, salle2, et le bloc cuisine (cuisine,
+  réserve, cellier droit).
+- Fichiers : `editeur_zones.gd`, `aventure.gd`, `presences_salle.gd`, `rencontres.gd`, `plan_salles.gd`,
+  `donnees/salles_peintes/*.json`, `outils/zones_manuelles/*.json` ; test `test_editeur_zones.gd`.
 
 ### 2026-11-01 — Prisonniers des cellules (ébauche) et leur placement dans l'éditeur
 - **Éditeur de zones** : couche **5 « Prisonniers »** (points) pour décider où seront les prisonniers de chaque salle.

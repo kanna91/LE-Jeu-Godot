@@ -37,34 +37,46 @@ func _initialize() -> void:
 	var relu := SallePeinte.lire_salle("porte2")
 	verifier(relu["marche"][0][0] == [p0.x - 1, p0.y], "point déplacé relu")
 	verifier(FileAccess.file_exists("res://outils/zones_manuelles/porte2.json"), "copie dans zones_manuelles")
-	# Prisonniers (couche 5, 2026-11-01) : des points posés, annulés, enregistrés, puis placés par le jeu
-	ed.couche = ed.PRISONNIERS
+	# Prisonniers (couche 5, 2026-11-01) : des zones de dialogue tracées, enregistrées, puis posées par le jeu
+	ed.couche = "prisonniers"
+	ed.trace = PackedVector2Array([Vector2(180, 430), Vector2(240, 430), Vector2(240, 470), Vector2(180, 470)])
+	ed._fermer_trace()
+	verifier(ed.salle.donnees["prisonniers"].size() == 1, "zone de prisonnier tracée")
+	# Sorties : en ajouter une, la déplacer d'un bloc, la retirer, annuler
+	ed.couche = "sorties"
+	var n_sorties: int = ed.salle.donnees["sorties"].size()
+	ed.trace = PackedVector2Array([Vector2(20, 380), Vector2(50, 380), Vector2(50, 420), Vector2(20, 420)])
+	ed._fermer_trace()
+	verifier(ed.salle.donnees["sorties"].size() == n_sorties + 1 and ed.salle.donnees["directions_sorties"][-1] == "gauche",
+		"sortie ajoutée sur le bord gauche : direction « gauche »")
+	verifier(ed.salle.donnees["noms_sorties"].size() == n_sorties + 1 and ed.salle.donnees["types_sorties"].size() == n_sorties + 1,
+		"noms et types des sorties suivent")
 	ed._memoriser()
-	ed.salle.donnees[ed.PRISONNIERS].append(Vector2(200, 450))
-	ed.salle.donnees[ed.PRISONNIERS].append(Vector2(560, 440))
-	verifier(ed._prisonnier_proche(Vector2(201, 451)) == 0, "prisonnier attrapé au clic")
-	ed._memoriser()
-	ed.salle.donnees[ed.PRISONNIERS].remove_at(1)
+	ed._retirer_sortie(n_sorties)
+	verifier(ed.salle.donnees["sorties"].size() == n_sorties, "sortie retirée")
 	ed._annuler()
-	verifier(ed.salle.donnees[ed.PRISONNIERS].size() == 2, "Ctrl+Z remet le prisonnier retiré")
+	verifier(ed.salle.donnees["sorties"].size() == n_sorties + 1, "Ctrl+Z remet la sortie")
+	ed._memoriser()
+	ed._retirer_sortie(n_sorties)
 	ed._enregistrer()
 	relu = SallePeinte.lire_salle("porte2")
-	verifier(str(relu.get("prisonniers", [])) == str([[200.0, 450.0], [560.0, 440.0]]), "prisonniers enregistrés : %s" % str(relu.get("prisonniers")))
+	verifier(relu.get("prisonniers", []).size() == 1, "zone de prisonnier enregistrée")
+	verifier(relu["directions_sorties"].size() == relu["sorties"].size(), "autant de directions que de sorties")
 	var poses := 0
-	var bien_places := 0
+	var dans_zone := 0
 	for k in 5:
 		var donjon := Donjon.nouveau(Personnage.nouveau())
 		for e in donjon.plan_donjon:
 			for i in donjon.plan_donjon[e]:
-				var info: Dictionary = donjon.plan_donjon[e][i].get("salle_peinte", {})
 				for p in donjon.plan_donjon[e][i].get("presences", []):
 					if p.get("sous") == "prisonnier_cellule":
 						poses += 1
-						var x: float = 768.0 - 200 if info.get("miroir", false) else 200.0
-						var x2: float = 768.0 - 560 if info.get("miroir", false) else 560.0
-						if info.get("image") == "porte2" and (is_equal_approx(p["pos"][0], x) or is_equal_approx(p["pos"][0], x2)):
-							bien_places += 1
-	verifier(poses > 0 and poses == bien_places, "le jeu pose un prisonnier sur chaque point (%d / %d)" % [bien_places, poses])
+						var zone := PackedVector2Array()
+						for q in p["zone"]:
+							zone.append(Vector2(q[0], q[1]))
+						if Geometry2D.is_point_in_polygon(Vector2(p["pos"][0], p["pos"][1]), zone):
+							dans_zone += 1
+	verifier(poses > 0 and poses == dans_zone, "le jeu pose un prisonnier par zone (%d / %d)" % [dans_zone, poses])
 	var f := FileAccess.open("res://donnees/salles_peintes/porte2.json", FileAccess.WRITE)
 	f.store_string(original)
 	f.close()
