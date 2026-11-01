@@ -160,6 +160,12 @@ stick droit pour choisir un bouton de l'interface.
     d'orientation voulue : on entre dans un cellier par le bas de son image. Zones relevées à la main
     (`outils/importer_blocs.py`, planche `C:\IA\pont-blender\bloc_cuisine\planche_zones.png`, retouchables dans
     l'éditeur de zones) ;
+  - **Cachettes** (règle de l'utilisateur, 2026-11-01) : zones « cachettes » tracées avec l'éditeur de zones (couche 6).
+    Le héros qui s'y trouve n'est **ni vu ni entendu** (bandeau « Caché ») ; les ennemis **ne l'y poursuivent pas** :
+    ils n'entrent pas dans la zone, perdent sa trace et ne lancent pas de combat (même le Chevalier de la mort qui le
+    traque). Exception : un ennemi qui le poursuivait à moins de `PresencesSalle.PROCHE_CACHETTE` (0,6 hauteur de
+    héros, choix de Claude, à valider) quand il y est entré l'a **vu entrer** et peut l'y suivre. En sortant, ce
+    privilège disparaît. (À ne pas confondre avec les cachettes secrètes dans les murs, qui cachent des objets.)
   - **Prisonniers des cellules** (ébauche, 2026-11-01 ; l'utilisateur fournira dialogues, informations et quêtes) :
     un prisonnier par **zone de dialogue** « prisonniers » tracée avec l'éditeur de zones (`Aventure._poser_prisonniers`) ;
     il est peint dans l'image (rien n'est dessiné par-dessus) et on lui parle quand le héros est dans sa zone. On
@@ -388,7 +394,8 @@ stick droit pour choisir un bouton de l'interface.
     salle, même héros, mêmes collisions). Couches : **1** sol où l'on marche (vert), **2** obstacles (rouge),
     **3** premier plan qui passe devant le héros (bleu), **4** sorties (jaune), **5 prisonniers** (violet,
     2026-11-01 : **zones de dialogue** — le héros qui entre dans une zone peut parler au prisonnier peint dans
-    l'image ; clé « prisonniers » du .json de la salle). **Sorties** (2026-11-01) : glisser l'intérieur les déplace
+    l'image ; clé « prisonniers » du .json de la salle), **6 cachettes** (turquoise, 2026-11-01 : zones où le héros
+    n'est ni vu ni entendu ; clé « cachettes »). **Sorties** (2026-11-01) : glisser l'intérieur les déplace
     d'un bloc, clic droit dedans les supprime, tracer une forme en crée une (direction devinée d'après sa place),
     **D** sur une sortie change sa direction ; chacune est étiquetée (« 1 : fond »...). **Changer de salle sans
     quitter** : boutons ◀ ▶ et liste en haut à droite (la salle quittée est enregistrée si elle a été modifiée).
@@ -398,6 +405,7 @@ stick droit pour choisir un bouton de l'interface.
     | Tab | passer de l'édition à la marche (essayer la salle avec le héros, sorties murées) |
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
+    | 6 | couche des cachettes (zones où le héros est invisible) |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
     | R | en marchant : héros remis au départ (un héros posé hors du sol est aussi remis sur le sol) |
@@ -816,6 +824,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
 & $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
+& $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
 & $godot --headless --path . -s tests/test_boss_cle.gd            # boss à 35-40 salles sans raccourci, salle fermée, clé portée par une élite, ennemis isolés
 & $godot --headless --path . -s tests/test_karma.gd               # karma (paliers des chevaliers, prix, or, mensonges), pacifiques, corps et âmes
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
@@ -916,6 +925,14 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-01 — Zones de cachette, nouvelles salles retouchées
+- **Cachettes** : couche 6 de l'éditeur de zones ; dans une cachette, le héros n'est ni vu ni entendu et les ennemis
+  ne l'y poursuivent pas, sauf celui qui le poursuivait tout près quand il y est entré.
+- **Salles retouchées par l'utilisateur** : bloc cuisine (salle à manger, cuisine, réserve, cellier droit), crypte8,
+  crypte10, crypte11, grande2, grande4, grande5, grande7, porte1, porte3, porte5, prison2 à prison7, prison9.
+- Fichiers : `editeur_zones.gd`, `salle_peinte.gd` (`dans_cachette`, `heros_en_cachette`), `presences_salle.gd`
+  (`PROCHE_CACHETTE`, `_suivre_cachette`) ; test `test_cachettes.gd`.
 
 ### 2026-11-01 — Éditeur de zones plus souple, zones de dialogue des prisonniers, premières salles retouchées
 - **Éditeur** : prisonniers en **zones de dialogue** (et non plus en points) ; sorties déplaçables d'un bloc,

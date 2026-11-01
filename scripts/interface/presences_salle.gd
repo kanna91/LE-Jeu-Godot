@@ -44,6 +44,11 @@ const PERTE := {"groupe": 2.5, "porteur": 2.5, "imbattable": 5.0, "geolier": 3.5
 const DUREE_RECHERCHE := 4.0
 ## Distance de contact (combat ou capture).
 const CONTACT := 0.32
+## Cachettes (2026-11-01, règle de l'utilisateur) : un ennemi qui poursuit le héros et qui est à moins de
+## PROCHE_CACHETTE (hauteurs du héros) quand celui-ci entre dans une cachette l'a vu y entrer : il peut l'y suivre.
+## Les autres ne le voient ni ne l'entendent plus, n'entrent pas dans la cachette et perdent sa trace.
+## **Valeur choisie par Claude, à valider.**
+const PROCHE_CACHETTE := 0.6
 ## Portée des actions sur une présence immobile (E).
 const PORTEE_ACTION := 0.6
 ## Les rôdeurs apparaissent au moins à cette distance du héros.
@@ -377,7 +382,8 @@ func _avancer(e: Dictionary, but: Vector2, vitesse: float, delta: float, course 
 		var v := dir.rotated(angle) * pas
 		v.y *= float(persp["compression_profondeur"])
 		for essai in [v, Vector2(v.x, 0), Vector2(0, v.y)]:
-			if essai != Vector2.ZERO and salle.libre(p + essai) and salle._sortie_sous(p + essai) < 0:
+			if essai != Vector2.ZERO and salle.libre(p + essai) and salle._sortie_sous(p + essai) < 0 \
+					and (e.get("vu_entrer", false) or not salle.dans_cachette(p + essai) or salle.dans_cachette(p)):
 				e["pos"] = p + essai
 				e["t_bouge"] = temps
 				# Distance au sol (profondeur décompressée), en hauteurs de la forme : fait défiler la marche animée
@@ -396,6 +402,8 @@ func _percoit(e: Dictionary) -> bool:
 	var genre: String = e["p"]["genre"]
 	var h: Vector2 = salle.heros.position
 	var d := _distance(e["pos"], h)
+	if salle.heros_en_cachette():
+		return e.get("vu_entrer", false)  # dans une cachette : seul celui qui l'a vu y entrer sait où il est
 	var cache := salle.heros_cache()
 	var bouge := salle.en_mouvement
 	var court := bouge and (salle.course or salle._course_stick)
@@ -420,6 +428,7 @@ func _process(delta: float) -> void:
 	if salle == null or salle.heros == null or not salle.actif:
 		return
 	var fige := temps < gel_jusqu_a
+	_suivre_cachette()
 	for e in entites:
 		if e["etat"] == "immobile":
 			if e["p"].get("sous") == "diablotin":
@@ -440,7 +449,8 @@ func _process(delta: float) -> void:
 		e["noeud"].queue_redraw()
 		# Pas de contact tant que le héros n'a pas la main (fondu d'entrée, passage, menu) : sinon le contact était
 		# perdu et plus aucun ennemi de la salle ne lançait de combat (bug trouvé par le testeur d'étage, 2026-10-28)
-		if not fige and not _contact_emis and salle.actif and not e["p"].get("pacifique", false) \
+		var a_l_abri: bool = salle.heros_en_cachette() and not e.get("vu_entrer", false)
+		if not fige and not _contact_emis and salle.actif and not e["p"].get("pacifique", false) and not a_l_abri \
 				and _distance(e["pos"], salle.heros.position) < CONTACT:
 			_contact_emis = true
 			contact.emit(e["p"])
@@ -453,6 +463,23 @@ func _process(delta: float) -> void:
 		if e.get("sorti", false):
 			retirer(e["p"])
 			parti.emit(e["p"], String(e["vers"]))
+
+
+## Le héros entre dans une cachette : les ennemis qui le poursuivaient tout près de lui l'ont vu y entrer
+## (``vu_entrer``) ; il en sort : plus personne n'a ce privilège.
+var _en_cachette := false
+
+
+func _suivre_cachette() -> void:
+	var dedans := salle.heros_en_cachette()
+	if dedans and not _en_cachette:
+		for e in entites:
+			e["vu_entrer"] = e["etat"] in ["poursuite", "alerte"] and not e["hors_champ"] \
+				and _distance(e["pos"], salle.heros.position) < PROCHE_CACHETTE
+	elif not dedans and _en_cachette:
+		for e in entites:
+			e.erase("vu_entrer")
+	_en_cachette = dedans
 
 
 ## Images de l'animation ``nom`` du diablotin (chargées une fois).
@@ -528,7 +555,9 @@ func _comportement(e: Dictionary, delta: float) -> void:
 				if genre == "imbattable":
 					p["traque"] = Aventure.TRAQUE_SALLES
 		"poursuite":
-			if voit or int(p.get("traque", 0)) > 0:  # le chevalier qui traque sait toujours où est le héros
+			# Le chevalier qui traque sait toujours où est le héros... sauf s'il s'est glissé dans une cachette sans être vu
+			var traque: bool = int(p.get("traque", 0)) > 0 and (not salle.heros_en_cachette() or e.get("vu_entrer", false))
+			if voit or traque:
 				e["vu_pos"] = salle.heros.position
 				e["t"] = 0.0
 			if e["t"] > PERTE.get(genre, 2.5):

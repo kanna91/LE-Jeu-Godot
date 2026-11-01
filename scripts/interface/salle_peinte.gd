@@ -192,7 +192,7 @@ func charger(id: String, arrivee := -1, avec_miroir := false, objets_places := [
 	sorties_murees = []
 	sorties_condamnees = []
 	donnees = lire_salle(id)
-	for c in ["marche", "obstacles", "premier_plan", "sorties"]:
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes"]:
 		var polys := []
 		for poly in donnees.get(c, []):
 			var pts := PackedVector2Array()
@@ -889,7 +889,7 @@ func _placer(arrivee: int) -> void:
 
 ## Miroir des données de la salle : abscisses x → largeur − x, gauche et droite des sorties échangées.
 func _appliquer_miroir(largeur: float) -> void:
-	for c in ["marche", "obstacles", "premier_plan", "sorties"]:
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes"]:
 		var polys: Array = donnees[c]
 		for i in polys.size():
 			var poly: PackedVector2Array = polys[i]
@@ -1129,11 +1129,21 @@ func heros_dans_ombre() -> bool:
 	return heros != null and dans_ombre(heros.position)
 
 
-## Le héros est caché : derrière un élément du premier plan, ou immobile dans l'ombre (avec le Voile : il peut
-## y marcher, pas y courir).
+## Le point ``p`` est dans une **cachette** (zones « cachettes » tracées avec l'éditeur de zones, 2026-11-01) : le
+## héros n'y est ni vu ni entendu (PresencesSalle._percoit), et les ennemis ne l'y poursuivent pas.
+func dans_cachette(p: Vector2) -> bool:
+	return _dans(p, "cachettes")
+
+
+func heros_en_cachette() -> bool:
+	return heros != null and dans_cachette(heros.position)
+
+
+## Le héros est caché : dans une cachette, derrière un élément du premier plan, ou immobile dans l'ombre (avec le
+## Voile : il peut y marcher, pas y courir).
 func heros_cache() -> bool:
 	var discret := not en_mouvement or (pacte_voile and not (course or _course_stick))
-	return heros != null and (point_cache(heros.position) or (heros_dans_ombre() and discret))
+	return heros != null and (heros_en_cachette() or point_cache(heros.position) or (heros_dans_ombre() and discret))
 
 
 ## Un obstacle (pilier, colonne, objet) coupe la vue entre les points du sol ``a`` et ``b``.

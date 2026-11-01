@@ -6,7 +6,8 @@ extends Control
 ##
 ## Couches : 1 sol où l'on marche (vert), 2 obstacles (rouge), 3 premier plan qui passe devant le héros (bleu),
 ## 4 sorties (jaune), 5 prisonniers (violet : **zones de dialogue** — quand le héros entre dans une de ces zones,
-## il peut parler au prisonnier peint dans l'image ; 2026-11-01).
+## il peut parler au prisonnier peint dans l'image ; 2026-11-01), 6 cachettes (turquoise, 2026-11-01 : zones où le héros
+## ne peut être ni vu ni entendu ; les ennemis ne l'y poursuivent pas, sauf s'ils l'ont vu y entrer tout près de lui).
 ## Sorties (2026-11-01, demande de l'utilisateur) : on peut en tracer de nouvelles (direction devinée d'après leur
 ## place : bas de l'image = retour, bords = gauche / droite, sinon le fond ; touche D sur une sortie pour la
 ## changer), les supprimer (clic droit dedans) et les déplacer d'un bloc (glisser l'intérieur, comme les prisonniers).
@@ -15,11 +16,12 @@ extends Control
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
-const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers"]
+const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
-	"prisonniers": "Prisonniers (zones de dialogue)"}
+	"prisonniers": "Prisonniers (zones de dialogue)", "cachettes": "Cachettes (le héros y est invisible)"}
 const COULEURS := {"marche": Color(0.25, 1, 0.35), "obstacles": Color(1, 0.25, 0.2),
-	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15), "prisonniers": Color(0.85, 0.45, 1)}
+	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15), "prisonniers": Color(0.85, 0.45, 1),
+	"cachettes": Color(0.2, 0.95, 0.9)}
 ## Couches qu'on déplace d'un bloc en glissant leur intérieur (les autres : un clic dedans commence un tracé).
 const DEPLACABLES := ["sorties", "prisonniers"]
 ## Données parallèles aux sorties (une valeur par sortie, dans le même ordre).
@@ -54,7 +56,7 @@ var position_base := Vector2.ZERO
 var zoom := 1.0
 ## Aide détaillée affichée (F1 pour la replier ; affichée par défaut, demande de l'utilisateur).
 var aide_complete := true
-const AIDE := "Tab : éditer / marcher   1-5 : couche   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
+const AIDE := "Tab : éditer / marcher   1-6 : couche (6 : cachettes)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
 	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
 	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction\n" \
 	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer\n" \
@@ -259,13 +261,15 @@ func _touche(ev: InputEventKey) -> void:
 	if not edition:
 		return
 	match ev.keycode:
-		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4, KEY_5, KEY_KP_5:
+		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4, KEY_5, KEY_KP_5, KEY_6, KEY_KP_6:
 			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3,
-				KEY_5: 4, KEY_KP_5: 4}
+				KEY_5: 4, KEY_KP_5: 4, KEY_6: 5, KEY_KP_6: 5}
 			couche = COUCHES[n[ev.keycode]]
 			trace.clear()
 			if couche == "prisonniers":
 				message = "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image"
+			elif couche == "cachettes":
+				message = "Cachettes : tracez les zones où le héros ne peut être ni vu ni entendu (Tab pour essayer)"
 		KEY_ENTER, KEY_KP_ENTER:
 			_fermer_trace()
 		KEY_0, KEY_KP_0:
