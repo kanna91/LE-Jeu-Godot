@@ -186,9 +186,9 @@ stick droit pour choisir un bouton de l'interface.
     |---|---|
     | Vieux magicien | soupe à la cuisine → karma +1 et un sort au hasard ; ensuite il dort : trois réveils, puis « GARDE ! » (un élite attaque) ; élite vaincu et on l'embête encore → malédiction, karma −2, le Chevalier de la mort entre ; puis à chaque fois « AHAHAHAHA ! » et combat direct contre le chevalier |
     | Prisonnier malade | une potion de soin → de la nourriture (soupe posée à la cuisine, ou toute nourriture) → la clé de sa cellule, sur un élite loin de lui (il dit où) → **le prisonnier était l'élite** : un élite+ « Faux prisonnier+ » surgit à sa place et attaque |
-    | Mariane | son amulette, sur un élite des catacombes (salles « crypte ») : **Amulette de Mariane** (intelligence +2, Mana +1, sagesse −1, équipable : on peut la garder) → un anneau de rang étage + 2, elle disparaît |
-    Validé par l'utilisateur : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = anneau du rang des objets de
-    l'étage + 2 (rang 3 à l'étage 1) ; les catacombes sont les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
+    | Mariane | son amulette, sur un élite des catacombes (salles « crypte ») : **Amulette de Mariane** (intelligence +2, Mana +1, sagesse −1, équipable : on peut la garder) → un anneau **rare** (meilleur rang de l'étage + 2 : rang 4 à l'étage 1), elle disparaît |
+    Validé par l'utilisateur : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = **rare** à l'étage 1 (meilleur
+    rang de l'étage + 2 ; précieux avant, corrigé le 2026-11-02) ; les catacombes sont les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
     simplement plus lui parler) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
@@ -977,6 +977,14 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — Inventaire des règles des objets ; anneau de Mariane rare
+
+- Nouveau document **`OBJETS_REGLES.md`** : toutes les règles liées aux objets (sortes, emplacements, rangs, options,
+  armes et dés bonus, effets uniques, objets spéciaux, défenses, potions, sources, prix, confiscation), numérotées
+  O1 à O24, avec les points à trancher ensemble (dégâts des objets en dés plutôt qu'en plats, demandé par
+  l'utilisateur).
+- Mariane donne un anneau **rare** à l'étage 1 (« +2 » = meilleur rang de l'étage + 2 ; c'était précieux).
 
 ### 2026-11-02 — Quêtes des prisonniers, suite ; Récupe
 

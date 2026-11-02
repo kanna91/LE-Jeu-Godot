@@ -12,7 +12,7 @@
     "  {elite_attaque: {evenement: nom, renforce: vrai/faux, depuis_prisonnier: vrai/faux, nom: texte}} (un élite entre par une porte et attaque ;",
     "    'renforce' : élite+, PV × 1,5 ; 'depuis_prisonnier' : il surgit à la place du prisonnier (le prisonnier était l'élite) ; 'nom' : son nom en combat) ;",
     "  {chevalier: 'arrive' | 'combat'} (le Chevalier de la mort de l'étage entre et poursuit le héros / attaque tout de suite) ;",
-    "  {donner_bijou: 'anneau' | 'amulette', rang_bonus: n} (rang de l'étage + n) ; {disparaitre: texte} (le prisonnier s'en va) ; {message: texte}.",
+    "  {donner_bijou: 'anneau' | 'amulette', rang_bonus: n} (meilleur rang de l'étage + n : +2 à l'étage 1 = rare) ; {disparaitre: texte} (le prisonnier s'en va) ; {message: texte}.",
     "Catégories pour 'donner' : 'nourriture' (objet divers de sorte nourriture), 'potion_soin' (potion qui rend des PV).",
     "'objets' : objets des quêtes. Divers : {sorte, valeur, description}. Équipement : {equipement: 'amulette' | 'anneau', bonus: {caractéristique: valeur}, valeur, description}."
   ],

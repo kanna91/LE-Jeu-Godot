@@ -7,7 +7,7 @@ extends SceneTree
 ## - le prisonnier malade : potion de soin, nourriture, clé sur un élite (direction donnée), cellule ouverte → il
 ##   était l'élite : un élite+ (PV × 1,5, « Faux prisonnier+ ») surgit à sa place ;
 ## - Mariane : amulette sur un élite (des catacombes s'il y en a), objet équipable (intelligence +2, mana +1,
-##   sagesse −1), rendue même équipée → un anneau de rang étage + 2, elle disparaît.
+##   sagesse −1), rendue même équipée → un anneau rare (rang 4 à l'étage 1), elle disparaît.
 ## « BILAN quêtes prisonniers : 0 échec(s) ».   godot --headless --path . -s tests/test_quetes_prisonniers.gd
 
 var echecs := 0
@@ -194,5 +194,5 @@ func _mariane(donjon, place: Array) -> void:
 	for o in QuetesPrisonniers.objets_du_heros(joueur):
 		if U.ga(o, "type_armure", "") == "anneau":
 			anneau = o
-	verifier(anneau != null and int(anneau.rang) == 3, "mariane : anneau de rang 3 à l'étage 1")
+	verifier(anneau != null and int(anneau.rang) == 4 and "rare" in String(anneau.nom), "mariane : anneau rare (rang 4) à l'étage 1")
 	var _n := objets_avant

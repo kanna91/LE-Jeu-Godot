@@ -17,7 +17,8 @@ extends RefCounted
 ## L'avancement est rangé dans la présence du prisonnier (« quete », « etape », « vu », « rep ») et dans le donjon
 ## (« quetes_prisonniers » : quêtes posées, événements, élites porteurs), donc dans la sauvegarde.
 
-## Rang d'un bijou de récompense : celui des objets de l'étage + « rang_bonus » (plafonné à 6).
+## Rang d'un bijou de récompense : le meilleur rang des objets de l'étage (étage + 1 : commun à l'étage 1) +
+## « rang_bonus » (plafonné à 6) ; +2 à l'étage 1 : rare (décision de l'utilisateur, 2026-11-02).
 const RANG_MAX := 6
 ## PV d'un élite renforcé (« élite+ ») : × ce facteur.
 const FACTEUR_RENFORCE := 1.5
@@ -202,7 +203,7 @@ static func _actions(donjon, p: Dictionary, actions: Array, res: Dictionary) -> 
 			var c := chevalier_ici(donjon)
 			res["suites"].append({"combat" if String(a["chevalier"]) == "combat" else "faire_entrer": c})
 		if a.has("donner_bijou"):
-			var rang := clampi(etage + int(a.get("rang_bonus", 0)), 1, RANG_MAX)
+			var rang := clampi(etage + 1 + int(a.get("rang_bonus", 0)), 1, RANG_MAX)
 			var bijou = GenerationObjets.generer_objet(String(a["donner_bijou"]), rang)
 			var equipe = joueur.recevoir_objet(bijou)
 			res["lignes"].append("Vous recevez %s%s." % [bijou.nom, " (équipé)" if equipe else ""])
