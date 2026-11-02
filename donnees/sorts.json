@@ -975,7 +975,7 @@
   "fiche": {
    "nom": "Estafilade",
    "description": "Une estafilade rapide qui fait saigner.",
-   "mana": 1,
+   "mana": 2,
    "attaque": "physique",
    "types": [
     "tranchant"
@@ -1115,7 +1115,7 @@
   "fiche": {
    "nom": "Dard empoisonné",
    "description": "Un dard enduit de poison : perforant et toxique.",
-   "mana": 1,
+   "mana": 2,
    "attaque": "physique",
    "types": [
     "perforant",
@@ -1269,7 +1269,7 @@
   "fiche": {
    "nom": "Bourrade",
    "description": "Une bourrade brutale qui déséquilibre la cible.",
-   "mana": 1,
+   "mana": 2,
    "attaque": "physique",
    "types": [
     "contondant"

@@ -3,11 +3,11 @@ extends RefCounted
 ## Effets des caractéristiques, les mêmes pour le héros et les ennemis (règles de l'utilisateur, 2026-10-29) :
 ##
 ## - Endurance : +10 PV max, +2 PV régénérés par minute ;
-## - Force : +2 dégâts physiques (tranchant, perforant, contondant) ;
+## - Force : +1d2 dégâts physiques (tranchant, perforant, contondant ; +2 fixes avant le 2026-11-02) ;
 ## - Dextérité : +2 % de critique physique, +1 % de toucher, +1 % d'esquive ;
-## - Intelligence : +2 dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique ;
-## - Sagesse : +2 dégâts de feu, de froid et de foudre, +1 % de critique élémentaire ;
-## - Mana : +10 mana max, +2 mana régénérés par minute.
+## - Intelligence : +1d2 dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique ;
+## - Sagesse : +1d2 dégâts de feu, de froid et de foudre, +1 % de critique élémentaire ;
+## - Mana : +5 mana max (+10 avant le 2026-11-02), +2 mana régénérés par minute.
 ##
 ## Lumière (soins) : la plus forte entre intelligence et sagesse, pour les dégâts comme pour le critique.
 ## Poison : aucune caractéristique, jamais de critique. La régénération ne tourne que pendant l'exploration
@@ -22,13 +22,14 @@ const NOMS := {"endurance": "Endurance", "force": "Force", "dextérité": "Dext�
 
 const PV_PAR_ENDURANCE := 10
 const REGEN_PV_PAR_ENDURANCE := 2.0  # par minute
-const DEGATS_PAR_POINT := 2
+## Faces du dé de dégâts ajouté par point de force, d'intelligence ou de sagesse (1d2 par point).
+const FACES_PAR_POINT := 2
 const CRITIQUE_PAR_DEXTERITE := 0.02
 const TOUCHER_PAR_DEXTERITE := 0.01
 const ESQUIVE_PAR_DEXTERITE := 0.01
 const CRITIQUE_MAGIQUE_PAR_INTELLIGENCE := 0.01
 const CRITIQUE_ELEMENTAIRE_PAR_SAGESSE := 0.01
-const MANA_PAR_POINT := 10
+const MANA_PAR_POINT := 5
 const REGEN_MANA_PAR_POINT := 2.0  # par minute
 
 ## Effet d'un point de chaque caractéristique sur les statistiques calculées (les dégâts sont lus directement
@@ -46,11 +47,11 @@ const PAR_POINT := {
 ## Texte « par point » de chaque caractéristique (écran des caractéristiques).
 const TEXTES := {
 	"endurance": "+10 PV max, +2 PV régénérés par minute",
-	"force": "+2 dégâts physiques (tranchant, perforant, contondant)",
+	"force": "+1d2 dégâts physiques (tranchant, perforant, contondant)",
 	"dextérité": "+2 % critique physique, +1 % toucher, +1 % esquive",
-	"intelligence": "+2 dégâts arcane, ombre, chaos, +1 % critique magique",
-	"sagesse": "+2 dégâts feu, froid, foudre, +1 % critique élémentaire",
-	MANA: "+10 mana max, +2 mana régénérés par minute",
+	"intelligence": "+1d2 dégâts arcane, ombre, chaos, +1 % critique magique",
+	"sagesse": "+1d2 dégâts feu, froid, foudre, +1 % critique élémentaire",
+	MANA: "+5 mana max, +2 mana régénérés par minute",
 }
 
 

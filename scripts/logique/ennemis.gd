@@ -31,8 +31,9 @@ const CHANCE_POTION_SOIN := 0.30
 ## PV max par point d'endurance (héros et ennemis) : voir Caracteristiques (10 depuis le 2026-10-29, 2 avant).
 const PV_PAR_ENDURANCE := Caracteristiques.PV_PAR_ENDURANCE
 ## Points de la caractéristique Mana des ennemis, bornes comprises (« 2 ou 3 », décision de l'utilisateur,
-## 2026-10-29) : de quoi lancer leurs sorts en attendant la refonte des ennemis.
-const MANA_ENNEMIS := [2, 3]
+## 2026-10-29) : de quoi lancer leurs sorts en attendant la refonte des ennemis. Doublés le 2026-11-02 (choix de
+## Claude) quand un point est passé de 10 à 5 mana : les ennemis gardent leurs 20 à 30 mana.
+const MANA_ENNEMIS := [4, 6]
 
 ## Bonus de caractéristiques (un par repos) appliqués à tous les ennemis créés ensuite.
 

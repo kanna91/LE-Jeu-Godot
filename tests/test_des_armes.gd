@@ -57,18 +57,18 @@ func _des() -> int:
 	return echecs
 
 
-## (moyenne + caractéristique × 2 + plats) × pourcentages, sans dégâts de base ni dégâts propres de la compétence.
+## (moyenne + 1d2 par point de caractéristique, soit 1,5 + plats) × pourcentages, sans dégâts de base ni dégâts propres de la compétence.
 func _caracteristiques() -> int:
 	var echecs := 0
 	var lanceur := {"force": 7, "sagesse": 5, "intelligence": 9, "degats_base": 50, "degats_physique": 1,
 		"degats_magique": 2, "degats_elementaire": 3,
 		"pourcentage_degats_physique": 1.5, "pourcentage_degats_magique": 2.0, "pourcentage_degats_elementaire": 3.0}
 	for t in ATTENDU:
-		var stat_bonus := 0
+		var stat_bonus := 0.0
 		if CARACTERISTIQUE.has(t):
-			stat_bonus = int(lanceur[CARACTERISTIQUE[t]]) * 2
+			stat_bonus = int(lanceur[CARACTERISTIQUE[t]]) * 1.5
 		elif t == "lumière":
-			stat_bonus = 18  # intelligence 9 > sagesse 5
+			stat_bonus = 13.5  # intelligence 9 > sagesse 5 : 9d2
 		var plats := 1 if t in Formules.TYPES_PHYSIQUES else (3 if t in Formules.ELEMENTAIRES else (2 if t in Formules.MAGIQUES_PURS else 0))
 		var pct := 1.5 if t in Formules.TYPES_PHYSIQUES else (1.0 if t == "poison" else (3.0 if t in Formules.ELEMENTAIRES else 2.0))
 		var attendu: float = (ATTENDU[t][2] + stat_bonus + plats) * pct
@@ -204,7 +204,7 @@ func _brulure() -> int:
 	return echecs
 
 
-## Coups multiples (Rafale de lance...) : 1d6 − 2 par coup, + caractéristique × 2, × pourcentages, jamais négatif.
+## Coups multiples (Rafale de lance...) : 1d6 − 2 par coup, + 1d2 par point de caractéristique, × pourcentages, jamais négatif.
 func _coups_multiples() -> int:
 	var echecs := 0
 	var rafale := Competences.creer("Rafale_de_lance")
@@ -213,7 +213,7 @@ func _coups_multiples() -> int:
 	if not Formules.est_coup_multiple(rafale) or Formules.est_coup_multiple(simple):
 		print("ÉCHEC : détection des coups multiples.")
 		echecs += 1
-	var attendu := (3.5 - 2 + 8) * 1.0
+	var attendu := (3.5 - 2 + 6) * 1.0  # force 4 : 4d2 = 6 en moyenne
 	if absf(Formules.degats_bruts(lanceur, rafale, "perforant") - attendu) > 0.001:
 		print("ÉCHEC : Rafale de lance %.2f au lieu de %.2f par coup." % [Formules.degats_bruts(lanceur, rafale, "perforant"), attendu])
 		echecs += 1

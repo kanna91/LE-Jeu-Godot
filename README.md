@@ -563,12 +563,14 @@ stick droit pour choisir un bouton de l'interface.
   | Caractéristique | Par point |
   |---|---|
   | Endurance | +10 PV max, +2 PV régénérés par minute |
-  | Force | +2 dégâts physiques (tranchant, perforant, contondant) |
+  | Force | **+1d2** dégâts physiques (tranchant, perforant, contondant ; +2 fixes avant le 2026-11-02) |
   | Dextérité | +2 % de critique **physique seulement**, +1 % de toucher, +1 % d'esquive |
-  | Intelligence | +2 dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique |
-  | Sagesse | +2 dégâts de feu, de froid et de foudre, +1 % de critique élémentaire (nouveau) |
-  | Mana (nouvelle, clé `caracteristique_mana`) | +10 mana max, +2 mana régénérés par minute |
+  | Intelligence | **+1d2** dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique |
+  | Sagesse | **+1d2** dégâts de feu, de froid et de foudre, +1 % de critique élémentaire (nouveau) |
+  | Mana (nouvelle, clé `caracteristique_mana`) | **+5 mana max** (+10 avant le 2026-11-02), +2 mana régénérés par minute |
 
+  Les 1d2 par point sont lancés avec les dés de la compétence, à chaque coup (`Formules.des_caracteristique`,
+  `Formules.valeur_jet`), puis passent par les pourcentages comme eux.
   Lumière (soins) : la plus forte entre intelligence et sagesse, pour les dégâts comme pour le critique. Poison :
   aucune caractéristique, **jamais de critique**. Critique magique et élémentaire : même multiplicateur
   (`degats_critique_magiques`). Les caractéristiques ne donnent plus ni armure, ni résistances, ni dégâts critiques,
@@ -579,7 +581,11 @@ stick droit pour choisir un bouton de l'interface.
 - **PV et mana** : héros **toutes caractéristiques à 0** : 70 PV de base (`Personnage.PV_BASE_HEROS`) et 10 mana de
   base, toucher 85 %, esquive 5 %, critique 5 % (magique et élémentaire 2,5 %), parade 2 % (valeurs de base gardées
   par l'utilisateur). Ennemis : endurance divisée par 5 pour garder leurs PV (`Gobelin.ENDURANCE_PAR_SOUS_CLASSE`,
-  `Creatures.SORTES`), **2 ou 3 points de Mana** (`Ennemis.MANA_ENNEMIS`), le reste à 0, à reforger.
+  `Creatures.SORTES`), **4 à 6 points de Mana** (`Ennemis.MANA_ENNEMIS` ; 2 ou 3 avant le
+  2026-11-02, doublés quand un point est passé à 5 mana, choix de Claude : ils gardent leurs 20 à 30 mana), le reste à
+  0, à reforger.
+- **Coût des sorts** : au moins 2 mana. Estafilade, Dard empoisonné et Bourrade (sorts d'arme de départ) passent de 1
+  à 2 mana (2026-11-02, `donnees/sorts.json`).
 - **Dégâts des ennemis** : en entier depuis le 2026-10-27 (`Ennemis.MULTIPLICATEUR_DEGATS_ENNEMIS` = 1 ; ×0,68 avant).
   Leurs dés restent lancés un cran plus bas que ceux du héros (`Formules.des_reduits`).
 - **Caractéristiques des gobelins** (`Gobelin.definir_attribut_gobelin`) : tout part de 0
@@ -953,6 +959,17 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — Mana, coût des sorts et dés de caractéristique
+
+- **Pour le joueur** : un point de Mana donne +5 mana max (au lieu de +10) ; Estafilade, Dard empoisonné et Bourrade
+  coûtent 2 mana (au lieu de 1) ; chaque point de force, d'intelligence ou de sagesse ajoute **1d2** de dégâts par
+  coup (1,5 en moyenne) au lieu de +2.
+- Ennemis : 4 à 6 points de Mana au lieu de 2 ou 3, pour garder leurs 20 à 30 mana (choix de Claude).
+- Écran des caractéristiques, onglet Dégâts : la colonne de la caractéristique affiche « +Nd2 ».
+- `Caracteristiques.MANA_PAR_POINT` = 5, `FACES_PAR_POINT` = 2 (remplace `DEGATS_PAR_POINT`) ;
+  `Formules.des_caracteristique` ; `test_des_armes` adapté. Tests : dés, aventure, karma, magie écran, soins,
+  créatures, cri de guerre : 0 échec.
 
 ### 2026-11-02 — Retour dans la salle précédente
 

@@ -81,8 +81,9 @@ static func lignes_effets(j) -> Array:
 static func ligne_degats(j, t: String) -> Array:
 	var des := Formules.des_type(j, t)
 	var plats := Formules.degats_plats(j, t)
-	var moyenne := Formules.base_degats(j, t, Formules.moyenne(des))
-	return [Formules.texte(des), "+%d" % Formules.bonus_caracteristique(j, t), "+" + U.g(plats),
+	var carac := Formules.des_caracteristique(j, t)
+	var moyenne := Formules.base_degats(j, t, Formules.moyenne(des + carac))
+	return [Formules.texte(des), ("+" + Formules.texte(carac)) if not carac.is_empty() else "+0", "+" + U.g(plats),
 		pourcent(Formules.pourcentage(j, t)), U.f(moyenne, 1), critique(Formules.stats_critique(j, t))]
 
 

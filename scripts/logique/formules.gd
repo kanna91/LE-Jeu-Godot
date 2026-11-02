@@ -21,7 +21,7 @@ const DES_TYPES := {
 }
 ## Type de dégâts de chaque type d'arme (ses dés sont ceux du type).
 const DES_ARMES := {"Lance": "perforant", "Epée": "tranchant", "Marteau": "contondant"}
-## Caractéristique qui ajoute Caracteristiques.DEGATS_PAR_POINT dégâts par point, par type de dégâts
+## Caractéristique qui ajoute 1d2 de dégâts par point (Caracteristiques.FACES_PAR_POINT), par type de dégâts
 ## (lumière : la plus forte de l'intelligence et de la sagesse ; poison : aucune).
 const ELEMENTAIRES := ["feu", "froid", "foudre"]
 const MAGIQUES_PURS := ["arcane", "ombre", "chaos"]
@@ -215,9 +215,10 @@ static func texte_des(type_arme) -> String:
 	return texte(DES_TYPES.get(DES_ARMES.get(type_arme, ""), []))
 
 
-## +2 dégâts par point de la caractéristique du type (2026-10-29 ; +1 tous les 2 points avant) : force (physique),
-## sagesse (feu, froid, foudre), intelligence (arcane, ombre, chaos), la plus forte des deux (lumière).
-## Arrondi en dessous (une altération peut donner une caractéristique non entière).
+## Points de la caractéristique du type (arrondis en dessous : une altération peut en donner une part) : force
+## (physique), sagesse (feu, froid, foudre), intelligence (arcane, ombre, chaos), la plus forte des deux (lumière).
+## Chacun ajoute 1d2 de dégâts par coup (2026-11-02 ; +2 fixes avant, +1 tous les 2 points avant le 2026-10-29) :
+## voir des_caracteristique, lancés avec les dés de la compétence (valeur_jet).
 static func bonus_caracteristique(lanceur, type_degats: String) -> int:
 	var valeur := 0.0
 	if type_degats in TYPES_PHYSIQUES:
@@ -228,7 +229,13 @@ static func bonus_caracteristique(lanceur, type_degats: String) -> int:
 		valeur = U.num(lanceur, "intelligence")
 	elif type_degats == "lumière":
 		valeur = maxf(U.num(lanceur, "intelligence"), U.num(lanceur, "sagesse"))
-	return floori(valeur * Caracteristiques.DEGATS_PAR_POINT)
+	return floori(valeur)
+
+
+## Dés ajoutés par la caractéristique du type : 1d2 par point ([] sans point).
+static func des_caracteristique(lanceur, type_degats: String) -> Array:
+	var n := bonus_caracteristique(lanceur, type_degats) if lanceur != null else 0
+	return [[n, Caracteristiques.FACES_PAR_POINT]] if n > 0 else []
 
 
 ## Pourcentages de dégâts (les « modificateurs ») : celui du groupe (physique ; magique pour l'arcane, l'ombre, le chaos
@@ -256,16 +263,17 @@ static func degats_plats(lanceur, type_degats: String) -> float:
 	return plats
 
 
-## Dégâts d'un type pour un jet donné : (jet + caractéristique + dégâts plats du lanceur) × pourcentages.
+## Dégâts d'un type pour un jet donné (dés de la caractéristique compris) : (jet + dégâts plats) × pourcentages.
 ## Dégâts plats : ceux du type, plus ceux de son groupe (dégâts physiques, magiques ou élémentaires des objets).
 static func base_degats(lanceur, type_degats: String, valeur_jet: float) -> float:
 	var plats := degats_plats(lanceur, type_degats)
-	return maxf(0, (valeur_jet + bonus_caracteristique(lanceur, type_degats) + plats) * pourcentage(lanceur, type_degats))
+	return maxf(0, (valeur_jet + plats) * pourcentage(lanceur, type_degats))
 
 
-## Jet (ou sa moyenne) d'un type de dégâts pour une compétence, malus des coups multiples compris.
+## Jet (ou sa moyenne) d'un type de dégâts pour une compétence : ses dés plus 1d2 par point de la caractéristique
+## du type, malus des coups multiples compris.
 static func valeur_jet(lanceur, competence, type_degats: String, en_moyenne := false) -> float:
-	var des := des_type(lanceur, type_degats, competence)
+	var des := des_type(lanceur, type_degats, competence) + des_caracteristique(lanceur, type_degats)
 	var valeur: float = moyenne(des) if en_moyenne else float(jet(des))
 	var malus := est_coup_multiple(competence) and des_competence(lanceur, competence, type_degats).is_empty()
 	return valeur - (MALUS_COUP_MULTIPLE if malus else 0)
