@@ -938,6 +938,21 @@ func point_entree(i: int) -> Vector2:
 	return sur_le_sol(_point_d_arrivee(i))
 
 
+## Point où un ennemi qui entre par la sortie ``i`` commence à marcher : devant elle, avancé vers le départ de la
+## salle jusqu'à un sol libre hors de toute sortie (les ennemis ne marchent pas dans les sorties).
+func point_interieur(i: int) -> Vector2:
+	var q := point_entree(i)
+	var depart: Array = donnees["depart"]
+	var but := Vector2(depart[0], depart[1])
+	for _k in 150:
+		if libre(q) and _sortie_sous(q) < 0:
+			return q
+		if q.distance_to(but) <= 4.0:
+			break
+		q += (but - q).normalized() * 4.0
+	return sur_le_sol(but)
+
+
 ## Point de sol libre le plus proche de ``p`` (``p`` lui-même s'il est libre) : les points d'arrivée relevés à la
 ## main peuvent tomber juste à côté du sol détouré automatiquement (outils/detourer_sols.py, 2026-10-27).
 func sur_le_sol(p: Vector2) -> Vector2:

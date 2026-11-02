@@ -569,19 +569,25 @@ func _interagir() -> void:
 	passage_en_cours = true
 	salle_peinte.actif = false
 	var message := ""
+	var suites := []
 	if p["genre"] == "pnj":
 		var r: Array = await Rencontres.parler(donjon, p)
 		message = r[0]
 		if r[1]:
 			salle_peinte.presences.alerter()
 			_bruit()
+		if r.size() > 2:
+			suites = r[2]
 	elif p.get("sous") == "cadavre":
 		message = await Aventure.cadavre(donjon, p)
 	else:
 		message = Aventure.utiliser_objet(donjon, p)
-	if p.get("etat") != "actif" and (p["genre"] == "pnj" or p.get("sous") in ["cachette", "cadavre"]):
+	if p.get("etat") != "actif" and (p["genre"] == "pnj" or p.get("sous") in ["cachette", "cadavre", "objet_quete"]):
 		salle_peinte.presences.retirer(p)
 	salle_peinte.presences.retirer_parties()  # Sans-Visage apaisé par la succube
+	if not suites.is_empty():
+		var issue := await _suites_quete(suites)
+		message = (message + " " + issue).strip_edges()
 	salle_peinte.pacte_voile = Aventure.pacte_actif(donjon, "voile")
 	if _apres_action():
 		return
@@ -589,6 +595,32 @@ func _interagir() -> void:
 	message_fin = Animations.temps() + 5
 	salle_peinte.actif = true
 	passage_en_cours = false
+
+
+## Suites d'une discussion avec un prisonnier à quête (QuetesPrisonniers) : un ennemi entre par une porte et
+## poursuit le héros (« faire_entrer »), ou un combat commence tout de suite (« combat »). Renvoie le message.
+func _suites_quete(suites: Array) -> String:
+	var messages := []
+	for s in suites:
+		var p: Dictionary = s.get("faire_entrer", s.get("combat", {}))
+		if p.is_empty():
+			continue
+		salle_peinte.presences.faire_venir(p, 0.6 if s.has("faire_entrer") else 0.0, _entree_au_hasard(), true)
+		if s.has("combat"):
+			messages.append(await _combattre(p))
+			if Statistiques.mort:
+				break
+	return " ".join(messages)
+
+
+## Point d'entrée devant une porte au hasard de la salle (une sortie qui mène quelque part).
+func _entree_au_hasard() -> Vector2:
+	var sorties: Array = donjon.salle_courante().get("salle_peinte", {}).get("sorties", [])
+	var portes := []
+	for i in sorties.size():
+		if sorties[i] != null and not i in salle_peinte.sorties_murees:
+			portes.append(i)
+	return salle_peinte.point_interieur(portes.pick_random() if not portes.is_empty() else -1)
 
 
 ## Un ennemi touche le héros : combat (ou capture par un geôlier ; les pacifiques demandent grâce).

@@ -171,9 +171,26 @@ stick droit pour choisir un bouton de l'interface.
     il est peint dans l'image (rien n'est dessiné par-dessus) et on lui parle quand le héros est dans sa zone. On
     peut lui **parler** (une petite information de `donnees/prisonniers.json`, jamais deux fois, notée au journal),
     le **tuer** (karma −1, `Karma.ACTES` « tuer_prisonnier_cellule » ; son corps reste, 1 âme à siphonner) ou partir.
-    `donnees/prisonniers.json` est **vide** pour l'instant (accueil, informations, quêtes : à remplir). Les quêtes
-    (tuer des ennemis, rapporter la clé de la cellule, une potion, de la nourriture des cuisines ; petites
-    récompenses, parfois karma +1 ou 1 point de caractéristique) ne sont **pas encore faites** ;
+    Accueil et informations des prisonniers ordinaires : encore vides dans `donnees/prisonniers.json`.
+  - **Quêtes des prisonniers** (2026-11-02, textes de l'utilisateur ; `scripts/logique/quetes_prisonniers.gd`) : tout
+    le contenu est dans `donnees/prisonniers.json` (« quetes », « objets » ; mode d'emploi dans « _lisez_moi ») pour
+    pouvoir les changer sans toucher au code. Chaque quête est posée **une fois par partie**, dans une cellule d'une
+    prison d'un des étages de sa liste « etages » (les trois : étage 1, pour les essayer). Une quête est une suite
+    d'**étapes** : texte (une bulle par ligne) et actions la première fois, répliques répétées ensuite, objet à
+    donner (bouton « Donner : ... »), événement attendu (élite vaincu). Actions : karma, sort au hasard, objet posé
+    au sol (cuisine du bloc cuisine, à ramasser avec E), objet confié à un élite (sur son corps ; « {direction} »
+    dans un texte dit où il est : « vers le nord-est, à 5 salles d'ici »), élite (ou élite+, PV × 1,5) qui entre par
+    une porte et attaque, Chevalier de la mort de l'étage qui entre ou attaque tout de suite, bijou de récompense,
+    départ du prisonnier. On peut toujours tuer un prisonnier à quête (karma −1).
+    | Prisonnier | Déroulé |
+    |---|---|
+    | Vieux magicien | soupe à la cuisine → karma +1 et un sort au hasard ; ensuite il dort : trois réveils, puis « GARDE ! » (un élite attaque) ; élite vaincu et on l'embête encore → malédiction, karma −2, le Chevalier de la mort entre ; puis à chaque fois « AHAHAHAHA ! » et combat direct contre le chevalier |
+    | Prisonnier malade | une potion de soin → de la nourriture (soupe posée à la cuisine, ou toute nourriture) → la clé de sa cellule, sur un élite loin de lui (il dit où) → il s'enfuit et un **élite+** attaque |
+    | Mariane | son amulette, sur un élite des catacombes (salles « crypte ») : **Amulette de Mariane** (intelligence +2, Mana +1, sagesse −1, équipable : on peut la garder) → un anneau de rang étage + 2, elle disparaît |
+    Choix de Claude à valider : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = anneau du rang des objets de
+    l'étage + 2 (rang 3 à l'étage 1) ; l'élite+ du prisonnier malade attaque après son départ ; les catacombes sont
+    les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
+    simplement plus lui parler) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
     (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
@@ -873,6 +890,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_fouille.gd             # fouille à l'écran : « Fouiller (E) », E, objet assombri ; objets de chaque salle (captures 74-91, hors écran)
 & $godot --headless --path . -s tests/test_arrivees.gd           # arrivée par l'ouverture qui mène à la salle quittée (porte plutôt que passage, retour par l'ouverture prise)
 & $godot --headless --path . -s tests/test_retour_salle.gd       # retour dans la salle précédente : là où le héros avait franchi la sortie
+& $godot --headless --path . -s tests/test_quetes_prisonniers.gd # les trois quêtes des prisonniers jouées de bout en bout (logique)
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
@@ -960,6 +978,23 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — Quêtes des prisonniers
+
+- **Pour le joueur** : trois prisonniers à quête dans les cellules de l'étage 1 (pour les essayer) : le vieux
+  magicien (bol de soupe), le prisonnier malade (potion, nourriture, clé sur un élite) et Mariane (son amulette,
+  sur un élite des catacombes). Textes de l'utilisateur (fautes de frappe corrigées). Voir « Quêtes des
+  prisonniers » plus haut.
+- **Modulable** : tout est dans `donnees/prisonniers.json` (étapes, répliques, objets, actions, étages) ; le moteur
+  `QuetesPrisonniers` le joue. Nouveaux objets : Bol de soupe (nourriture), Clé de la cellule (objet de quête),
+  Amulette de Mariane (amulette équipable).
+- Branchements : `Aventure._poser_prisonniers` (pose des quêtes), `ennemis_de` (élite+), `laisser_cadavre` /
+  `cadavre` (objets de quête sur les corps), `apres_victoire` (événement), `utiliser_objet` (ramasser) ;
+  `Rencontres.prisonnier_a_quete` (dialogues, bouton Donner) ; `menu_navigation._suites_quete` (ennemi qui entre,
+  combat direct) ; `SallePeinte.point_interieur` ; dessin de l'objet au sol (`presences_salle.gd`).
+- Tests : `test_quetes_prisonniers` (0 échec), `capture_quetes_prisonniers` (soupe en cuisine, élite qui entre puis
+  combat : 0 échec), `capture_quetes_chevalier` (combat direct contre le chevalier : 0 échec) ; `test_aventure` :
+  0 échec.
 
 ### 2026-11-02 — Tableau des dégâts de l'écran des stats
 

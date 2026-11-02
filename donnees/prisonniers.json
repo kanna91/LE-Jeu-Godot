@@ -1,6 +1,122 @@
 {
-  "_lisez_moi": "Prisonniers des cellules (ébauche du 2026-11-01). À remplir par l'utilisateur : 'accueil' (phrases quand on s'approche), 'informations' (petits conseils sur le jeu ou les ennemis, un par discussion, jamais deux fois). Les quêtes viendront plus tard ('quetes' : tuer des ennemis, rapporter la clé de la cellule, une potion, de la nourriture des cuisines ; récompenses : petite récompense, parfois karma +1, parfois 1 point de caractéristique).",
+  "_lisez_moi": [
+    "Prisonniers des cellules. 'accueil' et 'informations' : prisonniers ordinaires (phrases d'accueil ; petits conseils, un par discussion, jamais deux fois).",
+    "'quetes' : prisonniers à quête (2026-11-02). Chacun est posé une seule fois par partie, dans une cellule d'un des étages de 'etages'.",
+    "Une quête est une suite d'étapes ('etapes', la première est 'debut'). À chaque discussion, l'étape en cours :",
+    "  - la première fois : affiche 'texte' (une bulle par ligne), fait ses 'actions', puis passe à 'suivant' s'il y en a un ;",
+    "  - les fois suivantes : affiche la réplique suivante de 'repete' (la dernière reste, ou en boucle si 'boucle' est vrai) et fait 'actions_repete' ;",
+    "  - 'donner' : {objet ou categorie, etape} : si le héros a l'objet, un bouton « Donner ... » le donne et passe à 'etape' (jouée tout de suite) ;",
+    "  - 'attendre' : {evenement, etape} : dès que l'événement a eu lieu (élite vaincu...), on passe à 'etape' à la discussion suivante.",
+    "Actions : {karma: n} ; {sort_aleatoire: true} ; {placer_objet: nom, lieu: 'cuisine'} (objet posé au sol) ;",
+    "  {objet_sur_elite: nom, lieu: 'loin' | 'crypte'} (un élite le porte, à fouiller sur son corps ; {direction} dans les textes dit où il est) ;",
+    "  {elite_attaque: {evenement: nom, renforce: vrai/faux}} (un élite entre et attaque ; 'renforce' : élite+, PV × 1,5) ;",
+    "  {chevalier: 'arrive' | 'combat'} (le Chevalier de la mort de l'étage entre et poursuit le héros / attaque tout de suite) ;",
+    "  {donner_bijou: 'anneau' | 'amulette', rang_bonus: n} (rang de l'étage + n) ; {disparaitre: texte} (le prisonnier s'en va) ; {message: texte}.",
+    "Catégories pour 'donner' : 'nourriture' (objet divers de sorte nourriture), 'potion_soin' (potion qui rend des PV).",
+    "'objets' : objets des quêtes. Divers : {sorte, valeur, description}. Équipement : {equipement: 'amulette' | 'anneau', bonus: {caractéristique: valeur}, valeur, description}."
+  ],
   "accueil": [],
   "informations": [],
-  "quetes": []
+  "objets": {
+    "Bol de soupe": {"sorte": "nourriture", "valeur": 1, "description": "Une soupe tiède et épaisse, volée aux cuisines des geôliers."},
+    "Clé de la cellule": {"sorte": "quete", "valeur": 0, "description": "Une grosse clé de fer. Elle ouvre une cellule des prisons."},
+    "Amulette de Mariane": {"equipement": "amulette", "bonus": {"intelligence": 2, "caracteristique_mana": 1, "sagesse": -1}, "valeur": 120,
+      "description": "Une amulette ancienne qui luit faiblement. Mariane y tient plus que tout."}
+  },
+  "quetes": [
+    {
+      "id": "magicien",
+      "nom": "Vieux magicien",
+      "couleur": [150, 140, 200],
+      "etages": [1],
+      "presentation": "Un vieux magicien, maigre et voûté, est assis contre les barreaux. Il est venu chercher la gloire dans ce donjon ; ses gardiens l'ont attrapé il y a des années. Il a perdu la notion du temps, et tout espoir de s'échapper. Tout ce qu'il souhaite, c'est un peu de confort.",
+      "debut": "faim",
+      "etapes": {
+        "faim": {
+          "texte": ["« J'ai tellement faim… Les geôliers ont oublié de venir me donner à manger aujourd'hui… avec tout le raffut que tu as fait… Tu veux bien aller me chercher un bol de soupe à la cuisine ? Je t'apprendrai un truc ou deux si tu le fais. »"],
+          "actions": [{"placer_objet": "Bol de soupe", "lieu": "cuisine"}],
+          "repete": ["« J'ai faim… Je veux juste un bol de soupe… un bon bol de soupe… »", "« … »"],
+          "donner": {"objet": "Bol de soupe", "etape": "merci"}
+        },
+        "merci": {
+          "texte": ["« Aaah… Merci, mon ami, je meurs de faim ! »", "« Tiens, avec ça tu pourras lancer un nouveau sort. »", "« Maintenant laisse-moi dormir, l'ami, j'ai besoin de digérer tranquillement. »"],
+          "actions": [{"karma": 1}, {"sort_aleatoire": true}],
+          "suivant": "dort1"
+        },
+        "dort1": {"texte": ["« zzzZZzz… Hein… ? T'es encore là ? Laisse-moi… dormir, l'ami… J'ai besoin… de… zzzZZZzz… »"], "suivant": "dort2"},
+        "dort2": {"texte": ["« zzzZZzzzZ… Hum… ? Tu veux pas me laisser dormir ? T'as pas mieux à faire ? »"], "suivant": "dort3"},
+        "dort3": {"texte": ["« Mais LAISSE-MOI DORMIR !!! OUSTE ! DU VENT ! DU BALAI ! LAISSE-MOI DORMIR ! »"], "suivant": "garde"},
+        "garde": {
+          "texte": ["« GARDE ! GARDE ! IL Y A UN INTRUS ! »"],
+          "actions": [{"elite_attaque": {"evenement": "magicien_garde_vaincu"}}],
+          "repete": ["« GARDE ! GARDE ! »"],
+          "attendre": {"evenement": "magicien_garde_vaincu", "etape": "maudit"}
+        },
+        "maudit": {
+          "texte": ["« ALORS C'EST COMME ÇA, HEIN ? QUE TON PÉRIPLE SOIT MAUDIT, VILE CRÉATURE ! SERVITEUR DU MAL ! QUE LA MORT T'EMPORTE ! »"],
+          "actions": [{"karma": -2}, {"chevalier": "arrive"}],
+          "suivant": "rire"
+        },
+        "rire": {
+          "texte": ["« AHAHAHAHA ! »"],
+          "actions": [{"chevalier": "combat"}],
+          "repete": ["« AHAHAHAHA ! »"],
+          "actions_repete": [{"chevalier": "combat"}]
+        }
+      }
+    },
+    {
+      "id": "malade",
+      "nom": "Prisonnier malade",
+      "couleur": [150, 175, 150],
+      "etages": [1],
+      "presentation": "Un homme tremblant et grelottant, recroquevillé au fond de sa cellule. Il est malade et a besoin de soins.",
+      "debut": "soin",
+      "etapes": {
+        "soin": {
+          "texte": ["« J'ai… besoin… de soin… Pitié… Une potion de soin… »"],
+          "repete": ["« J'ai… besoin… de soin… pitié… du… soin… »", "« Fais vite… je t'en prie… »", "« Je n'en ai… plus… pour… longtemps… »"],
+          "boucle": true,
+          "donner": {"categorie": "potion_soin", "etape": "faim"}
+        },
+        "faim": {
+          "texte": ["« Je me sens beaucoup mieux… merci, mais… j'ai faim à présent… Va me chercher quelque chose à manger, à la cuisine ou n'importe où… »"],
+          "actions": [{"placer_objet": "Bol de soupe", "lieu": "cuisine"}],
+          "repete": ["« Tu as trouvé quelque chose ? »", "« Je suis encore si faible… Trouve-moi quelque chose, je t'en prie… »"],
+          "boucle": true,
+          "donner": {"categorie": "nourriture", "etape": "cle"}
+        },
+        "cle": {
+          "texte": ["« Si tu peux me faire sortir, tu ne le regretteras pas. »", "« La clé de ma cellule, c'est un élite qui l'a. Il traîne souvent {direction}… »"],
+          "actions": [{"objet_sur_elite": "Clé de la cellule", "lieu": "loin"}],
+          "repete": ["« L'élite qui a la clé… il traîne souvent {direction}… »", "« … »"],
+          "donner": {"objet": "Clé de la cellule", "etape": "libre"}
+        },
+        "libre": {
+          "texte": ["Vous ouvrez la cellule avec la clé.", "« Merci, vraiment, tu ne le regretteras pas ! »"],
+          "actions": [{"disparaitre": "Il s'enfuit dans les couloirs. Des pas lourds approchent…"}, {"elite_attaque": {"evenement": "malade_elite_vaincu", "renforce": true}}]
+        }
+      }
+    },
+    {
+      "id": "mariane",
+      "nom": "Mariane",
+      "couleur": [200, 150, 170],
+      "etages": [1],
+      "presentation": "Une femme anxieuse vous jette un regard calculateur. Elle murmure des choses inintelligibles.",
+      "debut": "amulette",
+      "etapes": {
+        "amulette": {
+          "texte": ["« Ils m'ont pris mon amulette… ! Ces salauds m'ont pris MON amulette ! »", "« Et ils l'ont fait tomber, en plus ! MA PRÉCIEUSE AMULETTE !!! VOUS VOUS RENDEZ COMPTE ?! »", "« Elle doit toujours être dans les catacombes… RAMENEZ-LA-MOI ! Je saurai me montrer généreuse ! »"],
+          "actions": [{"objet_sur_elite": "Amulette de Mariane", "lieu": "crypte"}],
+          "repete": ["« Vous l'avez ? Non ?! ALORS QU'EST-CE QUE VOUS ATTENDEZ ?! QU'ILS LA TROUVENT AVANT VOUS ?! »", "Elle vous tourne le dos et refuse de vous parler."],
+          "donner": {"objet": "Amulette de Mariane", "etape": "merci"}
+        },
+        "merci": {
+          "texte": ["« AHAHAHAHAH ! Merci ! Merci ! Merci ! Avec ça, je vais enfin pouvoir partir d'ici ! »", "« Oh ! C'est vrai ! Tenez, pour votre peine ! »"],
+          "actions": [{"donner_bijou": "anneau", "rang_bonus": 2}, {"disparaitre": "Elle disparaît dans un éclair de lumière, laissant la cellule vide."}]
+        }
+      }
+    }
+  ]
 }

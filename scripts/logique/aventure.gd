@@ -151,7 +151,8 @@ const RODEURS := ["groupe", "imbattable", "geolier", "porteur"]
 const NOMS := {"groupe": "Gobelins", "imbattable": "Chevalier de la mort", "geolier": "Geôlier", "porteur": "Porteur",
 	"boss": "Boss de l'étage", "diablotin": "Diablotin", "prisonnier_cellule": "Prisonnier", "gobelin_blesse": "Gobelin blessé", "prisonnier": "Prisonnier",
 	"autel": "Autel de sang", "pupitre": "Pupitre", "ratelier": "Râtelier d'armes", "cachette": "Cachette",
-	"coffre_confisque": "Coffre des confiscations", "coffre_gardien": "Coffre ancien", "succube": "Succube"}
+	"coffre_confisque": "Coffre des confiscations", "coffre_gardien": "Coffre ancien", "succube": "Succube",
+	"objet_quete": "Objet"}
 
 
 # ---------------------------------------------------------------------------
@@ -395,6 +396,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 ## pas dessinée, elle sert à parler quand le héros entre dans sa zone (``zone``, retournée si la salle est en miroir).
 static func _poser_prisonniers(donjon, etage: int, m: Dictionary) -> void:
 	var salles: Dictionary = donjon.plan_donjon[etage]
+	var cellules := []  # [présence, image] : pour les quêtes des prisonniers (QuetesPrisonniers)
 	for i in salles:
 		var info: Dictionary = salles[i].get("salle_peinte", {})
 		var image := String(info.get("image", ""))
@@ -413,8 +415,11 @@ static func _poser_prisonniers(donjon, etage: int, m: Dictionary) -> void:
 			centre /= z.size()
 			if not salles[i].has("presences"):
 				salles[i]["presences"] = []
-			salles[i]["presences"].append({"id": _nouvel_id(m), "genre": "pnj", "sous": "prisonnier_cellule", "etat": "actif",
-				"zone": zone, "pos": [centre.x, centre.y], "pos_image": "%s%s" % [image, "_m" if miroir else ""]})
+			var prisonnier := {"id": _nouvel_id(m), "genre": "pnj", "sous": "prisonnier_cellule", "etat": "actif",
+				"zone": zone, "pos": [centre.x, centre.y], "pos_image": "%s%s" % [image, "_m" if miroir else ""]}
+			salles[i]["presences"].append(prisonnier)
+			cellules.append([prisonnier, image])
+	QuetesPrisonniers.assigner(donjon, etage, cellules)
 
 
 ## La salle du boss est fermée ; sa clé est confiée à une élite loin du départ (une élite existante, sinon un groupe
@@ -497,7 +502,7 @@ static func presences(donjon, salle: Dictionary) -> Array:
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
 	var liste := []
 	for p in salle.get("presences", []):
-		if p.get("etat", "actif") == "actif" or (p["genre"] == "objet" and not p["sous"] in ["cachette", "cadavre"]):
+		if p.get("etat", "actif") == "actif" or (p["genre"] == "objet" and not p["sous"] in ["cachette", "cadavre", "objet_quete"]):
 			liste.append(p)
 	return liste
 
@@ -576,6 +581,10 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 			elif k == 0 and p.get("elite", false):
 				g = Gobelin.nouveau(donjon, n).generer_mini_boss_gobelin(donjon, n, cs)
 				g._d["butin_garanti"] = true
+				if p.get("renforce", false):  # élite+ d'une quête de prisonnier
+					g._d["nom"] = String(g._d["nom"]) + "+"
+					g._d["points_de_vie_max"] = int(g._d["points_de_vie_max"] * QuetesPrisonniers.FACTEUR_RENFORCE)
+					g._d["points_de_vie"] = g._d["points_de_vie_max"]
 			else:
 				g = Gobelin.nouveau(donjon, n).generer_gobelin(donjon, n, cs)
 			g._d["image"] = mg["image"]
@@ -786,6 +795,8 @@ static func apres_victoire(donjon, p: Dictionary) -> String:
 		p["objets"] = []
 	if p["genre"] == "boss":
 		Statistiques.noter(donjon.personnage, "boss_vaincus")
+	if p.has("evenement_victoire"):  # élite envoyé par un prisonnier (QuetesPrisonniers)
+		QuetesPrisonniers.evenement(donjon, String(p["evenement_victoire"]))
 	return " ".join(messages.filter(func(x): return x != ""))
 
 
@@ -820,6 +831,8 @@ static func laisser_cadavre(donjon, p: Dictionary, pos = null, cle_image := "") 
 		"nom_corps": "le boss" if p["genre"] == "boss" else ("les corps" if membres(p).size() > 1 else "le corps")}
 	if p.has("cle_boss"):
 		corps["cle_boss"] = p["cle_boss"]
+	if not p.get("objets_quete", []).is_empty():
+		corps["objets_quete"] = p["objets_quete"].duplicate()
 	if pos is Vector2:
 		corps["pos"] = [pos.x, pos.y]
 		corps["pos_image"] = cle_image
@@ -851,8 +864,13 @@ static func cadavre(donjon, p: Dictionary) -> String:
 			if p.has("cle_boss") and not p.get("cle_prise", false):
 				p["cle_prise"] = true
 				messages.append(donner_cle_boss(joueur, int(p["cle_boss"])))
+			var quete := QuetesPrisonniers.prendre_objets(joueur, p)
+			if quete != "":
+				messages.append(quete)
 		elif action.begins_with("Siphonner"):
 			p["etat"] = "siphonne"
+			if not p.get("objets_quete", []).is_empty():
+				messages.append("Le corps se dissipe... il laisse quelque chose derrière lui. " + QuetesPrisonniers.prendre_objets(joueur, p))
 			if p.has("cle_boss") and not p.get("cle_prise", false):
 				# La clé ne disparaît pas avec le corps : elle tombe à terre
 				p["cle_prise"] = true
@@ -1085,6 +1103,8 @@ static func relever_par_pacte(donjon) -> bool:
 static func action(p: Dictionary) -> String:
 	if p["genre"] == "pnj":
 		return {"autel": "Examiner l'autel", "gobelin_blesse": "S'approcher"}.get(p["sous"], "Parler")
+	if p.get("sous") == "objet_quete":
+		return "Ramasser : %s" % String(p.get("objet", "l'objet"))
 	return {"pupitre": "Lire", "ratelier": "Fouiller le râtelier", "cachette": "Examiner",
 		"coffre_confisque": "Ouvrir le coffre", "coffre_gardien": "Ouvrir le coffre", "cadavre": "Examiner le corps"}.get(p["sous"], "Utiliser")
 
@@ -1143,6 +1163,10 @@ static func utiliser_objet(donjon, p: Dictionary) -> String:
 			"coffre_confisque": "Le coffre est vide.", "coffre_gardien": "Le coffre est vide."}.get(p["sous"], "Il n'y a plus rien ici.")
 	p["etat"] = "utilise"
 	match p["sous"]:
+		"objet_quete":
+			var o = QuetesPrisonniers.creer_objet(String(p.get("objet", "")))
+			joueur.recevoir_objet(o)
+			return "Vous ramassez : %s." % o.nom
 		"pupitre":
 			return "Sur le pupitre, un vieux livre. " + lire_livre(joueur, etage)
 		"ratelier":

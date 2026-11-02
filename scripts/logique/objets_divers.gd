@@ -9,7 +9,7 @@ extends RefCounted
 ## encore dans le jeu (ni fouille, ni marchand).
 
 ## Sortes d'objets divers : {clé : nom lisible} (les exemples de l'utilisateur).
-const SORTES := {"argenterie": "Argenterie", "nourriture": "Nourriture", "casse": "Objet cassé"}
+const SORTES := {"argenterie": "Argenterie", "nourriture": "Nourriture", "casse": "Objet cassé", "quete": "Objet de quête"}
 ## Catalogue : [nom, sorte, prix de revente en or, description] — à remplir avec la liste de l'utilisateur.
 const CATALOGUE := []
 ## Clés rouillées du héros, montrées dans la catégorie « Divers » de l'inventaire (elles restent un simple

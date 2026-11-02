@@ -609,7 +609,7 @@ static func _hauteur_forme(p: Dictionary) -> float:
 			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65,
 				"prisonnier_cellule": 0.9, "autel": 0.45}.get(p["sous"], 0.6)
 	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35,
-		"cadavre": TAILLE_GOBELIN * 0.4}.get(p.get("sous", ""), 0.5)
+		"cadavre": TAILLE_GOBELIN * 0.4, "objet_quete": 0.18}.get(p.get("sous", ""), 0.5)
 
 
 func _dessiner(n: Node2D, e: Dictionary) -> void:
@@ -693,6 +693,18 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 						for k in 3:
 							var x := (k - 1) * hf * 0.22
 							n.draw_line(Vector2(x, -hf * 0.05), Vector2(x, -hf), Color8(170, 170, 180), maxf(1.0, hf * 0.04))
+				"objet_quete":
+					# Objet d'une quête de prisonnier, posé au sol (bol de soupe, ou petit paquet) ; il luit doucement
+					var a := 0.25 + 0.2 * sin(temps * 3.0 + int(p.get("id", 0)))
+					n.draw_circle(Vector2(0, -hf * 0.4), hf * 0.9, Color(1, 0.9, 0.6, a * 0.4))
+					if "soupe" in String(p.get("objet", "")).to_lower():
+						n.draw_colored_polygon(PackedVector2Array([Vector2(-hf * 0.7, -hf * 0.55), Vector2(hf * 0.7, -hf * 0.55),
+							Vector2(hf * 0.45, 0), Vector2(-hf * 0.45, 0)]), Color8(120, 80, 45))
+						n.draw_set_transform(Vector2(0, -hf * 0.55), 0, Vector2(1, 0.3))
+						n.draw_circle(Vector2.ZERO, hf * 0.7, Color8(175, 120, 55))
+						n.draw_set_transform(Vector2.ZERO)
+					else:
+						n.draw_rect(Rect2(Vector2(-hf * 0.5, -hf), Vector2(hf, hf)), Color8(140, 110, 70))
 				"coffre_confisque":
 					n.draw_rect(Rect2(Vector2(-hf * 0.55, -hf), Vector2(hf * 1.1, hf)), Color8(105, 70, 35) if not utilise else Color8(70, 50, 30))
 					n.draw_rect(Rect2(Vector2(-hf * 0.55, -hf * 0.62), Vector2(hf * 1.1, hf * 0.12)), Color8(200, 160, 60))

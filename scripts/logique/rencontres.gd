@@ -526,9 +526,46 @@ static func textes_prisonniers() -> Dictionary:
 
 ## Prisonnier dans sa cellule (peint dans l'image ; on lui parle depuis sa zone de dialogue) : parler (une petite
 ## information, jamais deux fois dans la partie), le tuer (karma −1 : son âme se siphonne depuis la même zone ; l'image
-## ne change pas), ou partir. Quêtes : pas encore (la liste ``quetes`` est vide).
-## Renvoie le message de fin.
-static func prisonnier_cellule(donjon, p: Dictionary) -> String:
+## ne change pas), ou partir. Un prisonnier à quête (« quete ») joue sa quête : ``prisonnier_a_quete``.
+## Renvoie [message, bruit] (ou [message, bruit, suites] pour une quête).
+static func prisonnier_cellule(donjon, p: Dictionary) -> Array:
+	if p.has("quete"):
+		return await prisonnier_a_quete(donjon, p)
+	return [await _prisonnier_ordinaire(donjon, p), false]
+
+
+## Prisonnier à quête (QuetesPrisonniers, textes de donnees/prisonniers.json) : sa présentation, puis Parler (l'étape
+## en cours de sa quête, une bulle par ligne ; « Donner ... » s'il attend un objet que le héros a), Le tuer, Partir.
+## Renvoie [message, bruit, suites] (suites : ce que l'écran doit faire, voir QuetesPrisonniers).
+static func prisonnier_a_quete(donjon, p: Dictionary) -> Array:
+	var q := QuetesPrisonniers.definition(String(p["quete"]))
+	var nom := String(q.get("nom", "Prisonnier"))
+	var c: Array = q.get("couleur", [170, 160, 140])
+	var teinte := Color8(int(c[0]), int(c[1]), int(c[2]))
+	var choix := await Ecrans.dialogue(nom, String(q.get("presentation", "Un prisonnier vous regarde à travers les barreaux.")),
+		["Parler", "Le tuer", "Partir"], teinte)
+	if choix == 1:
+		return [_tuer_prisonnier(donjon, p), false, []]
+	if choix != 0:
+		return ["Vous laissez %s à sa cellule." % nom.to_lower(), false, []]
+	var res := QuetesPrisonniers.ecouter(donjon, p)
+	var suites: Array = res["suites"].duplicate()
+	while true:
+		var lignes: Array = res["lignes"] if not res["lignes"].is_empty() else ["« … »"]
+		for k in lignes.size() - 1:
+			await Ecrans.dialogue(nom, String(lignes[k]), ["…"], teinte)
+		var boutons := ["Partir"]
+		if res["donner"] != "":
+			boutons = ["Donner : %s" % res["donner"], "Partir"]
+		var r := await Ecrans.dialogue(nom, String(lignes[-1]), boutons, teinte)
+		if res["donner"] == "" or r != 0:
+			break
+		res = QuetesPrisonniers.donner(donjon, p)
+		suites.append_array(res["suites"])
+	return ["", false, suites]
+
+
+static func _prisonnier_ordinaire(donjon, p: Dictionary) -> String:
 	var t := textes_prisonniers()
 	var accueil: Array = t.get("accueil", [])
 	var texte: String = accueil.pick_random() if not accueil.is_empty() else "Un prisonnier vous regarde à travers les barreaux."
@@ -544,16 +581,21 @@ static func prisonnier_cellule(donjon, p: Dictionary) -> String:
 				return "« %s »" % info
 		return "Le prisonnier n'a rien à vous dire."
 	if choix == 1:
-		Statistiques.noter(donjon.personnage, "prisonniers_tues")
-		p["genre"] = "objet"
-		p["sous"] = "cadavre"
-		p["etat"] = "actif"
-		p["ames"] = 1
-		p["humain"] = true
-		p["nom_corps"] = "le prisonnier"
-		p["t_mort"] = Animations.temps()
-		return ("Vous le tuez entre ses barreaux. " + Karma.acte(donjon, "tuer_prisonnier_cellule")).strip_edges()
+		return _tuer_prisonnier(donjon, p)
 	return "Vous laissez le prisonnier à sa cellule."
+
+
+## Le héros tue le prisonnier entre ses barreaux (karma −1) : il devient un corps dont l'âme se siphonne.
+static func _tuer_prisonnier(donjon, p: Dictionary) -> String:
+	Statistiques.noter(donjon.personnage, "prisonniers_tues")
+	p["genre"] = "objet"
+	p["sous"] = "cadavre"
+	p["etat"] = "actif"
+	p["ames"] = 1
+	p["humain"] = true
+	p["nom_corps"] = "le prisonnier"
+	p["t_mort"] = Animations.temps()
+	return ("Vous le tuez entre ses barreaux. " + Karma.acte(donjon, "tuer_prisonnier_cellule")).strip_edges()
 
 
 ## Prisonnier enchaîné ; renvoie [message, bruit] (bruit : les ennemis de la salle accourent).
@@ -601,7 +643,7 @@ static func parler(donjon, p: Dictionary) -> Array:
 		"prisonnier":
 			return await prisonnier(donjon, p)
 		"prisonnier_cellule":
-			return [await prisonnier_cellule(donjon, p), false]
+			return await prisonnier_cellule(donjon, p)
 		"succube":
 			return [await succube(donjon, p), false]
 		"autel":
