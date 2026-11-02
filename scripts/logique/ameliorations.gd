@@ -41,7 +41,7 @@ const BASES := {
 	"Caresse_des_ombres": {"alterations": {"destruction armure": 50, "destruction résistance": 50,
 		"décrépitude": 25, "esprit embrumé": 25}},
 	"Silence": {"alterations": {"silence": 60, "brûlure de mana": 30}},
-	"Recupe": {"alterations": {"régénération": 100}, "degats_lumière": 12, "soin_pourcentage_pv": 0.05},
+	"Recupe": {"alterations": {"régénération": 100}, "degats_lumière": 12},  # « +5 % des PV max » retiré (2026-11-02) : jamais appliqué
 	# Soins : leur part des PV max de la cible est dans Formules.PV_CIBLE_ENNEMIS (2026-11-01)
 	"Soin_mineur": {"degats_lumière": 15},
 	"Soin": {"degats_lumière": 50},

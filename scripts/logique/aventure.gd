@@ -581,6 +581,8 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 			elif k == 0 and p.get("elite", false):
 				g = Gobelin.nouveau(donjon, n).generer_mini_boss_gobelin(donjon, n, cs)
 				g._d["butin_garanti"] = true
+				if p.has("nom_elite"):  # élite d'une quête de prisonnier (« Faux prisonnier »)
+					g._d["nom"] = String(p["nom_elite"])
 				if p.get("renforce", false):  # élite+ d'une quête de prisonnier
 					g._d["nom"] = String(g._d["nom"]) + "+"
 					g._d["points_de_vie_max"] = int(g._d["points_de_vie_max"] * QuetesPrisonniers.FACTEUR_RENFORCE)

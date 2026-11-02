@@ -9,7 +9,8 @@
     "  - 'attendre' : {evenement, etape} : dès que l'événement a eu lieu (élite vaincu...), on passe à 'etape' à la discussion suivante.",
     "Actions : {karma: n} ; {sort_aleatoire: true} ; {placer_objet: nom, lieu: 'cuisine'} (objet posé au sol) ;",
     "  {objet_sur_elite: nom, lieu: 'loin' | 'crypte'} (un élite le porte, à fouiller sur son corps ; {direction} dans les textes dit où il est) ;",
-    "  {elite_attaque: {evenement: nom, renforce: vrai/faux}} (un élite entre et attaque ; 'renforce' : élite+, PV × 1,5) ;",
+    "  {elite_attaque: {evenement: nom, renforce: vrai/faux, depuis_prisonnier: vrai/faux, nom: texte}} (un élite entre par une porte et attaque ;",
+    "    'renforce' : élite+, PV × 1,5 ; 'depuis_prisonnier' : il surgit à la place du prisonnier (le prisonnier était l'élite) ; 'nom' : son nom en combat) ;",
     "  {chevalier: 'arrive' | 'combat'} (le Chevalier de la mort de l'étage entre et poursuit le héros / attaque tout de suite) ;",
     "  {donner_bijou: 'anneau' | 'amulette', rang_bonus: n} (rang de l'étage + n) ; {disparaitre: texte} (le prisonnier s'en va) ; {message: texte}.",
     "Catégories pour 'donner' : 'nourriture' (objet divers de sorte nourriture), 'potion_soin' (potion qui rend des PV).",
@@ -94,7 +95,8 @@
         },
         "libre": {
           "texte": ["Vous ouvrez la cellule avec la clé.", "« Merci, vraiment, tu ne le regretteras pas ! »"],
-          "actions": [{"disparaitre": "Il s'enfuit dans les couloirs. Des pas lourds approchent…"}, {"elite_attaque": {"evenement": "malade_elite_vaincu", "renforce": true}}]
+          "actions": [{"disparaitre": "« Ahahah ! » Ses traits se déforment : ce n'était pas un prisonnier, mais un élite gobelin ! Il se jette sur vous."},
+            {"elite_attaque": {"evenement": "malade_elite_vaincu", "renforce": true, "depuis_prisonnier": true, "nom": "Faux prisonnier"}}]
         }
       }
     },

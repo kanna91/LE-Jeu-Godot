@@ -185,11 +185,10 @@ stick droit pour choisir un bouton de l'interface.
     | Prisonnier | Déroulé |
     |---|---|
     | Vieux magicien | soupe à la cuisine → karma +1 et un sort au hasard ; ensuite il dort : trois réveils, puis « GARDE ! » (un élite attaque) ; élite vaincu et on l'embête encore → malédiction, karma −2, le Chevalier de la mort entre ; puis à chaque fois « AHAHAHAHA ! » et combat direct contre le chevalier |
-    | Prisonnier malade | une potion de soin → de la nourriture (soupe posée à la cuisine, ou toute nourriture) → la clé de sa cellule, sur un élite loin de lui (il dit où) → il s'enfuit et un **élite+** attaque |
+    | Prisonnier malade | une potion de soin → de la nourriture (soupe posée à la cuisine, ou toute nourriture) → la clé de sa cellule, sur un élite loin de lui (il dit où) → **le prisonnier était l'élite** : un élite+ « Faux prisonnier+ » surgit à sa place et attaque |
     | Mariane | son amulette, sur un élite des catacombes (salles « crypte ») : **Amulette de Mariane** (intelligence +2, Mana +1, sagesse −1, équipable : on peut la garder) → un anneau de rang étage + 2, elle disparaît |
-    Choix de Claude à valider : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = anneau du rang des objets de
-    l'étage + 2 (rang 3 à l'étage 1) ; l'élite+ du prisonnier malade attaque après son départ ; les catacombes sont
-    les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
+    Validé par l'utilisateur : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = anneau du rang des objets de
+    l'étage + 2 (rang 3 à l'étage 1) ; les catacombes sont les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
     simplement plus lui parler) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
@@ -978,6 +977,15 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — Quêtes des prisonniers, suite ; Récupe
+
+- Prisonnier malade : il **était l'élite** (idée de l'utilisateur). Une fois la cellule ouverte, « Ahahah ! » : un
+  élite+ « Faux prisonnier+ » surgit à sa place (action `elite_attaque` avec `depuis_prisonnier` et `nom`).
+- Choix validés par l'utilisateur : élite+ aux PV × 1,5, anneau du rang de l'étage + 2, catacombes = salles crypte.
+- Récupe : la ligne « + 5 % des PV max de la cible » est retirée (`Ameliorations.BASES`) ; ce bonus n'était jamais
+  appliqué. Les sorts de lumière (Lumière apaisante, Égide sacrée, Aube réparatrice, Purification, Miracle) ont le
+  même « + % des PV max » affiché sans être appliqué : signalé à l'utilisateur, pas changé.
 
 ### 2026-11-02 — Quêtes des prisonniers
 

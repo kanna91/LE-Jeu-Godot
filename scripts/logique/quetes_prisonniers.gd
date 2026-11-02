@@ -194,7 +194,10 @@ static func _actions(donjon, p: Dictionary, actions: Array, res: Dictionary) -> 
 			confier_a_elite(donjon, String(a["objet_sur_elite"]), String(a.get("lieu", "loin")))
 		if a.has("elite_attaque"):
 			var regle: Dictionary = a["elite_attaque"] if a["elite_attaque"] is Dictionary else {}
-			res["suites"].append({"faire_entrer": nouvel_elite(donjon, regle)})
+			var suite := {"faire_entrer": nouvel_elite(donjon, regle)}
+			if regle.get("depuis_prisonnier", false) and p.get("pos") is Array:
+				suite["depuis"] = p["pos"]  # le prisonnier était l'élite : il surgit de sa cellule
+			res["suites"].append(suite)
 		if a.has("chevalier"):
 			var c := chevalier_ici(donjon)
 			res["suites"].append({"combat" if String(a["chevalier"]) == "combat" else "faire_entrer": c})
@@ -326,13 +329,16 @@ static func _cap(d: Vector2i) -> String:
 
 
 ## Un élite (ou élite+ avec ``regle.renforce``) qui vient attaquer le héros, posé dans la salle du héros ; il dira
-## ``regle.evenement`` quand il sera vaincu. L'écran le fait entrer par une porte.
+## ``regle.evenement`` quand il sera vaincu ; ``regle.nom`` : son nom en combat. L'écran le fait entrer par une porte
+## (ou surgir à la place du prisonnier : ``depuis_prisonnier``).
 static func nouvel_elite(donjon, regle: Dictionary) -> Dictionary:
 	var etage := int(donjon.salle_actuelle[0])
 	var g := {"id": Aventure._nouvel_id(Aventure.meta(donjon, etage)), "genre": "groupe", "etat": "actif", "nombre": 1,
 		"elite": true, "pacifique": false, "seul": true}
 	if regle.get("renforce", false):
 		g["renforce"] = true
+	if String(regle.get("nom", "")) != "":
+		g["nom_elite"] = String(regle["nom"])
 	if String(regle.get("evenement", "")) != "":
 		g["evenement_victoire"] = String(regle["evenement"])
 	var salle: Dictionary = donjon.salle_courante()

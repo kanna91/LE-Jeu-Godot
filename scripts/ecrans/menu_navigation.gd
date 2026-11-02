@@ -605,7 +605,12 @@ func _suites_quete(suites: Array) -> String:
 		var p: Dictionary = s.get("faire_entrer", s.get("combat", {}))
 		if p.is_empty():
 			continue
-		salle_peinte.presences.faire_venir(p, 0.6 if s.has("faire_entrer") else 0.0, _entree_au_hasard(), true)
+		var entree := _entree_au_hasard()
+		var retard := 0.6 if s.has("faire_entrer") else 0.0
+		if s.get("depuis") is Array:  # il surgit à la place du prisonnier, tout de suite
+			entree = salle_peinte.sur_le_sol(Vector2(float(s["depuis"][0]), float(s["depuis"][1])))
+			retard = 0.0
+		salle_peinte.presences.faire_venir(p, retard, entree, true)
 		if s.has("combat"):
 			messages.append(await _combattre(p))
 			if Statistiques.mort:

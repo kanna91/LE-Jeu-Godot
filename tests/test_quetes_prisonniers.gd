@@ -5,7 +5,7 @@ extends SceneTree
 ## - le vieux magicien : soupe posée en cuisine, répliques, don → karma +1 et un sort, trois réveils, « GARDE ! »
 ##   (un élite entre), élite vaincu → malédiction (karma −2, le chevalier entre), puis « AHAHAHAHA ! » (combat) ;
 ## - le prisonnier malade : potion de soin, nourriture, clé sur un élite (direction donnée), cellule ouverte → il
-##   part, un élite+ (PV × 1,5) attaque ;
+##   était l'élite : un élite+ (PV × 1,5, « Faux prisonnier+ ») surgit à sa place ;
 ## - Mariane : amulette sur un élite (des catacombes s'il y en a), objet équipable (intelligence +2, mana +1,
 ##   sagesse −1), rendue même équipée → un anneau de rang étage + 2, elle disparaît.
 ## « BILAN quêtes prisonniers : 0 échec(s) ».   godot --headless --path . -s tests/test_quetes_prisonniers.gd
@@ -155,10 +155,12 @@ func _malade(donjon, place: Array) -> void:
 	verifier(p["etat"] != "actif", "malade : il est parti")
 	var g: Dictionary = r["suites"][0].get("faire_entrer", {}) if not r["suites"].is_empty() else {}
 	verifier(g.get("renforce", false), "malade : un élite+ attaque")
+	verifier(r["suites"][0].get("depuis") == p["pos"], "malade : l'élite+ surgit à la place du prisonnier")
+	verifier("élite gobelin" in _texte(r), "malade : il était l'élite")
 	var normal: Gobelin = Aventure.ennemis_de(donjon, {"genre": "groupe", "elite": true, "membres": [Aventure.membres(g)[0]]})[0]
 	var renforce: Gobelin = Aventure.ennemis_de(donjon, g)[0]
 	print("élite %d PV, élite+ %d PV (%s)" % [normal.points_de_vie_max, renforce.points_de_vie_max, renforce.nom])
-	verifier(renforce.nom.ends_with("+") and renforce.points_de_vie_max > normal.points_de_vie_max, "malade : élite+ plus solide")
+	verifier(renforce.nom == "Faux prisonnier+" and renforce.points_de_vie_max > normal.points_de_vie_max, "malade : élite+ plus solide (%s)" % renforce.nom)
 
 
 func _mariane(donjon, place: Array) -> void:
