@@ -30,17 +30,10 @@ const CHANCE_ISOLE := 1.0 / 6.0
 ## une élite de l'étage (il faut la vaincre et fouiller son corps ; les diablotins aident à la trouver). L'élite qui
 ## la porte est au moins à DISTANCE_CLE_BOSS salles du départ.
 const DISTANCE_CLE_BOSS := 8
-## Chance qu'un groupe soit mené par une **élite** (ancien « chef » / mini-boss ; porte un équipement qu'elle lâche).
-## Renommée « élite » le 2026-10-31 à la demande de l'utilisateur (il n'y a pas de « chef de groupe »).
-const CHANCE_ELITE := 0.12
-## Chance qu'un groupe soit pacifique (gobelins qui ne veulent pas se battre : à ne pas tuer).
-const CHANCE_PACIFIQUE := 0.15
-## Loups et squelettes (Creatures, 2026-10-27 ; fréquences choisies par Claude, validées par l'utilisateur) : part des groupes (sans élite
-## ni pacifiques) qui sont des squelettes (1 à 3, seuls possible), chance qu'un féticheur gobelin mène un groupe de
-## 2 squelettes ou plus, chance qu'un loup accompagne un groupe de gobelins qui compte un archer ou un chaman.
-const CHANCE_GROUPE_SQUELETTES := 0.25
-const CHANCE_FETICHEUR_SQUELETTES := 0.2
-const CHANCE_LOUP := 0.5
+## Sortes d'ennemis, élites, pacifiques, loups et féticheurs menant des squelettes : par **zone**, dans
+## ``donnees/zones.json`` (Zones, 2026-11-02 ; CHANCE_ELITE 0,12, CHANCE_PACIFIQUE 0,15, CHANCE_GROUPE_SQUELETTES
+## 0,25, CHANCE_FETICHEUR_SQUELETTES 0,2 et CHANCE_LOUP 0,5 y sont devenus la zone « defaut »). Élite : ancien
+## « chef » / mini-boss, porte un équipement qu'elle lâche (renommée le 2026-10-31 à la demande de l'utilisateur).
 ## Vitesse de poursuite d'un groupe de squelettes dans les salles (gobelins : 0,58 ; choix de Claude).
 const VITESSE_SQUELETTES := 0.45
 ## Chevaliers de la mort (« imbattables ») et geôliers par étage (décision de l'utilisateur, 2026-10-27 : 1 et 2).
@@ -225,6 +218,17 @@ static func salles_ordinaires(donjon, etage: int) -> Array:
 ## sauf les chasseurs (Chevalier de la mort, geôliers), qui vont partout (demande de l'utilisateur, 2026-10-28).
 const PAISIBLES := ["diablotin", "succube"]
 const ENNEMIS_ECARTES := ["groupe", "porteur"]
+## Refuges (Zones.refuge : la cuisine) : aucun de ces ennemis n'y entre, pas même les chasseurs (décision de
+## l'utilisateur, 2026-11-02 : « aucun ennemi dans la cuisine, seuls les PNJ neutres peuvent y aller »).
+const ENNEMIS := ["groupe", "porteur", "imbattable", "geolier"]
+## Personnages qui ne vont pas dans un refuge (le gobelin blessé est un gobelin).
+const PNJ_HORS_REFUGE := ["gobelin_blesse"]
+
+
+## Salles ordinaires où un ennemi peut être posé ou aller (pas les refuges).
+static func salles_pour_ennemis(donjon, etage: int) -> Array:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	return salles_ordinaires(donjon, etage).filter(func(i): return not Zones.refuge(salles[i]))
 
 
 static func salle_paisible(salle: Dictionary) -> bool:
@@ -235,20 +239,25 @@ static func salle_paisible(salle: Dictionary) -> bool:
 
 
 ## Déplace les groupes de gobelins et les porteurs des salles paisibles de l'étage vers d'autres salles ordinaires
-## (pas de perte d'ennemis : l'étage garde sa densité). Aussi appelé à chaque lecture d'une salle (anciennes parties).
+## (pas de perte d'ennemis : l'étage garde sa densité), et **tous** les ennemis des refuges (cuisine), chasseurs
+## compris. Aussi appelé à chaque lecture d'une salle (anciennes parties).
 static func ecarter_des_salles_paisibles(donjon, etage: int) -> void:
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	var cachot := String(meta(donjon, etage).get("cachot", ""))
-	var accueil := salles_ordinaires(donjon, etage).filter(func(i): return i != cachot and not salle_paisible(salles[i]))
+	var accueil := salles_pour_ennemis(donjon, etage).filter(func(i): return i != cachot and not salle_paisible(salles[i]))
 	if accueil.is_empty():
 		return
 	for i in salles:
-		if not salle_paisible(salles[i]):
+		var refuge := Zones.refuge(salles[i])
+		if not salle_paisible(salles[i]) and not refuge:
 			continue
 		for p in salles[i].get("presences", []).duplicate():
-			if p.get("genre", "") in ENNEMIS_ECARTES:
+			if p.get("genre", "") in (ENNEMIS if refuge else ENNEMIS_ECARTES) and p.get("etat", "actif") == "actif":
+				# Dans la même zone (un squelette des cryptes reste dans les cryptes)
+				var zone := String(p.get("zone_ennemis", ""))
+				var meme_zone := accueil.filter(func(j): return Zones.zone_salle(salles[j]) == zone)
 				salles[i]["presences"].erase(p)
-				salles[accueil.pick_random()]["presences"].append(p)
+				salles[(meme_zone if not meme_zone.is_empty() else accueil).pick_random()]["presences"].append(p)
 
 
 ## Peuple un étage (une seule fois) : rôdeurs, boss, cachot, personnages, objets, salles verrouillées.
@@ -318,25 +327,31 @@ static func preparer_etage(donjon, etage: int) -> void:
 			m["boss_type_degats"] = Gobelin.type_degats_principal(mb["classe"], mb["sous_classe"])
 			s["presences"].append(gardien)
 	var ordinaires := salles_ordinaires(donjon, etage)
-	# Groupes de gobelins
-	for i in ordinaires:
+	var pour_ennemis := salles_pour_ennemis(donjon, etage)  # sans les refuges (cuisine)
+	# Groupes d'ennemis (sortes selon la zone de la salle : Zones)
+	for i in pour_ennemis:
 		for _g in _pondere(GROUPES_PAR_SALLE):
-			salles[i]["presences"].append(nouveau_groupe(donjon, m, etage))
+			salles[i]["presences"].append(nouveau_groupe(donjon, m, etage, Zones.zone_salle(salles[i])))
 	# Ennemis isolés : dans les salles ordinaires sans groupe
-	for i in ordinaires:
+	for i in pour_ennemis:
 		var deja: bool = salles[i]["presences"].any(func(q): return q["genre"] == "groupe")
 		if not deja and randf() < CHANCE_ISOLE:
-			salles[i]["presences"].append({"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1,
-				"elite": false, "pacifique": false, "seul": true})
-	# Imbattables et geôliers, loin du départ
+			var isole := {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1,
+				"elite": false, "pacifique": false, "seul": true}
+			if Zones.zone_salle(salles[i]) != "":
+				isole["zone_ennemis"] = Zones.zone_salle(salles[i])
+			salles[i]["presences"].append(isole)
+	# Imbattables et geôliers, loin du départ, hors des zones (cryptes...) : ils n'y partent pas, mais peuvent y passer
 	var loin := []
-	for i in ordinaires:
-		if dist.get(i, 0) >= DISTANCE_MENACES:
+	for i in pour_ennemis:
+		if dist.get(i, 0) >= DISTANCE_MENACES and Zones.zone_salle(salles[i]) == "":
 			loin.append(i)
 	if loin.is_empty():
-		loin = ordinaires.duplicate()
+		loin = pour_ennemis.duplicate()
 	# Le chevalier part du milieu de l'étage ; ceux de la colère, loin du départ
 	var milieu := centre_etage(donjon, etage)
+	if milieu != "" and Zones.zone_salle(salles[milieu]) != "":
+		milieu = ""
 	for k in CHEVALIERS_PAR_ETAGE + m["colere"]:
 		ajouter_menace(donjon, etage, "imbattable", [milieu] if k < CHEVALIERS_PAR_ETAGE and milieu != "" else loin)
 	for _k in GEOLIERS_PAR_ETAGE:
@@ -348,6 +363,9 @@ static func preparer_etage(donjon, etage: int) -> void:
 		if ordinaires.is_empty():
 			return
 		var ici = places.pop_back() if not places.is_empty() else ordinaires.pick_random()
+		if Zones.refuge(salles[ici]) and presence.get("sous", "") in PNJ_HORS_REFUGE and not pour_ennemis.is_empty():
+			places.push_front(ici)  # la cuisine reste libre pour un autre personnage
+			ici = pour_ennemis.pick_random()
 		salles[ici]["presences"].append(presence)
 	for _k in randi_range(DIABLOTINS_PAR_ETAGE[0], DIABLOTINS_PAR_ETAGE[1]):
 		poser.call({"id": _nouvel_id(m), "genre": "pnj", "sous": "diablotin", "etat": "actif"})
@@ -386,8 +404,9 @@ static func preparer_etage(donjon, etage: int) -> void:
 	for c in contenus:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
+	_fixer_elites(donjon, etage, m)
 	_poser_prisonniers(donjon, etage, m)
-	_poser_cle_boss(donjon, etage, m, salles_ordinaires(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
+	_poser_cle_boss(donjon, etage, m, salles_pour_ennemis(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
 	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
 
 
@@ -442,16 +461,24 @@ static func _poser_cle_boss(donjon, etage: int, m: Dictionary, ordinaires: Array
 	for i in loin:
 		for p in salles[i]["presences"]:
 			if p["genre"] == "groupe" and not p.get("pacifique", false) and not p.get("seul", false):
-				(elites if p.get("elite", false) else hostiles).append(p)
+				if p.get("elite", false):
+					elites.append(p)
+				elif not Zones.elites_fixes(String(p.get("zone_ennemis", ""))):  # pas d'élite de plus dans les cryptes
+					hostiles.append(p)
 	var porteur: Dictionary = {}
+	var hors_zones := loin.filter(func(i): return not Zones.elites_fixes(Zones.zone_salle(salles[i])))
 	if not elites.is_empty():
 		porteur = elites.pick_random()
 	elif not hostiles.is_empty():
 		porteur = hostiles.pick_random()
 		porteur["elite"] = true
-	elif not loin.is_empty():
+		porteur.erase("membres")
+	elif not hors_zones.is_empty():
 		porteur = {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1, "elite": true, "pacifique": false}
-		salles[loin.pick_random()]["presences"].append(porteur)
+		var ici: String = hors_zones.pick_random()
+		if Zones.zone_salle(salles[ici]) != "":
+			porteur["zone_ennemis"] = Zones.zone_salle(salles[ici])
+		salles[ici]["presences"].append(porteur)
 	if not porteur.is_empty():
 		porteur["cle_boss"] = etage
 
@@ -470,21 +497,63 @@ static func donner_cle_boss(joueur, etage: int) -> String:
 	return "Vous trouvez la **clé du boss** de l'étage %d !" % etage
 
 
-## Groupe de gobelins qui rôde : 1 ou 2 selon l'étage (Donjon.ENNEMIS_PAR_ETAGE, plafonné à MAX_PAR_GROUPE), parfois un
-## élite ou pacifique.
-static func nouveau_groupe(donjon, m: Dictionary, etage: int) -> Dictionary:
+## Groupe d'ennemis qui rôde : 1 ou 2 selon l'étage (Donjon.ENNEMIS_PAR_ETAGE, plafonné à MAX_PAR_GROUPE), parfois
+## un élite ou pacifique, selon les réglages de sa ``zone`` (Zones ; ``""`` : hors zone). Une zone au nombre d'élites
+## fixé n'en tire pas au hasard (_fixer_elites les pose).
+static func nouveau_groupe(donjon, m: Dictionary, etage: int, zone := "") -> Dictionary:
+	var r := Zones.reglages(zone)
 	var g := {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif",
 		"nombre": mini(donjon.tirer_nombre_ennemis(etage), MAX_PAR_GROUPE),
-		"elite": randf() < CHANCE_ELITE, "pacifique": false}
-	if not g["elite"] and randf() < CHANCE_PACIFIQUE:
+		"elite": not Zones.elites_fixes(zone) and randf() < float(r["chance_elite"]), "pacifique": false}
+	if zone != "":
+		g["zone_ennemis"] = zone
+	if not g["elite"] and randf() < float(r["chance_pacifique"]):
 		g["pacifique"] = true
 	return g
+
+
+## Zones au nombre d'élites fixé (« nombre_elites » de zones.json ; cryptes : 1) : exactement ce nombre d'élites parmi
+## leurs groupes. Des groupes hostiles en deviennent (plutôt ceux qui ne sont pas des isolés) ; s'il en manque, de
+## nouveaux groupes sont posés dans la zone.
+static func _fixer_elites(donjon, etage: int, m: Dictionary) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	for zone in Zones.liste():
+		if not Zones.elites_fixes(zone):
+			continue
+		var voulu := int(Zones.reglages(zone)["nombre_elites"])
+		var pieces := salles_ordinaires(donjon, etage).filter(
+			func(i): return Zones.zone_salle(salles[i]) == zone and not salle_paisible(salles[i]))
+		if pieces.is_empty():
+			continue
+		var groupes := []
+		var isoles := []
+		for i in pieces:
+			for p in salles[i]["presences"]:
+				if p["genre"] == "groupe" and String(p.get("zone_ennemis", "")) == zone:
+					p["elite"] = false
+					if not p.get("pacifique", false):
+						(isoles if p.get("seul", false) else groupes).append(p)
+		groupes.shuffle()
+		isoles.shuffle()
+		var choix: Array = groupes + isoles
+		for k in voulu:
+			var g: Dictionary
+			if k < choix.size():
+				g = choix[k]
+			else:
+				g = nouveau_groupe(donjon, m, etage, zone)
+				salles[pieces.pick_random()]["presences"].append(g)
+			g["elite"] = true
+			g["pacifique"] = false
+			g.erase("membres")
 
 
 ## Ajoute un imbattable ou un geôlier dans une des salles ``parmi`` (toutes les ordinaires si vide).
 static func ajouter_menace(donjon, etage: int, genre: String, parmi := []) -> Dictionary:
 	var m := meta(donjon, etage)
-	var liste: Array = parmi if not parmi.is_empty() else salles_ordinaires(donjon, etage)
+	var tout: Dictionary = donjon.plan_donjon[etage]
+	var liste: Array = (parmi if not parmi.is_empty() else salles_ordinaires(donjon, etage)).filter(
+		func(i): return not Zones.refuge(tout[i]))
 	if liste.is_empty():
 		return {}
 	var p := {"id": _nouvel_id(m), "genre": genre, "etat": "actif"}
@@ -498,7 +567,7 @@ static func ajouter_menace(donjon, etage: int, genre: String, parmi := []) -> Di
 ## Présences encore là d'une salle (prépare l'étage si besoin).
 static func presences(donjon, salle: Dictionary) -> Array:
 	preparer_etage(donjon, int(donjon.salle_actuelle[0]))
-	if salle_paisible(salle):
+	if salle_paisible(salle) or Zones.refuge(salle):
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
 	var liste := []
 	for p in salle.get("presences", []):
@@ -524,24 +593,27 @@ static func membres(p: Dictionary) -> Array:
 		var liste := []
 		var groupe: bool = p.get("genre", "") == "groupe"
 		var nombre := maxi(1, int(p.get("nombre", 1))) if groupe else 1
-		if groupe and not p.get("elite", false) and not p.get("pacifique", false) and randf() < CHANCE_GROUPE_SQUELETTES:
-			# Squelettes : seuls ou en groupe, parfois menés par un féticheur gobelin
-			for _k in nombre:
-				liste.append(Creatures.membre("squelette"))
-			if nombre >= 2 and randf() < CHANCE_FETICHEUR_SQUELETTES:
-				liste[0] = {"classe": "mage", "sous_classe": "feticheur",
-					"image": Ennemis.IMAGES_GOBELINS_PAR_SOUS_CLASSE["feticheur"].pick_random()}
+		var r := Zones.reglages(String(p.get("zone_ennemis", "")))
+		var elite: bool = groupe and p.get("elite", false)
+		# Une seule sorte par groupe (zones.json, « ennemis ») ; boss, porteurs et pacifiques : gobelins
+		var sorte := Zones.tirer(r["ennemis"]) if groupe and not p.get("pacifique", false) else "gobelin"
+		for _k in nombre:
+			liste.append(Zones.membre(sorte))
+		if elite:
+			# L'élite et son escorte (« suite_elite » : gobelins hors zone, comme avant ; squelettes dans les cryptes)
+			sorte = Zones.tirer(r["suite_elite"])
+			for k in range(1, nombre):
+				liste[k] = Zones.membre(sorte)
+			liste[0] = Zones.membre(Zones.tirer(r["elites"]))
+		elif sorte == "squelette" and nombre >= 2 and randf() < float(r["chance_feticheur"]):
+			liste[0] = Zones.membre("feticheur")  # squelettes menés par un féticheur gobelin (pas une élite)
+		if sorte == "squelette":
 			p["vitesse_poursuite"] = VITESSE_SQUELETTES
-		else:
-			var dresseur := false
-			for _k in nombre:
-				var cs := Gobelin.definir_classe_gobelin()
-				dresseur = dresseur or cs[1] in ["archer", "chaman"]
-				liste.append({"classe": cs[0], "sous_classe": cs[1],
-					"image": Ennemis.IMAGES_GOBELINS_PAR_SOUS_CLASSE.get(cs[1], ["gobelin_defaut.png"]).pick_random()})
-			# Un loup n'est jamais seul : il accompagne un archer ou un chaman
-			if groupe and dresseur and not p.get("seul", false) and liste.size() < MAX_PAR_GROUPE and randf() < CHANCE_LOUP:
-				liste.append(Creatures.membre("loup"))
+		# Un loup n'est jamais seul : il accompagne un archer ou un chaman
+		var dresseur := liste.any(func(mb): return mb["sous_classe"] in ["archer", "chaman"])
+		if groupe and dresseur and Zones.est_gobelin(sorte) and not p.get("seul", false) and liste.size() < MAX_PAR_GROUPE \
+				and randf() < float(r["chance_loup"]):
+			liste.append(Creatures.membre("loup"))
 		p["membres"] = liste
 	return p["membres"]
 
@@ -689,13 +761,16 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 		var dist := distances_depuis(salles, str(p["but"]))
 		var pas := ""
 		for v in salles[ici].get("connections", []):
+			if salles.has(str(v)) and Zones.refuge(salles[str(v)]):
+				continue  # jamais dans un refuge (cuisine) : il s'arrête à la porte
 			if pas == "" or dist.get(str(v), 1 << 20) < dist.get(pas, 1 << 20):
 				pas = str(v)
-		if pas != "":
+		if pas != "" and dist.get(pas, 1 << 20) < dist.get(ici, 1 << 20):
 			return pas
+		p.erase("but")  # le but est dans un refuge (ou hors d'atteinte) : il renonce et erre
 	var voisines := []
 	for v in salles[ici].get("connections", []):
-		if salles.has(str(v)) and not salles[str(v)].get("boss", false):
+		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and not Zones.refuge(salles[str(v)]):
 			voisines.append(str(v))
 	if voisines.size() > 1:
 		voisines.erase(str(p.get("venu_de", "")))
@@ -754,7 +829,7 @@ static func vacarme(donjon) -> int:
 	var dist := distances_depuis(salles, ici)
 	var a_portee := []
 	for i in dist:
-		if dist[i] == ECART_VACARME and not salles[i].get("boss", false):
+		if dist[i] == ECART_VACARME and not salles[i].get("boss", false) and not Zones.refuge(salles[i]):
 			a_portee.append(i)
 	var chevaliers := 0
 	for c in chasseurs(donjon, etage):
@@ -938,8 +1013,8 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 			ailleurs.append(i)
 	if ailleurs.is_empty():
 		ailleurs = [cachot]
-	# Les porteurs ne vont pas dans une salle paisible (diablotin, succube)
-	var pour_porteurs := ailleurs.filter(func(i): return not salle_paisible(salles[i]))
+	# Les porteurs ne vont pas dans une salle paisible (diablotin, succube) ni dans un refuge (cuisine)
+	var pour_porteurs := ailleurs.filter(func(i): return not salle_paisible(salles[i]) and not Zones.refuge(salles[i]))
 	if pour_porteurs.is_empty():
 		pour_porteurs = ailleurs
 	if not coffre.is_empty() or or_confisque > 0:
@@ -949,8 +1024,9 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 		var lot := portes.slice(0, OBJETS_PAR_PORTEUR)
 		portes = portes.slice(OBJETS_PAR_PORTEUR)
 		salles[pour_porteurs.pick_random()]["presences"].append({"id": _nouvel_id(m), "genre": "porteur", "etat": "actif", "objets": lot})
-	# Le geôlier quitte sa salle pour une autre (jamais le cachot)
-	_deplacer(salles, geolier, ailleurs.pick_random())
+	# Le geôlier quitte sa salle pour une autre (jamais le cachot ni un refuge)
+	var pour_geolier := ailleurs.filter(func(i): return not Zones.refuge(salles[i]))
+	_deplacer(salles, geolier, (pour_geolier if not pour_geolier.is_empty() else ailleurs).pick_random())
 	donjon.salle_actuelle = [etage, int(cachot)]
 	salles[cachot]["visitee"] = true
 	joueur.points_de_vie = maxf(joueur.points_de_vie, 1)
@@ -1071,7 +1147,7 @@ static func repousser_geolier(donjon, geolier: Dictionary) -> String:
 	var etage := int(donjon.salle_actuelle[0])
 	var ici := str(donjon.salle_actuelle[1])
 	var cachot := String(meta(donjon, etage).get("cachot", ""))
-	var ailleurs := salles_ordinaires(donjon, etage).filter(func(i): return i != ici and i != cachot)
+	var ailleurs := salles_pour_ennemis(donjon, etage).filter(func(i): return i != ici and i != cachot)
 	if not ailleurs.is_empty():
 		_deplacer(donjon.plan_donjon[etage], geolier, ailleurs.pick_random())
 	return "Sa main de fer se pose sur vous... et se retire dans un cri : le baiser de la succube l'a brûlé. Le geôlier s'enfuit."

@@ -176,6 +176,9 @@ func _franchir(dest: String, sortie := -1) -> void:
 		# Salle paisible (diablotin, succube) : seuls le chevalier et les geôliers y suivent le héros
 		if Aventure.salle_paisible(donjon.salle_courante()):
 			suiveurs = suiveurs.filter(func(p): return not (p["genre"] in Aventure.ENNEMIS_ECARTES))
+		# Refuge (cuisine) : aucun ennemi ne suit le héros, pas même le chevalier ou un geôlier
+		if Zones.refuge(donjon.salle_courante()):
+			suiveurs = []
 		for p in suiveurs:
 			quittee["presences"].erase(p)
 			p["suit"] = true

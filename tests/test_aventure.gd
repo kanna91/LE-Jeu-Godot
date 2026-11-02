@@ -256,18 +256,21 @@ func _imbattable_et_fuite() -> void:
 	# Donjon complet dès le départ (5 étages), quartier des prisons opposé au boss, cachot dans une cellule (2026-10-30)
 	var neuf = Donjon.nouveau(Personnage.nouveau())
 	verifier(neuf.plan_donjon.size() == Donjon.NOMBRE_ETAGES, "les %d étages existent dès le départ" % Donjon.NOMBRE_ETAGES)
-	var prisons_ok := true
+	# Depuis le quartier des cryptes (2026-11-02), les images à sorties de côté manquent : une prison sort parfois de son
+	# quartier plutôt que de laisser un passage sans porte (PENALITE_PRISON_HORS_QUARTIER) ; tolérance : 2 par étage.
+	var prisons_hors := 0
 	var cachots_ok := true
 	for et in neuf.plan_donjon:
 		var sl: Dictionary = neuf.plan_donjon[et]
 		var q := PlanSalles.quartier_prisons(sl)
 		for i in sl:
 			if PlanSalles.est_prison(String(sl[i]["salle_peinte"]["image"])) and not q.has(String(i)):
-				prisons_ok = false
+				prisons_hors += 1
 		var cachot := String(Aventure.meta(neuf, et).get("cachot", ""))
 		if cachot == "" or not PlanSalles.est_prison(String(sl[cachot]["salle_peinte"]["image"])) or not q.has(cachot):
 			cachots_ok = false
-	verifier(prisons_ok, "toutes les prisons sont dans le quartier opposé au boss")
+	print("Prisons hors de leur quartier : %d sur %d étages" % [prisons_hors, neuf.plan_donjon.size()])
+	verifier(prisons_hors <= 2 * neuf.plan_donjon.size(), "les prisons sont dans le quartier opposé au boss (sauf 2 par étage au plus)")
 	verifier(cachots_ok, "le cachot est une cellule du quartier des prisons")
 	var chevalier := {}
 	var depart_chevalier := ""

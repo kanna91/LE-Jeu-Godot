@@ -112,6 +112,24 @@ stick droit pour choisir un bouton de l'interface.
 
   **Ce que contient un étage** (`Aventure.preparer_etage`, une fois, enregistré dans la partie : clé « presences »
   de chaque salle, réglages de l'étage dans `donjon.aventure`) :
+  - **zones d'ennemis** (2026-11-02, `donnees/zones.json`, `Zones`) : chaque zone (les salles dont l'image commence
+    par un préfixe) a ses propres ennemis, modifiables sans toucher au code (mode d'emploi dans « _lisez_moi ») :
+    sortes des groupes et leurs poids (« gobelin », une classe de gobelin, « squelette », « loup »), sortes des élites
+    et de leur escorte,
+    nombre d'élites fixe ou chance par groupe, chances de pacifiques, de loup, de féticheur menant des squelettes.
+    Hors zone : « defaut » (75 % gobelins, 25 % squelettes, élite 12 %, pacifique 15 %, loup 50 %, féticheur 20 % :
+    les anciennes constantes `Aventure.CHANCE_*`). **Cryptes** (décision de l'utilisateur) : **seulement des
+    squelettes**, et **une seule élite, un féticheur**, dans tout le quartier. Un groupe retient sa zone
+    (`zone_ennemis`) ; il en tire ses ennemis même s'il en sort pour poursuivre le héros. Pas d'élite de plus dans
+    les cryptes : ni la clé du boss ni l'amulette de Mariane n'en créent (s'il le faut, un squelette porte
+    l'amulette). Chevaliers de la mort et geôliers ne partent jamais d'une zone, mais ils y passent ;
+  - **cuisine = refuge** (2026-11-02, décision de l'utilisateur ; zone « cuisine » de zones.json, `"sans_ennemis": true`,
+    `Zones.refuge`) : **aucun ennemi** n'est posé dans les 5 salles du bloc cuisine, et **aucun n'y entre** : ni
+    gobelin, ni squelette, ni geôlier, ni Chevalier de la mort (`Aventure.prochaine_salle` ne choisit jamais un refuge ;
+    attirés par le héros qui s'y trouve, les chasseurs renoncent à la porte ; personne ne l'y suit ; le vacarme ne
+    téléporte pas le chevalier dedans ; capture, clé du boss, objets de quête et porteurs jamais dedans). Seuls les
+    personnages neutres y vont (pas le gobelin blessé, `Aventure.PNJ_HORS_REFUGE`) ; l'utilisateur prépare ceux de la
+    cuisine. Un ennemi qui s'y trouverait (ancienne partie) est déplacé ailleurs à la lecture de la salle ;
   - groupes de gobelins qui rôdent (salles ordinaires), parfois menés par une **élite** (appelée « chef » avant le 2026-10-31), parfois **pacifiques** (ils
     s'écartent ; au contact ils demandent grâce : les **épargner** (un peu d'or, parfois un objet, ils partent ;
     karma +1) ou les **attaquer** (karma −1 ; leur corps se fouille et leur âme se siphonne) : voir « Karma ») ;
@@ -303,6 +321,17 @@ stick droit pour choisir un bouton de l'interface.
     **Quartier des prisons** (2026-10-30) : les images « prison » ne vont que dans le quart de l'étage le plus loin
     du boss par le chemin (`PlanSalles.quartier_prisons`, `PART_QUARTIER_PRISONS` = 0,25 ; bonus 25 dans le
     quartier, malus 60 ailleurs) ; le cachot est pris parmi elles.
+    **Quartier des cryptes** (2026-11-02, demande de l'utilisateur) : les 14 images « crypte » servent **toutes, une
+    fois chacune, sans miroir** (choix de l'utilisateur), sur chaque étage, dans **un seul groupe de salles reliées
+    entre elles** (`PlanSalles.quartier_cryptes` : 14 salles, hors départ, boss, blocs et quartier des prisons ; le groupe
+    prend surtout des salles qui ont une voisine à gauche ou à droite, car les cryptes ont des sorties de côté et ces
+    images manquent ailleurs ; un des 4 meilleurs groupes). Aucune crypte ailleurs. Une nouvelle image `crypteN`
+    agrandit le quartier d'elle-même. Vaut pour les nouvelles parties (les étages déjà créés gardent leurs images).
+    **Conséquence mesurée** (100 étages) : il manque d'images à sorties de côté ailleurs, d'où **~3,6 passages sans
+    porte peinte par étage** (flèche de secours ; 0 avant) et ~1,4 prison hors de son quartier par étage. Avec les
+    miroirs (quartier de 28 salles), tout était parfait ; l'utilisateur a préféré 14 salles. De nouvelles images avec
+    des portes à gauche et à droite résoudront le manque. Forcer les prisons dans leur quartier (pénalité 2000) coûte
+    1,3 passage sans porte de plus par étage : pénalité laissée à 60.
     **Le bas de l'image peut toujours être fermé** : il est hors de l'image (derrière le spectateur).
     Sans salle en dessous, la sortie du bas devient un mur invisible (`SallePeinte.murer`) : le héros
     s'arrête, sans message. Une porte **visible** sans salle derrière est condamnée (message, le héros
@@ -579,13 +608,14 @@ stick droit pour choisir un bouton de l'interface.
   | Caractéristique | Par point |
   |---|---|
   | Endurance | +10 PV max, +2 PV régénérés par minute |
-  | Force | **+1d2** dégâts physiques (tranchant, perforant, contondant ; +2 fixes avant le 2026-11-02) |
+  | Force | **+1d2 tous les 2 points** de dégâts physiques (tranchant, perforant, contondant ; 1d2 par point le 2026-11-02 au matin, +2 fixes avant) |
   | Dextérité | +2 % de critique **physique seulement**, +1 % de toucher, +1 % d'esquive |
-  | Intelligence | **+1d2** dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique |
-  | Sagesse | **+1d2** dégâts de feu, de froid et de foudre, +1 % de critique élémentaire (nouveau) |
+  | Intelligence | **+1d2 tous les 2 points** de dégâts d'arcane, d'ombre et de chaos ; +1 % de critique magique par point |
+  | Sagesse | **+1d2 tous les 2 points** de dégâts de feu, de froid et de foudre ; +1 % de critique élémentaire par point (nouveau) |
   | Mana (nouvelle, clé `caracteristique_mana`) | **+5 mana max** (+10 avant le 2026-11-02), +2 mana régénérés par minute |
 
-  Les 1d2 par point sont lancés avec les dés de la compétence, à chaque coup (`Formules.des_caracteristique`,
+  Les 1d2 (un par paire de points : 1 point = rien, 2-3 = 1d2, 4-5 = 2d2 ; `Caracteristiques.POINTS_PAR_DE`,
+  règle de l'utilisateur du 2026-11-02) sont lancés avec les dés de la compétence, à chaque coup (`Formules.des_caracteristique`,
   `Formules.valeur_jet`), puis passent par les pourcentages comme eux.
   Lumière (soins) : la plus forte entre intelligence et sagesse, pour les dégâts comme pour le critique. Poison :
   aucune caractéristique, **jamais de critique**. Critique magique et élémentaire : même multiplicateur
@@ -733,7 +763,8 @@ stick droit pour choisir un bouton de l'interface.
 | `scripts/logique/aventure.gd`, `rencontres.gd` | Donjon d'aventure : population des étages, combats des présences, fuite, capture, objets, clés (`Aventure`) ; personnages et choix moraux (`Rencontres`). |
 | `scripts/interface/presences_salle.gd` | `PresencesSalle` : ennemis qui rôdent, personnages et objets dans la salle peinte (formes, vue, ouïe, poursuite, contact). |
 | `scripts/ecrans/ecran_dialogue.gd` | Dialogue à choix (`Ecrans.dialogue`). |
-| `scripts/logique/plan_salles.gd` | `PlanSalles` : attribution des salles peintes au plan du donjon (chaque apparence une fois par étage, quartier des prisons) et sortie qui mène à chaque voisine. |
+| `scripts/logique/plan_salles.gd` | `PlanSalles` : attribution des salles peintes au plan du donjon (chaque apparence une fois par étage, quartier des prisons, quartier des cryptes) et sortie qui mène à chaque voisine. |
+| `scripts/logique/zones.gd`, `donnees/zones.json` | `Zones` : ennemis de chaque zone de l'étage (cryptes : squelettes et un féticheur élite ; « defaut » ailleurs), modifiables dans le .json. |
 | `scripts/ecrans/menu_options.gd` | Options (volume de la musique), depuis le menu principal et le menu pause (`Ecrans.options`). |
 | `scripts/logique/generation_objets.gd` | `GenerationObjets` : objets à une seule option (caractéristique, défense, dégâts, pénétration), type dans le nom, arme de départ nue, armure anti-boss. |
 | `scripts/logique/degats.gd` | `Degats` : pourcentages (vulnérabilités, résistances en %) puis blocage en points (2 points = 1 dégât, sans cumul défense générale / résistance spécifique). |
@@ -880,6 +911,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
+& $godot --headless --path . -s tests/sonde_prisons.gd      # sonde : prisons hors quartier, passages sans porte, carrefours par quartier (100 étages)
+& $godot --headless --path . -s tests/test_zones.gd        # zones : quartier des cryptes d'un seul tenant (toutes les images, une fois), squelettes + un seul féticheur élite, zones.json, 1d2 tous les 2 points (150 étages)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
 & $godot --headless --path . -s tests/test_aventure.gd      # donjon d'aventure : peuplement, pas de récompense, Chevalier de la mort, fuite, capture, clés, personnages, sauvegarde, coffre du boss, objets à une option, 5 étages au départ, quartier des prisons
 & $godot --path . -s tests/capture_aventure.gd            # rôdeurs à l'écran : ombre, vue coupée, repérage, combat au contact, diablotin, capture (captures 92-100, hors écran)
@@ -977,6 +1010,43 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-02 — La cuisine, refuge sans ennemis
+
+- **Pour le joueur** : aucun ennemi dans le bloc cuisine (salle à manger, cuisine, petite porte, celliers) ; aucun
+  gobelin, geôlier ni Chevalier de la mort n'y entre, même en poursuite : la cuisine est un abri. Seuls les PNJ
+  neutres y vont (ceux de la cuisine sont en préparation par l'utilisateur).
+- Modulable : zone « cuisine » (images `bloc_cuisine*`) avec `"sans_ennemis": true` dans `donnees/zones.json` ; toute
+  zone peut devenir un refuge. Code : `Zones.refuge`, `Aventure.salles_pour_ennemis`, `ENNEMIS`, `PNJ_HORS_REFUGE`,
+  `prochaine_salle`, `vacarme`, `ecarter_des_salles_paisibles`, `ajouter_menace`, `capturer`, `repousser_geolier`,
+  `QuetesPrisonniers.confier_a_elite`, `menu_navigation` (suiveurs). Test : `test_zones` (cuisine vide, 2000 pas
+  d'errance des chasseurs attirés vers la cuisine, intrus chassé).
+
+### 2026-11-02 — Quartier des cryptes, zones d'ennemis, 1d2 tous les 2 points
+
+- **Pour le joueur** : les 14 salles « crypte » forment désormais **un seul quartier** de salles voisines sur chaque
+  étage (toutes utilisées, une fois chacune), au lieu d'être dispersées. On n'y croise **que des squelettes**, et
+  **un seul élite : un féticheur**.
+- **Zones modulables** : nouveau fichier `donnees/zones.json` (lu par `scripts/logique/zones.gd`, `Zones`) : pour
+  chaque zone (préfixe d'image), sortes d'ennemis, élites, nombre d'élites, chances (pacifique, loup, féticheur).
+  « defaut » reprend les anciennes valeurs (`Aventure.CHANCE_ELITE`, `CHANCE_PACIFIQUE`, `CHANCE_GROUPE_SQUELETTES`,
+  `CHANCE_FETICHEUR_SQUELETTES`, `CHANCE_LOUP`, supprimées) ; « suite_elite » : escorte d'une élite (gobelins hors
+  zone, comme avant ; squelettes dans les cryptes).
+- **Caractéristiques** : force, intelligence et sagesse donnent **+1d2 de dégâts tous les 2 points** (et plus à
+  chaque point) : `Caracteristiques.POINTS_PAR_DE`, `Formules.des_caracteristique`, textes de l'écran des
+  caractéristiques. Les critiques par point (intelligence, sagesse) ne changent pas.
+- Fichiers : `plan_salles.gd` (`quartier_cryptes`, `_attribuer_cryptes`, `images_cryptes`, `est_crypte`),
+  `aventure.gd` (`nouveau_groupe` avec zone, `_fixer_elites`, `membres`, `ecarter_des_salles_paisibles`,
+  `_poser_cle_boss`, départ des chasseurs hors zones), `quetes_prisonniers.gd` (`confier_a_elite`), `creatures.gd`
+  (commentaire), `caracteristiques.gd`, `formules.gd`, `menu_caracteristique.gd`, `tests/test_des_armes.gd`,
+  `tests/exporter_fiches_ennemis.gd` ; nouveau test `tests/test_zones.gd`.
+- Choix de l'utilisateur (questionnaire) : 14 cryptes sans miroir plutôt que 28 avec miroirs, en acceptant ~3,6
+  passages sans porte peinte par étage (mesure : `tests/sonde_prisons.gd`, nouvelle sonde). `test_cartographie_salles`
+  tolère désormais 5 passages sans porte par étage en moyenne (0 exigé avant) et signale seulement les salles sans
+  image exacte ; `test_aventure` tolère 2 prisons hors quartier par étage.
+- L'escorte d'une élite suit « suite_elite » (gobelins hors zone, comme avant ; squelettes dans les cryptes).
+- Les parties déjà commencées gardent leurs étages (cryptes dispersées, anciens ennemis) : `PlanSalles.VERSION`
+  n'est pas augmentée, sinon les salles des blocs seraient ré-habillées au hasard.
 
 ### 2026-11-02 — Inventaire des règles des objets ; anneau de Mariane rare
 

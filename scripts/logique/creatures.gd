@@ -9,7 +9,7 @@ extends RefCounted
 ## dès le premier étage. Leurs dés comptent tels quels (``des_fixes``) : le « dé un cran plus bas » des gobelins
 ## était un réglage fait à la main pour eux, pas une règle (précision de l'utilisateur, 2026-10-27).
 ## **Proposé par Claude, validé par l'utilisateur le 2026-10-27** : caractéristiques, dé du loup (1d8), fréquences des rencontres
-## (Aventure.CHANCE_GROUPE_SQUELETTES, CHANCE_LOUP, CHANCE_FETICHEUR_SQUELETTES), vitesse des squelettes.
+## (zone « defaut » de donnees/zones.json depuis le 2026-11-02 : Zones), vitesse des squelettes.
 ##
 ## Un loup ou un squelette est un ``Gobelin`` (comme le Chevalier de la mort) de classe « creature » : l'IA joue sa
 ## seule attaque (Ennemis.mecanique_ennemis). Image fixe qui respire, en salle comme en combat (``images/gobelins``,

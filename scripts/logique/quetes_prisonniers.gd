@@ -258,11 +258,11 @@ static func confier_a_elite(donjon, nom: String, lieu: String) -> void:
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	var ici := str(donjon.salle_actuelle[1])
 	var dist := Aventure.distances_depuis(salles, ici)
-	var ordinaires: Array = Aventure.salles_ordinaires(donjon, etage).filter(
+	var ordinaires: Array = Aventure.salles_pour_ennemis(donjon, etage).filter(
 		func(i): return str(i) != ici and not Aventure.salle_paisible(salles[i]))
 	var choix := ordinaires
 	if lieu == "crypte":
-		var cryptes := ordinaires.filter(func(i): return String(salles[i].get("salle_peinte", {}).get("image", "")).begins_with("crypte"))
+		var cryptes := ordinaires.filter(func(i): return Zones.zone_salle(salles[i]) == "crypte")
 		if not cryptes.is_empty():
 			choix = cryptes
 	else:
@@ -273,20 +273,31 @@ static func confier_a_elite(donjon, nom: String, lieu: String) -> void:
 		return
 	var elites := []
 	var groupes := []
+	var sans_elite := []  # groupes d'une zone au nombre d'élites fixé (cryptes : un seul féticheur) : pas d'élite de plus
 	for i in choix:
 		for g in salles[i].get("presences", []):
 			if g.get("genre") == "groupe" and g.get("etat", "actif") == "actif" and not g.get("pacifique", false):
-				(elites if g.get("elite", false) else groupes).append(g)
+				if g.get("elite", false):
+					elites.append(g)
+				elif Zones.elites_fixes(String(g.get("zone_ennemis", ""))):
+					sans_elite.append(g)
+				else:
+					groupes.append(g)
 	var porteur: Dictionary
 	if not elites.is_empty():
 		porteur = elites.pick_random()
 	elif not groupes.is_empty():
 		porteur = groupes.pick_random()
 		porteur["elite"] = true
+	elif not sans_elite.is_empty():
+		porteur = sans_elite.pick_random()  # l'élite de la zone est déjà vaincue : un ennemi ordinaire le porte
 	else:
-		porteur = {"id": Aventure._nouvel_id(Aventure.meta(donjon, etage)), "genre": "groupe", "etat": "actif",
-			"nombre": 1, "elite": true, "pacifique": false}
 		var salle: Dictionary = salles[choix.pick_random()]
+		var zone := Zones.zone_salle(salle)
+		porteur = {"id": Aventure._nouvel_id(Aventure.meta(donjon, etage)), "genre": "groupe", "etat": "actif",
+			"nombre": 1, "elite": not Zones.elites_fixes(zone), "pacifique": false}
+		if zone != "":
+			porteur["zone_ennemis"] = zone
 		if not salle.has("presences"):
 			salle["presences"] = []
 		salle["presences"].append(porteur)

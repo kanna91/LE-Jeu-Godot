@@ -45,8 +45,8 @@ func _initialize() -> void:
 		"vue": PresencesSalle.VUE, "angle_vue": PresencesSalle.ANGLE_VUE, "perte": PresencesSalle.PERTE,
 		"ouie": [PresencesSalle.OUIE_COURSE, PresencesSalle.OUIE_MARCHE, PresencesSalle.OUIE_CACHE],
 		"duree_recherche": PresencesSalle.DUREE_RECHERCHE, "chance_suivre": Aventure.CHANCE_SUIVRE,
-		"groupes_par_salle": Aventure.GROUPES_PAR_SALLE, "chance_elite": Aventure.CHANCE_ELITE,
-		"chance_pacifique": Aventure.CHANCE_PACIFIQUE, "ennemis_par_etage": Donjon.ENNEMIS_PAR_ETAGE,
+		"groupes_par_salle": Aventure.GROUPES_PAR_SALLE, "chance_elite": Zones.reglages("")["chance_elite"],
+		"chance_pacifique": Zones.reglages("")["chance_pacifique"], "ennemis_par_etage": Donjon.ENNEMIS_PAR_ETAGE,
 		"chevaliers": Aventure.CHEVALIERS_PAR_ETAGE, "geoliers": Aventure.GEOLIERS_PAR_ETAGE,
 		"diablotins": Aventure.DIABLOTINS_PAR_ETAGE, "mensonge": Rencontres.CHANCE_MENSONGE,
 		"confiscation": Aventure.CONFISCATION, "objets_par_porteur": Aventure.OBJETS_PAR_PORTEUR,
@@ -102,9 +102,10 @@ func _initialize() -> void:
 		var res := _pourcentages(e)
 		sortie["creatures"][sorte] = {"stats": bornes, "resistances": res, "competences": [_competence(e, e.competences[0], heros)],
 			"type_ennemi": e.type_ennemi, "image": e.image}
-	sortie["communs"]["chance_groupe_squelettes"] = Aventure.CHANCE_GROUPE_SQUELETTES
-	sortie["communs"]["chance_feticheur_squelettes"] = Aventure.CHANCE_FETICHEUR_SQUELETTES
-	sortie["communs"]["chance_loup"] = Aventure.CHANCE_LOUP
+	sortie["communs"]["chance_groupe_squelettes"] = _part(Zones.reglages("")["ennemis"], "squelette")
+	sortie["communs"]["chance_feticheur_squelettes"] = Zones.reglages("")["chance_feticheur"]
+	sortie["communs"]["chance_loup"] = Zones.reglages("")["chance_loup"]
+	sortie["communs"]["zones"] = Zones.donnees()
 	sortie["communs"]["vitesse_squelettes"] = Aventure.VITESSE_SQUELETTES
 	sortie["communs"]["chevalier_des"] = Aventure.CHEVALIER["des"]
 	sortie["communs"]["chevalier_usure"] = Aventure.CHEVALIER["usure"]
@@ -141,3 +142,11 @@ func _competence(lanceur, c, heros) -> Dictionary:
 		"type": c.type_competence, "attaque": c.type_attaque, "types_degats": c.type_degats, "des": des,
 		"degats": degats, "ciblage": c.type_ciblage, "cibles": c.nombre_cible,
 		"coups": U.num(c, "nombre_attaque"), "alterations": alt, "description": str(U.ga(c, "description", ""))}
+
+
+## Part d'une sorte dans une table {sorte: poids} (zones.json).
+func _part(table: Dictionary, sorte: String) -> float:
+	var total := 0.0
+	for k in table:
+		total += float(table[k])
+	return float(table.get(sorte, 0)) / total if total > 0 else 0.0

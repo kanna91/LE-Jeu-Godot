@@ -260,7 +260,7 @@ func _dessiner_degats(ci: Control) -> void:
 		("%s, %s" % [arme.nom, DescriptionObjet.ligne_des(arme).trim_prefix("Dégâts ")]) if arme != null else "aucune",
 		U.g(U.num(joueur, "penetration_armure")), U.g(U.num(joueur, "penetration_resistance"))],
 		Vector2(r.position.x + 14, y), Ui.DETAIL, 13, false, r.size.x - 28)
-	Ui.texte(ci, "Chaque attaque a ses dés ; + 1d2 par point de caractéristique à chaque coup. Le dé bonus d'une arme ne sert qu'à ses attaques.",
+	Ui.texte(ci, "Chaque attaque a ses dés ; + 1d2 tous les 2 points de caractéristique à chaque coup. Le dé bonus d'une arme ne sert qu'à ses attaques.",
 		Vector2(r.position.x + 14, y + 20), Ui.DETAIL, 13, false, r.size.x - 28)
 
 

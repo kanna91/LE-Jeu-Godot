@@ -3,10 +3,11 @@ extends RefCounted
 ## Effets des caractéristiques, les mêmes pour le héros et les ennemis (règles de l'utilisateur, 2026-10-29) :
 ##
 ## - Endurance : +10 PV max, +2 PV régénérés par minute ;
-## - Force : +1d2 dégâts physiques (tranchant, perforant, contondant ; +2 fixes avant le 2026-11-02) ;
+## - Force : +1d2 dégâts physiques **tous les 2 points** (tranchant, perforant, contondant ; 1d2 par point le
+##   2026-11-02 matin, +2 fixes par point avant) ;
 ## - Dextérité : +2 % de critique physique, +1 % de toucher, +1 % d'esquive ;
-## - Intelligence : +1d2 dégâts d'arcane, d'ombre et de chaos, +1 % de critique magique ;
-## - Sagesse : +1d2 dégâts de feu, de froid et de foudre, +1 % de critique élémentaire ;
+## - Intelligence : +1d2 dégâts d'arcane, d'ombre et de chaos tous les 2 points, +1 % de critique magique ;
+## - Sagesse : +1d2 dégâts de feu, de froid et de foudre tous les 2 points, +1 % de critique élémentaire ;
 ## - Mana : +5 mana max (+10 avant le 2026-11-02), +2 mana régénérés par minute.
 ##
 ## Lumière (soins) : la plus forte entre intelligence et sagesse, pour les dégâts comme pour le critique.
@@ -22,8 +23,10 @@ const NOMS := {"endurance": "Endurance", "force": "Force", "dextérité": "Dext�
 
 const PV_PAR_ENDURANCE := 10
 const REGEN_PV_PAR_ENDURANCE := 2.0  # par minute
-## Faces du dé de dégâts ajouté par point de force, d'intelligence ou de sagesse (1d2 par point).
+## Dé de dégâts ajouté par la force, l'intelligence ou la sagesse : 1d2 (FACES_PAR_POINT faces) tous les
+## POINTS_PAR_DE points (règle de l'utilisateur, 2026-11-02 : 1 point = rien, 2-3 points = 1d2, 4-5 = 2d2...).
 const FACES_PAR_POINT := 2
+const POINTS_PAR_DE := 2
 const CRITIQUE_PAR_DEXTERITE := 0.02
 const TOUCHER_PAR_DEXTERITE := 0.01
 const ESQUIVE_PAR_DEXTERITE := 0.01
@@ -47,10 +50,10 @@ const PAR_POINT := {
 ## Texte « par point » de chaque caractéristique (écran des caractéristiques).
 const TEXTES := {
 	"endurance": "+10 PV max, +2 PV régénérés par minute",
-	"force": "+1d2 dégâts physiques (tranchant, perforant, contondant)",
+	"force": "+1d2 dégâts physiques tous les 2 points (tranchant, perforant, contondant)",
 	"dextérité": "+2 % critique physique, +1 % toucher, +1 % esquive",
-	"intelligence": "+1d2 dégâts arcane, ombre, chaos, +1 % critique magique",
-	"sagesse": "+1d2 dégâts feu, froid, foudre, +1 % critique élémentaire",
+	"intelligence": "+1d2 dégâts arcane, ombre, chaos tous les 2 points, +1 % critique magique",
+	"sagesse": "+1d2 dégâts feu, froid, foudre tous les 2 points, +1 % critique élémentaire",
 	MANA: "+5 mana max, +2 mana régénérés par minute",
 }
 
