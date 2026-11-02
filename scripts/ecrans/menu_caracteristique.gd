@@ -12,13 +12,20 @@ const CARACTERISTIQUES := [["1", "endurance"], ["2", "force"], ["3", "dextérit�
 const TYPES := [
 	["tranchant", "Tranchant", "Force"], ["perforant", "Perforant", "Force"], ["contondant", "Contondant", "Force"],
 	["feu", "Feu", "Sagesse"], ["froid", "Froid", "Sagesse"], ["foudre", "Foudre", "Sagesse"],
-	["arcane", "Arcane", "Intelligence"], ["ombre", "Ombre", "Intelligence"], ["chaos", "Chaos", "Intelligence"],
-	["lumière", "Lumière (soins)", "Int. ou Sag."], ["poison", "Poison", "aucune"],
+	["arcane", "Arcane", "Intell."], ["ombre", "Ombre", "Intell."], ["chaos", "Chaos", "Intell."],
+	["lumière", "Lumière (soins)", "Int./Sag."], ["poison", "Poison", "aucune"],
 ]
 ## Colonnes de l'onglet « Dégâts » : [titre, x relatif au panneau, ancre].
-const COLONNES := [["Type", 14, "topleft"], ["Caractéristique", 150, "topleft"], ["Dés", 340, "topright"],
-	["+ carac.", 430, "topright"], ["+ objets", 520, "topright"], ["× %", 610, "topright"],
-	["Moyenne", 710, "topright"], ["Critique", 900, "topright"]]
+## Depuis le 2026-11-02, les dés sont ceux de chaque attaque (Formules.DES_HEROS) : la colonne « Vos attaques »
+## liste celles du héros qui font ce type (les deux de son arme, ses magies apprises) avec dés et moyenne par coup.
+const COLONNES := [["Type", 14, "topleft"], ["Carac.", 150, "topleft"], ["Vos attaques : dés (moyenne par coup)", 236, "topleft"],
+	["+ carac.", 700, "topright"], ["+ objets", 768, "topright"], ["× %", 830, "topright"],
+	["Critique", 906, "topright"]]
+## Largeur de la colonne des attaques (texte tronqué au-delà).
+const LARGEUR_ATTAQUES := 400
+## Attaques d'arme du héros selon son arme (comme Combat.attaques_de_base).
+const ATTAQUES_ARME := {"Epée": ["Coup_d_epee", "Frénésie"], "Lance": ["Coup_de_lance", "Balayage"],
+	"Marteau": ["Coup_de_marteau", "Fracasser"], "": ["Coup_de_poing", "Enchainement"]}
 const ONGLETS := ["Général", "Dégâts", "Défense"]
 const ENTETE := Rect2(20, 14, Ui.LARGEUR - 40, 70)
 const PANNEAU_GAUCHE := Rect2(20, 132, 450, 352)
@@ -77,14 +84,49 @@ static func lignes_effets(j) -> Array:
 		["Poison", "jamais"]]
 
 
+## Attaques du héros : les deux de son arme, puis ses magies apprises.
+static func attaques_du_heros(j) -> Array:
+	var liste := []
+	var arme = U.ga(j, "arme_equipee", null)
+	var type_arme := String(U.ga(arme, "type_arme", "")) if arme != null else ""
+	var base: Dictionary = U.ga(j, "competence_de_base", {})
+	for nom in ATTAQUES_ARME.get(type_arme, ATTAQUES_ARME[""]):
+		if base.get(nom) != null:
+			liste.append(base[nom])
+	for m in U.ga(j, "magies_apprises", []):
+		liste.append(m)
+	return liste
+
+
+## « Coup d'épée 6d2 (10,5) · Frénésie 2 × 4d2 (6,5) » : attaques du héros qui font le type ``t``, leurs dés (sans
+## ceux de la caractéristique, colonne à part) et leurs dégâts moyens par coup (caractéristique, objets et % compris,
+## avant armure et résistances) ; « — » s'il n'en a aucune.
+static func texte_attaques(j, t: String) -> String:
+	var morceaux := []
+	for c in attaques_du_heros(j):
+		var bonus := Formules.de_bonus_autre_type(j, U.ga(c, "type_degats", []), c)
+		if not bonus.is_empty() and bonus[0] == t:  # dé bonus de l'arme d'un autre type (feu d'une lance...)
+			var des_bonus := [[1, int(bonus[1])]]
+			morceaux.append("%s 1d%d, dé de l'arme (%s)" % [c.nom, int(bonus[1]),
+				U.f(Formules.base_de_bonus(j, t, Formules.moyenne(des_bonus)), 1)])
+			continue
+		if not (t in U.ga(c, "type_degats", [])):
+			continue
+		var des := Formules.des_type(j, t, c)
+		if des.is_empty():
+			continue
+		var coups := int(U.num(c, "nombre_attaque"))
+		morceaux.append("%s %s%s (%s)" % [c.nom, ("%d × " % coups) if coups > 1 else "", Formules.texte(des),
+			U.f(Formules.degats_bruts(j, c, t), 1)])
+	return " · ".join(morceaux) if not morceaux.is_empty() else "—"
+
+
 ## Une ligne de l'onglet « Dégâts » pour le type ``t`` : textes des colonnes (sans le type ni la caractéristique).
 static func ligne_degats(j, t: String) -> Array:
-	var des := Formules.des_type(j, t)
 	var plats := Formules.degats_plats(j, t)
 	var carac := Formules.des_caracteristique(j, t)
-	var moyenne := Formules.base_degats(j, t, Formules.moyenne(des + carac))
-	return [Formules.texte(des), ("+" + Formules.texte(carac)) if not carac.is_empty() else "+0", "+" + U.g(plats),
-		pourcent(Formules.pourcentage(j, t)), U.f(moyenne, 1), critique(Formules.stats_critique(j, t))]
+	return [texte_attaques(j, t), ("+" + Formules.texte(carac)) if not carac.is_empty() else "+0", "+" + U.g(plats),
+		pourcent(Formules.pourcentage(j, t)), critique(Formules.stats_critique(j, t))]
 
 
 ## Onglet « Défense » (2026-10-30) : à gauche les défenses en points (2 points = 1 dégât bloqué) et l'évitement ;
@@ -207,15 +249,18 @@ func _dessiner_degats(ci: Control) -> void:
 		Ui.texte(ci, t[2], Vector2(r.position.x + COLONNES[1][1], y), Ui.DETAIL, 14)
 		for k in valeurs.size():
 			var c: Array = COLONNES[k + 2]
-			Ui.texte(ci, valeurs[k], Vector2(r.position.x + c[1], y), Ui.BLANC if k == 4 else Ui.TEXTE, 14, k == 4, null, c[2])
+			if k == 0:
+				Ui.texte(ci, valeurs[k], Vector2(r.position.x + c[1], y + 1), Ui.BLANC, 13, false, LARGEUR_ATTAQUES, c[2])
+			else:
+				Ui.texte(ci, valeurs[k], Vector2(r.position.x + c[1], y), Ui.TEXTE, 14, false, null, c[2])
 		y += 22
 	y += 8
 	var arme = U.ga(joueur, "arme_equipee", null)
 	Ui.texte(ci, "Arme : %s   ·   Pénétration d'armure %s   ·   Pénétration de résistance %s" % [
-		DescriptionObjet.ligne_des(arme).trim_prefix("Dégâts ") if arme != null else "aucune",
+		("%s, %s" % [arme.nom, DescriptionObjet.ligne_des(arme).trim_prefix("Dégâts ")]) if arme != null else "aucune",
 		U.g(U.num(joueur, "penetration_armure")), U.g(U.num(joueur, "penetration_resistance"))],
 		Vector2(r.position.x + 14, y), Ui.DETAIL, 13, false, r.size.x - 28)
-	Ui.texte(ci, "Coups multiples : 1d6 − 2 par coup au lieu des dés du type. Le dé bonus d'une arme ne sert qu'à ses attaques.",
+	Ui.texte(ci, "Chaque attaque a ses dés ; + 1d2 par point de caractéristique à chaque coup. Le dé bonus d'une arme ne sert qu'à ses attaques.",
 		Vector2(r.position.x + 14, y + 20), Ui.DETAIL, 13, false, r.size.x - 28)
 
 

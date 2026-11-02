@@ -259,14 +259,15 @@ static func effet_consommable(objet) -> String:
 
 
 ## Comparaison avec l'objet équipé : [[texte, couleur], ...].
-## Dés d'une arme (« Dégâts 1d12 perforants ») ou chaîne vide.
+## Dégâts d'une arme (« Dégâts perforants + 1d4 de feu ») ou chaîne vide. Depuis le 2026-11-02, les dés sont ceux de
+## chaque attaque (Formules.DES_HEROS) : l'arme ne donne que son type et son dé bonus.
 static func ligne_des(objet) -> String:
 	if not objet.est_arme():
 		return ""
 	var type_arme = U.ga(objet, "type_arme", "")
 	if not Formules.DES_ARMES.has(type_arme):
 		return ""
-	var texte := "Dégâts %s %ss" % [Formules.texte_des(type_arme), Formules.DES_ARMES[type_arme]]
+	var texte := "Dégâts %ss" % Formules.DES_ARMES[type_arme]
 	var bonus := Formules.de_bonus(objet)
 	if not bonus.is_empty():
 		texte += " + 1d%d %s" % [bonus["faces"], ("%ss" % bonus["type"]) if bonus["type"] in Formules.TYPES_PHYSIQUES else "de " + bonus["type"]]

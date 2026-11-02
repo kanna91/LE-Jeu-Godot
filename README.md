@@ -582,10 +582,11 @@ stick droit pour choisir un bouton de l'interface.
   base, toucher 85 %, esquive 5 %, critique 5 % (magique et élémentaire 2,5 %), parade 2 % (valeurs de base gardées
   par l'utilisateur). Ennemis : endurance divisée par 5 pour garder leurs PV (`Gobelin.ENDURANCE_PAR_SOUS_CLASSE`,
   `Creatures.SORTES`), **4 à 6 points de Mana** (`Ennemis.MANA_ENNEMIS` ; 2 ou 3 avant le
-  2026-11-02, doublés quand un point est passé à 5 mana, choix de Claude : ils gardent leurs 20 à 30 mana), le reste à
+  2026-11-02, doublés quand un point est passé à 5 mana, validé par l'utilisateur : ils gardent leurs 20 à 30 mana), le reste à
   0, à reforger.
 - **Coût des sorts** : au moins 2 mana. Estafilade, Dard empoisonné et Bourrade (sorts d'arme de départ) passent de 1
-  à 2 mana (2026-11-02, `donnees/sorts.json`).
+  à 2 mana (2026-11-02, `donnees/sorts.json`). Les compétences physiques (Enchaînement, Fracasser, Frénésie,
+  Balayage...) restent à 1 mana (décision de l'utilisateur).
 - **Dégâts des ennemis** : en entier depuis le 2026-10-27 (`Ennemis.MULTIPLICATEUR_DEGATS_ENNEMIS` = 1 ; ×0,68 avant).
   Leurs dés restent lancés un cran plus bas que ceux du héros (`Formules.des_reduits`).
 - **Caractéristiques des gobelins** (`Gobelin.definir_attribut_gobelin`) : tout part de 0
@@ -960,12 +961,23 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
 
 ## Journal des modifications
 
+### 2026-11-02 — Tableau des dégâts de l'écran des stats
+
+- **Pour le joueur** : l'onglet « Dégâts » des caractéristiques n'affichait plus les bons dés (anciens dés par type,
+  2d6, 1d12...). Chaque ligne liste maintenant **vos attaques** de ce type (les deux de l'arme équipée, les magies
+  apprises) avec leurs dés et leur moyenne par coup, par exemple « Coup de lance 6d2 (9.0) · Balayage 3d2 (4.5) » ;
+  le dé bonus d'une arme d'un autre type y apparaît aussi (« dé de l'arme »). Colonnes : + carac. (Nd2), + objets,
+  × %, critique.
+- La description des armes ne donne plus de dés de base (ils ne servent plus) : « Dégâts perforants + 1d6 de feu ».
+- `menu_caracteristique.attaques_du_heros` / `texte_attaques` ; `DescriptionObjet.ligne_des`.
+
 ### 2026-11-02 — Mana, coût des sorts et dés de caractéristique
 
 - **Pour le joueur** : un point de Mana donne +5 mana max (au lieu de +10) ; Estafilade, Dard empoisonné et Bourrade
   coûtent 2 mana (au lieu de 1) ; chaque point de force, d'intelligence ou de sagesse ajoute **1d2** de dégâts par
   coup (1,5 en moyenne) au lieu de +2.
-- Ennemis : 4 à 6 points de Mana au lieu de 2 ou 3, pour garder leurs 20 à 30 mana (choix de Claude).
+- Ennemis : 4 à 6 points de Mana au lieu de 2 ou 3, pour garder leurs 20 à 30 mana (validé par l'utilisateur).
+- Les compétences physiques restent à 1 mana (décision de l'utilisateur).
 - Écran des caractéristiques, onglet Dégâts : la colonne de la caractéristique affiche « +Nd2 ».
 - `Caracteristiques.MANA_PAR_POINT` = 5, `FACES_PAR_POINT` = 2 (remplace `DEGATS_PAR_POINT`) ;
   `Formules.des_caracteristique` ; `test_des_armes` adapté. Tests : dés, aventure, karma, magie écran, soins,
