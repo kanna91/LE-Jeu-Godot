@@ -1,5 +1,5 @@
 extends SceneTree
-## Captures de la cuisine (2026-11-03) : onglet « Feux » de l'éditeur (170), écran de cuisine (171-172), feu de camp
+## Captures de la cuisine (2026-11-03) : onglets « Feux » (170) et « Eau » (174) de l'éditeur, écran de cuisine (171-172), feu de camp
 ## dans une salle et intoxication affichée (173). Rien n'est enregistré dans les salles. Fenêtre hors écran
 ## (override.cfg, voir README) : godot --path . -s tests/capture_cuisine.gd
 
@@ -38,6 +38,9 @@ func lancer() -> void:
 	ed.choisir_feux()
 	ed.salle.donnees["feux"] = [[150, 470], [626, 470]]
 	await capturer("170_editeur_feux")
+	ed.choisir_eau()
+	ed.salle.donnees["eaux"] = [[300, 480]]
+	await capturer("174_editeur_eau")
 	ed.queue_free()
 	await attendre(2)
 	# Écran de cuisine : torche à portée et feu de camp

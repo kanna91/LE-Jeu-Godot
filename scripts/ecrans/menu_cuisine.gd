@@ -2,7 +2,7 @@ extends Ecran
 ## Cuisine (touche K en exploration, 2026-11-03 ; règles : Cuisine, CUISINE.md).
 ## À gauche les ingrédients du sac (clic : dans la marmite, 4 au plus ; le bouillon s'ajoute en plus) ; au milieu la
 ## marmite, la préparation (sans feu, grillé, bouilli, mijoté / four : grisée avec sa raison si impossible ici),
-## « Cuisiner », et le feu (brandon pris à une torche, feu de camp, seau rempli à la cuisine) ; à droite les recettes
+## « Cuisiner », et le feu (brandon pris à une torche, feu de camp, seau rempli à la cuisine ou à un point d'eau) ; à droite les recettes
 ## connues. Les valeurs des ingrédients restent cachées.
 
 const ZONE_INGREDIENTS := Rect2(20, 84, 300, 380)
@@ -80,7 +80,7 @@ func _texte_feu() -> String:
 		morceaux.append("feu de camp (%d plat(s), %s)" % [int(Cuisine.donnees()["feu_de_camp"]["plats"]) - int(f.get("plats", 0)),
 			Maux.duree_lisible(Cuisine.feu_restant(joueur, f))])
 	if bool(ctx.get("torche", false)):
-		morceaux.append("torche à portée (griller)")
+		morceaux.append("torche à portée (allumer du bois)")
 	return "Feu : " + (", ".join(morceaux) if not morceaux.is_empty() else "aucun")
 
 
@@ -91,7 +91,7 @@ func _actions_feu() -> Dictionary:
 	if Cuisine.feu(joueur, ctx.get("salle", {})).is_empty() and not bool(ctx.get("cuisine", false)) and (Cuisine.objet(joueur, "Brandon allumé") != null \
 			or (Cuisine.combustible(joueur) != null and Cuisine.objet(joueur, "Amadou") != null and Cuisine.objet(joueur, "Silex") != null)):
 		a["feu"] = "Faire un feu de camp ici"
-	if bool(ctx.get("cuisine", false)) and Cuisine.seau(joueur) != null and Cuisine.eau(joueur) < 10:
+	if (bool(ctx.get("cuisine", false)) or bool(ctx.get("eau", false))) and Cuisine.seau(joueur) != null and Cuisine.eau(joueur) < 10:
 		a["seau"] = "Remplir le seau"
 	return a
 
@@ -100,6 +100,8 @@ func _dessiner(ci: Control) -> void:
 	var s := souris()
 	Ui.texte(ci, "Cuisine", Vector2(20, 12), DescriptionObjet.COULEUR_TITRE, 24, true)
 	var s_eau := ("%d L" % Cuisine.eau(joueur)) if Cuisine.seau(joueur) != null else "pas de seau"
+	if bool(ctx.get("eau", false)):
+		s_eau += " (point d'eau à portée)"
 	Ui.texte(ci, "%s   ·   Eau : %s   ·   Marmite : %s" % [_texte_feu(), s_eau, "oui" if Cuisine.objet(joueur, "Marmite") != null else "non"],
 		Vector2(20, 50), Ui.TEXTE, 14, false, Ui.LARGEUR - 40)
 	# Ingrédients

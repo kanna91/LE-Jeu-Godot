@@ -434,7 +434,7 @@ func _dessiner_fouille(ci: Control) -> void:
 ## Contexte de la cuisine ici : torche à portée, foyer de la cuisine, salle du plan, place du héros.
 func contexte_cuisine() -> Dictionary:
 	var image := String(donjon.salle_courante().get("salle_peinte", {}).get("image", ""))
-	return {"torche": salle_peinte.torche_proche(), "cuisine": image in Cuisine.donnees().get("lieux_foyer", []),
+	return {"torche": salle_peinte.torche_proche(), "eau": salle_peinte.eau_proche(), "cuisine": image in Cuisine.donnees().get("lieux_foyer", []),
 		"salle": donjon.salle_courante(), "pos": [salle_peinte.heros.position.x, salle_peinte.heros.position.y]}
 
 

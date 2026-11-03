@@ -228,8 +228,9 @@ stick droit pour choisir un bouton de l'interface.
     bouillon), ingrédients (légumes, viande crue, viande périmée, œuf, lait, farine, miel, champignon, herbes, ail).
     La nourriture ne se mange **jamais en combat** ;
   - **Cuisine** (2026-11-03, règles de l'utilisateur, conception complète dans `CUISINE.md`) : touche **K** en
-    exploration. 1 à 4 ingrédients (+ un bouillon) et une préparation : sans feu, **grillé** (torche à portée, feu de
-    camp ou cuisine), **bouilli** (feu de camp ou cuisine ; hors de la cuisine : marmite + 1 L d'eau du seau de 10 L),
+    exploration. 1 à 4 ingrédients (+ un bouillon) et une préparation : sans feu, **grillé** (feu de camp ou cuisine ;
+    **on ne cuit jamais à même une torche**, elle sert seulement à allumer du bois), **bouilli** (feu de camp ou
+    cuisine ; hors de la cuisine : marmite + 1 L d'eau du seau de 10 L, rempli à la cuisine ou à un **point d'eau**),
     **mijoté / four** (seulement au foyer de la cuisine, eau à volonté). **Feu de camp** : bois allumé à une torche
     (brandon) ou amadou + silex ; 3 plats ou 10 minutes, puis le bois est consumé. Valeurs cachées des ingrédients
     (`donnees/cuisine.json`) ; recette = somme × multiplicateur, sinon **mixture** (½) ou **plat immonde** (¼). Recettes
@@ -496,7 +497,8 @@ stick droit pour choisir un bouton de l'interface.
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
-    | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : un point par torche, posé au sol au pied de la torche (clic ; glisser = déplacer ; clic droit = retirer). Dans le jeu, près de ce point : griller, allumer du bois (Cuisine). Clé « feux » du .json |
+    | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : un point par torche, posé au sol au pied de la torche (clic ; glisser = déplacer ; clic droit = retirer). Dans le jeu, près de ce point : allumer du bois (pas de cuisson à la torche). Clé « feux » du .json |
+    | 9 ou onglet « Eau » | **onglet Eau** (2026-11-03) : un point par point d'eau (puits, fontaine, bassin), posé au sol au bord de l'eau, mêmes gestes. Dans le jeu, près de ce point : remplir son seau. Clé « eaux » du .json |
     | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
@@ -1097,6 +1099,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Pas de cuisson à la torche ; points d'eau
+
+- **Torche** (règle de l'utilisateur) : on ne grille plus à même une torche ; elle sert seulement à allumer du bois
+  pour faire un feu de camp. Griller demande un feu de camp ou la cuisine (et compte comme un des 3 plats du feu).
+- **Éditeur** : onglet « **Eau** » (touche 9) pour marquer les points d'eau des salles, comme les torches. Dans le jeu,
+  près d'un point d'eau, l'écran de cuisine propose « Remplir le seau » (10 L).
+- Fichiers : `cuisine.gd`, `salle_peinte.gd` (`eau_proche`), `menu_navigation.gd`, `menu_cuisine.gd`,
+  `editeur_zones.gd` (onglets de points « feux » / « eaux ») ; tests `test_cuisine.gd`, `test_editeur_zones.gd`,
+  capture 174 (`capture_cuisine.gd`).
 
 ### 2026-11-03 — La cuisine
 

@@ -48,9 +48,9 @@ l'utilisera aussi. Réglages par cause :
 ## 3. Le feu et l'eau
 
 **Où trouver du feu [Décidé] :**
-1. **Torche murale de la salle** : on peut **griller** dessus sans rien dépenser, mais pas **bouillir**. Les torches
-   des salles peintes seront marquées dans l'éditeur (onglet « Feux », comme le butin ; l'utilisateur les place
-   lui-même).
+1. **Torche murale de la salle** : elle sert **seulement à allumer du bois** ; on ne cuit **rien** à même la torche
+   (décision de l'utilisateur, 2026-11-03, qui remplace « griller à la torche »). Les torches sont marquées dans
+   l'éditeur (onglet « Feux » ; l'utilisateur les place lui-même).
 2. **Feu de camp** (n'importe quelle salle) : griller **et** bouillir. Il consomme **1 combustible** (morceau de bois
    ou planche), allumé :
    - **à une torche** (on allume son bois à la torche, puis on va poser le feu où l'on veut) ;
@@ -65,9 +65,9 @@ l'utilisera aussi. Réglages par cause :
 - **[Décidé]** **Marmite** : ustensile jamais consommé, obligatoire pour bouillir et mijoter.
 - **[Décidé]** **Seau en bois** de **10 litres** : 1 L par plat bouilli, 2 L par plat mijoté.
 - **[Décidé]** Dans **la cuisine, l'eau est infinie** (pour le moment, l'utilisateur y reviendra peut-être).
-- **[En attente]** Autres points d'eau : l'utilisateur doit regarder les salles (l'eau n'y est peut-être pas
-  abondante), ou générer des salles avec des **puits**. Les eaux croupies (1 chance sur 4 d'intoxication) attendent
-  donc.
+- **[Décidé]** **Points d'eau** : marqués dans l'éditeur (onglet « Eau », touche 9) ; près d'un point d'eau, on
+  remplit son seau (10 L). L'utilisateur choisit où il y en a (puits, fontaines, salles générées exprès).
+  **[En attente]** Les eaux croupies (1 chance sur 4 d'intoxication) : pas codées.
 - **[Décidé]** Le bouilli rapporte plus que le grillé (×1,5 contre ×1,4) ; la viande bouillie est une vraie recette
   (viande + oignon ou carotte).
 - **[Décidé]** **Bouillon** : une recette bouillie avec de la viande laisse un objet « Bouillon ». Il se **boit**
@@ -81,7 +81,7 @@ l'utilisera aussi. Réglages par cause :
 | Préparation | Multiplicateur | Il faut |
 |---|---|---|
 | Recette sans feu (salade, assemblage) | ×1,1 | rien |
-| Grillé | ×1,4 | une torche, un feu de camp ou la cuisine |
+| Grillé | ×1,4 | un feu de camp ou la cuisine (pas à même une torche) |
 | Bouilli | ×1,5 | marmite + 1 L d'eau + feu de camp ou cuisine |
 | Mijoté, four | ×1,8 | la cuisine ou un lieu dédié (+ 2 L d'eau pour le mijoté) |
 | Bonus des recettes longues | +0,1 par ingrédient au-delà de 2 | — |
@@ -212,7 +212,7 @@ de légumes, 20 compotes, 55 salades de fruits, 4 tartes, 21 ragoûts douteux.
 
 - **Brandon** : le bois allumé à une torche brûle **3 minutes** ; il faut le poser en feu de camp avant
   (`brandon_duree` de `donnees/cuisine.json`). Le feu de camp se pose à l'endroit du héros.
-- **Torche à portée** : le héros à moins d'une hauteur de héros du point « Feux » (posé au sol, au pied de la torche).
+- **Torche ou point d'eau à portée** : le héros à moins d'une hauteur de héros du point marqué (posé au sol).
 - **Seau trouvé vide** : il se remplit à la cuisine (bouton « Remplir le seau », 10 L).
 - **Valeur d'un plat cuisiné** (revente) : (PV + mana) / 8, au moins 1 or.
 - **Noms** : « Mixture » et « Plat immonde » pour ce qui n'est pas une recette. Une mixture faite avec les ingrédients

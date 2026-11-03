@@ -14,6 +14,25 @@ func verifier(c: bool, cas: String) -> void:
 
 func _initialize() -> void:
 	var original := FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json")
+	if true:  # Points de feu et d'eau (onglets Feux et Eau, 2026-11-03) : vérifiés sans rien enregistrer
+		var ed0 = load("res://scenes/outils/editeur_zones.tscn").instantiate()
+		root.add_child(ed0)
+		await process_frame
+		ed0.numero = ed0.salles.find("porte2")
+		ed0._charger()
+		ed0.choisir_eau()
+		var clic := InputEventMouseButton.new()
+		clic.button_index = MOUSE_BUTTON_LEFT
+		clic.pressed = true
+		ed0._bouton_points(clic, Vector2(300, 450))
+		verifier(ed0.mode_points == "eaux" and ed0.onglets.current_tab == 3 and ed0.salle.donnees["eaux"].size() == 1, "onglet Eau : point d'eau posé")
+		ed0.choisir_feux()
+		ed0._bouton_points(clic, Vector2(200, 450))
+		verifier(ed0.salle.donnees["feux"].size() == 1 and ed0.salle.donnees["eaux"].size() == 1, "onglet Feux : torche posée, l'eau reste")
+		ed0._annuler()
+		verifier(ed0.salle.donnees["feux"].is_empty(), "Ctrl+Z retire la torche")
+		ed0.queue_free()
+		await process_frame
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
 	# Zones retouchées par l'utilisateur : remises telles quelles à la fin (2026-11-03 ; avant, elles étaient écrasées)
 	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""

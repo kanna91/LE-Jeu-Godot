@@ -6,9 +6,11 @@ extends RefCounted
 ## Recette faite avec sa préparation : somme des valeurs cachées × multiplicateur (+0,1 par ingrédient au-delà de 2) ;
 ## sinon mixture (×0,5) ou plat immonde (×0,25). Mêmes règles que outils/cuisine_combinaisons.py (liste complète).
 ##
-## Feu : torche de la salle (griller seulement), feu de camp (griller et bouillir : 3 plats, 10 minutes, allumé avec
-## un brandon pris à une torche ou avec amadou + silex, 1 morceau de bois ou planche), foyer de la cuisine (tout,
-## mijoté et four compris, eau infinie). Bouillir hors de la cuisine : marmite + 1 L d'eau du seau (10 L).
+## Feu : la torche de la salle ne sert qu'à allumer du bois (on ne cuit pas à même la torche, règle de l'utilisateur
+## du 2026-11-03) ; feu de camp (griller et bouillir : 3 plats, 10 minutes, allumé avec un brandon pris à une torche
+## ou avec amadou + silex, 1 morceau de bois ou planche) ; foyer de la cuisine (tout, mijoté et four compris, eau
+## infinie). Bouillir hors de la cuisine : marmite + 1 L d'eau du seau (10 L), rempli à la cuisine ou à un point d'eau
+## marqué dans l'éditeur (onglet « Eau »).
 ## Recettes connues : ``joueur.recettes_connues`` (celles « connue » au départ) ; les autres s'apprennent en les
 ## réussissant, par une page de livre de cuisine, ou plus tard par les prisonniers (``apprendre``).
 ## Horloge de la cuisine (feux, brandons) : ``joueur.horloge`` en secondes d'exploration (``avancer``).
@@ -302,15 +304,19 @@ static func eau(joueur) -> int:
 	return int(U.num(s, "eau")) if s != null else 0
 
 
-## Contexte : {torche (vrai si une torche est à portée), cuisine (foyer de cuisine), salle (salle du plan),
-## pos ([x, y] du héros, pour poser un feu)}.
+## Contexte : {torche (vrai si une torche est à portée : allumer du bois), eau (point d'eau à portée : remplir le
+## seau), cuisine (foyer de cuisine), salle (salle du plan), pos ([x, y] du héros, pour poser un feu)}.
 ## Préparations possibles : {prep : « » si possible, sinon la raison}.
 static func possibilites(joueur, ctx: Dictionary) -> Dictionary:
 	var cuisine := bool(ctx.get("cuisine", false))
 	var f := feu(joueur, ctx.get("salle", {}))
 	var res := {"sans_feu": ""}
-	res["grille"] = "" if cuisine or bool(ctx.get("torche", false)) or not f.is_empty() \
-		else "il faut une torche à portée ou un feu de camp"
+	if cuisine or not f.is_empty():
+		res["grille"] = ""
+	elif bool(ctx.get("torche", false)):
+		res["grille"] = "une torche sert seulement à allumer du bois : faites un feu de camp"
+	else:
+		res["grille"] = "il faut un feu de camp"
 	if not cuisine and f.is_empty():
 		res["bouilli"] = "il faut un feu de camp (une torche ne suffit pas)"
 	elif not cuisine and objet(joueur, "Marmite") == null:
@@ -361,9 +367,9 @@ static func faire_feu(joueur, ctx: Dictionary) -> String:
 	return "Vous allumez un feu de camp %s : %d plats ou %d minutes au plus." % [comment, int(r["plats"]), int(r["duree"]) / 60]
 
 
-## Remplit le seau à ras bord (seulement dans la cuisine, où l'eau ne manque pas).
+## Remplit le seau à ras bord : dans la cuisine ou près d'un point d'eau (onglet « Eau » de l'éditeur).
 static func remplir_seau(joueur, ctx: Dictionary) -> String:
-	if not bool(ctx.get("cuisine", false)):
+	if not bool(ctx.get("cuisine", false)) and not bool(ctx.get("eau", false)):
 		return "Il n'y a pas d'eau ici."
 	var s = seau(joueur)
 	if s == null:
@@ -407,7 +413,7 @@ static func cuisiner(joueur, ctx: Dictionary, objets: Array, bouillon, prep: Str
 		var s = seau(joueur)
 		s._d["eau"] = int(U.num(s, "eau")) - int(donnees()["eau_par_preparation"][prep])
 	var f := feu(joueur, ctx.get("salle", {}))
-	if not cuisine and not f.is_empty() and (prep == "bouilli" or (prep == "grille" and not bool(ctx.get("torche", false)))):
+	if not cuisine and not f.is_empty() and prep in ["bouilli", "grille"]:
 		f["plats"] = int(f.get("plats", 0)) + 1
 	var noms := []
 	for o in objets:

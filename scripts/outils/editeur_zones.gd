@@ -22,9 +22,10 @@ extends Control
 ## (et celui des prochains posés) : or (montant, 0 = au hasard), potion (sorte), arme, équipement (armure / bijou),
 ## objet divers, nourriture, ingrédient (objet précis du catalogue ou au hasard), nombre, rang. Enregistré dans la clé
 ## « butins » du .json de la salle ; dans le jeu, il se ramasse avec E (Fouille.ramasser).
-## Onglet « Feux » (2026-11-03 ; touche 8) : un point par torche, posé **au sol, au pied de la torche** (clic ; glisser :
-## déplacer ; clic droit : retirer). Dans le jeu, le héros près d'un de ces points peut griller et allumer du bois
-## (Cuisine). Clé « feux » du .json de la salle.
+## Onglets « Feux » (touche 8) et « Eau » (touche 9), 2026-11-03 : un point par torche ou par point d'eau, posé
+## **au sol** (au pied de la torche, au bord de l'eau) : clic ; glisser : déplacer ; clic droit : retirer. Dans le jeu,
+## près d'une torche on allume du bois (pas de cuisson directe à la torche), près d'un point d'eau on remplit son seau
+## (Cuisine). Clés « feux » et « eaux » du .json de la salle.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
@@ -47,8 +48,18 @@ const PRISE := 9.0
 const ZOOM_MAX := 6.0
 const COULEUR_BUTIN := Color(1, 0.8, 0.2)
 const COULEUR_FEU := Color(1, 0.45, 0.1)
-const AIDE_FEUX := "Onglet Feux — clic : marquer une torche (point posé au sol, au pied de la torche)   glisser : déplacer   clic droit : retirer\n" \
-	+ "dans le jeu, près de ce point : griller et allumer du bois   1-6 : zones   7 : butin   Ctrl+Z : annuler   Ctrl+S : enregistrer   F1 : replier l'aide"
+const COULEUR_EAU := Color(0.25, 0.6, 1)
+## Onglets de points : clé du .json, onglet, couleur, nom d'un point, message, aide.
+const POINTS := {
+	"feux": {"onglet": 2, "couleur": COULEUR_FEU, "nom": "Torche", "compte": "torches",
+		"message": "Feux : cliquez au sol, au pied de chaque torche de l'image",
+		"aide": "Onglet Feux — clic : marquer une torche (point posé au sol, au pied de la torche)   glisser : déplacer   clic droit : retirer\n" \
+			+ "dans le jeu, près de ce point : allumer du bois (pas de cuisson à même la torche)   1-6 : zones   7 : butin   9 : eau   Ctrl+Z / Ctrl+S   F1 : aide"},
+	"eaux": {"onglet": 3, "couleur": COULEUR_EAU, "nom": "Point d'eau", "compte": "points d'eau",
+		"message": "Eau : cliquez au sol, au bord de chaque point d'eau (puits, fontaine, bassin…)",
+		"aide": "Onglet Eau — clic : marquer un point d'eau (posé au sol, au bord de l'eau)   glisser : déplacer   clic droit : retirer\n" \
+			+ "dans le jeu, près de ce point : remplir son seau   1-6 : zones   7 : butin   8 : feux   Ctrl+Z / Ctrl+S   F1 : aide"},
+}
 const POTIONS := ["", "pv", "mana", "mixte"]
 const NOMS_POTIONS := ["Au hasard", "Soin", "Mana", "Régénération"]
 const EQUIPEMENTS := ["", "armure", "bijou"]
@@ -83,9 +94,9 @@ var zoom := 1.0
 var aide_complete := true
 ## Onglet « Butin » actif (sinon : zones).
 var mode_butin := false
-## Onglet « Feux » actif (torches).
-var mode_feux := false
-var glisse_feu := -1
+## Onglet de points actif : « feux » (torches), « eaux » (points d'eau) ou « » ; point glissé.
+var mode_points := ""
+var glisse_point := -1
 var onglets: TabBar
 var module: PanelContainer
 var choix_categorie: OptionButton
@@ -218,11 +229,12 @@ func _charger() -> void:
 		if b is Dictionary:
 			butins.append(b.duplicate())
 	salle.donnees["butins"] = butins
-	var feux := []
-	for f in salle.donnees.get("feux", []):
-		feux.append([int(f[0]), int(f[1])])
-	salle.donnees["feux"] = feux
-	glisse_feu = -1
+	for cle in POINTS:
+		var pts := []
+		for f in salle.donnees.get(cle, []):
+			pts.append([int(f[0]), int(f[1])])
+		salle.donnees[cle] = pts
+	glisse_point = -1
 	butin_choisi = -1
 	glisse_butin = -1
 	_remplir_module()
@@ -278,9 +290,9 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		_bouton(ev)
 	elif ev is InputEventMouseMotion:
-		if glisse_feu >= 0 and glisse_feu < salle.donnees["feux"].size():
+		if mode_points != "" and glisse_point >= 0 and glisse_point < salle.donnees[mode_points].size():
 			var mf := _borne(souris())
-			salle.donnees["feux"][glisse_feu] = [int(mf.x), int(mf.y)]
+			salle.donnees[mode_points][glisse_point] = [int(mf.x), int(mf.y)]
 		elif glisse_butin >= 0 and glisse_butin < salle.donnees["butins"].size():
 			var m := _borne(souris())
 			salle.donnees["butins"][glisse_butin]["x"] = int(m.x)
@@ -345,6 +357,8 @@ func _touche(ev: InputEventKey) -> void:
 			choisir_onglet(true)
 		KEY_8, KEY_KP_8:
 			choisir_feux()
+		KEY_9, KEY_KP_9:
+			choisir_eau()
 		KEY_ENTER, KEY_KP_ENTER:
 			_fermer_trace()
 		KEY_0, KEY_KP_0:
@@ -387,8 +401,8 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		_vue(zoom / 1.2, ev.position)
 	elif ev.button_index == MOUSE_BUTTON_MIDDLE:
 		deplacement = ev.pressed
-	elif mode_feux:
-		_bouton_feux(ev, m)
+	elif mode_points != "":
+		_bouton_points(ev, m)
 	elif mode_butin:
 		_bouton_butin(ev, m)
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
@@ -574,7 +588,8 @@ func _memoriser() -> void:
 		copie[cle] = salle.donnees[cle].duplicate()
 	copie["arrivees"] = salle.donnees["arrivees"].duplicate()
 	copie["butins"] = salle.donnees["butins"].duplicate(true)
-	copie["feux"] = salle.donnees["feux"].duplicate(true)
+	for cle in POINTS:
+		copie[cle] = salle.donnees[cle].duplicate(true)
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -587,9 +602,9 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
-	for cle in INFOS_SORTIES + ["arrivees", "butins", "feux"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins"] + POINTS.keys():
 		salle.donnees[cle] = copie[cle]
-	glisse_feu = -1
+	glisse_point = -1
 	glisse = []
 	glisse_butin = -1
 	if butin_choisi >= salle.donnees["butins"].size():
@@ -635,7 +650,7 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
-	for cle in INFOS_SORTIES + ["arrivees", "butins", "feux"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins"] + POINTS.keys():
 		zones[cle] = salle.donnees[cle]
 	var donnees := SallePeinte.lire_salle(id)
 	for c in zones:
@@ -659,47 +674,56 @@ func _enregistrer() -> void:
 # Onglet « Butin »
 # ---------------------------------------------------------------------------
 
-## Passe à l'onglet Feux (torches).
+## Passe à l'onglet Feux (torches) ou Eau (points d'eau).
 func choisir_feux() -> void:
+	choisir_points("feux")
+
+
+func choisir_eau() -> void:
+	choisir_points("eaux")
+
+
+func choisir_points(cle: String) -> void:
 	choisir_onglet(false)
-	mode_feux = true
-	if onglets != null and onglets.current_tab != 2:
-		onglets.current_tab = 2
-	message = "Feux : cliquez au sol, au pied de chaque torche de l'image"
+	mode_points = cle
+	if onglets != null and onglets.current_tab != int(POINTS[cle]["onglet"]):
+		onglets.current_tab = int(POINTS[cle]["onglet"])
+	message = POINTS[cle]["message"]
 
 
-## Torches : clic pose, glisser déplace, clic droit retire.
-func _bouton_feux(ev: InputEventMouseButton, m: Vector2) -> void:
-	var feux: Array = salle.donnees["feux"]
+## Points (torches, eau) : clic pose, glisser déplace, clic droit retire.
+func _bouton_points(ev: InputEventMouseButton, m: Vector2) -> void:
+	var pts: Array = salle.donnees[mode_points]
+	var nom: String = POINTS[mode_points]["nom"]
 	var proche := -1
-	for k in range(feux.size() - 1, -1, -1):
-		if Vector2(feux[k][0], feux[k][1]).distance_to(m) * echelle() < PRISE + 4:
+	for k in range(pts.size() - 1, -1, -1):
+		if Vector2(pts[k][0], pts[k][1]).distance_to(m) * echelle() < PRISE + 4:
 			proche = k
 			break
 	if ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		_memoriser()
 		if proche >= 0:
-			glisse_feu = proche
+			glisse_point = proche
 		else:
-			feux.append([int(m.x), int(m.y)])
+			pts.append([int(m.x), int(m.y)])
 			_change()
-			message = "Torche %d marquée" % feux.size()
+			message = "%s %d marqué(e)" % [nom, pts.size()]
 	elif ev.button_index == MOUSE_BUTTON_LEFT and not ev.pressed:
-		if glisse_feu >= 0:
-			glisse_feu = -1
+		if glisse_point >= 0:
+			glisse_point = -1
 			_change()
 	elif ev.button_index == MOUSE_BUTTON_RIGHT and ev.pressed and proche >= 0:
 		_memoriser()
-		feux.remove_at(proche)
+		pts.remove_at(proche)
 		_change()
-		message = "Torche retirée (Ctrl+Z pour annuler)"
+		message = "%s retiré(e) (Ctrl+Z pour annuler)" % nom
 
 
 ## Passe à l'onglet Butin (``butin`` vrai) ou Zones.
 func choisir_onglet(butin: bool) -> void:
 	mode_butin = butin
-	mode_feux = false
-	glisse_feu = -1
+	mode_points = ""
+	glisse_point = -1
 	trace.clear()
 	glisse = []
 	glisse_butin = -1
@@ -709,10 +733,12 @@ func choisir_onglet(butin: bool) -> void:
 
 
 func _onglet_change(k: int) -> void:
-	if k == 2:
-		if not mode_feux:
-			choisir_feux()
-	elif (k == 1) != mode_butin or mode_feux:
+	for cle in POINTS:
+		if k == int(POINTS[cle]["onglet"]):
+			if mode_points != cle:
+				choisir_points(cle)
+			return
+	if (k == 1) != mode_butin or mode_points != "":
 		choisir_onglet(k == 1)
 
 
@@ -723,10 +749,11 @@ func _creer_module() -> void:
 	onglets.z_index = 100
 	onglets.focus_mode = Control.FOCUS_NONE
 	onglets.clip_tabs = false
-	onglets.custom_minimum_size = Vector2(250, 0)
+	onglets.custom_minimum_size = Vector2(320, 0)
 	onglets.add_tab("Zones")
 	onglets.add_tab("Butin")
 	onglets.add_tab("Feux")
+	onglets.add_tab("Eau")
 	onglets.tab_changed.connect(_onglet_change)
 	add_child(onglets)
 	module = PanelContainer.new()
@@ -967,17 +994,17 @@ func _process(_delta: float) -> void:
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : %s" % ("onglet Feux" if mode_feux else "onglet Butin" if mode_butin else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : %s" % (("onglet " + ("Feux" if mode_points == "feux" else "Eau")) if mode_points != "" else "onglet Butin" if mode_butin else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f%s" % [m.x, m.y, zoom,
 			("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin
-			else ("   torches : %d" % salle.donnees["feux"].size()) if mode_feux else ""])
+			else ("   %s : %d" % [POINTS[mode_points]["compte"], salle.donnees[mode_points].size()]) if mode_points != "" else ""])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = ((AIDE_FEUX if mode_feux else AIDE_BUTIN if mode_butin else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
+	aide.text = ((String(POINTS[mode_points]["aide"]) if mode_points != "" else AIDE_BUTIN if mode_butin else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
@@ -1027,14 +1054,21 @@ class Calque extends Node2D:
 					draw_string_outline(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, 4, Color.BLACK)
 					draw_string(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, Color.WHITE)
 					draw_set_transform(Vector2.ZERO)
-		# Torches (onglet Feux)
-		if ed.mode_feux or ed.voir_zones:
-			for f in ed.salle.donnees.get("feux", []):
+		# Torches (onglet Feux) et points d'eau (onglet Eau)
+		for cle in POINTS:
+			if ed.mode_points != cle and not ed.voir_zones:
+				continue
+			var fort: bool = ed.mode_points == cle
+			for f in ed.salle.donnees.get(cle, []):
 				var c := Vector2(f[0], f[1])
-				var fort: bool = ed.mode_feux
-				draw_circle(c, 8.0 * e, Color(COULEUR_FEU, 0.9 if fort else 0.45))
-				draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -6) * e, c + Vector2(0, -20) * e, c + Vector2(5, -6) * e]),
-					Color(1, 0.8, 0.2, 0.9 if fort else 0.45))
+				draw_circle(c, 8.0 * e, Color(POINTS[cle]["couleur"], 0.9 if fort else 0.45))
+				if cle == "feux":
+					draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -6) * e, c + Vector2(0, -20) * e, c + Vector2(5, -6) * e]),
+						Color(1, 0.8, 0.2, 0.9 if fort else 0.45))
+				else:
+					draw_colored_polygon(PackedVector2Array([c + Vector2(-5, -8) * e, c + Vector2(0, -20) * e, c + Vector2(5, -8) * e]),
+						Color(0.7, 0.9, 1, 0.9 if fort else 0.45))
+					draw_circle(c + Vector2(0, -8) * e, 5.0 * e, Color(0.7, 0.9, 1, 0.9 if fort else 0.45))
 				draw_circle(c, 8.0 * e, Color.BLACK, false, 1.5 * e)
 		# Butin posé (onglet Butin ; montré aussi dans l'onglet Zones et en marchant avec F2)
 		if ed.mode_butin or ed.voir_zones:

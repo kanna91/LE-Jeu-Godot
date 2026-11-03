@@ -1226,9 +1226,18 @@ func reculer_de_la_sortie() -> void:
 
 ## Vrai si un point « feux » (torche, marqué dans l'éditeur au sol sous la torche) est à portée du héros.
 func torche_proche() -> bool:
+	return _point_proche("feux")
+
+
+## Vrai si un point d'eau (onglet « Eau » de l'éditeur, posé au sol au bord de l'eau) est à portée du héros.
+func eau_proche() -> bool:
+	return _point_proche("eaux")
+
+
+func _point_proche(cle: String) -> bool:
 	if heros == null or fond == null:
 		return false
-	for p in donnees.get("feux", []):
+	for p in donnees.get(cle, []):
 		var x := float(p[0])
 		if miroir:
 			x = fond.get_width() - x

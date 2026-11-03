@@ -94,11 +94,7 @@ func _feu_et_eau() -> void:
 	verifier(p["sans_feu"] == "" and p["grille"] != "" and p["bouilli"] != "" and p["mijote"] != "", "sans feu ni torche : seulement « sans feu »")
 	ctx["torche"] = true
 	p = Cuisine.possibilites(joueur, ctx)
-	verifier(p["grille"] == "" and p["bouilli"] != "", "torche : griller oui, bouillir non")
-	var brochette := _donner(joueur, ["Viande crue", "Oignon", "Tomate"])
-	var r := Cuisine.cuisiner(joueur, ctx, brochette, null, "grille")
-	verifier(r[1] != null and r[1].nom == "Brochette" and int(r[1].pv) == 46 and int(r[1].mana) == 15, "brochette grillée à la torche : 46 PV, 15 mana (%s)" % r[0])
-	verifier(not brochette.any(func(o): return o in joueur.inventaire), "ingrédients consommés")
+	verifier(p["grille"].contains("allumer du bois") and p["bouilli"] != "", "torche : ni griller ni bouillir (elle allume seulement le bois)")
 	# Brandon : bois allumé à la torche, s'éteint après 3 minutes
 	_donner(joueur, ["Planche en bois"])
 	var m := Cuisine.allumer_brandon(joueur, ctx)
@@ -112,22 +108,28 @@ func _feu_et_eau() -> void:
 	verifier(not Cuisine.feu(joueur, salle).is_empty() and Cuisine.objet(joueur, "Brandon allumé") == null, "feu de camp posé avec le brandon : " + m)
 	p = Cuisine.possibilites(joueur, ctx)
 	verifier(p["grille"] == "" and p["bouilli"].contains("marmite"), "feu de camp : griller oui ; bouillir : il faut une marmite")
+	var brochette := _donner(joueur, ["Viande crue", "Oignon", "Tomate"])
+	var r := Cuisine.cuisiner(joueur, ctx, brochette, null, "grille")
+	verifier(r[1] != null and r[1].nom == "Brochette" and int(r[1].pv) == 46 and int(r[1].mana) == 15, "brochette grillée au feu de camp : 46 PV, 15 mana (%s)" % r[0])
+	verifier(not brochette.any(func(o): return o in joueur.inventaire), "ingrédients consommés")
 	_donner(joueur, ["Marmite", "Seau en bois"])
 	verifier(Cuisine.possibilites(joueur, ctx)["bouilli"].contains("eau"), "seau trouvé vide : il faut de l'eau")
-	Cuisine.seau(joueur)._d["eau"] = 10
+	verifier(Cuisine.remplir_seau(joueur, ctx).contains("pas d'eau") and Cuisine.eau(joueur) == 0, "sans point d'eau : pas de seau rempli")
+	ctx["eau"] = true
+	var m_eau := Cuisine.remplir_seau(joueur, ctx)
+	verifier(Cuisine.eau(joueur) == 10, "près d'un point d'eau : seau rempli (%s)" % m_eau)
+	ctx["eau"] = false
 	var vb := _donner(joueur, ["Viande crue", "Carotte"])
 	r = Cuisine.cuisiner(joueur, ctx, vb, null, "bouilli")
 	verifier(r[1] != null and r[1].nom == "Viande bouillie" and int(r[1].pv) == 45, "viande bouillie (viande + carotte) : 45 PV (%s)" % r[0])
 	verifier(Cuisine.eau(joueur) == 9, "1 litre d'eau consommé")
 	var bouillon = Cuisine.objet(joueur, "Bouillon")
 	verifier(bouillon != null, "il reste un bouillon")
-	verifier(int(Cuisine.feu(joueur, salle).get("plats", 0)) == 1, "le feu de camp a servi 1 plat sur 3")
+	verifier(int(Cuisine.feu(joueur, salle).get("plats", 0)) == 2, "le feu de camp a servi 2 plats sur 3 (brochette, viande bouillie)")
 	var soupe := _donner(joueur, ["Pomme de terre", "Chou"])
 	r = Cuisine.cuisiner(joueur, ctx, soupe, bouillon, "bouilli")
 	verifier(r[1] != null and r[1].nom == "Soupe de légumes" and int(r[1].pv) == 27 + 5 and int(r[1].mana) == 3 + 5 and Cuisine.eau(joueur) == 8,
 		"le bouillon ajoute sa valeur (+5/+5) sans remplacer l'eau (8 L restants)")
-	var gr := _donner(joueur, ["Pomme de terre"])
-	Cuisine.cuisiner(joueur, ctx, gr, null, "grille")
 	verifier(Cuisine.feu(joueur, salle).is_empty(), "le feu de camp s'éteint après 3 plats")
 	# Feu avec amadou + silex, éteint après 10 minutes
 	_donner(joueur, ["Morceau de bois", "Amadou", "Silex"])
