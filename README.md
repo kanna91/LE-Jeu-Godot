@@ -501,7 +501,7 @@ stick droit pour choisir un bouton de l'interface.
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
-    | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : un point par torche, posé au sol au pied de la torche (clic ; glisser = déplacer ; clic droit = retirer). Dans le jeu, près de ce point : allumer du bois (pas de cuisson à la torche). Clé « feux » du .json |
+    | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : des **zones** tracées au sol près des torches, comme les autres zones (clic : point ; Entrée ou 1er point : fermer ; glisser un point ou l'intérieur ; Maj+clic sur un bord : nouveau point ; clic droit : retirer). Dans le jeu, le héros dans une zone voit « Torche : allumer du bois (K) » (pas de cuisson à la torche). Clé « feux » du .json (polygones ; un ancien point devient une petite zone) |
     | 9 ou onglet « Eau » | **onglet Eau** (2026-11-03) : un point par point d'eau (puits, fontaine, bassin), posé au sol au bord de l'eau, mêmes gestes. Dans le jeu, près de ce point : remplir son seau. Clé « eaux » du .json |
     | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
@@ -1016,7 +1016,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
-& $godot --path . -s tests/capture_cuisine.gd             # captures 170-173 : onglet Feux, écran de cuisine, feu de camp et intoxication (hors écran)
+& $godot --path . -s tests/capture_cuisine.gd             # captures 170-175 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indication dans une zone de feu (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
@@ -1104,6 +1104,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Feux : des zones au lieu de points
+
+- Demande de l'utilisateur : dans l'éditeur, l'onglet « Feux » (touche 8) trace des **zones** (couche « feux »,
+  orange, « feu N »), avec les mêmes gestes que les autres zones ; on déplace une zone en glissant son intérieur.
+- Dans le jeu, le héros **dans** une zone de feu peut allumer du bois à la torche (`SallePeinte.torche_proche`) et
+  voit l'indication « Torche : allumer du bois (K) » au-dessus de lui.
+- Les anciens points (un seul : `bloc_cuisine_manger`) deviennent une petite zone de la taille de l'ancienne portée
+  (`SallePeinte.zones_feux`), enregistrée comme zone au prochain Ctrl+S. L'onglet « Eau » reste en points.
+- Tests : `test_editeur_zones.gd` (tracé, annulation, ancien point, héros dans / hors de la zone), capture 175.
 
 ### 2026-11-03 — Les geôliers ne vont jamais dans les cryptes
 

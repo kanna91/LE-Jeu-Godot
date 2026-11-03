@@ -212,7 +212,8 @@ de légumes, 20 compotes, 55 salades de fruits, 4 tartes, 21 ragoûts douteux.
 
 - **Brandon** : le bois allumé à une torche brûle **3 minutes** ; il faut le poser en feu de camp avant
   (`brandon_duree` de `donnees/cuisine.json`). Le feu de camp se pose à l'endroit du héros.
-- **Torche ou point d'eau à portée** : le héros à moins d'une hauteur de héros du point marqué (posé au sol).
+- **Torche à portée** : le héros est dans une zone de feu (tracée dans l'éditeur, onglet « Feux », 2026-11-03).
+- **Point d'eau à portée** : le héros à moins d'une hauteur de héros du point marqué (posé au sol).
 - **Seau trouvé vide** : il se remplit à la cuisine (bouton « Remplir le seau », 10 L).
 - **Valeur d'un plat cuisiné** (revente) : (PV + mana) / 8, au moins 1 or.
 - **Noms** : « Mixture » et « Plat immonde » pour ce qui n'est pas une recette. Une mixture faite avec les ingrédients

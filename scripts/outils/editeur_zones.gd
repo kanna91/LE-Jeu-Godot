@@ -22,21 +22,26 @@ extends Control
 ## (et celui des prochains posés) : or (montant, 0 = au hasard), potion (sorte), arme, équipement (armure / bijou),
 ## objet divers, nourriture, ingrédient (objet précis du catalogue ou au hasard), nombre, rang. Enregistré dans la clé
 ## « butins » du .json de la salle ; dans le jeu, il se ramasse avec E (Fouille.ramasser).
-## Onglets « Feux » (touche 8) et « Eau » (touche 9), 2026-11-03 : un point par torche ou par point d'eau, posé
-## **au sol** (au pied de la torche, au bord de l'eau) : clic ; glisser : déplacer ; clic droit : retirer. Dans le jeu,
-## près d'une torche on allume du bois (pas de cuisson directe à la torche), près d'un point d'eau on remplit son seau
-## (Cuisine). Clés « feux » et « eaux » du .json de la salle.
+## Onglet « Feux » (touche 8), 2026-11-03 : des **zones** tracées au sol près des torches, comme les autres zones
+## (clic : point, Entrée ou 1er point : fermer ; glisser un point ou l'intérieur ; clic droit : retirer). Dans le jeu,
+## le héros dans une de ces zones peut allumer du bois à la torche (pas de cuisson directe à la torche) ; une
+## indication « Torche : allumer du bois (K) » s'affiche. Les anciens points deviennent de petites zones.
+## Onglet « Eau » (touche 9) : un point par point d'eau, posé au sol au bord de l'eau (clic ; glisser : déplacer ;
+## clic droit : retirer) ; près de lui on remplit son seau (Cuisine). Clés « feux » et « eaux » du .json de la salle.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
-const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes"]
+const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
-	"prisonniers": "Prisonniers (zones de dialogue)", "cachettes": "Cachettes (le héros y est invisible)"}
+	"prisonniers": "Prisonniers (zones de dialogue)", "cachettes": "Cachettes (le héros y est invisible)",
+	"feux": "Feux (zones de torche)"}
 const COULEURS := {"marche": Color(0.25, 1, 0.35), "obstacles": Color(1, 0.25, 0.2),
 	"premier_plan": Color(0.3, 0.6, 1), "sorties": Color(1, 0.9, 0.15), "prisonniers": Color(0.85, 0.45, 1),
-	"cachettes": Color(0.2, 0.95, 0.9)}
+	"cachettes": Color(0.2, 0.95, 0.9), "feux": Color(1, 0.45, 0.1)}
 ## Couches qu'on déplace d'un bloc en glissant leur intérieur (les autres : un clic dedans commence un tracé).
-const DEPLACABLES := ["sorties", "prisonniers"]
+const DEPLACABLES := ["sorties", "prisonniers", "feux"]
+## Onglet de l'éditeur où se trouve la couche « feux ».
+const ONGLET_FEUX := 2
 ## Données parallèles aux sorties (une valeur par sortie, dans le même ordre).
 const INFOS_SORTIES := ["noms_sorties", "directions_sorties", "types_sorties", "sorties_potentielles"]
 ## Couleur des sorties potentielles.
@@ -49,12 +54,11 @@ const ZOOM_MAX := 6.0
 const COULEUR_BUTIN := Color(1, 0.8, 0.2)
 const COULEUR_FEU := Color(1, 0.45, 0.1)
 const COULEUR_EAU := Color(0.25, 0.6, 1)
+const AIDE_FEUX := "Onglet Feux — tracez au sol la zone d'où le héros peut se servir de la torche : clic : ajouter un point (Entrée ou 1er point : fermer)\n" \
+	+ "glisser un point ou l'intérieur : déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
+	+ "dans le jeu, dans cette zone : « Torche : allumer du bois (K) » (pas de cuisson à même la torche)   1-6 : zones   7 : butin   9 : eau   Ctrl+Z / Ctrl+S   F1 : aide"
 ## Onglets de points : clé du .json, onglet, couleur, nom d'un point, message, aide.
 const POINTS := {
-	"feux": {"onglet": 2, "couleur": COULEUR_FEU, "nom": "Torche", "compte": "torches",
-		"message": "Feux : cliquez au sol, au pied de chaque torche de l'image",
-		"aide": "Onglet Feux — clic : marquer une torche (point posé au sol, au pied de la torche)   glisser : déplacer   clic droit : retirer\n" \
-			+ "dans le jeu, près de ce point : allumer du bois (pas de cuisson à même la torche)   1-6 : zones   7 : butin   9 : eau   Ctrl+Z / Ctrl+S   F1 : aide"},
 	"eaux": {"onglet": 3, "couleur": COULEUR_EAU, "nom": "Point d'eau", "compte": "points d'eau",
 		"message": "Eau : cliquez au sol, au bord de chaque point d'eau (puits, fontaine, bassin…)",
 		"aide": "Onglet Eau — clic : marquer un point d'eau (posé au sol, au bord de l'eau)   glisser : déplacer   clic droit : retirer\n" \
@@ -215,6 +219,11 @@ func _charger() -> void:
 				poly.append(Vector2(p[0], p[1]))
 			zones.append(poly)
 	salle.donnees["prisonniers"] = zones
+	# Feux : zones (SallePeinte les a lues ; les anciens points sont devenus de petites zones)
+	var feux := []
+	for z in salle.donnees.get("feux", []):
+		feux.append(PackedVector2Array(z))
+	salle.donnees["feux"] = feux
 	# Données des sorties : une valeur par sortie (complétées si elles manquent)
 	var n: int = salle.donnees["sorties"].size()
 	for cle in INFOS_SORTIES:
@@ -346,9 +355,9 @@ func _touche(ev: InputEventKey) -> void:
 		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4, KEY_5, KEY_KP_5, KEY_6, KEY_KP_6:
 			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3,
 				KEY_5: 4, KEY_KP_5: 4, KEY_6: 5, KEY_KP_6: 5}
-			couche = COUCHES[n[ev.keycode]]
 			trace.clear()
 			choisir_onglet(false)
+			couche = COUCHES[n[ev.keycode]]
 			if couche == "prisonniers":
 				message = "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image"
 			elif couche == "cachettes":
@@ -676,7 +685,11 @@ func _enregistrer() -> void:
 
 ## Passe à l'onglet Feux (torches) ou Eau (points d'eau).
 func choisir_feux() -> void:
-	choisir_points("feux")
+	choisir_onglet(false)
+	couche = "feux"
+	if onglets != null and onglets.current_tab != ONGLET_FEUX:
+		onglets.current_tab = ONGLET_FEUX
+	message = "Feux : tracez au sol, près de chaque torche, la zone d'où le héros peut s'en servir"
 
 
 func choisir_eau() -> void:
@@ -723,6 +736,8 @@ func _bouton_points(ev: InputEventMouseButton, m: Vector2) -> void:
 func choisir_onglet(butin: bool) -> void:
 	mode_butin = butin
 	mode_points = ""
+	if couche == "feux":
+		couche = "marche"
 	glisse_point = -1
 	trace.clear()
 	glisse = []
@@ -733,12 +748,16 @@ func choisir_onglet(butin: bool) -> void:
 
 
 func _onglet_change(k: int) -> void:
+	if k == ONGLET_FEUX:
+		if couche != "feux" or mode_butin or mode_points != "":
+			choisir_feux()
+		return
 	for cle in POINTS:
 		if k == int(POINTS[cle]["onglet"]):
 			if mode_points != cle:
 				choisir_points(cle)
 			return
-	if (k == 1) != mode_butin or mode_points != "":
+	if (k == 1) != mode_butin or mode_points != "" or couche == "feux":
 		choisir_onglet(k == 1)
 
 
@@ -993,18 +1012,20 @@ func _process(_delta: float) -> void:
 	var nom_couche: String = NOMS[couche]
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
+	var en_feux := couche == "feux" and not mode_butin and mode_points == ""
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : %s" % (("onglet " + ("Feux" if mode_points == "feux" else "Eau")) if mode_points != "" else "onglet Butin" if mode_butin else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : %s" % ("onglet Eau" if mode_points != "" else "onglet Butin" if mode_butin else "onglet Feux" if en_feux else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f%s" % [m.x, m.y, zoom,
 			("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin
-			else ("   %s : %d" % [POINTS[mode_points]["compte"], salle.donnees[mode_points].size()]) if mode_points != "" else ""])
+			else ("   %s : %d" % [POINTS[mode_points]["compte"], salle.donnees[mode_points].size()]) if mode_points != ""
+			else ("   zones de feu : %d" % salle.donnees["feux"].size()) if en_feux else ""])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = ((String(POINTS[mode_points]["aide"]) if mode_points != "" else AIDE_BUTIN if mode_butin else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
+	aide.text = ((String(POINTS[mode_points]["aide"]) if mode_points != "" else AIDE_BUTIN if mode_butin else AIDE_FEUX if en_feux else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
@@ -1039,12 +1060,12 @@ class Calque extends Node2D:
 						draw_circle(p, 3.5 * e, Color.WHITE)
 						draw_circle(p, 2.2 * e, col)
 				# Étiquette des sorties (numéro et direction) et des prisonniers
-				if (c == "sorties" or c == "prisonniers") and (actif or ed.voir_zones):
+				if (c == "sorties" or c == "prisonniers" or c == "feux") and (actif or ed.voir_zones):
 					var centre := Vector2.ZERO
 					for p in poly:
 						centre += p
 					centre /= poly.size()
-					var t := "prisonnier %d" % (i + 1)
+					var t := ("feu %d" if c == "feux" else "prisonnier %d") % (i + 1)
 					if c == "sorties":
 						var dirs: Array = ed.salle.donnees["directions_sorties"]
 						t = "%d : %s" % [i + 1, NOMS_DIRECTIONS.get(dirs[i] if i < dirs.size() else "", "?")]
@@ -1054,7 +1075,7 @@ class Calque extends Node2D:
 					draw_string_outline(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, 4, Color.BLACK)
 					draw_string(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, Color.WHITE)
 					draw_set_transform(Vector2.ZERO)
-		# Torches (onglet Feux) et points d'eau (onglet Eau)
+		# Points d'eau (onglet Eau)
 		for cle in POINTS:
 			if ed.mode_points != cle and not ed.voir_zones:
 				continue

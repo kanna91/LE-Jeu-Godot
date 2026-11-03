@@ -26,12 +26,36 @@ func _initialize() -> void:
 		clic.pressed = true
 		ed0._bouton_points(clic, Vector2(300, 450))
 		verifier(ed0.mode_points == "eaux" and ed0.onglets.current_tab == 3 and ed0.salle.donnees["eaux"].size() == 1, "onglet Eau : point d'eau posé")
+		# Feux : des zones tracées comme les autres (2026-11-03)
 		ed0.choisir_feux()
-		ed0._bouton_points(clic, Vector2(200, 450))
-		verifier(ed0.salle.donnees["feux"].size() == 1 and ed0.salle.donnees["eaux"].size() == 1, "onglet Feux : torche posée, l'eau reste")
+		verifier(ed0.couche == "feux" and ed0.mode_points == "" and ed0.onglets.current_tab == 2, "onglet Feux : couche des zones de feu")
+		ed0.trace = PackedVector2Array([Vector2(180, 430), Vector2(260, 430), Vector2(260, 470), Vector2(180, 470)])
+		ed0._fermer_trace()
+		verifier(ed0.salle.donnees["feux"].size() == 1 and ed0.salle.donnees["feux"][0].size() == 4 and ed0.salle.donnees["eaux"].size() == 1,
+			"onglet Feux : zone de feu tracée, l'eau reste")
 		ed0._annuler()
-		verifier(ed0.salle.donnees["feux"].is_empty(), "Ctrl+Z retire la torche")
+		verifier(ed0.salle.donnees["feux"].is_empty(), "Ctrl+Z retire la zone de feu")
+		ed0.choisir_onglet(false)
+		verifier(ed0.couche != "feux" and ed0.onglets.current_tab == 0, "retour à l'onglet Zones")
 		ed0.queue_free()
+		await process_frame
+		# Ancien point de torche : devient une petite zone autour de lui
+		var z := SallePeinte.zones_feux([[675, 321]], func(_y): return 100.0)
+		var poly := PackedVector2Array()
+		for q in z[0]:
+			poly.append(Vector2(q[0], q[1]))
+		verifier(z.size() == 1 and poly.size() == 4 and Geometry2D.is_point_in_polygon(Vector2(675, 321), poly)
+			and not Geometry2D.is_point_in_polygon(Vector2(675, 421), poly), "ancien point de torche → zone autour de lui")
+		# Dans le jeu : le héros dans la zone peut se servir de la torche
+		var sp := SallePeinte.new()
+		root.add_child(sp)
+		sp.charger("porte2", -1, false)
+		sp.donnees["feux"] = [PackedVector2Array([Vector2(180, 430), Vector2(260, 430), Vector2(260, 470), Vector2(180, 470)])]
+		sp.heros.position = Vector2(220, 450)
+		verifier(sp.torche_proche(), "héros dans la zone de feu : torche à portée")
+		sp.heros.position = Vector2(400, 450)
+		verifier(not sp.torche_proche(), "héros hors de la zone : pas de torche")
+		sp.queue_free()
 		await process_frame
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
 	# Zones retouchées par l'utilisateur : remises telles quelles à la fin (2026-11-03 ; avant, elles étaient écrasées)

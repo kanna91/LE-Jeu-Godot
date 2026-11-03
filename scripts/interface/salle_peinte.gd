@@ -198,7 +198,8 @@ func charger(id: String, arrivee := -1, avec_miroir := false, objets_places := [
 	sorties_murees = []
 	sorties_condamnees = []
 	donnees = lire_salle(id)
-	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes"]:
+	donnees["feux"] = zones_feux(donnees.get("feux", []), hauteur)
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux"]:
 		var polys := []
 		for poly in donnees.get(c, []):
 			var pts := PackedVector2Array()
@@ -916,7 +917,7 @@ func placer_au_retour(p: Vector2, i: int) -> void:
 
 ## Miroir des données de la salle : abscisses x → largeur − x, gauche et droite des sorties échangées.
 func _appliquer_miroir(largeur: float) -> void:
-	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes"]:
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux"]:
 		var polys: Array = donnees[c]
 		for i in polys.size():
 			var poly: PackedVector2Array = polys[i]
@@ -1224,9 +1225,29 @@ func reculer_de_la_sortie() -> void:
 # Cuisine : torches et feu de camp (2026-11-03)
 # ---------------------------------------------------------------------------
 
-## Vrai si un point « feux » (torche, marqué dans l'éditeur au sol sous la torche) est à portée du héros.
+## Vrai si le héros est dans une zone de feu (onglet « Feux » de l'éditeur, 2026-11-03 : zones tracées au sol près
+## des torches ; avant : des points).
 func torche_proche() -> bool:
-	return _point_proche("feux")
+	if heros == null or fond == null:
+		return false
+	return _dans(heros.position, "feux")
+
+
+## Zones de feu d'une salle : polygones ([[x, y], ...]) ; un ancien point [x, y] devient une zone autour de lui, de
+## la taille de l'ancienne portée (``hauteur_a`` : hauteur du héros selon y).
+static func zones_feux(liste: Array, hauteur_a: Callable) -> Array:
+	var zones := []
+	for z in liste:
+		if z is Array and z.size() == 2 and not (z[0] is Array):
+			var c := Vector2(float(z[0]), float(z[1]))
+			var h: float = float(hauteur_a.call(c.y)) * PORTEE_TORCHE
+			zones.append([[c.x - h, c.y - h * 0.4], [c.x + h, c.y - h * 0.4], [c.x + h, c.y + h * 0.4], [c.x - h, c.y + h * 0.4]])
+		elif z is Array or z is PackedVector2Array:
+			var pts := []
+			for p in z:
+				pts.append([float(p[0]), float(p[1])])
+			zones.append(pts)
+	return zones
 
 
 ## Vrai si un point d'eau (onglet « Eau » de l'éditeur, posé au sol au bord de l'eau) est à portée du héros.
