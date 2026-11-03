@@ -220,6 +220,14 @@ const ENNEMIS_ECARTES := ["groupe", "porteur"]
 const ENNEMIS := ["groupe", "porteur", "imbattable", "geolier"]
 ## Personnages qui ne vont pas dans un refuge (le gobelin blessé est un gobelin).
 const PNJ_HORS_REFUGE := ["gobelin_blesse"]
+## Les geôliers ne vont **jamais dans les cryptes** (règle de l'utilisateur, 2026-11-03) : ni posés, ni entrés, ni
+## déplacés, ni suivant le héros par un passage. Une salle des cryptes leur est fermée comme un refuge.
+const HORS_CRYPTES := ["geolier"]
+
+
+## Vrai si la salle est fermée à un ennemi du genre ``genre`` : refuge (cuisine) pour tous, cryptes pour les geôliers.
+static func fermee_a(salle: Dictionary, genre: String) -> bool:
+	return Zones.refuge(salle) or (genre in HORS_CRYPTES and bool(salle.get("crypte", false)))
 
 
 ## Salles ordinaires où un ennemi peut être posé ou aller (pas les refuges).
@@ -574,10 +582,12 @@ static func _fixer_elites(donjon, etage: int, m: Dictionary) -> void:
 
 ## Ajoute un imbattable ou un geôlier dans une des salles ``parmi`` (toutes les ordinaires si vide).
 static func ajouter_menace(donjon, etage: int, genre: String, parmi := []) -> Dictionary:
+	if genre in HORS_CRYPTES and Donjon.est_niveau_unique(etage):
+		return {}  # jamais de geôlier dans les cryptes
 	var m := meta(donjon, etage)
 	var tout: Dictionary = donjon.plan_donjon[etage]
 	var liste: Array = (parmi if not parmi.is_empty() else salles_ordinaires(donjon, etage)).filter(
-		func(i): return not Zones.refuge(tout[i]))
+		func(i): return not fermee_a(tout[i], genre))
 	if liste.is_empty():
 		return {}
 	var p := {"id": _nouvel_id(m), "genre": genre, "etat": "actif"}
@@ -591,6 +601,8 @@ static func ajouter_menace(donjon, etage: int, genre: String, parmi := []) -> Di
 ## Présences encore là d'une salle (prépare l'étage si besoin).
 static func presences(donjon, salle: Dictionary) -> Array:
 	preparer_etage(donjon, int(donjon.salle_actuelle[0]))
+	if bool(salle.get("crypte", false)):
+		salle["presences"] = salle.get("presences", []).filter(func(q): return not (q.get("genre", "") in HORS_CRYPTES))
 	if salle_paisible(salle) or Zones.refuge(salle):
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
 	var liste := []
@@ -786,8 +798,8 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 		var dist := distances_depuis(salles, str(p["but"]))
 		var pas := ""
 		for v in salles[ici].get("connections", []):
-			if salles.has(str(v)) and Zones.refuge(salles[str(v)]):
-				continue  # jamais dans un refuge (cuisine) : il s'arrête à la porte
+			if salles.has(str(v)) and fermee_a(salles[str(v)], String(p["genre"])):
+				continue  # jamais dans un refuge (cuisine), ni dans les cryptes pour un geôlier : il s'arrête à la porte
 			if pas == "" or dist.get(str(v), 1 << 20) < dist.get(pas, 1 << 20):
 				pas = str(v)
 		if pas != "" and dist.get(pas, 1 << 20) < dist.get(ici, 1 << 20):
@@ -795,7 +807,7 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 		p.erase("but")  # le but est dans un refuge (ou hors d'atteinte) : il renonce et erre
 	var voisines := []
 	for v in salles[ici].get("connections", []):
-		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and not Zones.refuge(salles[str(v)]):
+		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and not fermee_a(salles[str(v)], String(p["genre"])):
 			voisines.append(str(v))
 	if voisines.size() > 1:
 		voisines.erase(str(p.get("venu_de", "")))
@@ -1052,7 +1064,7 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 		portes = portes.slice(OBJETS_PAR_PORTEUR)
 		salles[pour_porteurs.pick_random()]["presences"].append({"id": _nouvel_id(m), "genre": "porteur", "etat": "actif", "objets": lot})
 	# Le geôlier quitte sa salle pour une autre (jamais le cachot ni un refuge)
-	var pour_geolier := ailleurs.filter(func(i): return not Zones.refuge(salles[i]))
+	var pour_geolier := ailleurs.filter(func(i): return not fermee_a(salles[i], "geolier"))
 	_deplacer(salles, geolier, (pour_geolier if not pour_geolier.is_empty() else ailleurs).pick_random())
 	donjon.salle_actuelle = [etage, int(cachot)]
 	salles[cachot]["visitee"] = true
@@ -1108,6 +1120,8 @@ static func salle_du_coffre(salles: Dictionary, cachot: String, parmi: Array) ->
 
 ## Retire la présence ``p`` de sa salle et la pose dans la salle ``vers``.
 static func _deplacer(salles: Dictionary, p: Dictionary, vers: String) -> void:
+	if p.get("genre", "") in HORS_CRYPTES and bool(salles[vers].get("crypte", false)):
+		return  # un geôlier n'entre jamais dans les cryptes
 	for i in salles:
 		salles[i]["presences"] = salles[i].get("presences", []).filter(func(q): return q.get("id") != p.get("id"))
 	salles[vers]["presences"].append(p)

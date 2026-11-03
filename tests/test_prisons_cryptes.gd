@@ -8,7 +8,8 @@ extends SceneTree
 ##   ramène au couloir (passages réciproques, sortie « passage » de l'image valide) ; seulement des squelettes,
 ##   une seule élite (le féticheur), ni boss ni cachot ;
 ## - sorties potentielles : une seule des sorties potentielles d'un côté est ouverte s'il y a une salle de ce côté,
-##   aucune sinon, sans malus ; une sortie ordinaire du même côté passe avant elles.
+##   aucune sinon, sans malus ; une sortie ordinaire du même côté passe avant elles ;
+## - les geôliers ne vont jamais dans les cryptes (ni posés, ni entrés, ni déplacés ; ménage des anciennes parties).
 ## godot --headless --path . -s tests/test_prisons_cryptes.gd
 
 var echecs := 0
@@ -30,6 +31,7 @@ func _initialize() -> void:
 		verifier(donjon.plan_donjon.keys().filter(func(e): return not Donjon.est_niveau_unique(e)) == [1], "%d : un seul étage" % k)
 		_etage(donjon, k)
 		sans_porte += _cryptes(donjon, k)
+		_geoliers(donjon, k)
 	print("Passages sans porte peinte dans les cryptes : %d sur 20 donjons" % sans_porte)
 	print("BILAN prisons et cryptes : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
@@ -158,3 +160,34 @@ func _sorties_potentielles() -> void:
 	salles["1"]["connections"] = ["2", "3"]
 	verifier(PlanSalles._evaluer(salles, "1", 1, image, false)[1]["sorties"] == s, "tirage stable")
 	PlanSalles.images().erase(image)
+
+
+## Les geôliers ne vont jamais dans les cryptes (règle de l'utilisateur, 2026-11-03).
+func _geoliers(donjon, k: int) -> void:
+	var cryptes: Dictionary = donjon.plan_donjon[Donjon.NIVEAU_CRYPTES]
+	var dans_cryptes := 0
+	for id in cryptes:
+		for p in cryptes[id].get("presences", []):
+			if p.get("genre") == "geolier":
+				dans_cryptes += 1
+	verifier(dans_cryptes == 0, "%d : aucun geôlier dans les cryptes (%d)" % [k, dans_cryptes])
+	verifier(Aventure.chasseurs(donjon, 1).filter(func(c): return c[0]["genre"] == "geolier").size() == 2, "%d : les 2 geôliers sont sur l'étage" % k)
+	if k > 0:
+		return
+	verifier(Aventure.ajouter_menace(donjon, Donjon.NIVEAU_CRYPTES, "geolier").is_empty(), "pas de geôlier posé dans les cryptes")
+	var une: String = cryptes.keys()[0]
+	verifier(Aventure.fermee_a(cryptes[une], "geolier") and not Aventure.fermee_a(cryptes[une], "imbattable"), "une crypte est fermée au geôlier seulement")
+	# Déplacement direct refusé : le geôlier reste où il est
+	var g := {"id": 999001, "genre": "geolier", "etat": "actif"}
+	var autre: String = cryptes.keys()[1]
+	cryptes[autre]["presences"] = cryptes[autre].get("presences", []) + [g]
+	cryptes[une]["presences"] = cryptes[une].get("presences", [])
+	Aventure._deplacer(cryptes, g, une)
+	verifier(not g in cryptes[une]["presences"] and g in cryptes[autre]["presences"], "un geôlier n'est pas déplacé dans une crypte")
+	# Marche : jamais une crypte comme salle suivante (geôlier glissé dans les cryptes, cas d'une ancienne partie)
+	donjon.salle_actuelle = [Donjon.NIVEAU_CRYPTES, int(une)]
+	var suivante := Aventure.prochaine_salle(donjon, g, autre)
+	verifier(suivante == autre, "un geôlier ne marche pas vers une crypte (%s)" % suivante)
+	# Ménage : un geôlier trouvé dans une crypte disparaît
+	var vues := Aventure.presences(donjon, cryptes[autre])
+	verifier(not g in vues and not g in cryptes[autre]["presences"], "ancienne partie : le geôlier des cryptes est retiré")

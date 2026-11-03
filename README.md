@@ -129,6 +129,10 @@ stick droit pour choisir un bouton de l'interface.
     (`zone_ennemis`) ; il en tire ses ennemis même s'il en sort pour poursuivre le héros. Pas d'élite de plus dans
     les cryptes : ni la clé du boss ni l'amulette de Mariane n'en créent (s'il le faut, un squelette porte
     l'amulette). Chevaliers de la mort et geôliers ne partent jamais d'une zone, mais ils y passent ;
+  - **geôliers jamais dans les cryptes** (2026-11-03, règle de l'utilisateur ; `Aventure.HORS_CRYPTES`,
+    `Aventure.fermee_a`) : aucun geôlier n'est posé dans les cryptes, n'y entre en marchant, n'y est déplacé
+    (capture, pacte, vacarme) ni n'y suit le héros par un passage ; un geôlier trouvé dans une crypte (ancienne
+    partie) disparaît. Les cryptes sont donc sûres face à la capture (le Chevalier de la mort n'est pas concerné) ;
   - **cuisine = refuge** (2026-11-02, décision de l'utilisateur ; zone « cuisine » de zones.json, `"sans_ennemis": true`,
     `Zones.refuge`) : **aucun ennemi** n'est posé dans les 5 salles du bloc cuisine, et **aucun n'y entre** : ni
     gobelin, ni squelette, ni geôlier, ni Chevalier de la mort (`Aventure.prochaine_salle` ne choisit jamais un refuge ;
@@ -1100,6 +1104,14 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Les geôliers ne vont jamais dans les cryptes
+
+- Règle de l'utilisateur. Les cryptes étant un niveau à part, aucun geôlier n'y allait déjà ; la règle est
+  maintenant écrite et gardée partout : pose (`ajouter_menace`), marche (`prochaine_salle`, via `fermee_a`),
+  déplacements directs (`_deplacer` refuse une crypte), capture, et ménage des anciennes parties (`presences`).
+- Test : `test_prisons_cryptes.gd` (aucun geôlier dans les cryptes sur 20 donjons, les 2 geôliers sur l'étage,
+  pose, déplacement, marche et ménage refusés/faits).
 
 ### 2026-11-03 — Escaliers des passages prison / cryptes sur la carte
 
