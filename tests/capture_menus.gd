@@ -1,5 +1,5 @@
 extends SceneTree
-## Captures des menus du héros (inventaire, caractéristiques, grimoire, améliorations).
+## Captures des menus du héros (inventaire, caractéristiques, grimoire).
 
 var racine: Control
 
@@ -63,8 +63,5 @@ func lancer() -> void:
 	await attendre(5)
 	await capturer("17_alterations")
 	await clic(Vector2(80, 37))
-	joueur.magies_apprises[0].points_amélioration = 3
-	Ecrans.menu_ameliorer_competence(joueur, joueur.magies_apprises[0])
-	await capturer("18_ameliorations")
 	print("fin")
 	quit()

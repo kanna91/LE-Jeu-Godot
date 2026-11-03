@@ -456,11 +456,6 @@ func _cles_et_objets() -> void:
 	verifier(joueur.magies_apprises.size() == connus + 1, "le grimoire apprend un sort")
 	verifier(joueur.nouvelle_magie_a_apprendre == a_apprendre, "plus de point de magie à choisir")
 	var appris = joueur.magies_apprises[-1]
-	var investis := 0
-	for niveau in appris.ameliorations_possibles:
-		for o in niveau:
-			investis += Competence.points_investis(o)
-	verifier(investis == Aventure.POINTS_LIVRE[0] + Aventure.POINTS_LIVRE[1], "le sort appris est déjà amélioré (%d points)" % investis)
 	verifier(Aventure._palier(appris) <= 1, "palier adapté à l'étage 1")
 	var p := {"genre": "objet", "sous": "ratelier", "etat": "actif"}
 	var avant: int = joueur.inventaire.size()

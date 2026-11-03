@@ -28,12 +28,19 @@ const IMAGES_GOBELINS_PAR_SOUS_CLASSE := {
 }
 const CHANCE_POTION_SOIN := 0.30
 
-## PV max par point d'endurance (héros et ennemis) : voir Caracteristiques (10 depuis le 2026-10-29, 2 avant).
+## PV max par tranche de 2 points d'endurance (héros et ennemis) : voir Caracteristiques (5 par tranche depuis le
+## 2026-11-03 ; 10 par point depuis le 2026-10-29, 2 avant).
 const PV_PAR_ENDURANCE := Caracteristiques.PV_PAR_ENDURANCE
+## Les tables d'endurance des ennemis (Gobelin, Creatures, bonus des repos) restent écrites « 1 point = 10 PV » :
+## chaque point y est multiplié par ENDURANCE_PAR_POINT_ENNEMI à la création (4 points = 2 tranches = 10 PV), pour
+## que les ennemis gardent leurs PV quand l'endurance est passée à 5 PV tous les 2 points (choix de Claude,
+## 2026-11-03, comme pour le mana le 2026-11-02).
+const ENDURANCE_PAR_POINT_ENNEMI := 4
 ## Points de la caractéristique Mana des ennemis, bornes comprises (« 2 ou 3 », décision de l'utilisateur,
 ## 2026-10-29) : de quoi lancer leurs sorts en attendant la refonte des ennemis. Doublés le 2026-11-02 (choix de
-## Claude) quand un point est passé de 10 à 5 mana : les ennemis gardent leurs 20 à 30 mana.
-const MANA_ENNEMIS := [4, 6]
+## Claude) quand un point est passé de 10 à 5 mana, puis de nouveau le 2026-11-03 quand il faut 2 points pour 5 mana :
+## les ennemis gardent leurs 20 à 30 mana.
+const MANA_ENNEMIS := [8, 12]
 
 ## Bonus de caractéristiques (un par repos) appliqués à tous les ennemis créés ensuite.
 
@@ -200,6 +207,8 @@ static func bonus_ennemis(compteur_repos: int) -> void:
 	for _i in compteur_repos:
 		var c = ["force", "dextérité", "endurance", "intelligence", "sagesse"].pick_random()
 		var bonus := randi_range(1, 3)
+		if c == "endurance":
+			bonus *= ENDURANCE_PAR_POINT_ENNEMI  # même gain de PV qu'avant le 2026-11-03
 		bonus_globaux[c] += bonus
 		print("Tous les nouveaux ennemis gagneront %d en %s." % [bonus, c])
 
@@ -238,7 +247,7 @@ func _competence(nom_classe: String):
 		if competence.nom_classe == nom_classe:
 			return competence
 	var competence := Competences.creer(nom_classe)
-	Ameliorations.niveler(competence, U.ga(self, "niveau_competences", 0), U.ga(self, "classe", null))
+	competence.niveau = int(U.ga(self, "niveau_competences", 0))
 	_d["competences"].append(competence)
 	return competence
 
@@ -249,7 +258,8 @@ func _utilisable(competence) -> bool:
 		and not Combat.est_bloquee_par_silence(competence, self))
 
 
-## Niveau et améliorations des compétences de l'ennemi (une seule fois) : 20 × (étage − 1) + 0 à 20.
+## Niveau des compétences de l'ennemi (une seule fois) : 20 × (étage − 1) + 0 à 20. Il ne renforce plus les
+## compétences depuis le 2026-11-03 (amélioration supprimée, à reforger par l'utilisateur).
 func preparer_competences() -> void:
 	if U.ga(self, "_competences_preparees", false):
 		return
@@ -260,7 +270,7 @@ func preparer_competences() -> void:
 	if competences == null:
 		competences = []
 	for competence in competences:
-		Ameliorations.niveler(competence, _d["niveau_competences"], U.ga(self, "classe", null))
+		competence.niveau = _d["niveau_competences"]
 
 
 ## Joue le tour de l'ennemi (intelligence artificielle).

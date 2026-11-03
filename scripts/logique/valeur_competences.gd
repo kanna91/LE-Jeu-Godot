@@ -81,8 +81,8 @@ static func detail(comp) -> Array:
 
 
 static func _plafond(nom: String, chance: float) -> float:
-	var regle = Ameliorations.CONTROLES_PLAFONNES.get(nom)
-	return regle["plafond"] if regle != null else maxf(chance, Ameliorations.PLAFOND_SPECIALITE)
+	var regle = BasesCompetences.CONTROLES_PLAFONNES.get(nom)
+	return regle["plafond"] if regle != null else maxf(chance, BasesCompetences.PLAFOND_SPECIALITE)
 
 
 static func _mettre_a_l_echelle(comp, k: float, arrondi := false) -> Dictionary:

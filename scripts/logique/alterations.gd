@@ -44,7 +44,8 @@ const TYPES_ALTERATIONS := {
 
 ## Effets d'un point de caractéristique quand une altération change une caractéristique (null : calculé d'après le
 ## combattant). Les mêmes que Caracteristiques.PAR_POINT (2026-10-29) ; les dégâts suivent d'eux-mêmes (Formules lit
-## la caractéristique).
+## la caractéristique). Endurance et Mana : par tranche de 2 points (Caracteristiques.PAR_PALIER, 2026-11-03) ; le
+## gain est celui des tranches gagnées ou perdues.
 const CONVERSIONS := {
 	"force": {},
 	"dextérité": {"chance_de_toucher": Caracteristiques.TOUCHER_PAR_DEXTERITE,
@@ -165,8 +166,11 @@ static func _caracteristiques(cible, attributs: Array, part: float, fixe: float,
 			delta = maxf(delta, -base)
 		modifs[attribut] = modifs.get(attribut, 0) + delta
 		var conversions: Dictionary = CONVERSIONS[attribut]
+		var quantite: float = delta
+		if Caracteristiques.PAR_PALIER.has(attribut):
+			quantite = Caracteristiques.paliers(base + delta) - Caracteristiques.paliers(base)
 		for statistique in conversions:
-			modifs[statistique] = modifs.get(statistique, 0) + delta * _conversion(cible, statistique, conversions[statistique])
+			modifs[statistique] = modifs.get(statistique, 0) + quantite * _conversion(cible, statistique, conversions[statistique])
 	return modifs
 
 

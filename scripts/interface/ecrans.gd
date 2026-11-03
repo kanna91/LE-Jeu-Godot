@@ -107,10 +107,6 @@ static func menu_magie(joueur) -> void:
 	await ouvrir(_ecran("menu_magie").preparer(joueur))
 
 
-static func menu_ameliorer_competence(joueur, competence) -> void:
-	await ouvrir(_ecran("menu_ameliorer_competence").preparer(joueur, competence))
-
-
 # ---------------------------------------------------------------------------
 # Écrans ouverts par la logique du jeu
 # ---------------------------------------------------------------------------

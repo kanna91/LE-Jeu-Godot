@@ -22,7 +22,7 @@ static func nouveau(nom := "Héro") -> Personnage:
 	return p
 
 
-## PV de base du héros, en plus de l'endurance (Caracteristiques.PV_PAR_ENDURANCE par point) : 70 PV au départ,
+## PV de base du héros, en plus de l'endurance (Caracteristiques.PV_PAR_ENDURANCE tous les 2 points) : 70 PV au départ,
 ## toutes les caractéristiques étant à 0 (décision de l'utilisateur, 2026-10-29 ; 100 PV avec 15 d'endurance avant).
 const PV_BASE_HEROS := 70
 
@@ -32,7 +32,7 @@ func _initialiser(nom: String) -> void:
 	var arme = GenerationObjets.generer_arme_nue()
 	var d := _d
 	d["nom"] = nom
-	# PV : une base (PV_BASE_HEROS) + endurance × bonus_pv_par_endurance + objets et talents.
+	# PV : une base (PV_BASE_HEROS) + tranches de 2 points d'endurance × bonus_pv_par_endurance + objets et talents.
 	d["points_de_vie_max"] = PV_BASE_HEROS
 	d["points_de_vie"] = PV_BASE_HEROS
 	# Régénérations de base, par minute d'exploration (regenerer) ; les caractéristiques s'y ajoutent.
@@ -49,6 +49,7 @@ func _initialiser(nom: String) -> void:
 	d["mult_bonus_armure_par_force"] = 1
 	d["mult_bonus_resmag_par_intel"] = 1
 	d["bonus_pv_par_endurance"] = Caracteristiques.PV_PAR_ENDURANCE
+	d["pv_par_tranche_endurance"] = true  # règle du 2026-11-03 (voir _migrer_caracteristiques)
 	d["multiplicateur_pv_max"] = 1
 	d["seuil_execution"] = 0.0
 	d["bonus_pourcentage_pv_max"] = 0.0
@@ -192,6 +193,12 @@ func calculer_stats() -> void:
 ## Partie enregistrée avant le 2026-10-29 (pas de caractéristique Mana) : ajoute ce qui manque aux nouvelles règles.
 ## Les caractéristiques déjà acquises sont gardées.
 func _migrer_caracteristiques() -> void:
+	# Partie enregistrée avant le 2026-11-03 : bonus_pv_par_endurance comptait par point (10) ; il compte désormais
+	# par tranche de 2 points (5), les talents qui l'augmentent restent acquis.
+	if _d.has(Caracteristiques.MANA) and not _d.has("pv_par_tranche_endurance"):
+		_d["pv_par_tranche_endurance"] = true
+		_d["bonus_pv_par_endurance"] = maxf(Caracteristiques.PV_PAR_ENDURANCE,
+			float(U.ga(self, "bonus_pv_par_endurance", 10)) - (10 - Caracteristiques.PV_PAR_ENDURANCE))
 	if _d.has(Caracteristiques.MANA):
 		return
 	_d[Caracteristiques.MANA] = 0

@@ -67,10 +67,10 @@ static func critique(s: Array) -> String:
 ## Ce que donnent les caractéristiques (panneau droit de « Général ») : [[libellé, valeur ou null (titre)], ...].
 static func lignes_effets(j) -> Array:
 	return [["Ressources", null],
-		["PV max", "%d  (endurance +%d)" % [int(j.points_de_vie_max), int(U.num(j, "endurance") * U.num(j, "bonus_pv_par_endurance")
-			* U.num(j, "multiplicateur_pv_max"))]],
+		["PV max", "%d  (endurance +%d)" % [int(j.points_de_vie_max), int(Caracteristiques.paliers(U.num(j, "endurance"))
+			* U.num(j, "bonus_pv_par_endurance") * U.num(j, "multiplicateur_pv_max"))]],
 		["PV régénérés par minute", "+%s" % U.f(U.num(j, "regen_de_points_de_vie"))],
-		["Mana max", "%d  (mana +%d)" % [int(j.mana_max), int(U.num(j, Caracteristiques.MANA) * Caracteristiques.MANA_PAR_POINT)]],
+		["Mana max", "%d  (mana +%d)" % [int(j.mana_max), Caracteristiques.paliers(U.num(j, Caracteristiques.MANA)) * Caracteristiques.MANA_PAR_POINT]],
 		["Mana régénéré par minute", "+%s" % U.f(U.num(j, "regen_de_mana"))],
 		["Précision", null],
 		["Chance de toucher", pourcent(j.chance_de_toucher)],
@@ -225,7 +225,7 @@ func _dessiner_general(ci: Control, s: Vector2, points: int) -> void:
 		Ui.rect(ci, l, Ui.LIGNE_SURVOL if l.has_point(s) else Ui.LIGNE, 0, 5)
 		Ui.texte(ci, Caracteristiques.NOMS[cle], l.position + Vector2(40, 5), Ui.BLANC, 16, true)
 		Ui.texte(ci, U.g(U.ga(joueur, cle, 0)), Vector2(l.end.x - 12, l.position.y + 5), Ui.OR, 18, true, null, "topright")
-		Ui.texte(ci, "Par point : " + Caracteristiques.TEXTES[cle], l.position + Vector2(40, 28), Ui.DETAIL, 12, false, l.size.x - 52)
+		Ui.texte(ci, Caracteristiques.TEXTES[cle], l.position + Vector2(40, 28), Ui.DETAIL, 12, false, l.size.x - 52)
 		if points > 0:
 			var f := Rect2(l.position.x + 10, l.get_center().y - 11, 22, 22)
 			ci.draw_texture_rect(triangle, f, false)

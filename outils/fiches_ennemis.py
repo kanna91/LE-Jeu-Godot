@@ -336,8 +336,8 @@ def regles_communes_gobelins(doc, c, renvoi=True):
         "Potion : 30 % des gobelins en ont une ; à la moitié de ses PV, une chance sur 3 de la boire (une fois par "
         "combat, comme tout soin).",
         "Si la compétence choisie n'est pas utilisable (mana, silence), il prend son attaque de secours, sinon Coup de bâton.",
-        "Ses compétences montent avec l'étage : niveau 20 × (étage − 1) + 0 à 20, améliorations choisies "
-        "automatiquement. Les chiffres ci-dessous sont ceux du niveau 0 (début du premier étage).",
+        "Ses compétences ne s'améliorent plus avec l'étage (amélioration des compétences supprimée le 2026-11-03, "
+        "à reforger) : les chiffres ci-dessous valent à tous les étages.",
     ])
 
 

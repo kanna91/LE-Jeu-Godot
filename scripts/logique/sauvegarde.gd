@@ -96,7 +96,26 @@ static func _lire_objets(donnees: Dictionary):
 			instances[id].restaurer(d["__arbre"])
 		else:
 			instances[id]._d = _decoder(d, instances)
+	for id in instances:
+		if instances[id] is Competence:
+			_oublier_ameliorations(instances[id])
 	return _decoder(donnees["racine"], instances)
+
+
+## Anciennes parties : l'amélioration des compétences est supprimée depuis le 2026-11-03 (l'utilisateur la reforge).
+## Une compétence enregistrée avant reprend ses valeurs de base ; son nom, sa description, son niveau et son
+## expérience sont gardés.
+static func _oublier_ameliorations(comp) -> void:
+	if not comp._d.has("ameliorations_possibles"):
+		return
+	var neuve = Competences.creer(str(comp._d.get("nom_classe", "")))
+	if neuve == null:
+		comp._d.erase("ameliorations_possibles")
+		return
+	for cle in ["nom", "description", "niveau", "experience", "experience_combat", "experience_pour_niveau_suivant"]:
+		if comp._d.has(cle):
+			neuve._d[cle] = comp._d[cle]
+	comp._d = neuve._d
 
 
 # ---------------------------------------------------------------------------

@@ -29,13 +29,6 @@ static func _decrire_competence(ennemi, competence, joueur) -> Array:
 	var lignes := [["• %s — niveau %d" % [competence.nom, competence.niveau], "section"]]
 	if U.vrai(competence.description):
 		lignes.append([competence.description, "detail"])
-	var choisies := Ameliorations.ameliorations_choisies(competence)
-	if not choisies.is_empty():
-		var morceaux := []
-		for c in choisies:
-			var opt: Dictionary = c[1]
-			morceaux.append("%s %d/%d (%s)" % [opt["nom"], Competence.points_investis(opt), Competence.POINTS_PAR_OPTION, opt["description"]])
-		lignes.append(["Améliorations : " + ", ".join(morceaux), "valeur"])
 	var bonus := []
 	if U.ga(competence, "multiplicateur_degats", 1) != 1:
 		bonus.append("dégâts ×%s" % U.f(competence.multiplicateur_degats, 2))

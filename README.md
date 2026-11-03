@@ -50,12 +50,13 @@ stick droit pour choisir un bouton de l'interface.
 > les effets uniques des objets), fonctions de l'arbre (`Talents.spherier`, `accessible`, `partie`,
 > `cle_a_malus`, vides pour l'instant), `Talent`, `ArbreDeTalent`, `Personnage.debloquer_talent`.
 >
-> **Obsolète, à reforger entièrement : les améliorations de compétences.** Ils datent de l'ancien système de combat et ne sont plus cohérents avec le
-> combat aux dés : options aux valeurs absurdes (« +399,5 dégâts (et +299 % de dégâts) » au
-> niveau 1 de toutes les compétences, sans effet en combat mais qui augmente le coût en mana),
-> option d'exécution jusqu'à +300 % de dégâts sous 50 % de PV (`bonus_execution`, toujours lu
-> par `Combat`), talents équilibrés sur les anciennes formules. Ne pas les rééquilibrer au cas
-> par cas : ils seront refaits complètement (décision de l'utilisateur, 2026-10-20).
+> **Supprimée le 2026-11-03, à reforger entièrement par l'utilisateur : l'amélioration des compétences.** Plus
+> d'arbre d'amélioration, de points d'amélioration, de menu « Améliorer » ni de sort « déjà amélioré » par les
+> grimoires ; les ennemis n'améliorent plus leurs compétences. Restent : le niveau et l'expérience des compétences
+> (sans effet pour l'instant), les champs de bonus des compétences lus par le combat (`multiplicateur_degats`,
+> `bonus_toucher`, `bonus_critique`, `vol_de_vie`, `bonus_execution`, `pourcentage_types`...), tous à leur valeur
+> neutre, prêts pour le nouveau système, et l'image `images/menu_améliorer_compétence.png`. Les corrections de base des
+> compétences sont dans `scripts/logique/bases_competences.gd` (`BasesCompetences`).
 
 - **Donjon d'aventure** (2026-10-26, liste de l'utilisateur `..\liste des cohse a ajouter.odt`, feuille de route
   `FEUILLE_DE_ROUTE_AVENTURE.md`) : le jeu est centré sur l'exploration plutôt que sur le combat (l'ancien mode,
@@ -267,10 +268,8 @@ stick droit pour choisir un bouton de l'interface.
     ni loup). Mesure : ≈ 9 ennemis isolés et ≈ 30 ennemis hostiles par étage (≈ 19 avant) ;
   - **Sorts et équipement viennent de l'exploration** : le joueur ne choisit un sort **qu'au tout début** de la
     partie ; ensuite, chaque **grimoire** (pupitre, cachettes, gobelin soigné) lui apprend un **sort tiré au hasard**
-    (palier 0 jusqu'à l'étage, 5 au plus, sans prérequis), **déjà amélioré** de 2 + 2 × l'étage points
-    d'amélioration placés au hasard (`Aventure.lire_livre`, `ameliorer_au_hasard`) ; s'il connaît déjà tout, le
-    grimoire améliore un de ses sorts. Rappel : les améliorations de compétences sont à reforger (valeurs absurdes,
-    elles montent surtout le coût en mana) ;
+    (palier 0 jusqu'à l'étage, 5 au plus, sans prérequis ; `Aventure.lire_livre`) ; s'il connaît déjà tout, le
+    grimoire ne lui apprend rien (il n'est plus « déjà amélioré » depuis le 2026-11-03 : amélioration supprimée) ;
     équipement des coffres, du râtelier, des cachettes, des élites et des squelettes. Les **compétences** (attaques
     d'arme) ne s'apprennent pas encore ainsi : à décider.
   - **Touche E** : parler, lire, fouiller le râtelier, examiner, ouvrir (la présence à portée passe avant le
@@ -286,7 +285,7 @@ stick droit pour choisir un bouton de l'interface.
   | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 2 / 7 (utilisateur) / 2 |
   | Pupitre, râtelier | pupitre un étage sur deux (50 %), râtelier 1 par étage |
   | Cachettes | 2 à 3 par étage, au moins une clé par salle verrouillée ; le reste : or 45, objet 40, grimoire 15 (poids) |
-  | Grimoire | sort de palier 0 à l'étage (5 au plus), amélioré de 2 + 2 × étage points ; gobelin soigné : grimoire 25 %, clé 75 % |
+  | Grimoire | sort de palier 0 à l'étage (5 au plus) ; gobelin soigné : grimoire 25 %, clé 75 % |
   | Salles bonus verrouillées | la moitié (au moins une) des coffres et choix de bonus |
   | Fuite | 45 % + 3 % par point de dextérité − 10 % par ennemi au-delà du premier, entre 15 et 90 % ; boss 15 % |
   | Confiscation | 50 % coffre, 25 % perdu, 25 % porteur (3 objets par porteur) |
@@ -559,8 +558,8 @@ stick droit pour choisir un bouton de l'interface.
   - Plus de dégâts de base (`degats_base`), de puissance magique, de dégâts propres
     des compétences ni de leur multiplicateur (`multiplicateur_degats`,
     `facteurs_types`, `soin_pourcentage_pv` ne sont plus lus par le combat). Les
-    **améliorations de compétences ne changent donc plus les dégâts** : leur système
-    sera entièrement refait. Exception : l'option « +x % de dégâts d'un élément »
+    **améliorations de compétences ne changeaient donc plus les dégâts** (supprimées le
+    2026-11-03, à reforger). Exception : l'ancienne option « +x % de dégâts d'un élément »
     (genre `second`, `pourcentage_types` de la compétence, `Formules.pourcentage_competence`)
     multiplie les dégâts de cet élément, **seulement si la compétence en inflige déjà** ; elle
     n'ajoute plus de type de dégâts (avant le 2026-10-20, un seul point ajoutait les dés
@@ -605,15 +604,18 @@ stick droit pour choisir un bouton de l'interface.
 - **Caractéristiques** (règles de l'utilisateur, 2026-10-29 ; `scripts/logique/caracteristiques.gd`, les mêmes pour
   le héros et les ennemis) :
 
-  | Caractéristique | Par point |
+  | Caractéristique | Effet |
   |---|---|
-  | Endurance | +10 PV max, +2 PV régénérés par minute |
+  | Endurance | **+5 PV max et +2 PV régénérés par minute tous les 2 points** (2026-11-03 ; +10 PV et +2 PV/min par point avant) |
   | Force | **+1d2 tous les 2 points** de dégâts physiques (tranchant, perforant, contondant ; 1d2 par point le 2026-11-02 au matin, +2 fixes avant) |
-  | Dextérité | +2 % de critique **physique seulement**, +1 % de toucher, +1 % d'esquive |
+  | Dextérité | par point : +2 % de critique **physique seulement**, +1 % de toucher, +1 % d'esquive |
   | Intelligence | **+1d2 tous les 2 points** de dégâts d'arcane, d'ombre et de chaos ; +1 % de critique magique par point |
   | Sagesse | **+1d2 tous les 2 points** de dégâts de feu, de froid et de foudre ; +1 % de critique élémentaire par point (nouveau) |
-  | Mana (nouvelle, clé `caracteristique_mana`) | **+5 mana max** (+10 avant le 2026-11-02), +2 mana régénérés par minute |
+  | Mana (nouvelle, clé `caracteristique_mana`) | **+5 mana max et +2 mana régénérés par minute tous les 2 points** (2026-11-03 ; +5 et +2 par point le 2026-11-02, +10 mana par point avant) |
 
+  Endurance et Mana comptent par tranche de 2 points comme les dés (1 point = rien, 2-3 = une tranche, 4-5 = deux ;
+  `Caracteristiques.POINTS_PAR_PALIER`, `PAR_PALIER`, `paliers`) ; une altération qui change l'une d'elles donne
+  les tranches gagnées ou perdues. Talent « +x PV par point d'endurance » : désormais par tranche de 2 points.
   Les 1d2 (un par paire de points : 1 point = rien, 2-3 = 1d2, 4-5 = 2d2 ; `Caracteristiques.POINTS_PAR_DE`,
   règle de l'utilisateur du 2026-11-02) sont lancés avec les dés de la compétence, à chaque coup (`Formules.des_caracteristique`,
   `Formules.valeur_jet`), puis passent par les pourcentages comme eux.
@@ -627,9 +629,11 @@ stick droit pour choisir un bouton de l'interface.
 - **PV et mana** : héros **toutes caractéristiques à 0** : 70 PV de base (`Personnage.PV_BASE_HEROS`) et 10 mana de
   base, toucher 85 %, esquive 5 %, critique 5 % (magique et élémentaire 2,5 %), parade 2 % (valeurs de base gardées
   par l'utilisateur). Ennemis : endurance divisée par 5 pour garder leurs PV (`Gobelin.ENDURANCE_PAR_SOUS_CLASSE`,
-  `Creatures.SORTES`), **4 à 6 points de Mana** (`Ennemis.MANA_ENNEMIS` ; 2 ou 3 avant le
-  2026-11-02, doublés quand un point est passé à 5 mana, validé par l'utilisateur : ils gardent leurs 20 à 30 mana), le reste à
-  0, à reforger.
+  `Creatures.SORTES`, écrites « 1 point = 10 PV » et multipliées par 4 à la création depuis le 2026-11-03,
+  `Ennemis.ENDURANCE_PAR_POINT_ENNEMI`, de même que le bonus d'endurance des repos : mêmes PV qu'avant),
+  **8 à 12 points de Mana** (`Ennemis.MANA_ENNEMIS` ; 2 ou 3 avant le 2026-11-02, doublés quand un point est passé à
+  5 mana, validé par l'utilisateur, puis redoublés le 2026-11-03 quand il faut 2 points pour 5 mana : ils gardent
+  leurs 20 à 30 mana), le reste à 0, à reforger.
 - **Coût des sorts** : au moins 2 mana. Estafilade, Dard empoisonné et Bourrade (sorts d'arme de départ) passent de 1
   à 2 mana (2026-11-02, `donnees/sorts.json`). Les compétences physiques (Enchaînement, Fracasser, Frénésie,
   Balayage...) restent à 1 mana (décision de l'utilisateur).
@@ -1010,6 +1014,30 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Amélioration des compétences supprimée ; endurance et mana tous les 2 points
+
+- **Pour le joueur** : l'amélioration des compétences n'existe plus (l'utilisateur va la reforger entièrement) :
+  plus de points d'amélioration à la montée de niveau d'une compétence, plus de triangle rouge ni de « Clic :
+  améliorer » dans le grimoire, plus d'écran des améliorations ; un grimoire apprend un sort sans l'améliorer (et
+  n'apprend rien si le héros connaît déjà tout) ; la pastille de la tuile Magie ne compte plus que les magies à
+  apprendre ; l'index des altérations ne cite plus les sources « par amélioration » ; la fiche d'un ennemi ne liste
+  plus ses améliorations. Les ennemis n'améliorent plus leurs compétences (avant : de plus en plus à chaque étage, à
+  60 % de la force du héros).
+- **Endurance** : +5 PV max et +2 PV régénérés par minute **tous les 2 points** (+10 PV et +2 PV/min par point
+  avant). **Mana** : +5 mana max et +2 mana régénérés par minute **tous les 2 points** (par point avant). Écran des
+  caractéristiques mis à jour (textes, « endurance +x » et « mana +x » des ressources).
+- **Ennemis inchangés** (choix de Claude, comme pour le mana le 2026-11-02) : leur endurance est multipliée par 4 à
+  la création (mêmes PV : loup 10-20, squelette 20...) et leur Mana passe à 8-12 points (mêmes 20 à 30 mana).
+- **Anciennes parties** : les compétences déjà améliorées reprennent leurs valeurs de base au chargement (nom,
+  niveau et expérience gardés, `Sauvegarde._oublier_ameliorations`) ; le bonus de PV par endurance du héros passe de
+  10 à 5 (les talents acquis restent).
+- **Code** : supprimés `scripts/logique/ameliorations.gd` (`Ameliorations`), `scripts/ecrans/menu_ameliorer_competence.gd`,
+  `donnees/ameliorations.json`, le champ `points_amélioration` (competences.json, sorts) et dans `Competence` :
+  `améliorer_compétence`, `ameliorations_possibles`, les coûts et points d'amélioration ; `Aventure.POINTS_LIVRE`,
+  `ameliorer_au_hasard`. Gardés dans `BasesCompetences` (nouveau) : les corrections de base des compétences
+  (`BASES`, `preparer`) et les plafonds d'altérations lus par `ValeurCompetences`. `Caracteristiques` :
+  `PAR_PALIER`, `POINTS_PAR_PALIER`, `paliers()`. Tests adaptés (test_aventure, test_des_armes, capture_menus).
 
 ### 2026-11-02 — La cuisine, refuge sans ennemis
 

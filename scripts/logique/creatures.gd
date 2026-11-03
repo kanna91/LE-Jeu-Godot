@@ -15,7 +15,8 @@ extends RefCounted
 ## seule attaque (Ennemis.mecanique_ennemis). Image fixe qui respire, en salle comme en combat (``images/gobelins``,
 ## ``outils/importer_loup_squelette.py``).
 
-## Sorte → réglages. Caractéristiques : [min, max] (bornes comprises) ; PV = endurance × 10 ; depuis le 2026-10-29,
+## Sorte → réglages. Caractéristiques : [min, max] (bornes comprises) ; PV = endurance × 10 (l'endurance est
+## multipliée par Ennemis.ENDURANCE_PAR_POINT_ENNEMI à la création depuis le 2026-11-03, mêmes PV) ; depuis le 2026-10-29,
 ## endurance divisée par 5 (mêmes PV : loup 10-20, squelette 20) et autres caractéristiques à 0 (décision de
 ## l'utilisateur, en attendant la refonte ; avant : loup endurance 7-9, force 1-3, dextérité 2-4 ; squelette 9-11,
 ## 2-4, 1-2 ; intelligence et sagesse 0-1). Vulnérabilités et résistances en pourcentage (0,40 = 40 %, Degats.multiplicateur),
@@ -51,7 +52,10 @@ static func creer(donjon, sorte: String) -> Gobelin:
 	e._d["type_ennemi"] = r["type_ennemi"]
 	for c in ["endurance", "force", "dextérité", "intelligence", "sagesse"]:
 		var b: Array = r[c]
-		e.set(c, U.ga(e, c, 0) + randi_range(b[0], b[1]))
+		var points := randi_range(b[0], b[1])
+		if c == "endurance":
+			points *= Ennemis.ENDURANCE_PAR_POINT_ENNEMI  # « 1 point = 10 PV » (2026-11-03)
+		e.set(c, U.ga(e, c, 0) + points)
 	e.calculer_stats()
 	e.points_de_vie = e.points_de_vie_max
 	e.mana = e.mana_max

@@ -32,8 +32,34 @@ func _initialize() -> void:
 	echecs += _attaques_arme()
 	echecs += _pourcentage_element()
 	echecs += _des_ennemis()
+	echecs += _anciennes_parties()
 	print("BILAN dés : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
+
+
+## Parties enregistrées avant le 2026-11-03 : sort amélioré remis à sa base (niveau gardé), PV par endurance 10 → 5.
+func _anciennes_parties() -> int:
+	var echecs := 0
+	var sort := Competences.creer(Competences.classes_de_sorts()[0])
+	var base: Dictionary = sort._d.duplicate(true)
+	sort._d["ameliorations_possibles"] = [[{"investi": 10}]]
+	sort._d["cout_mana"] += 7
+	sort._d["multiplicateur_degats"] = 3.0
+	sort._d["niveau"] = 4
+	Sauvegarde._oublier_ameliorations(sort)
+	if sort._d.has("ameliorations_possibles") or sort.cout_mana != base["cout_mana"] or sort.multiplicateur_degats != base["multiplicateur_degats"] \
+			or sort.niveau != 4 or not sort is Sort or sort.PALIER != base["PALIER"]:
+		print("ÉCHEC : ancien sort amélioré mal remis à zéro (%s mana, ×%s, niveau %s)." % [sort.cout_mana, sort.multiplicateur_degats, sort.niveau])
+		echecs += 1
+	var heros := Personnage.nouveau()
+	heros._d.erase("pv_par_tranche_endurance")
+	heros._d["bonus_pv_par_endurance"] = 11  # 10 + 1 de talent
+	heros.endurance = 4
+	heros.calculer_stats()
+	if heros.bonus_pv_par_endurance != 6 or heros.points_de_vie_max != Personnage.PV_BASE_HEROS + 12:
+		print("ÉCHEC : ancienne partie : %s PV par tranche, %s PV max." % [heros.bonus_pv_par_endurance, heros.points_de_vie_max])
+		echecs += 1
+	return echecs
 
 
 func _des() -> int:
@@ -80,6 +106,14 @@ func _caracteristiques() -> int:
 		var comp := Competences.creer(nom)
 		var est := Formules.estimer_degats(lanceur, comp, {"points_de_vie_max": 20})
 		print("%s (%s) : %s" % [comp.nom, comp.type_degats, est])
+	# Endurance et Mana : +5 et +2/min tous les 2 points (règle de l'utilisateur, 2026-11-03)
+	for points in [[0, 0], [1, 0], [2, 1], [3, 1], [4, 2], [7, 3]]:
+		var b := Caracteristiques.bonus({"endurance": points[0], Caracteristiques.MANA: points[0]})
+		var n: int = points[1]
+		if b["points_de_vie_max"] != 5 * n or b["regen_de_points_de_vie"] != 2.0 * n or b["mana_max"] != 5 * n \
+				or b["regen_de_mana"] != 2.0 * n:
+			print("ÉCHEC : %d points d'endurance et de mana : %s." % [points[0], b])
+			echecs += 1
 	return echecs
 
 
@@ -262,20 +296,20 @@ func _attaques_arme() -> int:
 	return echecs
 
 
-## Amélioration « +x % de dégâts d'un élément » : n'ajoute pas de type, ne joue que si la compétence en inflige.
+## Bonus « +x % de dégâts d'un élément » (table pourcentage_types) : n'ajoute pas de type, ne joue que si la
+## compétence en inflige.
 func _pourcentage_element() -> int:
 	var echecs := 0
 	var lanceur := {"force": 0, "sagesse": 0}
-	var spec := {"spec": {"genre": "second", "element": "foudre", "valeur": 0.05, "voie": "affliction"}}
 	var transpercer := Competences.creer("Transpercer")
 	var avant := Formules.degats_bruts(lanceur, transpercer, "perforant")
-	Ameliorations.appliquer_fraction(transpercer, spec, 1.0, true)
+	transpercer.pourcentage_types["foudre"] = 0.05
 	if "foudre" in transpercer.type_degats or Formules.degats_bruts(lanceur, transpercer, "perforant") != avant:
 		print("ÉCHEC : +5 %% de foudre change Transpercer (%s)." % [transpercer.type_degats])
 		echecs += 1
 	var eclair := Competences.creer("Eclair")
 	var avant_eclair := Formules.degats_bruts(lanceur, eclair, "foudre")
-	Ameliorations.appliquer_fraction(eclair, spec, 1.0, true)
+	eclair.pourcentage_types["foudre"] = 0.05
 	var apres_eclair := Formules.degats_bruts(lanceur, eclair, "foudre")
 	print("Éclair : %.2f -> %.2f avec +5 %% de foudre" % [avant_eclair, apres_eclair])
 	if absf(apres_eclair - avant_eclair * 1.05) > 0.001:

@@ -323,8 +323,8 @@ static func stats_critique(lanceur, type_degats) -> Array:
 	return [chance, lanceur.degats_critique_magiques]
 
 
-## Bonus en pourcentage de la compétence pour un type de dégâts (améliorations « +x % de dégâts de
-## foudre ») : ne joue que sur les dégâts de ce type que la compétence inflige déjà.
+## Bonus en pourcentage de la compétence pour un type de dégâts (« +x % de dégâts de foudre », table
+## ``pourcentage_types``, vide depuis la suppression des améliorations le 2026-11-03) : ne joue que sur les dégâts de ce type que la compétence inflige déjà.
 static func pourcentage_competence(competence, type_degats: String) -> float:
 	var table = U.ga(competence, "pourcentage_types", null) if competence != null else null
 	return 1.0 + (float(table.get(type_degats, 0.0)) if table is Dictionary else 0.0)

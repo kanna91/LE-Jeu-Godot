@@ -183,7 +183,8 @@ static func definir_competence_gobelin(classe: String, sous_classe: String) -> A
 	return competences
 
 
-## Endurance de départ selon la sous-classe (PV = endurance × Ennemis.PV_PAR_ENDURANCE), bornes comprises.
+## Endurance de départ selon la sous-classe, bornes comprises, en « points de 10 PV » : multipliée par
+## Ennemis.ENDURANCE_PAR_POINT_ENNEMI à la création (2026-11-03), les PV restent ceux-ci.
 ## Divisée par 5 le 2026-10-29 (10-12 et 6-8 avant) quand un point est passé de 2 à 10 PV, pour garder à peu près
 ## les mêmes PV (choix de l'utilisateur) : 20 PV pour combattant et défenseur, 10 ou 20 pour les autres.
 const ENDURANCE_PAR_SOUS_CLASSE := {
@@ -217,7 +218,7 @@ const PARADE_PAR_SOUS_CLASSE := {"combattant": [2, 4], "lancier": [2, 4], "defen
 ## Le critique ne vient que des caractéristiques (Ennemis.calculer_stats : dextérité, intelligence).
 static func definir_attribut_gobelin(g, classe: String, sous_classe: String) -> void:
 	var bornes: Array = ENDURANCE_PAR_SOUS_CLASSE.get(sous_classe, [6, 8])
-	g.endurance = randi_range(bornes[0], bornes[1]) + Ennemis.bonus_globaux["endurance"]
+	g.endurance = randi_range(bornes[0], bornes[1]) * Ennemis.ENDURANCE_PAR_POINT_ENNEMI + Ennemis.bonus_globaux["endurance"]
 	var stats: Array = STATS_PAR_SOUS_CLASSE.get(sous_classe, ["force", "dextérité"])
 	for c in ["force", "dextérité", "intelligence", "sagesse"]:
 		var b: Array = POINTS_AUTRES_STATS

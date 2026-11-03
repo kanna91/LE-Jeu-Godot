@@ -13,7 +13,7 @@ const BONUS := ["bonus_critique", "bonus_toucher", "bonus_degats_critique", "bon
 func initialiser_sort(nom_classe: String, element, palier: int, f: Dictionary) -> void:
 	var degats: Dictionary = f.get("degats", {})
 	var args := {
-		"nom": f["nom"], "description": f["description"], "niveau": 0, "points_amélioration": 0,
+		"nom": f["nom"], "description": f["description"], "niveau": 0,
 		"cout_mana": U.entiers(f["mana"]), "cout_action": U.entiers(f.get("pa", 1)),
 		"type_competence": f.get("genre", "offensif"), "type_attaque": f.get("attaque", "magique"),
 		"nombre_attaque": U.entiers(f.get("frappes", 1)), "nombre_cible": U.entiers(f.get("cibles", 1)),

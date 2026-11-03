@@ -1,6 +1,7 @@
 extends SceneTree
-## PV issus des caractéristiques : 10 PV par endurance (2026-10-29) ; héros : 70 de base, toutes les caractéristiques à 0 ;
-## gobelins selon la sous-classe (Gobelin.ENDURANCE_PAR_SOUS_CLASSE), hors endurance des objets portés.
+## PV issus des caractéristiques : 5 PV tous les 2 points d'endurance (2026-11-03 ; 10 par point le 2026-10-29) ;
+## héros : 70 de base, toutes les caractéristiques à 0 ; gobelins selon la sous-classe (Gobelin.ENDURANCE_PAR_SOUS_CLASSE,
+## × Ennemis.ENDURANCE_PAR_POINT_ENNEMI : mêmes PV qu'avant), hors endurance des objets portés.
 ## godot --headless --path godot -s tests/test_pv.gd
 
 
@@ -35,7 +36,9 @@ func _initialize() -> void:
 					endurance_objets += int(U.num(o, "endurance"))
 			var tiree: int = g.endurance - endurance_objets
 			vus[tiree] = true
-			if tiree < bornes[0] or tiree > bornes[1] or g.points_de_vie_max != g.endurance * Ennemis.PV_PAR_ENDURANCE + objets:
+			var k := Ennemis.ENDURANCE_PAR_POINT_ENNEMI
+			var pv_attendus: int = Caracteristiques.paliers(g.endurance) * Ennemis.PV_PAR_ENDURANCE + objets
+			if tiree % k != 0 or tiree < bornes[0] * k or tiree > bornes[1] * k or g.points_de_vie_max != pv_attendus 					or (endurance_objets == 0 and g.points_de_vie_max != tiree / k * 10):
 				print("ÉCHEC : %s endurance %d, PV %d (objets %d)." % [sous_classe, g.endurance, g.points_de_vie_max, objets])
 				echecs += 1
 				break

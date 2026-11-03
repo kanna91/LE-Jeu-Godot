@@ -2,7 +2,7 @@ class_name IndexAlterations
 extends RefCounted
 ## Onglet « Altérations » du grimoire : toutes les
 ## altérations avec leur nature, durée, cumul, effet et les compétences qui les
-## appliquent (d'emblée ou par amélioration). Filtre malus / bonus, défilement.
+## appliquent d'emblée. Filtre malus / bonus, défilement.
 
 const HAUTEUR_CARTE := 78
 
@@ -22,7 +22,7 @@ static func sources_alterations() -> Dictionary:
 		return _sources
 	var defs := Alterations.defs()
 	for nom in defs:
-		_sources[nom] = {"base": [], "ameliorations": []}
+		_sources[nom] = {"base": []}
 	var classes: Array = Competences.classes_de_competences() + Competences.classes_de_sorts()
 	for classe in classes:
 		var comp = Competences.creer(classe)
@@ -34,15 +34,6 @@ static func sources_alterations() -> Dictionary:
 				var canon := Alterations.nom_canonique(nom)
 				if _sources.has(canon) and U.vrai(chance):
 					_sources[canon]["base"].append("%s (%s %%)" % [comp.nom, U.g(chance)])
-		for niveau in comp.ameliorations_possibles:
-			for option in niveau:
-				var spec: Dictionary = option.get("spec", {}) if option.get("spec") is Dictionary else {}
-				for cle in ["nom", "nom2"]:
-					if not U.vrai(spec.get(cle)):
-						continue
-					var canon := Alterations.nom_canonique(spec[cle])
-					if _sources.has(canon) and not comp.nom in _sources[canon]["ameliorations"]:
-						_sources[canon]["ameliorations"].append(comp.nom)
 	return _sources
 
 
@@ -145,11 +136,9 @@ func dessiner_cartes(ci: CanvasItem, souris: Vector2) -> void:
 		Ui.texte(ci, d["libelle"], r.position + Vector2(14, 6), couleur, 16, true)
 		Ui.texte(ci, ligne_meta(d), Vector2(r.end.x - 12, r.position.y + 8), Ui.DETAIL, 13, false, null, "topright")
 		Ui.texte(ci, Alterations.description(nom), r.position + Vector2(14, 28), Ui.TEXTE, 14, false, r.size.x - 28)
-		var s: Dictionary = sources.get(nom, {"base": [], "ameliorations": []})
+		var s: Dictionary = sources.get(nom, {"base": []})
 		var morceaux := []
 		if not s["base"].is_empty():
 			morceaux.append("D'emblée : " + ", ".join(s["base"]))
-		if not s["ameliorations"].is_empty():
-			morceaux.append("Par amélioration : " + ", ".join(s["ameliorations"]))
 		var texte := " · ".join(morceaux) if not morceaux.is_empty() else "Aucune compétence ne l'applique pour l'instant."
 		Ui.texte(ci, texte, r.position + Vector2(14, 50), Ui.DETAIL, 12, false, r.size.x - 28)

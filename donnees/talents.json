@@ -113,7 +113,7 @@
       1
     ],
     "bonus_pv_par_endurance": [
-      "+{v} PV max par point d'endurance",
+      "+{v} PV max par tranche de 2 points d'endurance",
       1
     ],
     "mult_bonus_armure_par_force": [

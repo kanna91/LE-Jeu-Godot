@@ -290,9 +290,6 @@ func tuiles_menus() -> Dictionary:
 ## Points à dépenser dans un menu (pastille sur la tuile).
 func points_a_depenser(cle: String) -> int:
 	if cle == "magie":
-		var total := 0
-		for c in joueur.magies_apprises + joueur.competence_de_base.values():
-			total += int(U.num(c, "points_amélioration"))
 		var noms := {}
 		for m in joueur.magies_apprises:
 			noms[m.nom] = true
@@ -300,7 +297,7 @@ func points_a_depenser(cle: String) -> int:
 		for m in U.ga(joueur, "magies_disponibles", []):
 			if not noms.has(m.nom) and Sorts.peut_apprendre(joueur, m):
 				a_apprendre += 1
-		return total + mini(int(U.num(joueur, "nouvelle_magie_a_apprendre")), a_apprendre)
+		return mini(int(U.num(joueur, "nouvelle_magie_a_apprendre")), a_apprendre)
 	if cle == "caracteristiques":
 		return int(U.num(joueur, "points_a_distribuer"))
 	return 0
@@ -452,7 +449,7 @@ func _dessiner(ci: Control) -> void:
 		var lignes := ["Raccourci : touche %s" % icone_survolee[3]]
 		var points := points_a_depenser(icone_survolee[0])
 		if points:
-			lignes.append({"magie": "%d amélioration(s) ou magie(s) à choisir" % points,
+			lignes.append({"magie": "%d magie(s) à apprendre" % points,
 				"caracteristiques": "%d point(s) à répartir" % points}.get(icone_survolee[0], ""))
 		Ui.infobulle(ci, icone_survolee[2], lignes, tuiles[icone_survolee[0]], 230)
 	elif direction_survolee != null:

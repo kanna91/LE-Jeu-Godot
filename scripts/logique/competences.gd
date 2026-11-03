@@ -4,8 +4,8 @@ extends RefCounted
 ##
 ## ``Competences.creer("Coup_d_epee")`` remplace ``Coup_d_epee()`` : les tirages
 ## au hasard des dégâts (``random.randint``) sont refaits à chaque création, puis la
-## compétence est préparée (Ameliorations.preparer : corrections de base,
-## normalisation et arbre d'amélioration), comme ``__init_subclass__``.
+## compétence est préparée (BasesCompetences.preparer : corrections de base et
+## normalisation), comme ``__init_subclass__``.
 
 static var _competences := {}
 static var _sorts := {}
@@ -60,5 +60,5 @@ static func creer(nom_classe: String) -> Competence:
 	else:
 		push_error("Compétence inconnue : " + nom_classe)
 		return null
-	Ameliorations.preparer(comp)
+	BasesCompetences.preparer(comp)
 	return comp

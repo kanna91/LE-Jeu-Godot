@@ -118,7 +118,7 @@ func _image() -> void:
 				_touche(ecran, KEY_ESCAPE)
 			else:
 				_clic_zone(ecran, _zones(ecran, ["quitter", "menu", "retour"]))
-		_:  # menus du héros, marchand, talents, améliorations
+		_:  # menus du héros, marchand, talents
 			if actions_ecran > 12:
 				_touche(ecran, KEY_ESCAPE)
 			elif alea.randf() < 0.15:

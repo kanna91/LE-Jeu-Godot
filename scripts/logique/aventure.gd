@@ -51,9 +51,6 @@ const CACHETTES_PAR_ETAGE := [2, 3]
 const CHANCE_PUPITRE := 0.5
 const CONTENUS_CACHETTES := {"or": 45, "objet": 40, "livre": 15}
 const CHANCE_LIVRE_GOBELIN := 0.25
-## Grimoire : sort appris au hasard, de palier 0 à l'étage (5 au plus), déjà amélioré de POINTS_LIVRE[0] + étage ×
-## POINTS_LIVRE[1] points d'amélioration répartis au hasard.
-const POINTS_LIVRE := [2, 2]
 ## Part des salles bonus (coffre, choix de bonus) verrouillées.
 const PART_VERROUILLEES := 0.5
 ## Chance qu'un ennemi qui poursuit le héros le suive dans la salle suivante (il entre peu après lui).
@@ -1187,9 +1184,9 @@ static func action(p: Dictionary) -> String:
 		"coffre_confisque": "Ouvrir le coffre", "coffre_gardien": "Ouvrir le coffre", "cadavre": "Examiner le corps"}.get(p["sous"], "Utiliser")
 
 
-## Un grimoire : le héros apprend un sort tiré au hasard (palier 0 à l'étage), déjà amélioré (POINTS_LIVRE).
+## Un grimoire : le héros apprend un sort tiré au hasard (palier 0 à l'étage, 5 au plus).
 ## Le joueur ne choisit son sort qu'au tout début de la partie ; ensuite, les sorts viennent des grimoires.
-## S'il connaît déjà tous les sorts possibles, le grimoire améliore un sort qu'il connaît.
+## Le sort n'est plus « déjà amélioré » depuis le 2026-11-03 (amélioration supprimée, à reforger).
 static func lire_livre(joueur, etage := 1) -> String:
 	Statistiques.noter(joueur, "livres_lus")
 	var palier_max := clampi(etage, 1, 5)
@@ -1197,39 +1194,17 @@ static func lire_livre(joueur, etage := 1) -> String:
 	for m in joueur.magies_disponibles:
 		if _palier(m) <= palier_max:
 			candidats.append(m)
-	var points := POINTS_LIVRE[0] + maxi(1, etage) * POINTS_LIVRE[1]
 	if candidats.is_empty():
-		var connus: Array = joueur.magies_apprises.filter(func(x): return U.ga(x, "type_competence", "") != "heal")
-		if connus.is_empty():
-			return "Le grimoire tombe en poussière entre vos doigts."
-		var sort = connus.pick_random()
-		var investis := ameliorer_au_hasard(sort, points)
-		return "Ce grimoire ne vous apprend rien de neuf, mais approfondit %s (+%d points d'amélioration)." % [sort.nom, investis]
+		return "Ce grimoire ne vous apprend rien de neuf."
 	var sort = candidats.pick_random()
 	joueur.magies_disponibles.erase(sort)
 	joueur.magies_apprises.append(sort)
-	var investis := ameliorer_au_hasard(sort, points)
-	return "Vous déchiffrez un grimoire : vous apprenez %s (déjà amélioré : %d points) !" % [sort.nom, investis]
+	return "Vous déchiffrez un grimoire : vous apprenez %s !" % sort.nom
 
 
 ## Palier d'un sort (0 pour une compétence sans palier).
 static func _palier(sort) -> int:
 	return int(sort.PALIER) if sort is Sort and sort.PALIER != null else 0
-
-
-## Investit ``points`` points d'amélioration au hasard dans les options ouvertes du sort ; renvoie le nombre investi.
-static func ameliorer_au_hasard(sort, points: int) -> int:
-	if U.ga(sort, "ameliorations_possibles", []).is_empty():
-		return 0
-	sort._d["points_amélioration"] = int(U.ga(sort, "points_amélioration", 0)) + points
-	var investis := 0
-	for _essai in points * 6:
-		if investis >= points:
-			break
-		if sort.améliorer_compétence(str(randi_range(0, 2)), null, 1):
-			investis += 1
-	sort._d["points_amélioration"] = maxi(0, int(sort._d["points_amélioration"]) - (points - investis))  # points non placés : retirés
-	return investis
 
 
 ## Utilise un pupitre, un râtelier, une cachette ou le coffre des confiscations ; renvoie le message.

@@ -1,5 +1,5 @@
 extends Ecran
-## Grimoire. Onglet « Magies » : magies connues (clic : améliorer)
+## Grimoire. Onglet « Magies » : magies connues (l'amélioration est supprimée depuis le 2026-11-03)
 ## et disponibles par élément et palier (double-clic : apprendre), filtres par
 ## élément et « Apprenables ». Onglet « Compétences » : compétences de l'arme et
 ## toutes les compétences de base. Onglet « Altérations » : index des altérations.
@@ -130,8 +130,6 @@ static func ligne(ci: CanvasItem, r: Rect2, comp, survol: bool, selection := fal
 	Ui.texte(ci, comp.nom, r.position + Vector2(14, 4), Ui.GRISE if grise else Ui.BLANC, 16, true, r.size.x - 60)
 	var d: Array = detail if detail != null else [resume(comp), Ui.DETAIL]
 	Ui.texte(ci, d[0], r.position + Vector2(14, 24), d[1], 13, false, r.size.x - 24)
-	if U.ga(comp, "points_amélioration", 0) > 0:
-		ci.draw_texture_rect(Ui.texture("triangle_rouge.png"), Rect2(r.end.x - 32, r.get_center().y - 11, 22, 22), false)
 
 
 func _mise_a_jour(_delta: float) -> void:
@@ -145,7 +143,7 @@ func _mise_a_jour(_delta: float) -> void:
 			var magie = joueur.magies_apprises[i]
 			if filtre_element != null and Sorts.element_de(magie) != filtre_element:
 				continue
-			elements.append([["connue", i], Rect2(zone.position.x, zone.position.y + rang * HAUTEUR_LIGNE - defilement["connue"], zone.size.x - 8, 46), magie, "ameliorer"])
+			elements.append([["connue", i], Rect2(zone.position.x, zone.position.y + rang * HAUTEUR_LIGNE - defilement["connue"], zone.size.x - 8, 46), magie, "voir"])
 			rang += 1
 		contenus["connue"] = rang * HAUTEUR_LIGNE
 		zone = zones_listes["disponible"]
@@ -172,7 +170,7 @@ func _mise_a_jour(_delta: float) -> void:
 	elif onglet == "Compétences":
 		var utiles := competences_utiles(joueur)
 		for i in utiles.size():
-			elements.append([["competence", utiles[i].nom], Rect2(PANNEAU_GAUCHE.position.x + 10, PANNEAU_GAUCHE.position.y + 44 + i * 52, PANNEAU_GAUCHE.size.x - 20, 46), utiles[i], "ameliorer"])
+			elements.append([["competence", utiles[i].nom], Rect2(PANNEAU_GAUCHE.position.x + 10, PANNEAU_GAUCHE.position.y + 44 + i * 52, PANNEAU_GAUCHE.size.x - 20, 46), utiles[i], "voir"])
 		var y := PANNEAU_DROIT.position.y + 44
 		for e in COMPETENCES_PAR_ARME:
 			y += 18
@@ -229,7 +227,6 @@ func _dessiner(ci: Control) -> void:
 		var points = U.ga(joueur, "nouvelle_magie_a_apprendre", 0)
 		Ui.texte(ci, "Points de magie : %s" % str(points), Vector2(PANNEAU_DROIT.end.x, 37), Ui.OR if U.vrai(points) else Ui.DETAIL, 17, true, null, "midright")
 		Ui.texte(ci, "Magies connues", MAGIE_GAUCHE.position + Vector2(14, 12), Ui.OR, 18, true)
-		Ui.texte(ci, "Clic : améliorer", Vector2(MAGIE_GAUCHE.end.x - 14, MAGIE_GAUCHE.position.y + 15), Ui.DETAIL, 13, false, null, "topright")
 		Ui.texte(ci, "Magies disponibles", MAGIE_DROIT.position + Vector2(14, 12), Ui.OR, 18, true)
 		Ui.onglet(ci, bouton_filtre, "Apprenables", seulement_apprenables, bouton_filtre.has_point(s), 13)
 		var a_connue := false
@@ -252,7 +249,6 @@ func _dessiner(ci: Control) -> void:
 		var type_arme = joueur.get_type_arme()
 		Ui.texte(ci, "Compétences de votre arme : %s" % NOMS_ARMES.get(type_arme, "Mains nues" if type_arme == null else str(type_arme)),
 			PANNEAU_GAUCHE.position + Vector2(14, 12), Ui.OR, 18, true, PANNEAU_GAUCHE.size.x - 28)
-		Ui.texte(ci, "Clic : améliorer", PANNEAU_GAUCHE.position + Vector2(14, 44 + 2 * 52 + 6), Ui.DETAIL, 13)
 		Ui.texte(ci, "Toutes les compétences de base", PANNEAU_DROIT.position + Vector2(14, 12), Ui.OR, 18, true)
 		var y := PANNEAU_DROIT.position.y + 44
 		for e in COMPETENCES_PAR_ARME:
@@ -298,9 +294,7 @@ func _dessiner_dessus(ci: Control) -> void:
 	if _survole[2] == "apprendre":
 		for p in Sorts.etat_prerequis(joueur, comp):
 			lignes.append(["Prérequis : %s (%s)" % [p[0], "rempli" if p[1] else "manquant"], Ui.VERT if p[1] else Ui.ROUGE])
-	if U.ga(comp, "points_amélioration", 0) > 0:
-		lignes.append(["%s point(s) d'amélioration à dépenser" % str(comp.points_amélioration), Ui.ROUGE])
-	var aide = {"ameliorer": "Clic : voir les améliorations", "apprendre": "Double-clic : apprendre"}.get(_survole[2])
+	var aide = {"apprendre": "Double-clic : apprendre"}.get(_survole[2])
 	if aide != null:
 		lignes.append([aide, Ui.OR])
 	Ui.infobulle(ci, comp.nom, lignes, _survole[1], 300, DescriptionObjet.couleur_competence(comp))
@@ -340,9 +334,7 @@ func _evenement(ev: Dictionary) -> void:
 		if zones_listes.has(e[0][0]) and not zones_listes[e[0][0]].has_point(pos):
 			continue
 		var comp = e[2]
-		if e[3] == "ameliorer":
-			await Ecrans.menu_ameliorer_competence(joueur, comp)
-		elif e[3] == "apprendre":
+		if e[3] == "apprendre":
 			var maintenant := Animations.temps()
 			if derniere_magie_cliquee == comp and maintenant - dernier_temps_clic < DELAI_DOUBLE_CLIC:
 				var manquants := []

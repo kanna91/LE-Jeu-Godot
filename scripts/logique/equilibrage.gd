@@ -1,7 +1,7 @@
 class_name Equilibrage
 extends RefCounted
-## Équilibrage des améliorations : valeur d'une compétence en « dégâts
-## équivalents » contre un adversaire de référence.
+## Valeur d'une compétence en « dégâts équivalents » contre un adversaire de référence (sert au palier des
+## compétences, ValeurCompetences).
 
 const NB_ENNEMIS := 2.5
 const PART_SOUS_MOITIE := 0.15
@@ -340,7 +340,7 @@ static func valeur(competence, brut := false) -> float:
 static func copie_competence(competence):
 	var copie_c = competence.copie_superficielle()
 	for attribut in ["type_alteration", "alterations_lanceur", "puissance_alterations", "facteurs_types",
-			"pourcentage_types", "bonus_evolutifs", "_evolutif_applique"]:
+			"pourcentage_types"]:
 		var v = U.ga(competence, attribut, {})
 		copie_c.set(attribut, v.duplicate() if v != null else {})
 	var types = U.ga(competence, "type_degats", null)

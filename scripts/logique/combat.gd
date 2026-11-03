@@ -354,7 +354,6 @@ func lancer(competence, lanceur, donjon, personnage, cibles_gui = null) -> void:
 	if competence == null:
 		print("Compétence non trouvée pour %s" % lanceur.nom)
 		return
-	Ameliorations.actualiser(competence)
 	var nb_cible = competence.nombre_cible
 	var nb_attaque = competence.nombre_attaque
 	if not lanceur.verifier_points_d_action_suffisants(competence.cout_action):
