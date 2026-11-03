@@ -158,10 +158,11 @@ func lancer() -> void:
 	# Le geôlier capture le héros
 	var geolier := entite(sp, "geolier")
 	var cachot := String(Aventure.meta(donjon, 1).get("cachot", ""))
+	var prison := Aventure.cellule_la_plus_proche(donjon, 1, str(donjon.salle_actuelle[1]))
 	nav.passage_en_cours = false
 	await nav._contact(geolier["p"])
 	await attendre(30)
-	verifier(str(donjon.salle_actuelle[1]) == cachot, "réveil au cachot (salle %s)" % cachot)
+	verifier(str(donjon.salle_actuelle[1]) == prison, "réveil dans la prison la plus proche (salle %s)" % prison)
 	verifier(joueur.inventaire.is_empty(), "héros dépouillé")
 	await capturer("99_aventure_cachot")
 	# Écran de dialogue (diablotin)

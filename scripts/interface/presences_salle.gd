@@ -370,6 +370,8 @@ func _avancer(e: Dictionary, but: Vector2, vitesse: float, delta: float, course 
 		# Chevalier, geôlier : toujours au rythme de leur marche animée (pieds qui ne glissent pas ; décision de
 		# l'utilisateur, 2026-10-27), en ronde comme en poursuite
 		pas = vitesse_marche(marcheur, e["p"]) * salle.hauteur(p.y) * delta
+		# Chevalier de la mort : +5 % par point de karma négatif (Karma.facteur_vitesse_chevalier, 2026-11-03)
+		pas *= float(e["p"].get("facteur_vitesse", 1.0))
 	elif e["p"]["genre"] in ["groupe", "porteur", "boss"]:
 		# Gobelins qui ont une marche animée : eux aussi au rythme de l'animation (décision de l'utilisateur,
 		# 2026-10-28), en ronde comme en poursuite ; groupes sans marche (squelettes, loups seuls) : vitesse d'avant

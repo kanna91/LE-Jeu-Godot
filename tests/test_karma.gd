@@ -1,6 +1,7 @@
 extends SceneTree
-## Karma, cadavres et âmes (règles de l'utilisateur, 2026-10-31) : paliers des Chevaliers de la mort du karma (un de
-## plus tous les 5 points négatifs, repart en remontant de 5), un par étage ; prix ±5 %, or +5 % (karma positif),
+## Karma, cadavres et âmes (règles de l'utilisateur, 2026-10-31) : Chevalier de la mort +5 % de vitesse par point
+## négatif (2026-11-03 ; avant : un chevalier de plus tous les 5 points) ; capture : la prison la plus proche
+## (2026-11-03) ; prix ±5 %, or +5 % (karma positif),
 ## mensonges des diablotins ±5 % ; pacifiques épargnés (or, karma +1, ils partent) ou tués (karma −1, corps) ;
 ## corps à fouiller, âmes à siphonner (1 par ennemi, 3 pour une élite, 5 pour le boss), 3 âmes = 1 point.
 ## godot --headless --path . -s tests/test_karma.gd
@@ -18,6 +19,7 @@ func _initialize() -> void:
 	seed(31)
 	Ecrans.auto = true
 	_paliers()
+	_capture()
 	_effets()
 	_pacifiques()
 	_cadavres()
@@ -34,7 +36,8 @@ func _chevaliers(donjon, etage: int) -> Array:
 	return liste
 
 
-## Paliers : exemples de l'utilisateur (−5 → un chevalier, reparti à 0 ; −11 → deux, un repart à −5 ; au pire +9).
+## Karma négatif : jamais de Chevalier de la mort de plus ; chacun va 5 % plus vite par point négatif (dans la salle
+## comme d'une salle à l'autre), sa vitesse normale au karma positif (règle de l'utilisateur, 2026-11-03).
 func _paliers() -> void:
 	Sauvegarde.reinitialiser_monde()
 	var joueur := Personnage.nouveau()
@@ -43,19 +46,63 @@ func _paliers() -> void:
 	for e in donjon.plan_donjon:
 		base[e] = _chevaliers(donjon, e).size()
 	verifier(base[1] >= 1, "au moins un chevalier de base")
-	var attendus := [[-4, 0], [-5, 1], [-9, 1], [-10, 2], [-11, 2], [-6, 2], [-5, 1], [-1, 1], [0, 0], [-5, 1], [-14, 2],
-		[-6, 2], [-5, 1]]
+	var chevalier: Dictionary = _chevaliers(donjon, 1)[0]
+	var duree_base := Aventure.duree_salle(chevalier)
 	var k := 0
-	for a in attendus:
-		Karma.changer(donjon, a[0] - k)
-		k = a[0]
-		verifier(Karma.chevaliers(joueur) == a[1], "karma %d : %d chevalier(s) du karma (%d)" % [k, a[1], Karma.chevaliers(joueur)])
+	for v in [-1, -5, -11, -3, 0, 4]:
+		var message := Karma.changer(donjon, v - k)
+		var avant := k
+		k = v
+		var attendu := 1.0 + 0.05 * maxi(0, -k)
+		verifier(absf(Karma.facteur_vitesse_chevalier(joueur) - attendu) < 1e-6, "karma %d : vitesse ×%.2f" % [k, attendu])
 		for e in donjon.plan_donjon:
-			verifier(_chevaliers(donjon, e).size() == base[e] + a[1], "étage %d, karma %d : %d chevaliers" % [e, k, base[e] + a[1]])
-	Karma.changer(donjon, 20 - k)
-	verifier(Karma.chevaliers(joueur) == 0, "karma positif : aucun chevalier du karma")
-	for e in donjon.plan_donjon:
-		verifier(_chevaliers(donjon, e).size() == base[e], "étage %d : jamais moins que le chevalier de base" % e)
+			verifier(_chevaliers(donjon, e).size() == base[e], "karma %d : pas de chevalier de plus (niveau %d)" % [k, e])
+			for c in _chevaliers(donjon, e):
+				verifier(absf(float(c.get("facteur_vitesse", 1.0)) - attendu) < 1e-6, "karma %d : chevalier à ×%.2f" % [k, attendu])
+		verifier(absf(Aventure.duree_salle(chevalier) - duree_base / attendu) < 1e-6, "karma %d : traverse une salle plus vite" % k)
+		if minf(avant, 0) > minf(k, 0):
+			verifier("presse le pas" in message, "karma %d : message « presse le pas » (%s)" % [k, message])
+	# Ancienne partie : un chevalier venu du karma repart
+	var vieux := Aventure.ajouter_menace(donjon, 1, "imbattable")
+	vieux["karma"] = true
+	Karma.synchroniser(donjon)
+	verifier(vieux["etat"] == "parti", "ancien chevalier du karma reparti")
+
+
+## Capture (règle de l'utilisateur, 2026-11-03) : le geôlier met le héros dans la prison la plus proche de la salle
+## où il est pris (la 2e grande salle de cette prison) ; le coffre des confiscations est près d'elle.
+func _capture() -> void:
+	Sauvegarde.reinitialiser_monde()
+	var joueur := Personnage.nouveau()
+	var donjon := Donjon.nouveau(joueur)
+	var salles: Dictionary = donjon.plan_donjon[1]
+	var fonds := {}
+	var entrees := {}
+	for i in salles:
+		if salles[i].get("prison_salle", "") == "grande_b":
+			fonds[int(salles[i]["prison"])] = i
+		if salles[i].get("prison_salle", "") == "grande_a":
+			entrees[int(salles[i]["prison"])] = i
+	verifier(fonds.size() == 4, "4 prisons")
+	var essais := 0
+	var ids: Array = salles.keys()
+	ids.shuffle()
+	for depuis in ids.slice(0, 12):
+		var dist := Aventure.distances_depuis(salles, depuis)
+		var attendue := ""
+		var d_min := 1 << 30
+		for k in entrees:
+			if int(dist.get(entrees[k], 1 << 29)) < d_min:
+				d_min = int(dist[entrees[k]])
+				attendue = fonds[k]
+		donjon.salle_actuelle = [1, int(depuis)]
+		var geolier := {"id": 999, "genre": "geolier", "etat": "actif"}
+		salles[depuis]["presences"] = salles[depuis].get("presences", []) + [geolier]
+		Aventure.capturer(donjon, geolier)
+		verifier(str(donjon.salle_actuelle[1]) == attendue, "pris en %s : réveil dans la prison la plus proche (%s, attendu %s)" % [
+			depuis, donjon.salle_actuelle[1], attendue])
+		essais += 1
+	verifier(essais == 12, "12 captures")
 
 
 ## Prix, or et mensonges.

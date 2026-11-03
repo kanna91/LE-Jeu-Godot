@@ -97,10 +97,12 @@ stick droit pour choisir un bouton de l'interface.
     geôliers ne se téléportent pas, ils se dirigent vers la salle du bruit. **Courir n'alerte que les ennemis de la
     salle** (ils l'entendent de plus loin), pas le reste de l'étage (décision de l'utilisateur). **Toute défaite est
     la mort** ; seul le geôlier mène en prison.
-  - **Capture** (`Aventure.capturer`) : le héros se réveille dans la **salle du cachot** de l'étage : depuis le
-    2026-10-30, une salle à image « prison » (depuis le 2026-11-03 : une grande salle d'une des **4 prisons des coins**,
-    voir « Prisons et niveau des cryptes »), la plus loin du boss, à au moins 3 salles du départ (une capture ne rapproche pas du boss, demande de l'utilisateur du 2026-10-27 ; repli
-    s'il n'y a aucune prison : le cul-de-sac le plus loin du boss), sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
+  - **Capture** (`Aventure.capturer`) : depuis le 2026-11-03 (règle de l'utilisateur), le geôlier met le héros dans la
+    **prison la plus proche** de la salle où il est pris (des 4 prisons des coins, la plus proche par le chemin ; il se
+    réveille dans sa 2e grande salle, au fond, à côté du couloir des cryptes : `Aventure.cellule_la_plus_proche`) ; le
+    coffre des confiscations est près de cette prison. Sans prison (ancienne partie) : le **cachot** de l'étage (une
+    salle à image « prison » la plus loin du boss, à au moins 3 salles du départ, qui sert aussi au Pacte de mort ;
+    repli : le cul-de-sac le plus loin du boss). Le héros se réveille sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
     confiscations** (dans une autre salle, avec tout l'or), est **perdu**, ou est **porté par un porteur**
     (gobelin rare, PV × 1,5 d'une élite, à vaincre pour le récupérer). **L'arme portée n'est jamais perdue** : elle
     est toujours dans le coffre des confiscations (rééquipée en l'ouvrant). Le geôlier repart dans une autre salle.
@@ -223,9 +225,10 @@ stick droit pour choisir un bouton de l'interface.
   - **Karma** (règles de l'utilisateur, 2026-10-31 ; `Karma`, gardé dans le héros, affiché dans le bandeau et l'écran
     des caractéristiques) : épargner des pacifiques, soigner ou épargner le gobelin blessé, libérer le prisonnier
     donnent +1 ; tuer des pacifiques ou achever le gobelin blessé −1. **Négatif**, par point : diablotins +5 % de
-    mensonges, prix des marchands +5 % ; **tous les 5 points, un Chevalier de la mort de plus sur chaque étage**,
-    qui ne repart qu'en remontant de 5 points depuis le palier qui l'a fait venir (créé à −5, il repart à 0 ; créé à
-    −10, il repart à −5) ; il reste toujours le chevalier de base. **Positif**, par point : diablotins +5 % de vérité,
+    mensonges, prix des marchands +5 %, **Chevalier de la mort +5 % de vitesse de déplacement** (dans la salle comme
+    d'une salle à l'autre ; règle de l'utilisateur du 2026-11-03 : `Karma.facteur_vitesse_chevalier`, « facteur_vitesse »
+    de la présence ; à −10, il va 50 % plus vite). Avant le 2026-11-03 : un Chevalier de la mort de plus tous les
+    5 points ; ceux d'une ancienne partie repartent. **Positif**, par point : diablotins +5 % de vérité,
     prix −5 % (jamais sous 25 %, choix de Claude), **or gagné +5 % de toutes les sources** (fouilles, cachettes,
     coffres, pacifiques). **Le marchand vend plus ou moins cher, mais rachète toujours au même prix** (décision de
     l'utilisateur). Tout est réglé par trois tables de `Karma`, faites pour être nuancées facilement (l'utilisateur
@@ -821,7 +824,7 @@ stick droit pour choisir un bouton de l'interface.
 | `audio/musique/` + `scripts/noyau/musique.gd` | Musique de fond : autoload `Musique` (déclaré dans `project.godot`) qui joue `elf_song_tavern.mp3` en boucle pendant tout le jeu, même en pause (volume `VOLUME_DB` = −8 dB à 100 % ; réglage du joueur `Musique.volume`, 0 à 1, menu Options, enregistré dans `user://options.cfg` par `regler_volume` ; `Musique.jouer(chemin)`). |
 | `scripts/noyau/compte.gd` | `Compte` : ce que le joueur garde d'une partie à l'autre (glossaire des ennemis), `user://compte.json`. |
 | `scripts/logique/blocs_salles.gd` + `outils/importer_blocs.py` | `BlocsSalles` : blocs de salles (plan, liens porte à porte, entrées) ; import de leurs images et de leurs zones. |
-| `scripts/logique/karma.gd` | `Karma` : karma du héros, paliers des Chevaliers de la mort, effets sur les prix, l'or et les diablotins. |
+| `scripts/logique/karma.gd` | `Karma` : karma du héros, vitesse des Chevaliers de la mort, effets sur les prix, l'or et les diablotins. |
 | `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers et affichage des clés. |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
@@ -957,7 +960,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
 & $godot --headless --path . -s tests/test_cri_de_guerre.gd       # gobelin combattant : Cri de guerre s'il est accompagné, sinon Coup d'épée
 & $godot --headless --path . -s tests/test_boss_cle.gd            # boss à 35-40 salles sans raccourci, salle fermée, clé portée par une élite, ennemis isolés
-& $godot --headless --path . -s tests/test_karma.gd               # karma (paliers des chevaliers, prix, or, mensonges), pacifiques, corps et âmes
+& $godot --headless --path . -s tests/test_karma.gd               # karma (vitesse du chevalier, prix, or, mensonges), capture dans la prison la plus proche, pacifiques, corps et âmes
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
@@ -1060,6 +1063,18 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Karma : Chevalier plus rapide ; capture dans la prison la plus proche
+
+- **Karma négatif** (règle de l'utilisateur) : plus de Chevalier de la mort supplémentaire tous les 5 points ; à la
+  place, **chaque point négatif rend le Chevalier de la mort 5 % plus rapide** (dans la salle et d'une salle à
+  l'autre). Message « le Chevalier de la mort presse le pas (+x % de vitesse) » quand le karma baisse sous 0,
+  « il ralentit » quand il remonte. Anciennes parties : les chevaliers venus du karma repartent.
+- **Capture par le geôlier** (règle de l'utilisateur) : le héros se réveille dans la **prison la plus proche** de la
+  salle où il a été pris (2e grande salle de la prison, au fond), le coffre des confiscations près d'elle.
+- Code : `Karma` (`EFFETS["vitesse_chevalier"]`, `facteur_vitesse_chevalier`, `synchroniser` ; plus de
+  `chevaliers`), `Aventure.duree_salle`, `Aventure.cellule_la_plus_proche`, `PresencesSalle._avancer`. Test :
+  `test_karma` (vitesse, pas de chevalier de plus, capture sur 12 salles au hasard).
 
 ### 2026-11-03 — Prisons aux 4 coins, niveau des cryptes, sorties potentielles
 

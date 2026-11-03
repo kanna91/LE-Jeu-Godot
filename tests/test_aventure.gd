@@ -375,6 +375,8 @@ func _capture() -> void:
 				geolier = p
 	verifier(not geolier.is_empty(), "il y a un geôlier")
 	var arme = joueur.arme_equipee
+	# Depuis le 2026-11-03 : la prison la plus proche de la salle où le héros est pris
+	var prison_attendue := Aventure.cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]))
 	var message: String = Aventure.capturer(donjon, geolier)
 	verifier(message != "", "message de capture")
 	# La lance de test (« god mode ») n'est jamais confisquée (demande de l'utilisateur, 2026-10-29)
@@ -383,7 +385,8 @@ func _capture() -> void:
 	for v in joueur.equipements.values():
 		verifier(v == null, "plus rien d'équipé")
 	var m := Aventure.meta(donjon, etage)
-	verifier(str(donjon.salle_actuelle[1]) == String(m["cachot"]), "réveil au cachot")
+	verifier(str(donjon.salle_actuelle[1]) == prison_attendue, "réveil dans la prison la plus proche")
+	verifier(donjon.salle_courante().get("prison_salle", "") == "grande_b", "réveil dans une grande salle de prison")
 	var retrouves := 0
 	var or_retrouve := 0
 	var geoliers := 0

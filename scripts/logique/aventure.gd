@@ -407,7 +407,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 	_fixer_elites(donjon, etage, m)
 	_poser_prisonniers(donjon, etage, m)
 	_poser_cle_boss(donjon, etage, m, salles_pour_ennemis(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
-	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
+	Karma.synchroniser(donjon)  # vitesse des Chevaliers de la mort de ce nouvel étage selon le karma
 
 
 ## Niveau unique (cryptes, 2026-11-03) : seulement ses ennemis, selon la zone de ses salles (cryptes : squelettes et
@@ -770,9 +770,10 @@ static func chasseurs(donjon, etage: int) -> Array:
 
 ## Secondes que met le chasseur ``p`` pour traverser une salle.
 static func duree_salle(p: Dictionary) -> float:
+	var facteur := maxf(0.1, float(p.get("facteur_vitesse", 1.0)))  # Chevalier de la mort : karma négatif (Karma)
 	if DUREE_SALLE.has(p["genre"]):
-		return DUREE_SALLE[p["genre"]]
-	return TRAVERSEE / (PresencesSalle.VITESSE_POURSUITE.get(p["genre"], 0.5) * VITESSE_SALLE)
+		return DUREE_SALLE[p["genre"]] / facteur
+	return TRAVERSEE / (PresencesSalle.VITESSE_POURSUITE.get(p["genre"], 0.5) * VITESSE_SALLE * facteur)
 
 
 ## Salle suivante du chasseur ``p`` qui est dans ``ici`` : un pas vers sa destination (« but ») s'il en a une, sinon
@@ -992,7 +993,9 @@ static func cadavre(donjon, p: Dictionary) -> String:
 # ---------------------------------------------------------------------------
 
 ## Le geôlier emmène le héros au cachot : tous ses objets et son or sont confisqués (coffre des confiscations,
-## perdus, ou portés par un porteur), il se réveille dans la salle du cachot. Le geôlier repart dans une autre salle.
+## perdus, ou portés par un porteur), il se réveille dans la **prison la plus proche** de la salle où il a été pris
+## (règle de l'utilisateur, 2026-11-03 : ``cellule_la_plus_proche`` ; avant, toujours le cachot de l'étage). Le
+## coffre des confiscations est près de cette prison. Le geôlier repart dans une autre salle.
 ## Renvoie le message à afficher.
 static func capturer(donjon, geolier: Dictionary) -> String:
 	var etage := int(donjon.salle_actuelle[0])
@@ -1030,7 +1033,7 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 			perdus += 1
 		else:
 			portes.append(objet)
-	var cachot := String(m.get("cachot", "1"))
+	var cachot := cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]))
 	var ailleurs := []
 	for i in salles_ordinaires(donjon, etage):
 		if i != cachot:
@@ -1058,6 +1061,32 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 	return ("Le geôlier vous assomme. Vous vous réveillez au cachot, dépouillé de tout. " +
 		"Vos affaires sont quelque part dans l'étage... certaines sont même portées par des gobelins.%s" % (
 		" (%d objet(s) perdus pour de bon)" % perdus if perdus > 0 else ""))
+
+
+## Prison où le geôlier enferme le héros pris dans la salle ``depuis`` (2026-11-03) : la prison des coins la plus
+## proche par le chemin (distance de ``depuis`` à sa première grande salle), et dans cette prison la 2e grande salle,
+## au fond, à côté du couloir des cryptes. Sans prison (ancienne partie, niveau unique) : le cachot de l'étage.
+static func cellule_la_plus_proche(donjon, etage: int, depuis: String) -> String:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	var dist := distances_depuis(salles, depuis) if salles.has(depuis) else {}
+	var entrees := {}
+	var fonds := {}
+	for i in salles:
+		match String(salles[i].get("prison_salle", "")):
+			"grande_a":
+				entrees[int(salles[i]["prison"])] = i
+			"grande_b":
+				fonds[int(salles[i]["prison"])] = i
+	var meilleure := ""
+	var d_min := 1 << 30
+	for k in entrees:
+		var d := int(dist.get(entrees[k], 1 << 29))
+		if fonds.has(k) and d < d_min:
+			d_min = d
+			meilleure = String(fonds[k])
+	if meilleure == "":
+		return String(meta(donjon, etage).get("cachot", "1"))
+	return meilleure
 
 
 ## Salle du coffre des confiscations (objets et or) : à COFFRE_PRES_DU_CACHOT salles au plus du cachot, là où le

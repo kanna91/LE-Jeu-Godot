@@ -94,7 +94,6 @@ func _initialiser(nom: String) -> void:
 	d["ames"] = 0
 	d["points_a_distribuer"] = 0
 	d["karma"] = 0
-	d["chevaliers_karma"] = 0
 	d["magies_apprises"] = []
 	d["magies_disponibles"] = [Competences.creer("Boule_de_feu"), Competences.creer("Soin"),
 		Competences.creer("Eclair")]  # Tempête de feu retirée (2026-11-01)

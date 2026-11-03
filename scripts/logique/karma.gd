@@ -4,10 +4,10 @@ extends RefCounted
 ## −1 (épargner ou tuer des gobelins pacifiques, soigner ou achever le gobelin blessé, libérer le prisonnier).
 ## Gardé dans le héros (``karma``), pour la partie.
 ##
-## Karma négatif, par point : diablotins +5 % de mensonges, prix des marchands +5 %. Tous les 5 points
-## (palier), un **Chevalier de la mort de plus** sur chaque étage ; il ne repart qu'en remontant de 5 points depuis
-## le palier qui l'a fait venir (créé à −10, il repart à −5 ; créé à −5, il repart à 0) : ``chevaliers_karma``.
-## Il reste toujours au moins le chevalier de base de chaque étage.
+## Karma négatif, par point : diablotins +5 % de mensonges, prix des marchands +5 %, **Chevalier de la mort +5 %
+## de vitesse de déplacement** (règle de l'utilisateur, 2026-11-03 : dans la salle comme d'une salle à l'autre ;
+## ``facteur_vitesse_chevalier``). Avant (2026-10-31), tous les 5 points, un Chevalier de la mort de plus sur chaque
+## étage : supprimé, ceux d'une ancienne partie repartent (``synchroniser``).
 ## Karma positif, par point : diablotins +5 % de vérité, prix −5 %, or gagné +5 % (toutes les sources, sauf ce que le
 ## marchand rachète : il vend moins cher mais rachète toujours au même prix).
 ## Pas encore fait (aucun système de quêtes) : les habitants qui donnent plus ou moins de quêtes ; ils sont déjà plus
@@ -37,13 +37,14 @@ const EFFETS := {
 	"mensonges_diablotins": {"negatif": 0.05, "positif": -0.05},
 	"prix_marchands": {"negatif": 0.05, "positif": -0.05},
 	"or_gagne": {"negatif": 0.0, "positif": 0.05},
+	"vitesse_chevalier": {"negatif": 0.05, "positif": 0.0},
 }
 ## Taille d'un palier de karma.
 const PALIER := 5
-## Ce qui arrive aux paliers (documentation ; le code des chevaliers lit ``chevaliers``) :
-## négatifs : un Chevalier de la mort de plus par palier (et, plus tard, des quêtes spéciales) ; positifs : plus de
-## quêtes, aux récompenses plus intéressantes (pas encore fait : aucun système de quêtes).
-const PALIERS := {"negatif": ["chevalier_de_la_mort", "quetes_speciales"], "positif": ["quetes", "meilleures_recompenses"]}
+## Ce qui arrivera aux paliers (documentation, pas encore fait : aucun système de quêtes) : négatifs : des quêtes
+## spéciales ; positifs : plus de quêtes, aux récompenses plus intéressantes. (Le Chevalier de la mort de plus par
+## palier négatif est supprimé depuis le 2026-11-03 : le karma négatif le rend plus rapide.)
+const PALIERS := {"negatif": ["quetes_speciales"], "positif": ["quetes", "meilleures_recompenses"]}
 ## Les prix ne descendent pas sous ce facteur (karma très positif ; choix de Claude, à valider).
 const PRIX_MIN := 0.25
 
@@ -80,58 +81,45 @@ static func modificateur(joueur, effet: String) -> float:
 	return (-k) * float(e.get("negatif", 0.0)) if k < 0 else k * float(e.get("positif", 0.0))
 
 
-## Change le karma de ``delta`` et fait venir ou repartir les Chevaliers de la mort du karma ; renvoie le texte à
-## ajouter au message (vide s'il ne se passe rien de visible).
+## Change le karma de ``delta`` et règle la vitesse des Chevaliers de la mort ; renvoie le texte à ajouter au
+## message (vide s'il ne se passe rien de visible).
 static func changer(donjon, delta: int) -> String:
 	var joueur = donjon.personnage
-	var avant := chevaliers(joueur)
+	var avant := facteur_vitesse_chevalier(joueur)
 	joueur._d["karma"] = valeur(joueur) + delta
-	_mettre_a_jour_paliers(joueur)
-	var apres := chevaliers(joueur)
+	var apres := facteur_vitesse_chevalier(joueur)
 	synchroniser(donjon)
 	if apres > avant:
-		return "Un frisson glacé parcourt le donjon : un Chevalier de la mort de plus erre dans les étages."
+		return "Un frisson glacé parcourt le donjon : le Chevalier de la mort presse le pas (+%d %% de vitesse)." % \
+			int(round((apres - 1.0) * 100))
 	if apres < avant:
-		return "Un poids quitte le donjon : un Chevalier de la mort s'est retiré."
+		return "Un poids quitte le donjon : le Chevalier de la mort ralentit."
 	return ""
 
 
-## Chevaliers de la mort ajoutés par le karma (par étage).
-static func chevaliers(joueur) -> int:
-	return int(U.num(joueur, "chevaliers_karma"))
+## Vitesse de déplacement des Chevaliers de la mort (× sa vitesse normale) : +5 % par point de karma négatif
+## (EFFETS « vitesse_chevalier »).
+static func facteur_vitesse_chevalier(joueur) -> float:
+	return 1.0 + modificateur(joueur, "vitesse_chevalier")
 
 
-## Paliers : un chevalier de plus à chaque palier franchi vers le bas (−5, −10...), un de moins en remontant à
-## 5 points au-dessus du palier qui l'a fait venir.
-static func _mettre_a_jour_paliers(joueur) -> void:
-	var k := valeur(joueur)
-	var n := chevaliers(joueur)
-	while k <= -PALIER * (n + 1):
-		n += 1
-	while n > 0 and k >= -PALIER * (n - 1):
-		n -= 1
-	joueur._d["chevaliers_karma"] = n
-
-
-## Sur chaque étage déjà peuplé : autant de chevaliers du karma (présences « karma ») que ``chevaliers``.
+## Sur chaque étage déjà peuplé : la vitesse de chaque Chevalier de la mort suit le karma (« facteur_vitesse » de la
+## présence, lu par PresencesSalle et Aventure.duree_salle) ; les chevaliers venus du karma (anciennes parties,
+## présences « karma ») repartent.
 static func synchroniser(donjon) -> void:
-	var voulu := chevaliers(donjon.personnage)
+	var facteur := facteur_vitesse_chevalier(donjon.personnage)
+	donjon.personnage._d["chevaliers_karma"] = 0
 	for etage in donjon.plan_donjon:
 		if not Aventure.meta(donjon, int(etage)).get("prepare", false):
 			continue
-		var presents := []
 		for i in donjon.plan_donjon[etage]:
 			for p in donjon.plan_donjon[etage][i].get("presences", []):
-				if p.get("karma", false) and p["genre"] == "imbattable" and p.get("etat", "actif") == "actif":
-					presents.append(p)
-		while presents.size() < voulu:
-			var p := Aventure.ajouter_menace(donjon, int(etage), "imbattable")
-			if p.is_empty():
-				break
-			p["karma"] = true
-			presents.append(p)
-		while presents.size() > voulu:
-			presents.pop_back()["etat"] = "parti"
+				if p["genre"] != "imbattable" or p.get("etat", "actif") != "actif":
+					continue
+				if p.get("karma", false):
+					p["etat"] = "parti"
+				else:
+					p["facteur_vitesse"] = facteur
 
 
 ## Chance qu'un diablotin mente sur l'étage : ``base`` + EFFETS « mensonges_diablotins ».
