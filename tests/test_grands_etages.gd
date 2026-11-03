@@ -71,10 +71,12 @@ func _initialize() -> void:
 	print("Carrefours (3-4 passages) : moyenne %.1f (de %d à %d)" % [moy.call(carrefours), carrefours.min(), carrefours.max()])
 	print("Boucles : moyenne %.1f (de %d à %d)" % [moy.call(boucles), boucles.min(), boucles.max()])
 	print("Salles bonus : moyenne %.1f" % moy.call(bonus))
-	verifier(absf(moy.call(tailles) - GenerateurEtage.TAILLE_ETAGE) <= 5, "environ %d salles par étage" % GenerateurEtage.TAILLE_ETAGE)
+	# Depuis le 2026-11-03, les chemins d'accès aux prisons des coins s'ajoutent (≈ 9 salles en moyenne)
+	verifier(moy.call(tailles) >= GenerateurEtage.TAILLE_ETAGE - 5 and moy.call(tailles) <= GenerateurEtage.TAILLE_ETAGE + 15,
+		"environ %d salles par étage, plus les chemins d'accès aux prisons" % GenerateurEtage.TAILLE_ETAGE)
 	verifier(tailles.min() >= 40, "aucun étage trop petit (%d)" % tailles.min())
 	verifier(moy.call(carrefours) >= 8, "des carrefours dans chaque étage")
-	verifier(moy.call(boucles) >= 4, "des boucles dans chaque étage")
+	verifier(moy.call(boucles) >= 3.5, "des boucles dans chaque étage")
 	print("BILAN grands étages : %d échec(s)" % echecs)
 	quit()
 

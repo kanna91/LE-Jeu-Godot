@@ -77,15 +77,18 @@ func _afficher_salle(arrivee: int) -> void:
 	var image := String(info.get("image", "salle1"))
 	objets_salle = Fouille.objets_salle(s, image) if not info.is_empty() else []
 	salle_peinte.charger(image, arrivee, bool(info.get("miroir", false)), Fouille.a_afficher(objets_salle, image))
-	# Bas de l'image (hors de l'image) ou passage sur le bord du sol d'une grande salle (type « bord ») sans salle
-	# derrière : mur invisible, pas de porte condamnée
+	# Bas de l'image (hors de l'image), passage sur le bord du sol d'une grande salle (type « bord ») ou sortie
+	# potentielle (2026-11-03) sans salle derrière : mur invisible, pas de porte condamnée. Le passage vers un autre
+	# niveau (fond d'un couloir de prison, entrée des cryptes) reste ouvert.
 	var murees := []
 	var condamnees := []
 	var sorties: Array = info.get("sorties", [])
 	var dirs := salle_peinte.directions_sorties()
-	var types := PlanSalles.types_sorties(image)
+	var passage := int(info.get("passage", -1))
 	for i in mini(sorties.size(), dirs.size()):
-		if sorties[i] == null and (dirs[i] == "bas" or (i < types.size() and types[i] == "bord")):
+		if i == passage:
+			continue
+		if sorties[i] == null and PlanSalles.fermee_sans_se_voir(image, i, dirs[i]):
 			murees.append(i)
 		elif sorties[i] == null:
 			condamnees.append(i)
@@ -121,7 +124,11 @@ func _lettre_vers(dest: String) -> String:
 func _sortie_atteinte(i: int) -> void:
 	if passage_en_cours or _occupe or _ferme:
 		return
-	var sorties: Array = donjon.salle_courante().get("salle_peinte", {}).get("sorties", [])
+	var info_salle: Dictionary = donjon.salle_courante().get("salle_peinte", {})
+	if i == int(info_salle.get("passage", -1)) and donjon.salle_courante().has("passage_niveau"):
+		await _changer_de_niveau()
+		return
+	var sorties: Array = info_salle.get("sorties", [])
 	var dest = sorties[i] if i < sorties.size() else null
 	if dest == null:
 		message_nav = "Cette porte est condamnée."
@@ -194,6 +201,37 @@ func _franchir(dest: String, sortie := -1) -> void:
 	var lieu = ici_info.get("lieu_sortie", {}).get(origine, null)
 	if arrivee >= 0 and lieu is Array and int(ici_info.get("sortie_prise", {}).get(origine, -1)) == arrivee:
 		salle_peinte.placer_au_retour(Vector2(float(lieu[0]), float(lieu[1])), arrivee)
+	await salle_peinte.fondu(0.0)
+	salle_peinte.actif = true
+	passage_en_cours = false
+
+
+## Passe par le passage de la salle (« passage_niveau ») vers un autre niveau : du fond d'un couloir de prison aux
+## cryptes, ou d'une entrée des cryptes au couloir de sa prison (2026-11-03). Le héros arrive devant le passage de
+## l'autre côté ; les ennemis ne le suivent pas.
+func _changer_de_niveau() -> void:
+	var lien: Dictionary = donjon.salle_courante().get("passage_niveau", {})
+	var niveau := int(lien.get("niveau", 0))
+	var dest := String(lien.get("salle", ""))
+	if passage_en_cours or dest == "" or not donjon.plan_donjon.get(niveau, {}).has(dest):
+		message_nav = "Le passage est obstrué."
+		message_fin = Animations.temps() + 2.5
+		salle_peinte.reculer_de_la_sortie()
+		return
+	passage_en_cours = true
+	salle_peinte.actif = false
+	_retenir_portes_ouvertes()
+	await salle_peinte.fondu(1.0)
+	donjon.salle_courante()["visitee"] = true
+	donjon._d["salle_actuelle"] = [niveau, int(dest)]
+	Aventure.preparer_etage(donjon, niveau)
+	await donjon.generer_rencontre()
+	if _apres_action():
+		passage_en_cours = false
+		return
+	_afficher_salle(int(donjon.salle_courante().get("salle_peinte", {}).get("passage", -1)))
+	message_nav = "Vous descendez dans les cryptes." if Donjon.est_niveau_unique(niveau) else "Vous remontez dans la prison."
+	message_fin = Animations.temps() + 3.0
 	await salle_peinte.fondu(0.0)
 	salle_peinte.actif = true
 	passage_en_cours = false

@@ -9,7 +9,15 @@ extends RefCounted
 ## Une image peut être affichée en miroir (gauche et droite échangées).
 ##
 ## Pour chaque salle du plan, on essaie toutes les images × miroir et on garde celle dont les sorties
-## tombent exactement sur les salles voisines. Critères, dans l'ordre :
+## tombent exactement sur les salles voisines.
+##
+## **Sorties potentielles** (2026-11-03, demande de l'utilisateur ; touche O de l'éditeur de zones, clé
+## « sorties_potentielles » du .json) : une image peut avoir plusieurs sorties possibles d'un même côté (gauche,
+## droite, fond). À l'habillage de l'étage, s'il y a une salle de ce côté, **une seule** de ces sorties y mène (tirage
+## stable) ; les autres, et toutes si aucune salle n'est de ce côté, deviennent un mur invisible, sans malus. Une
+## sortie ordinaire du même côté passe avant elles. Une même image sert ainsi à beaucoup plus de formes de salles.
+##
+## Critères, dans l'ordre :
 ## 1. aucun passage sans porte peinte (sinon flèche de secours) ;
 ## 2. le moins de portes visibles sans salle derrière (porte condamnée). Le bas de l'image ne compte
 ##    pas : il est hors de l'image (derrière le spectateur), on le ferme simplement (mur invisible) ;
@@ -38,18 +46,21 @@ const BONUS_IMAGE_PREFEREE := 15
 ## (type « bord ») sans salle derrière deviennent un mur invisible, sans malus, comme le bas de l'image.
 const BONUS_CARREFOUR := 20
 const PENALITE_GRANDE_HORS_CARREFOUR := 40
-## Quartier des prisons (2026-10-30, décision de l'utilisateur) : les images « prison » vont dans la part de l'étage
-## la plus loin du boss (PART_QUARTIER_PRISONS des salles, par le chemin) ; le cachot est pris parmi elles
-## (Aventure.preparer_etage). Bonus inférieur à PENALITE_PORTE_CONDAMNEE : une prison ne condamne pas de porte en plus.
-const PART_QUARTIER_PRISONS := 0.25
+## Prisons (2026-11-03, demande de l'utilisateur) : 4 prisons aux 4 coins de l'étage (GenerateurEtage._poser_prisons),
+## chacune faite de 2 grandes salles de prison (images « prison », clé « prison_salle » : « grande_a », « grande_b ») et
+## d'un couloir (images « couloir_prison », « prison_salle » : « couloir ») dont le fond mène au niveau des cryptes.
+## Ces images ne servent que là, chacune une fois par étage ; le cachot est pris parmi les grandes salles de prison
+## (Aventure.preparer_etage). Avant (2026-10-30) : un « quartier des prisons » loin du boss.
 const PREFIXE_PRISON := "prison"
-const BONUS_QUARTIER_PRISONS := 25
-const PENALITE_PRISON_HORS_QUARTIER := 60
-## Quartier des cryptes (2026-11-02, demande de l'utilisateur) : **toutes** les images « crypte » servent sur chaque
-## étage, chacune une fois, dans un seul groupe de salles voisines (quartier_cryptes : autant de salles que d'images,
-## reliées entre elles, hors départ, boss, blocs et quartier des prisons). Aucune crypte ailleurs. Les ennemis de ces
-## salles suivent la zone « crypte » de donnees/zones.json (Zones).
+const PREFIXE_COULOIR_PRISON := "couloir_prison"
+## Cryptes (2026-11-03) : toutes les images « crypte » forment le **niveau des cryptes**, un monde à part de 14 salles
+## (Donjon.NIVEAU_CRYPTES, clé « crypte » de ses salles), et ne servent plus sur l'étage (avant : un quartier des
+## cryptes dans chaque étage, 2026-11-02). Les ennemis y suivent la zone « crypte » de donnees/zones.json (Zones).
 const PREFIXE_CRYPTE := "crypte"
+## Passage vers un autre niveau (clé « passage_niveau » d'une salle : {niveau, salle, direction}) : pendant
+## l'habillage, il compte comme une salle voisine dans sa direction, pour qu'une sortie de l'image y mène ; cette sortie
+## est ensuite notée « passage » dans « salle_peinte » (son entrée dans « sorties » reste null).
+const PASSAGE := "__passage__"
 ## Le héros regarde toujours vers le haut de la carte (la lettre t de donjon.avancer = (0, 1), le nord).
 const FACE := Vector2i(0, 1)
 ## Noms des directions de la carte (catalogue, tests).
@@ -89,10 +100,12 @@ static func absolue(relative: String, face: Vector2i) -> Vector2i:
 
 
 ## Attribue une salle peinte aux salles de l'étage qui n'en ont pas encore (ou d'une ancienne version).
-## Chaque apparence (image × miroir, 98 pour 49 images) ne sert qu'**une fois par étage** (2026-10-30, demande de
-## l'utilisateur) : affectation globale au meilleur total des scores (_affectation, méthode hongroise) plutôt que
-## salle par salle. Les apparences déjà prises par des salles gardées sont exclues. S'il y a plus de salles que
-## d'apparences libres (jamais vu : ≈ 56 salles par étage), on revient au choix salle par salle.
+## Chaque apparence (image × miroir) ne sert qu'**une fois par étage** (2026-10-30, demande de l'utilisateur) :
+## affectation globale au meilleur total des scores (_affectation, méthode hongroise) plutôt que salle par salle.
+## Les apparences déjà prises par des salles gardées sont exclues. Les salles réservées (prisons, couloirs des
+## prisons, cryptes : groupes_reserves) prennent leurs propres images. S'il y a plus de salles que d'apparences
+## libres (depuis que les cryptes et les prisons ne servent plus ailleurs, 2026-11-03), chaque apparence peut servir
+## une fois de plus, autant de fois qu'il faut.
 static func attribuer(donjon, etage: int) -> void:
 	var salles: Dictionary = donjon.plan_donjon.get(etage, {})
 	if salles.is_empty() or images().is_empty():
@@ -110,31 +123,42 @@ static func attribuer(donjon, etage: int) -> void:
 		a_faire.append(String(id))
 	if a_faire.is_empty():
 		return
-	var quartier := quartier_prisons(salles)
-	var cryptes := quartier_cryptes(salles, quartier)
-	a_faire = _attribuer_cryptes(salles, etage, a_faire, cryptes, prises)
+	attribuer_salles(salles, etage, a_faire, prises)
+
+
+## Habille les salles ``a_faire`` (voir attribuer) ; renvoie le total des scores (plus haut = mieux).
+static func attribuer_salles(salles: Dictionary, etage: int, a_faire: Array, prises := {}) -> int:
+	var total := 0
+	for groupe in groupes_reserves(salles):
+		var r := _attribuer_groupe(salles, etage, a_faire, groupe[0], groupe[1], prises)
+		a_faire = r[0]
+		total += r[1]
 	if a_faire.is_empty():
-		return
+		return total
 	var libres := []
 	var noms: Array = images().keys()
 	noms.sort()
 	for image in noms:
-		if BlocsSalles.image_de_bloc(image) or est_crypte(image):
-			continue  # images des blocs : seulement dans leur bloc ; cryptes : seulement dans leur quartier
+		if reservee(image):
+			continue  # images des blocs, des prisons et des cryptes : seulement dans leurs salles
 		for miroir in [false, true]:
 			if not prises.has("%s|%s" % [image, miroir]):
 				libres.append([image, miroir])
-	if a_faire.size() > libres.size():
-		for id in a_faire:
-			salles[id]["salle_peinte"] = _attribuer_salle(salles, id, etage, quartier)
-		return
+	if libres.is_empty():
+		for image in noms:
+			if not reservee(image):
+				libres.append([image, false])
+				libres.append([image, true])
+	var une_fois := libres.duplicate()
+	while a_faire.size() > libres.size():
+		libres += une_fois
 	var couts := []
 	var infos := []
 	for id in a_faire:
 		var ligne := []
 		var ligne_infos := []
 		for l in libres:
-			var e := _evaluer(salles, id, etage, l[0], l[1], quartier.has(id))
+			var e := _evaluer(salles, id, etage, l[0], l[1])
 			ligne.append(-float(e[0]))
 			ligne_infos.append(e[1])
 		couts.append(ligne)
@@ -142,28 +166,59 @@ static func attribuer(donjon, etage: int) -> void:
 	var choix := _affectation(couts, a_faire.size(), libres.size())
 	for k in a_faire.size():
 		salles[a_faire[k]]["salle_peinte"] = infos[k][choix[k]]
+		total -= int(couts[k][choix[k]])
+	return total
 
 
-## Images « crypte » des salles du quartier des cryptes : chaque image une seule fois (miroir ou non, le meilleur),
-## affectation globale comme pour les autres salles. Renvoie les salles de ``a_faire`` qui restent à habiller.
-static func _attribuer_cryptes(salles: Dictionary, etage: int, a_faire: Array, cryptes: Dictionary, prises: Dictionary) -> Array:
-	var lignes := a_faire.filter(func(id): return cryptes.has(id))
-	if lignes.is_empty():
-		return a_faire
-	var colonnes := []
-	var noms: Array = images().keys()
-	noms.sort()
-	for image in noms:
-		if est_crypte(image) and not prises.has("%s|false" % image) and not prises.has("%s|true" % image):
-			colonnes.append(image)
-	if lignes.size() > colonnes.size():
-		return a_faire  # plus de salles que d'images (quartier gardé d'une ancienne partie) : choix ordinaire
+## Groupes de salles réservées : [[{id: true}, [images]], ...] : grandes salles des prisons, couloirs des prisons,
+## salles des cryptes.
+static func groupes_reserves(salles: Dictionary) -> Array:
+	var grandes := {}
+	var couloirs := {}
+	var cryptes := {}
+	for id in salles:
+		var s: Dictionary = salles[id]
+		var role := String(s.get("prison_salle", ""))
+		if role in ["grande_a", "grande_b"]:
+			grandes[String(id)] = true
+		elif role == "couloir":
+			couloirs[String(id)] = true
+		elif s.get("crypte", false):
+			cryptes[String(id)] = true
+	return [[grandes, _images_prefixe(PREFIXE_PRISON)], [couloirs, _images_prefixe(PREFIXE_COULOIR_PRISON)],
+		[cryptes, images_cryptes()]]
+
+
+static func _images_prefixe(prefixe: String) -> Array:
+	var liste := images().keys().filter(func(i): return String(i).begins_with(prefixe) and not BlocsSalles.image_de_bloc(String(i)))
+	liste.sort()
+	return liste
+
+
+## Vrai si l'image ne sert que dans des salles réservées (blocs, prisons, couloirs des prisons, cryptes).
+static func reservee(image: String) -> bool:
+	return BlocsSalles.image_de_bloc(image) or est_crypte(image) or est_prison(image) or est_couloir_prison(image)
+
+
+## Images ``colonnes`` pour les salles ``ids`` de ``a_faire`` : chaque image une seule fois (miroir ou non, le
+## meilleur), affectation globale ; s'il y a plus de salles que d'images, chaque image peut resservir. Renvoie
+## [salles de ``a_faire`` qui restent à habiller, total des scores].
+static func _attribuer_groupe(salles: Dictionary, etage: int, a_faire: Array, ids: Dictionary, colonnes: Array, prises: Dictionary) -> Array:
+	var lignes := a_faire.filter(func(id): return ids.has(id))
+	if lignes.is_empty() or colonnes.is_empty():
+		return [a_faire, 0]
+	var libres := colonnes.filter(func(image): return not prises.has("%s|false" % image) and not prises.has("%s|true" % image))
+	if libres.is_empty():
+		libres = colonnes.duplicate()
+	var une_fois := libres.duplicate()
+	while lignes.size() > libres.size():
+		libres += une_fois
 	var couts := []
 	var infos := []
 	for id in lignes:
 		var ligne := []
 		var ligne_infos := []
-		for image in colonnes:
+		for image in libres:
 			var a := _evaluer(salles, id, etage, image, false)
 			var b := _evaluer(salles, id, etage, image, true)
 			var e: Array = a if a[0] >= b[0] else b
@@ -171,12 +226,14 @@ static func _attribuer_cryptes(salles: Dictionary, etage: int, a_faire: Array, c
 			ligne_infos.append(e[1])
 		couts.append(ligne)
 		infos.append(ligne_infos)
-	var choix := _affectation(couts, lignes.size(), colonnes.size())
+	var choix := _affectation(couts, lignes.size(), libres.size())
+	var total := 0
 	for k in lignes.size():
-		salles[lignes[k]]["salle_peinte"] = infos[k][choix[k]]
 		var info: Dictionary = infos[k][choix[k]]
+		salles[lignes[k]]["salle_peinte"] = info
 		prises["%s|%s" % [info["image"], info["miroir"]]] = true
-	return a_faire.filter(func(id): return not cryptes.has(id))
+		total -= int(couts[k][choix[k]])
+	return [a_faire.filter(func(id): return not ids.has(id)), total]
 
 
 ## Affectation de coût minimal (méthode hongroise, n lignes ≤ m colonnes) : colonne choisie pour chaque ligne,
@@ -247,28 +304,6 @@ static func _position(salle: Dictionary) -> Vector2i:
 	return p if p is Vector2i else Vector2i(int(p[0]), int(p[1]))
 
 
-## Salles du quartier des prisons : {id: true}, les PART_QUARTIER_PRISONS de l'étage les plus loin du boss par le
-## chemin (sans la salle de départ, qui garde son image).
-static func quartier_prisons(salles: Dictionary) -> Dictionary:
-	var boss := ""
-	for id in salles:
-		if salles[id].get("boss", false):
-			boss = String(id)
-	if boss == "":
-		return {}
-	var dist := Aventure.distances_depuis(salles, boss)
-	var ids := []
-	for id in salles:
-		if not salles[id].get("depart", false):
-			ids.append(String(id))
-	ids.sort_custom(func(a, b): return dist.get(a, 0) > dist.get(b, 0))
-	var quartier := {}
-	for k in ceili(salles.size() * PART_QUARTIER_PRISONS):
-		if k < ids.size():
-			quartier[ids[k]] = true
-	return quartier
-
-
 ## Images « crypte » utilisables (hors blocs), triées.
 static func images_cryptes() -> Array:
 	var liste := images().keys().filter(func(i): return est_crypte(String(i)) and not BlocsSalles.image_de_bloc(String(i)))
@@ -281,97 +316,27 @@ static func est_crypte(image: String) -> bool:
 	return image.begins_with(PREFIXE_CRYPTE)
 
 
-## Salles du quartier des cryptes : {id: true}, autant que d'images « crypte », d'un seul tenant (reliées par leurs
-## passages). Les cryptes ont des sorties à gauche et à droite, rares ailleurs (salles porte 2, 3, 5, 6, grandes
-## salles) : le quartier doit prendre **le plus de salles qui ont une voisine à gauche ou à droite** (« latérales »),
-## sinon il ne reste pas assez d'images pour elles (mesuré avec un quartier pris au plus près : 4 passages sans porte
-## peinte par étage). On part de chaque salle permise et on agrandit le groupe par la voisine la plus latérale (sans
-## passer par une salle interdite) ; on garde les groupes les plus latéraux, puis les plus ramassés, un des
-## CHOIX_CRYPTES meilleurs au hasard (stable pour l'étage).
-## Interdites : départ, boss, salles des blocs, quartier des prisons (``prisons``).
-const CHOIX_CRYPTES := 4
-
-
-static func quartier_cryptes(salles: Dictionary, prisons := {}) -> Dictionary:
-	var n := images_cryptes().size()
-	if n == 0:
-		return {}
-	var permises := {}
-	for id in salles:
-		var s: Dictionary = salles[id]
-		if s.get("depart", false) or s.get("boss", false) or s.has("bloc_instance") or prisons.has(String(id)):
-			continue
-		permises[String(id)] = true
-	# Besoin de sorties de côté : nombre de voisines à gauche ou à droite (0 à 2), plus les passages pour départager
-	var laterales := {}
-	for id in permises:
-		var v := voisines_carte(salles, id)
-		laterales[id] = 10 * (int(v.has(Vector2i(-1, 0))) + int(v.has(Vector2i(1, 0)))) + v.size()
-	var degre := func(id: String) -> int:
-		return laterales[id]
-	var groupes := []  # [besoin latéral, somme des distances, graine, ids]
-	var ids_tries: Array = permises.keys()
-	ids_tries.sort()
-	for graine in ids_tries:
-		var dist := {graine: 0}
-		var ordre := [graine]
-		var bord := []  # voisines candidates
-		var c: String = graine
-		while ordre.size() < n:
-			for v in salles[c].get("connections", []):
-				var vs := str(v)
-				if permises.has(vs) and not dist.has(vs) and not vs in bord:
-					bord.append(vs)
-			if bord.is_empty():
-				break
-			var meilleure: String = bord[0]
-			for b in bord:
-				if degre.call(b) > degre.call(meilleure):
-					meilleure = b
-			bord.erase(meilleure)
-			var d := 1 << 20
-			for v in salles[meilleure].get("connections", []):
-				if dist.has(str(v)):
-					d = mini(d, dist[str(v)] + 1)
-			dist[meilleure] = d
-			ordre.append(meilleure)
-			c = meilleure
-		if ordre.size() == n:
-			var somme := 0
-			var carrefours := 0
-			for id in ordre:
-				somme += dist[id]
-				carrefours += degre.call(id)
-			groupes.append([carrefours, somme, graine, ordre])
-	if groupes.is_empty():
-		return {}
-	groupes.sort_custom(func(a, b): return a[0] > b[0] or (a[0] == b[0] and (a[1] < b[1] or (a[1] == b[1] and a[2] < b[2]))))
-	var graine_etage := 0
-	for id in ids_tries:
-		graine_etage += hash([id, _position(salles[id])])
-	var choisi: Array = groupes[absi(graine_etage) % mini(CHOIX_CRYPTES, groupes.size())][3]
-	var quartier := {}
-	for id in choisi:
-		quartier[id] = true
-	return quartier
-
-
 ## Vrai si l'image est une prison (cellules, barreaux).
 static func est_prison(image: String) -> bool:
 	return image.begins_with(PREFIXE_PRISON)
 
 
+## Vrai si l'image est un couloir de prison (menant aux cryptes).
+static func est_couloir_prison(image: String) -> bool:
+	return image.begins_with(PREFIXE_COULOIR_PRISON)
+
+
 ## Meilleure apparence pour une salle seule (sans tenir compte des autres salles).
-static func _attribuer_salle(salles: Dictionary, id: String, etage: int, quartier := {}) -> Dictionary:
+static func _attribuer_salle(salles: Dictionary, id: String, etage: int) -> Dictionary:
 	var meilleur := {}
 	var meilleur_score := -1000000
 	var noms: Array = images().keys()
 	noms.sort()
 	for image in noms:
-		if BlocsSalles.image_de_bloc(image) or est_crypte(image):
+		if reservee(image):
 			continue
 		for miroir in [false, true]:
-			var e := _evaluer(salles, id, etage, image, miroir, quartier.has(id))
+			var e := _evaluer(salles, id, etage, image, miroir)
 			if e[0] > meilleur_score:
 				meilleur_score = e[0]
 				meilleur = e[1]
@@ -379,39 +344,64 @@ static func _attribuer_salle(salles: Dictionary, id: String, etage: int, quartie
 
 
 ## [score, info « salle_peinte »] d'une apparence (image, miroir) pour une salle (critères de l'en-tête).
-static func _evaluer(salles: Dictionary, id: String, etage: int, image: String, miroir: bool, dans_quartier := false) -> Array:
+static func _evaluer(salles: Dictionary, id: String, etage: int, image: String, miroir: bool) -> Array:
 	var salle: Dictionary = salles[id]
 	var voisines := voisines_carte(salles, id)
+	var passage = salle.get("passage_niveau", null)
+	if passage is Dictionary:
+		var dp = passage.get("direction", [0, 1])
+		voisines[Vector2i(int(dp[0]), int(dp[1]))] = PASSAGE
 	var variation := absi(hash([etage, id, image, miroir])) % 10
-	var sorties := []
-	var utilisees := {}
 	var score := variation
 	var types := types_sorties(image)
 	if grande_salle(image):
 		score += BONUS_CARREFOUR if voisines.size() >= 3 else -PENALITE_GRANDE_HORS_CARREFOUR
-	if est_prison(image):
-		score += BONUS_QUARTIER_PRISONS if dans_quartier else -PENALITE_PRISON_HORS_QUARTIER
-	var k := -1
-	for rel in directions(image, miroir):
-		k += 1
-		var a := absolue(rel, FACE)
-		# Deux portes du même côté (salle porte 2 : deux portes à gauche) mènent à la même voisine
+	var dirs := directions(image, miroir)
+	var sorties := []
+	sorties.resize(dirs.size())
+	# Sorties de chaque direction de la carte : [ordinaires, potentielles]
+	var par_direction := {}
+	for k in dirs.size():
+		var a := absolue(dirs[k], FACE)
+		if not par_direction.has(a):
+			par_direction[a] = [[], []]
+		par_direction[a][1 if est_potentielle(image, k) else 0].append(k)
+	var utilisees := {}
+	for a in par_direction:
+		var ordinaires: Array = par_direction[a][0]
+		var potentielles: Array = par_direction[a][1]
 		if voisines.has(a):
-			sorties.append(voisines[a])
 			utilisees[a] = true
+			# Deux portes du même côté (salle porte 2 : deux portes à gauche) mènent à la même voisine ; parmi des
+			# sorties potentielles, une seule (tirage stable)
+			if not ordinaires.is_empty():
+				for k in ordinaires:
+					sorties[k] = voisines[a]
+			else:
+				sorties[potentielles[absi(hash([etage, id, image, miroir, a])) % potentielles.size()]] = voisines[a]
 		else:
-			sorties.append(null)
-			if rel != "bas" and not (k < types.size() and types[k] == "bord"):
-				score -= PENALITE_PORTE_CONDAMNEE
+			for k in ordinaires:
+				if dirs[k] != "bas" and not (k < types.size() and types[k] == "bord"):
+					score -= PENALITE_PORTE_CONDAMNEE
 	var sans_porte := []
 	for a in voisines:
 		if not utilisees.has(a):
 			sans_porte.append(voisines[a])
 	score -= PENALITE_SANS_PORTE * sans_porte.size()
+	sans_porte.erase(PASSAGE)
+	var index_passage := -1
+	for k in sorties.size():
+		if sorties[k] is String and sorties[k] == PASSAGE:
+			if index_passage < 0:
+				index_passage = k
+			sorties[k] = null
 	if (salle.get("depart", false) and image == IMAGE_DEPART) or (salle.get("boss", false) and image == IMAGE_BOSS):
 		score += BONUS_IMAGE_PREFEREE
-	return [score, {"v": VERSION, "image": image, "miroir": miroir, "face": [FACE.x, FACE.y],
-		"sorties": sorties, "sans_porte": sans_porte}]
+	var info := {"v": VERSION, "image": image, "miroir": miroir, "face": [FACE.x, FACE.y],
+		"sorties": sorties, "sans_porte": sans_porte}
+	if passage is Dictionary:
+		info["passage"] = index_passage
+	return [score, info]
 
 
 ## Salles voisines d'une salle du plan : {direction de la carte : id}.
@@ -425,7 +415,7 @@ static func voisines_carte(salles: Dictionary, id: String) -> Dictionary:
 
 
 ## Directions de la carte où mène une image (sans doublon), avec et sans chaque sortie qui peut être fermée
-## sans se voir : le bas de l'image, et les passages de bord des grandes salles. Ex. salle porte 5 :
+## sans se voir : le bas de l'image, les passages de bord des grandes salles et les sorties potentielles. Ex. salle porte 5 :
 ## [[haut, gauche, bas], [haut, gauche]].
 static func formes_couvertes(image: String, miroir: bool) -> Array:
 	var obligatoires := []
@@ -434,7 +424,7 @@ static func formes_couvertes(image: String, miroir: bool) -> Array:
 	var dirs := directions(image, miroir)
 	for k in dirs.size():
 		var a := absolue(dirs[k], FACE)
-		if dirs[k] == "bas" or (k < types.size() and types[k] == "bord"):
+		if dirs[k] == "bas" or (k < types.size() and types[k] == "bord") or est_potentielle(image, k):
 			if not a in facultatives:
 				facultatives.append(a)
 		elif not a in obligatoires:
@@ -478,6 +468,27 @@ static func sortie_vers(salle: Dictionary, vers: String) -> int:
 
 static var _types := {}
 static var _grandes := {}
+static var _potentielles := {}
+
+
+## Sorties potentielles d'une image (un booléen par sortie, « sorties_potentielles » du .json ; voir l'en-tête).
+static func sorties_potentielles(image: String) -> Array:
+	if not _potentielles.has(image):
+		_potentielles[image] = SallePeinte.lire_salle(image).get("sorties_potentielles", [])
+	return _potentielles[image]
+
+
+## Vrai si la sortie ``k`` de l'image est potentielle.
+static func est_potentielle(image: String, k: int) -> bool:
+	var liste := sorties_potentielles(image)
+	return k < liste.size() and bool(liste[k])
+
+
+## Vrai si la sortie ``k`` d'une image peut rester fermée sans se voir (mur invisible) : bas de l'image, passage de
+## bord d'une grande salle, sortie potentielle.
+static func fermee_sans_se_voir(image: String, k: int, direction: String) -> bool:
+	var types := types_sorties(image)
+	return direction == "bas" or (k < types.size() and types[k] == "bord") or est_potentielle(image, k)
 
 
 ## Vrai si l'image est une grande salle (carrefour).

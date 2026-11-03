@@ -1,7 +1,7 @@
 extends SceneTree
 ## Zones et quartier des cryptes (2026-11-02, demandes de l'utilisateur) :
-## - sur 30 donjons de 5 étages, toutes les images « crypte » servent une fois par étage, dans des salles reliées
-##   entre elles (un seul quartier), et nulle part ailleurs ;
+## - sur 30 donjons, toutes les images « crypte » servent une fois dans le niveau des cryptes (d'un seul tenant), et
+##   nulle part ailleurs (depuis le 2026-11-03 ; avant : un quartier des cryptes dans chaque étage) ;
 ## - dans les cryptes, les groupes ne sont que des squelettes, avec exactement une élite : un féticheur ;
 ## - zones.json est lu (réglages fusionnés avec « defaut ») ;
 ## - force, intelligence et sagesse : 1d2 de dégâts tous les 2 points ;
@@ -31,13 +31,17 @@ func _initialize() -> void:
 		for etage in donjon.plan_donjon:
 			etages += 1
 			var r := _etage(donjon.plan_donjon[etage], "%d/%d" % [k, etage])
-			if k < 6:
-				_cuisine(donjon, etage, "%d/%d" % [k, etage])
-			groupes += r
-			if r < 0:
-				sans_quartier += 1
-	print("Étages : %d, sans quartier des cryptes : %d, groupes dans les cryptes : %d" % [etages, sans_quartier, groupes])
-	verifier(sans_quartier == 0, "un quartier des cryptes à chaque étage")
+			if Donjon.est_niveau_unique(etage):
+				groupes += r
+				if r < 0:
+					sans_quartier += 1
+			else:
+				# Depuis le 2026-11-03, les cryptes sont un niveau à part : aucune sur l'étage
+				verifier(r < 0, "%d/%d : des cryptes sur l'étage" % [k, etage])
+				if k < 6:
+					_cuisine(donjon, etage, "%d/%d" % [k, etage])
+	print("Niveaux : %d, sans cryptes : %d, groupes dans les cryptes : %d" % [etages, sans_quartier, groupes])
+	verifier(sans_quartier == 0, "des cryptes dans chaque niveau des cryptes")
 	print("BILAN zones : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
 

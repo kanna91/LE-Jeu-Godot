@@ -22,6 +22,8 @@ func _initialize() -> void:
 		Sauvegarde.reinitialiser_monde()
 		var donjon := Donjon.nouveau(Personnage.nouveau())
 		for etage in donjon.plan_donjon:
+			if Donjon.est_niveau_unique(etage):
+				continue  # cryptes : pas de bloc cuisine (2026-11-03)
 			etages += 1
 			if _etage(donjon.plan_donjon[etage], "%d/%d" % [k, etage]):
 				deux_entrees += 1

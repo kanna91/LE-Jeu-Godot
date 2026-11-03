@@ -60,12 +60,12 @@
     347
    ],
    [
-    400,
-    350
+    406,
+    358
    ],
    [
-    330,
-    366
+    329,
+    377
    ],
    [
     270,
@@ -143,5 +143,6 @@
  "bloc": "cuisine",
  "ips": 24,
  "source": "cuisine et salle a manger/cellier droit.jpeg",
- "prisonniers": []
+ "prisonniers": [],
+ "cachettes": []
 }

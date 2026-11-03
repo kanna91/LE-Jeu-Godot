@@ -11,6 +11,10 @@ extends Control
 ## Sorties (2026-11-01, demande de l'utilisateur) : on peut en tracer de nouvelles (direction devinée d'après leur
 ## place : bas de l'image = retour, bords = gauche / droite, sinon le fond ; touche D sur une sortie pour la
 ## changer), les supprimer (clic droit dedans) et les déplacer d'un bloc (glisser l'intérieur, comme les prisonniers).
+## Sorties potentielles (2026-11-03, demande de l'utilisateur) : touche O sur une sortie pour la rendre potentielle
+## (orange, « potentielle ») ou ordinaire. On peut en tracer plusieurs d'un même côté (gauche, droite, fond) : à la
+## génération de l'étage, une seule d'entre elles est ouverte s'il faut une salle de ce côté, les autres deviennent
+## un mur invisible (PlanSalles). Une salle sert ainsi à plus de formes d'étage.
 ## Changer de salle : boutons ◀ ▶ et liste en haut à droite, ou Page préc. / suiv. ; la salle quittée est
 ## enregistrée automatiquement si elle a été modifiée.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
@@ -25,7 +29,9 @@ const COULEURS := {"marche": Color(0.25, 1, 0.35), "obstacles": Color(1, 0.25, 0
 ## Couches qu'on déplace d'un bloc en glissant leur intérieur (les autres : un clic dedans commence un tracé).
 const DEPLACABLES := ["sorties", "prisonniers"]
 ## Données parallèles aux sorties (une valeur par sortie, dans le même ordre).
-const INFOS_SORTIES := ["noms_sorties", "directions_sorties", "types_sorties"]
+const INFOS_SORTIES := ["noms_sorties", "directions_sorties", "types_sorties", "sorties_potentielles"]
+## Couleur des sorties potentielles.
+const COULEUR_POTENTIELLE := Color(1, 0.55, 0.1)
 const DIRECTIONS := ["devant", "gauche", "droite", "bas"]
 const NOMS_DIRECTIONS := {"devant": "fond", "gauche": "gauche", "droite": "droite", "bas": "retour"}
 ## Distance (pixels de l'écran) pour attraper un point ou une arête.
@@ -58,7 +64,7 @@ var zoom := 1.0
 var aide_complete := true
 const AIDE := "Tab : éditer / marcher   1-6 : couche (6 : cachettes)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
 	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
-	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction\n" \
+	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction   O : sortie potentielle\n" \
 	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer\n" \
 	+ "◀ ▶ / Page préc./suiv. : salle (enregistre la salle quittée)   H : héros visible   P : poser le héros   " 	+ "R (en marchant) : héros au départ   F2 : zones en marchant   F1 : replier l'aide"
 
@@ -162,7 +168,8 @@ func _charger() -> void:
 	for cle in INFOS_SORTIES:
 		var l: Array = salle.donnees.get(cle, []).duplicate()
 		while l.size() < n:
-			l.append({"noms_sorties": "sortie %d" % (l.size() + 1), "directions_sorties": "devant", "types_sorties": "passage"}[cle])
+			l.append({"noms_sorties": "sortie %d" % (l.size() + 1), "directions_sorties": "devant", "types_sorties": "passage",
+				"sorties_potentielles": false}[cle])
 		salle.donnees[cle] = l
 	salle.donnees["arrivees"] = salle.donnees.get("arrivees", {}).duplicate()
 	echelle_base = salle.monde.scale
@@ -283,6 +290,18 @@ func _touche(ev: InputEventKey) -> void:
 					dirs[i] = DIRECTIONS[(DIRECTIONS.find(dirs[i]) + 1) % DIRECTIONS.size()]
 					_change()
 					message = "Sortie %d : %s" % [i + 1, NOMS_DIRECTIONS[dirs[i]]]
+		KEY_O:  # sortie potentielle ou ordinaire (sortie sous la souris)
+			if couche == "sorties":
+				var i := _zone_sous("sorties", _borne(souris()))
+				if i >= 0:
+					_memoriser()
+					var pot: Array = salle.donnees["sorties_potentielles"]
+					pot[i] = not bool(pot[i])
+					_change()
+					if pot[i]:
+						message = "Sortie %d potentielle : ouverte seulement si l'étage a besoin d'une salle de ce côté (une seule par côté)" % (i + 1)
+					else:
+						message = "Sortie %d ordinaire" % (i + 1)
 		KEY_H:  # montrer ou cacher le héros pendant l'édition
 			heros_en_edition = not heros_en_edition
 			salle.heros.visible = heros_en_edition
@@ -396,6 +415,7 @@ func _ajouter_sortie(poly: PackedVector2Array) -> void:
 	salle.donnees["noms_sorties"].append("passage %d" % n)
 	salle.donnees["directions_sorties"].append(direction)
 	salle.donnees["types_sorties"].append("passage")
+	salle.donnees["sorties_potentielles"].append(false)
 	message = "Sortie %d ajoutée : %s (touche D sur elle pour changer)" % [n, NOMS_DIRECTIONS[direction]]
 
 
@@ -595,6 +615,10 @@ class Calque extends Node2D:
 				var poly: PackedVector2Array = polys[i]
 				if poly.size() < 3:
 					continue
+				col = COULEURS[c]
+				var potentielles: Array = ed.salle.donnees.get("sorties_potentielles", [])
+				if c == "sorties" and i < potentielles.size() and bool(potentielles[i]):
+					col = COULEUR_POTENTIELLE
 				draw_colored_polygon(poly, Color(col, 0.30 if actif else 0.12))
 				var ferme := PackedVector2Array(poly)
 				ferme.append(poly[0])
@@ -613,9 +637,11 @@ class Calque extends Node2D:
 					if c == "sorties":
 						var dirs: Array = ed.salle.donnees["directions_sorties"]
 						t = "%d : %s" % [i + 1, NOMS_DIRECTIONS.get(dirs[i] if i < dirs.size() else "", "?")]
+						if col == COULEUR_POTENTIELLE:
+							t += " (potentielle)"
 					draw_set_transform(centre, 0, Vector2(e, e))
-					draw_string_outline(police, Vector2(-30, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 60, 14, 4, Color.BLACK)
-					draw_string(police, Vector2(-30, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 60, 14, Color.WHITE)
+					draw_string_outline(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, 4, Color.BLACK)
+					draw_string(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, Color.WHITE)
 					draw_set_transform(Vector2.ZERO)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]

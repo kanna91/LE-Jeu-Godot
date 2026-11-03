@@ -1,7 +1,7 @@
 extends SceneTree
 ## Éditeur de zones : tracer une zone, annuler, déplacer un point, poser des prisonniers, enregistrer (porte2).
 ## « BILAN éditeur de zones : 0 échec(s) ». Le test écrit donnees/salles_peintes/porte2.json et
-## outils/zones_manuelles/porte2.json, puis remet le premier comme avant et efface le second.
+## outils/zones_manuelles/porte2.json, puis les remet tous deux comme avant (le second est effacé s'il n'existait pas).
 
 var echecs := 0
 
@@ -15,6 +15,8 @@ func verifier(c: bool, cas: String) -> void:
 func _initialize() -> void:
 	var original := FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json")
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
+	# Zones retouchées par l'utilisateur : remises telles quelles à la fin (2026-11-03 ; avant, elles étaient écrasées)
+	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""
 	var ed = load("res://scenes/outils/editeur_zones.tscn").instantiate()
 	root.add_child(ed)
 	await process_frame
@@ -82,5 +84,9 @@ func _initialize() -> void:
 	f.close()
 	if not manuel_avant:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path("res://outils/zones_manuelles/porte2.json"))
+	else:
+		var m := FileAccess.open("res://outils/zones_manuelles/porte2.json", FileAccess.WRITE)
+		m.store_string(manuel_original)
+		m.close()
 	print("BILAN éditeur de zones : %d échec(s)" % echecs)
 	quit()

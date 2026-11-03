@@ -98,14 +98,17 @@ stick droit pour choisir un bouton de l'interface.
     salle** (ils l'entendent de plus loin), pas le reste de l'étage (décision de l'utilisateur). **Toute défaite est
     la mort** ; seul le geôlier mène en prison.
   - **Capture** (`Aventure.capturer`) : le héros se réveille dans la **salle du cachot** de l'étage : depuis le
-    2026-10-30, une **cellule du quartier des prisons** (salle à image « prison »), la plus loin du boss, à au moins
-    3 salles du départ (une capture ne rapproche pas du boss, demande de l'utilisateur du 2026-10-27 ; repli
+    2026-10-30, une salle à image « prison » (depuis le 2026-11-03 : une grande salle d'une des **4 prisons des coins**,
+    voir « Prisons et niveau des cryptes »), la plus loin du boss, à au moins 3 salles du départ (une capture ne rapproche pas du boss, demande de l'utilisateur du 2026-10-27 ; repli
     s'il n'y a aucune prison : le cul-de-sac le plus loin du boss), sans rien : équipement, sac et or confisqués. Chaque objet va dans le **coffre des
     confiscations** (dans une autre salle, avec tout l'or), est **perdu**, ou est **porté par un porteur**
     (gobelin rare, PV × 1,5 d'une élite, à vaincre pour le récupérer). **L'arme portée n'est jamais perdue** : elle
     est toujours dans le coffre des confiscations (rééquipée en l'ouvrant). Le geôlier repart dans une autre salle.
   - **Le boss garde sa salle** (on va à lui pour le combattre) ; « Monter » n'apparaît qu'une fois le boss vaincu.
-  - **Donjon de 5 étages, généré en entier au lancement** (décisions de l'utilisateur, 2026-10-30) :
+  - **Un seul étage pour l'instant** (2026-11-03, demande de l'utilisateur : « on construit un niveau » ;
+    `Donjon.NOMBRE_ETAGES` = 1, 5 avant), plus le **niveau des cryptes**, un monde à part (voir « Prisons et niveau des
+    cryptes »). Vaincre le boss de l'étage puis « Monter » termine la partie.
+  - **Donjon de 5 étages, généré en entier au lancement** (décisions de l'utilisateur, 2026-10-30 ; 1 étage depuis le 2026-11-03) :
     `Donjon.nouveau` crée les `Donjon.NOMBRE_ETAGES` étages d'un coup (plan, images des salles, population ;
     ≈ 400 salles en 0,6 s). Vaincre le boss du 5e étage puis « Monter » termine la partie : **écran de victoire**
     (l'écran de fin, titre « VICTOIRE », `principal.gd` résultat `["victoire"]`). Avant, le donjon était sans fin et
@@ -134,8 +137,8 @@ stick droit pour choisir un bouton de l'interface.
   - groupes de gobelins qui rôdent (salles ordinaires), parfois menés par une **élite** (appelée « chef » avant le 2026-10-31), parfois **pacifiques** (ils
     s'écartent ; au contact ils demandent grâce : les **épargner** (un peu d'or, parfois un objet, ils partent ;
     karma +1) ou les **attaquer** (karma −1 ; leur corps se fouille et leur âme se siphonne) : voir « Karma ») ;
-  - Chevaliers de la mort et geôliers loin du départ ; le cachot (une cellule du **quartier des prisons**, voir
-    « Salles orientées comme la mini-carte ») ; le boss, dont la classe est tirée dès la création de l'étage ;
+  - Chevaliers de la mort et geôliers loin du départ ; le cachot (une grande salle d'une des **prisons des coins**, voir
+    « Prisons et niveau des cryptes ») ; le boss, dont la classe est tirée dès la création de l'étage ;
   - un **coffre ancien** (cerclé de fer, sceau rouge) : l'**armure anti-boss** de l'étage (voir « Armure anti-boss ») ;
   - **diablotins** (`Rencontres.diablotin`, fiche de l'utilisateur) : ils transmettent les informations **au
     compte-gouttes** et **jamais deux fois la même dans une partie** : le **Chevalier de la mort** (14 informations,
@@ -317,10 +320,14 @@ stick droit pour choisir un bouton de l'interface.
     **Chaque apparence une seule fois par étage** (2026-10-30, demande de l'utilisateur) : les 98 apparences
     (49 images × miroir) sont réparties sur tout l'étage d'un coup (affectation au meilleur total, méthode
     hongroise `PlanSalles._affectation`), sans perte de qualité mesurable (`test_cartographie_salles`).
-    **Quartier des prisons** (2026-10-30) : les images « prison » ne vont que dans le quart de l'étage le plus loin
+    **Prisons et niveau des cryptes (2026-11-03)** : remplacent le quartier des prisons et le quartier des cryptes
+    décrits ci-dessous (voir la section « Prisons et niveau des cryptes »).
+    **Sorties potentielles (2026-11-03)** : voir « Éditeur de zones » (touche O) ; une seule des sorties potentielles
+    d'un côté est ouverte s'il faut une salle de ce côté, les autres deviennent des murs invisibles, sans malus.
+    *Ancien* **quartier des prisons** (2026-10-30) : les images « prison » ne vont que dans le quart de l'étage le plus loin
     du boss par le chemin (`PlanSalles.quartier_prisons`, `PART_QUARTIER_PRISONS` = 0,25 ; bonus 25 dans le
     quartier, malus 60 ailleurs) ; le cachot est pris parmi elles.
-    **Quartier des cryptes** (2026-11-02, demande de l'utilisateur) : les 14 images « crypte » servent **toutes, une
+    *Ancien* **quartier des cryptes** (2026-11-02, demande de l'utilisateur) : les 14 images « crypte » servent **toutes, une
     fois chacune, sans miroir** (choix de l'utilisateur), sur chaque étage, dans **un seul groupe de salles reliées
     entre elles** (`PlanSalles.quartier_cryptes` : 14 salles, hors départ, boss, blocs et quartier des prisons ; le groupe
     prend surtout des salles qui ont une voisine à gauche ou à droite, car les cryptes ont des sorties de côté et ces
@@ -441,7 +448,15 @@ stick droit pour choisir un bouton de l'interface.
     l'image ; clé « prisonniers » du .json de la salle), **6 cachettes** (turquoise, 2026-11-01 : zones où le héros
     n'est ni vu ni entendu ; clé « cachettes »). **Sorties** (2026-11-01) : glisser l'intérieur les déplace
     d'un bloc, clic droit dedans les supprime, tracer une forme en crée une (direction devinée d'après sa place),
-    **D** sur une sortie change sa direction ; chacune est étiquetée (« 1 : fond »...). **Changer de salle sans
+    **D** sur une sortie change sa direction ; chacune est étiquetée (« 1 : fond »...). **O** sur une sortie la rend
+    **potentielle** (orange, « (potentielle) ») ou ordinaire (2026-11-03, demande de l'utilisateur) : on peut tracer
+    plusieurs sorties possibles à gauche, à droite ou au fond ; à la génération de l'étage, **une seule** d'un même côté
+    est ouverte s'il faut une salle de ce côté (tirage stable), les autres et toutes s'il n'en faut pas deviennent des
+    murs invisibles, sans malus (`PlanSalles._evaluer`, clé « sorties_potentielles » du .json) ; une sortie ordinaire
+    du même côté passe avant. Une même image sert ainsi à bien plus de formes de salles. Un point d'arrivée resté à
+    plus de 120 px d'une sortie déplacée n'est plus utilisé : le héros arrive devant la sortie
+    (`SallePeinte.ECART_ARRIVEE_MAX`, 2026-11-03 ; ≈ 40 arrivées de cryptes, grandes salles et prisons étaient restées
+    à l'ancienne place). **Changer de salle sans
     quitter** : boutons ◀ ▶ et liste en haut à droite (la salle quittée est enregistrée si elle a été modifiée).
     Une salle dont le nombre de sorties change est réattribuée dans les parties en cours (`PlanSalles.attribuer`).
     | Commande | Effet |
@@ -601,6 +616,37 @@ stick droit pour choisir un bouton de l'interface.
   Barrière −30 % magiques, Bénédiction −10 % magiques. Armure brisée et Résistances brisées (−40 % de la défense
   en points) inchangées. Salles bonus : +4 d'armure, +4 de résistance magique, +4 de pénétration d'armure ou de
   résistance (10, 5, 15 et 20 avant ; proposé par Claude, validé par l'utilisateur).
+- **Prisons et niveau des cryptes** (2026-11-03, demande de l'utilisateur) :
+  - **4 prisons aux 4 coins de l'étage** (`GenerateurEtage._poser_prisons`) : chacune = **2 grandes salles de prison**
+    (les 8 images « prison » du dossier `C:\ia image\Salle de donjon\prison\grande salle`, chacune une fois par étage,
+    seulement là) puis un **couloir de prison** (4 images `couloir_prison1` à `4`, importées par
+    `outils/importer_couloirs_prison.py`, sol détouré automatiquement, zones à affiner dans l'éditeur). Le couloir est
+    au-dessus de la 2e grande salle sur la carte (on y entre par le bas de son image) ; son **fond mène aux cryptes**.
+    L'étage pousse vers le haut depuis le départ : ses coins sont souvent loin de toute salle ; si besoin un **chemin
+    d'accès** de salles ordinaires (au plus 12, `ACCES_PRISON_MAX`) part de la salle la plus proche et mène la prison
+    à 4 cases au plus de son coin (mesuré sur 20 étages). Salles : clés « prison » (coin 0 à 3), « prison_salle »
+    (« grande_a », « grande_b », « couloir »), « coin » ; « acces_prison » pour le chemin d'accès. Les 12 salles des
+    prisons sont prises sur `TAILLE_ETAGE` (80) ; avec les chemins d'accès, un étage fait 79 à 99 salles (moyenne
+    89 sur 30 étages), avec 3,9 boucles en moyenne (4 avant).
+    **prison6** (doublon de prison3) et **prison8** (absente du dossier) sont retirées du jeu : leurs .json sont dans
+    `donnees/salles_retirees/` (remettre un .json dans `donnees/salles_peintes` pour la remettre en jeu).
+  - **Niveau des cryptes** (`Donjon.NIVEAU_CRYPTES` = 101, un **niveau unique** dans son monde à part :
+    `Donjon.est_niveau_unique`, numéros au-delà de 100, pas de départ, de boss ni de cachot) : **14 salles** d'un seul
+    tenant dans un cadre de 5 × 4 cases (`GenerateurEtage.generer_cryptes`), les 14 images « crypte » une fois chacune ;
+    30 plans essayés, on garde celui que les images habillent le mieux (mesuré : aucun passage sans porte peinte).
+    **4 entrées**, une par coin, chacune reliée au couloir de la prison du même coin : une sortie de l'entrée (côté
+    extérieur, sans salle) ramène au couloir. Ennemis : la zone « crypte » (squelettes, une seule élite : le
+    féticheur), en nombre comme au premier étage ; ni chevalier, ni geôlier, ni personnages, ni objets pour l'instant.
+    Les ennemis ne suivent pas le héros d'un niveau à l'autre. Les cryptes ne sont plus sur l'étage.
+  - **Passage d'un niveau à l'autre** : clé « passage_niveau » de la salle ({niveau, salle, direction}) ; pendant
+    l'habillage, il compte comme une salle voisine dans sa direction (une sortie de l'image y mène), puis cette sortie
+    est notée « passage » dans « salle_peinte » (`PlanSalles.PASSAGE`). Dans l'exploration, entrer dans cette sortie
+    fait changer de niveau (`menu_navigation._changer_de_niveau`) : le héros arrive devant le passage de l'autre côté.
+  - Plus de place pour les autres salles : sans les cryptes ni les prisons, l'étage a plus de salles que d'apparences
+    (image × miroir) libres ; chaque apparence peut alors resservir (`PlanSalles.attribuer_salles`).
+  - Tests : `test_prisons_cryptes.gd` (prisons, cryptes, sorties potentielles), `test_passage_cryptes.gd` (passage
+    dans l'écran d'exploration, aller et retour pour les 4 prisons). Outil : `tests/sonde_plan_prisons.gd` écrit les
+    plans de 4 donjons dans `user://sonde_plans.json`.
 - **Caractéristiques** (règles de l'utilisateur, 2026-10-29 ; `scripts/logique/caracteristiques.gd`, les mêmes pour
   le héros et les ennemis) :
 
@@ -1014,6 +1060,31 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Prisons aux 4 coins, niveau des cryptes, sorties potentielles
+
+- **Pour le joueur** : un seul étage pour l'instant (les autres sont désactivés). Aux 4 coins de l'étage, une
+  **prison** : 2 grandes salles de prison puis un couloir ; au fond du couloir, on descend dans **les cryptes**, un
+  niveau à part de 14 salles (squelettes et un seul féticheur élite), avec 4 entrées qui ramènent chacune à sa prison.
+  Les cryptes ne sont plus sur l'étage. Le cachot est une grande salle de prison.
+- **Éditeur de zones** : touche **O** sur une sortie = sortie **potentielle** (orange). Plusieurs sorties possibles
+  d'un même côté : une seule est ouverte à la génération s'il faut une salle de ce côté, les autres sont des murs
+  invisibles. Un point d'arrivée resté loin d'une sortie déplacée n'est plus utilisé (le héros arrive devant elle).
+- **Images** : 4 couloirs de prison importés (`outils/importer_couloirs_prison.py`, sol détouré, zones à affiner) ;
+  prison6 (doublon) et prison8 retirées (`donnees/salles_retirees/`). Retouches de zones de l'utilisateur (cryptes,
+  grandes salles, prisons, porte2, porte4, salle1, salle2, cellier).
+- **Mesures** (20 à 60 étages) : prisons à 4 cases au plus de leur coin ; étage de 79 à 99 salles (chemins d'accès
+  aux prisons compris) ; 0,9 passage sans porte peinte par étage (3,6 avant : les cryptes prenaient les images à
+  sorties de côté) ; cryptes : aucun passage sans porte.
+- **Code** : `PlanSalles` (groupes réservés, `attribuer_salles`, sorties potentielles, `PASSAGE`, plus de quartier
+  des prisons ni des cryptes), `GenerateurEtage` (`_poser_prisons`, `_chemin_acces`, `generer_cryptes`, `coins`),
+  `Donjon` (`NOMBRE_ETAGES` = 1, `NIVEAU_CRYPTES`, `est_niveau_unique`, `nom_niveau`, `generer_cryptes`),
+  `Aventure._preparer_niveau_unique`, `menu_navigation._changer_de_niveau`, `SallePeinte.ECART_ARRIVEE_MAX`,
+  éditeur de zones (touche O). Tests : nouveaux `test_prisons_cryptes`, `test_passage_cryptes` ; adaptés
+  `test_aventure`, `test_zones`, `test_boss_cle`, `test_blocs`, `test_grands_etages` (taille, boucles ≥ 3,5),
+  `test_cartographie_salles` (une apparence peut resservir), `test_retour_salle` (80 px), `test_quetes_prisonniers`
+  (élite+ comparée à la même élite) ; `test_editeur_zones` remet aussi les zones retouchées de porte2 (il les
+  écrasait) ; `sonde_prisons` supprimée, `sonde_plan_prisons` ajoutée.
 
 ### 2026-11-03 — Amélioration des compétences supprimée ; endurance et mana tous les 2 points
 

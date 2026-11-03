@@ -1,14 +1,14 @@
 {
  "arrivee_porte": [
-  508.0,
-  408.0
+  508,
+  408
  ],
  "depart": [
   517,
   394
  ],
  "fond": "images/salles_peintes/porte4/fond.jpeg",
- "ips": 24.0,
+ "ips": 24,
  "marche": [
   [
    [
@@ -452,8 +452,8 @@
     391
    ],
    [
-    123,
-    394
+    130,
+    391
    ],
    [
     119,
@@ -514,23 +514,23 @@
  "obstacles": [],
  "perspective": {
   "compression_profondeur": 0.6,
-  "hauteur_par_pixel": 2.0,
+  "hauteur_par_pixel": 2,
   "table_hauteur": [
    [
-    340.0,
-    85.0
+    340,
+    85
    ],
    [
-    380.0,
-    105.0
+    380,
+    105
    ],
    [
-    511.0,
-    205.0
+    511,
+    205
    ]
   ],
   "vitesse": 1.8,
-  "y_horizon": 328.0
+  "y_horizon": 328
  },
  "premier_plan": [
   [
@@ -735,5 +735,7 @@
   "passage",
   "porte"
  ],
- "source": "test_salle/porte4.json"
+ "source": "test_salle/porte4.json",
+ "prisonniers": [],
+ "cachettes": []
 }

@@ -1,0 +1,3 @@
+Salles peintes retirées du jeu (fichiers gardés). Elles ne sont plus listées par SallePeinte.salles_disponibles.
+- prison6 : doublon de prison3 ; prison8 : absente du dossier des prisons de l'utilisateur (2026-11-03).
+Pour en remettre une en jeu : remettre son .json dans donnees/salles_peintes.

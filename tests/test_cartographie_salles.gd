@@ -35,16 +35,25 @@ func _initialize() -> void:
 			if etage > 1:
 				donjon.generer_etage(etage)
 			PlanSalles.attribuer(donjon, etage)
-			# Chaque apparence (image × miroir) une seule fois par étage (2026-10-30)
+			# Chaque apparence (image × miroir) une seule fois par étage (2026-10-30) ; depuis le 2026-11-03 (cryptes et
+			# prisons réservées), il y a plus de salles ordinaires que d'apparences : chacune sert au plus
+			# ceil(salles / apparences) fois, sans en laisser de côté
 			var vues := {}
+			var ordinaires := 0
 			for id in donjon.plan_donjon[etage]:
 				analyser(donjon.plan_donjon[etage], str(id), stats)
 				var info: Dictionary = donjon.plan_donjon[etage][id]["salle_peinte"]
+				if PlanSalles.reservee(String(info["image"])):
+					continue
+				ordinaires += 1
 				var cle := "%s|%s" % [info["image"], info["miroir"]]
-				if vues.has(cle):
+				vues[cle] = int(vues.get(cle, 0)) + 1
+			var apparences := 2 * PlanSalles.images().keys().filter(func(i): return not PlanSalles.reservee(String(i))).size()
+			var plafond := ceili(float(ordinaires) / apparences)
+			for cle in vues:
+				if vues[cle] > plafond:
 					echecs += 1
-					print("ÉCHEC : %s utilisée deux fois à l'étage %d (%d salles)." % [cle, etage, donjon.plan_donjon[etage].size()])
-				vues[cle] = true
+					print("ÉCHEC : %s utilisée %d fois à l'étage %d (%d salles ordinaires, %d apparences)." % [cle, vues[cle], etage, ordinaires, apparences])
 	print("")
 	print("directions                  salles  exactes  condamnées  sans porte  images (× fois)")
 	var cles: Array = stats.keys()

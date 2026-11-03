@@ -25,6 +25,8 @@ func _initialize() -> void:
 		Sauvegarde.reinitialiser_monde()
 		var donjon := Donjon.nouveau(Personnage.nouveau())
 		for e in donjon.plan_donjon:
+			if Donjon.est_niveau_unique(e):
+				continue  # cryptes : ni départ ni boss (2026-11-03)
 			etages += 1
 			var salles: Dictionary = donjon.plan_donjon[e]
 			var depart := ""

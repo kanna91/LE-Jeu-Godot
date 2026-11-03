@@ -157,7 +157,12 @@ func _malade(donjon, place: Array) -> void:
 	verifier(g.get("renforce", false), "malade : un élite+ attaque")
 	verifier(r["suites"][0].get("depuis") == p["pos"], "malade : l'élite+ surgit à la place du prisonnier")
 	verifier("élite gobelin" in _texte(r), "malade : il était l'élite")
-	var normal: Gobelin = Aventure.ennemis_de(donjon, {"genre": "groupe", "elite": true, "membres": [Aventure.membres(g)[0]]})[0]
+	# La même élite sans le renfort, même tirage (deux élites tirées à part : la normale peut être mieux tirée)
+	var sans_renfort: Dictionary = g.duplicate(true)
+	sans_renfort.erase("renforce")
+	seed(4242)
+	var normal: Gobelin = Aventure.ennemis_de(donjon, sans_renfort)[0]
+	seed(4242)
 	var renforce: Gobelin = Aventure.ennemis_de(donjon, g)[0]
 	print("élite %d PV, élite+ %d PV (%s)" % [normal.points_de_vie_max, renforce.points_de_vie_max, renforce.nom])
 	verifier(renforce.nom == "Faux prisonnier+" and renforce.points_de_vie_max > normal.points_de_vie_max, "malade : élite+ plus solide (%s)" % renforce.nom)

@@ -267,6 +267,9 @@ static func preparer_etage(donjon, etage: int) -> void:
 	m["prepare"] = true
 	m["colere"] = int(m.get("colere", 0))
 	var salles: Dictionary = donjon.plan_donjon[etage]
+	if Donjon.est_niveau_unique(etage):
+		_preparer_niveau_unique(donjon, etage, m)
+		return
 	var dist := distances(salles)
 	# Cachot : un cul-de-sac (une seule voisine), le plus loin possible de la salle du boss (une capture ne doit
 	# pas rapprocher le héros du boss, demande de l'utilisateur 2026-10-27 ; avant : le plus loin du départ, donc
@@ -276,7 +279,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 		if salles[i].get("boss", false):
 			dist_boss = distances_depuis(salles, i)
 	# Depuis le 2026-10-30 (décision de l'utilisateur) : le cachot est une salle à image de prison, la plus loin du
-	# boss (quartier des prisons, PlanSalles.quartier_prisons) ; sinon, comme avant, un cul-de-sac loin du boss.
+	# boss (depuis le 2026-11-03 : une grande salle d'une des 4 prisons des coins) ; sinon, un cul-de-sac loin du boss.
 	PlanSalles.attribuer(donjon, etage)
 	var cellules := []
 	for i in salles_ordinaires(donjon, etage):
@@ -405,6 +408,30 @@ static func preparer_etage(donjon, etage: int) -> void:
 	_poser_prisonniers(donjon, etage, m)
 	_poser_cle_boss(donjon, etage, m, salles_pour_ennemis(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
 	Karma.synchroniser(donjon)  # chevaliers du karma sur ce nouvel étage
+
+
+## Niveau unique (cryptes, 2026-11-03) : seulement ses ennemis, selon la zone de ses salles (cryptes : squelettes et
+## une seule élite, le féticheur), et ses prisonniers peints. Pas de boss, de cachot, de chevalier, de geôlier, de
+## personnages ni d'objets pour l'instant.
+static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	for i in salles:
+		if not salles[i].has("presences"):
+			salles[i]["presences"] = []
+	var pour_ennemis := salles_pour_ennemis(donjon, etage)
+	for i in pour_ennemis:
+		for _g in _pondere(GROUPES_PAR_SALLE):
+			salles[i]["presences"].append(nouveau_groupe(donjon, m, etage, Zones.zone_salle(salles[i])))
+	for i in pour_ennemis:
+		var deja: bool = salles[i]["presences"].any(func(q): return q["genre"] == "groupe")
+		if not deja and randf() < CHANCE_ISOLE:
+			var isole := {"id": _nouvel_id(m), "genre": "groupe", "etat": "actif", "nombre": 1,
+				"elite": false, "pacifique": false, "seul": true}
+			if Zones.zone_salle(salles[i]) != "":
+				isole["zone_ennemis"] = Zones.zone_salle(salles[i])
+			salles[i]["presences"].append(isole)
+	_fixer_elites(donjon, etage, m)
+	_poser_prisonniers(donjon, etage, m)
 
 
 ## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier par **zone de dialogue** « prisonniers » de l'image

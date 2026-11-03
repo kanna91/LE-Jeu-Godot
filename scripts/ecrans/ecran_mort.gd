@@ -19,7 +19,7 @@ func preparer(j, donjon, cause := "combat") -> Ecran:
 	if victoire:
 		sous_titre = "Le boss du dernier étage est vaincu : vous sortez du donjon"
 	else:
-		sous_titre = "%s à l'étage %d, salle %d" % [MenuPartie.CAUSES.get(cause, "Mort"), donjon.salle_actuelle[0], donjon.salle_actuelle[1]]
+		sous_titre = "%s dans %s, salle %d" % [MenuPartie.CAUSES.get(cause, "Mort"), Donjon.nom_niveau(donjon.salle_actuelle[0]), donjon.salle_actuelle[1]]
 	var noms := ["Recommencer", "Menu principal", "Quitter"]
 	for i in noms.size():
 		boutons[noms[i]] = Rect2(Ui.LARGEUR / 2 - 330 + i * 230, Ui.HAUTEUR - 82, 200, 44)

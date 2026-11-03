@@ -35,12 +35,33 @@ static func nouveau(personnage, fenetre = null) -> Donjon:
 	# Tout le donjon est généré au lancement de la partie (2026-10-30, demande de l'utilisateur) : NOMBRE_ETAGES étages
 	for e in range(1, NOMBRE_ETAGES + 1):
 		d.generer_etage(e)
+	d.generer_cryptes(1)
 	return d
 
 
 ## Nombre d'étages du donjon, tous générés au lancement (décision de l'utilisateur, 2026-10-30) ; vaincre le boss
-## du dernier étage et « Monter » termine la partie (écran de victoire).
-const NOMBRE_ETAGES := 5
+## du dernier étage et « Monter » termine la partie (écran de victoire). **1 seul** depuis le 2026-11-03 (demande de
+## l'utilisateur : « on construit un niveau », les autres étages sont désactivés pour l'instant ; 5 avant).
+const NOMBRE_ETAGES := 1
+## Niveaux uniques (2026-11-03, demande de l'utilisateur : des niveaux « dans leur monde à part ») : rangés dans
+## ``plan_donjon`` sous un numéro au-delà de 100, ils ne comptent pas comme des étages (pas de départ, de boss, de
+## cachot ni de montée). On y entre par un passage (clé « passage_niveau » d'une salle). Le premier : les cryptes,
+## sous les 4 prisons de l'étage 1.
+const NIVEAU_CRYPTES := 101
+## Plans des cryptes essayés : on garde celui que les images des cryptes habillent le mieux.
+const ESSAIS_CRYPTES := 30
+
+
+## Vrai pour un niveau unique (cryptes...), faux pour un étage.
+static func est_niveau_unique(etage) -> bool:
+	return int(etage) > 100
+
+
+## Nom d'un étage ou d'un niveau unique, pour les messages : « l'étage 1 », « les cryptes ».
+static func nom_niveau(etage) -> String:
+	if int(etage) == NIVEAU_CRYPTES:
+		return "les cryptes"
+	return "l'étage %d" % int(etage)
 
 
 ## Vrai sur le dernier étage (sa montée est la sortie du donjon).
@@ -65,7 +86,8 @@ const ENNEMIS_PAR_ETAGE := {
 func tirer_nombre_ennemis(etage = null) -> int:
 	if etage == null:
 		etage = _d["salle_actuelle"][0]
-	var cle: int = clampi(int(etage), 1, ENNEMIS_PAR_ETAGE.keys().max())
+	# Niveau unique (cryptes) : comme le premier étage pour l'instant (2026-11-03)
+	var cle: int = 1 if est_niveau_unique(etage) else clampi(int(etage), 1, ENNEMIS_PAR_ETAGE.keys().max())
 	return U.choix_pondere([1, 2, 3], ENNEMIS_PAR_ETAGE[cle])
 
 
@@ -311,6 +333,14 @@ func generer_etage(etage: int) -> void:
 		elif salle["role"] == "boss":
 			data = _create_room_data("Antre du boss")
 			data["boss"] = true
+		elif salle["role"] == "prison":
+			data = _create_room_data("Couloir de la prison" if salle["prison_salle"] == "couloir" else "Prison")
+			data["prison"] = salle["prison"]
+			data["prison_salle"] = salle["prison_salle"]
+			data["coin"] = salle["coin"]
+			if salle["prison_salle"] == "couloir":
+				# Le fond du couloir mène aux cryptes (salle d'arrivée posée par generer_cryptes)
+				data["passage_niveau"] = {"niveau": NIVEAU_CRYPTES, "salle": "", "direction": [0, 1]}
 		elif salle["role"] == "bloc":
 			data = _create_room_data(BlocsSalles.BLOCS[salle["bloc"]]["salles"][salle["bloc_salle"]]["nom"])
 			data["bloc"] = salle["bloc"]
@@ -320,6 +350,8 @@ func generer_etage(etage: int) -> void:
 			data = _create_room_data()
 		if salle.has("evenement"):
 			data["evenement"] = salle["evenement"]
+		if salle.has("acces_prison"):
+			data["acces_prison"] = salle["acces_prison"]
 		data["position"] = salle["position"]
 		var connexions: Array = salle["connexions"].keys()
 		connexions.sort()
@@ -336,6 +368,49 @@ func generer_etage(etage: int) -> void:
 		reglages.erase(etage)
 	PlanSalles.attribuer(self, etage)  # images des salles d'abord : le cachot est choisi parmi les prisons
 	Aventure.preparer_etage(self, etage)
+
+
+## Niveau des cryptes (2026-11-03) : ESSAIS_CRYPTES plans (GenerateurEtage.generer_cryptes), on garde celui que les
+## 14 images des cryptes habillent le mieux (PlanSalles.attribuer_salles). Chaque entrée (un coin) est reliée au
+## couloir de la prison du même coin de l'étage ``etage`` : le fond du couloir y mène, et une sortie de l'entrée
+## ramène au couloir. Une entrée sans prison (coin sans place sur l'étage) n'a pas de passage.
+func generer_cryptes(etage := 1) -> void:
+	var couloirs := {}
+	for id in _d["plan_donjon"].get(etage, {}):
+		var s: Dictionary = _d["plan_donjon"][etage][id]
+		if s.get("prison_salle", "") == "couloir":
+			couloirs[int(s["prison"])] = id
+	var meilleur := {}
+	var meilleur_score := -(1 << 40)
+	for _essai in ESSAIS_CRYPTES:
+		var plan := GenerateurEtage.generer_cryptes()
+		var salles := {}
+		for ident in plan:
+			var data := _create_room_data("Crypte")
+			data["crypte"] = true
+			data["position"] = plan[ident]["position"]
+			var connexions: Array = plan[ident]["connexions"].keys()
+			connexions.sort()
+			data["connections"] = connexions.map(func(c): return str(c))
+			if plan[ident].has("entree") and couloirs.has(int(plan[ident]["entree"])):
+				var d: Vector2i = plan[ident]["direction_passage"]
+				data["entree_cryptes"] = int(plan[ident]["entree"])
+				data["passage_niveau"] = {"niveau": etage, "salle": str(couloirs[int(plan[ident]["entree"])]),
+					"direction": [d.x, d.y]}
+			salles[str(ident)] = data
+		var score := PlanSalles.attribuer_salles(salles, NIVEAU_CRYPTES, salles.keys())
+		if score > meilleur_score:
+			meilleur_score = score
+			meilleur = salles
+	_d["plan_donjon"][NIVEAU_CRYPTES] = meilleur
+	for id in meilleur:
+		if meilleur[id].has("entree_cryptes"):
+			var couloir: Dictionary = _d["plan_donjon"][etage][str(couloirs[int(meilleur[id]["entree_cryptes"])])]
+			couloir["passage_niveau"]["salle"] = id
+	var reglages = U.ga(self, "aventure", null)
+	if reglages is Dictionary:
+		reglages.erase(NIVEAU_CRYPTES)
+	Aventure.preparer_etage(self, NIVEAU_CRYPTES)
 
 
 ## Images et sorties des salles des blocs (BlocsSalles.salles_peintes), avant l'attribution des autres images :
@@ -363,7 +438,7 @@ func _habiller_blocs(salles: Dictionary) -> void:
 			salles[ids[cle]]["salle_peinte"] = infos[cle]
 
 
-## Identifiant de la salle du boss d'un étage (15 pour un étage sans boss marqué).
+## Identifiant de la salle du boss d'un étage (15 pour un étage sans boss marqué, -1 pour un niveau unique).
 func salle_boss(etage = null) -> int:
 	if etage == null:
 		etage = _d["salle_actuelle"][0]
@@ -371,7 +446,7 @@ func salle_boss(etage = null) -> int:
 	for i in salles:
 		if salles[i].get("boss", false):
 			return int(i)
-	return 15
+	return -1 if est_niveau_unique(etage) else 15
 
 
 ## Salle de départ (première salle) d'un étage : clé « depart », ou nom « salle_debut »

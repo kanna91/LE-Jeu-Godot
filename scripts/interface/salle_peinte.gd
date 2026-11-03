@@ -875,12 +875,9 @@ func _placer(arrivee: int) -> void:
 		elif arrivee == 0 and donnees.has("arrivee_porte"):
 			var a: Array = donnees["arrivee_porte"]
 			p = Vector2(a[0], a[1])
-		elif donnees.get("arrivees", {}).has(nom_sortie(arrivee)):
-			# Point d'arrivée choisi dans test_salle (portes de côté, recoins)
-			var a: Array = donnees["arrivees"][nom_sortie(arrivee)]
-			p = Vector2(a[0], a[1])
 		else:
-			p = _point_d_arrivee(arrivee)
+			# Point d'arrivée choisi dans test_salle (portes de côté, recoins), sinon devant la sortie (point_entree)
+			p = point_entree(arrivee)
 		# Tourné vers l'intérieur de la salle
 		var rel: String = dirs[arrivee] if arrivee < dirs.size() else "devant"
 		direction = {"bas": "up", "gauche": "down_right", "droite": "down_left"}.get(rel, "down")
@@ -929,12 +926,18 @@ func _appliquer_miroir(largeur: float) -> void:
 
 ## Point libre juste à l'intérieur de la salle, devant la sortie ``i`` (vers le haut pour une sortie basse).
 ## Point où l'on se tient en entrant par la sortie ``i`` (devant elle, sur le sol) : sert aux chasseurs qui entrent.
+## Distance (pixels de l'image) au-delà de laquelle un point d'arrivée relevé ne vaut plus pour sa sortie.
+const ECART_ARRIVEE_MAX := 120.0
+
+
 func point_entree(i: int) -> Vector2:
 	if i < 0 or i >= donnees["sorties"].size():
 		return _point_d_arrivee(0) if not donnees["sorties"].is_empty() else heros.position
 	if donnees.get("arrivees", {}).has(nom_sortie(i)):
 		var a: Array = donnees["arrivees"][nom_sortie(i)]
-		return sur_le_sol(Vector2(a[0], a[1]))
+		# Point d'arrivée resté loin d'une sortie déplacée dans l'éditeur de zones (crypte3, 2026-11-03) : ignoré
+		if Vector2(a[0], a[1]).distance_to(centre_sortie(i)) <= ECART_ARRIVEE_MAX:
+			return sur_le_sol(Vector2(a[0], a[1]))
 	return sur_le_sol(_point_d_arrivee(i))
 
 

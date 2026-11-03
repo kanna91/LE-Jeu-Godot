@@ -255,5 +255,6 @@
  "grande_salle": true,
  "ips": 24,
  "source": "prison/grande salle/3",
- "prisonniers": []
+ "prisonniers": [],
+ "cachettes": []
 }

@@ -253,25 +253,19 @@ func _imbattable_et_fuite() -> void:
 			if U.num(o, attr) != 0:
 				une_option = false
 	verifier(une_option, "objets générés : une seule option, sans statistiques retirées")
-	# Donjon complet dès le départ (5 étages), quartier des prisons opposé au boss, cachot dans une cellule (2026-10-30)
+	# Donjon complet dès le départ (NOMBRE_ETAGES étages, plus le niveau des cryptes depuis le 2026-11-03) ; cachot dans
+	# une grande salle d'une des prisons des coins (détails : test_prisons_cryptes)
 	var neuf = Donjon.nouveau(Personnage.nouveau())
-	verifier(neuf.plan_donjon.size() == Donjon.NOMBRE_ETAGES, "les %d étages existent dès le départ" % Donjon.NOMBRE_ETAGES)
-	# Depuis le quartier des cryptes (2026-11-02), les images à sorties de côté manquent : une prison sort parfois de son
-	# quartier plutôt que de laisser un passage sans porte (PENALITE_PRISON_HORS_QUARTIER) ; tolérance : 2 par étage.
-	var prisons_hors := 0
+	var etages_neufs: Array = neuf.plan_donjon.keys().filter(func(e): return not Donjon.est_niveau_unique(e))
+	verifier(etages_neufs.size() == Donjon.NOMBRE_ETAGES, "les %d étages existent dès le départ" % Donjon.NOMBRE_ETAGES)
+	verifier(neuf.plan_donjon.has(Donjon.NIVEAU_CRYPTES), "le niveau des cryptes existe dès le départ")
 	var cachots_ok := true
-	for et in neuf.plan_donjon:
+	for et in etages_neufs:
 		var sl: Dictionary = neuf.plan_donjon[et]
-		var q := PlanSalles.quartier_prisons(sl)
-		for i in sl:
-			if PlanSalles.est_prison(String(sl[i]["salle_peinte"]["image"])) and not q.has(String(i)):
-				prisons_hors += 1
 		var cachot := String(Aventure.meta(neuf, et).get("cachot", ""))
-		if cachot == "" or not PlanSalles.est_prison(String(sl[cachot]["salle_peinte"]["image"])) or not q.has(cachot):
+		if cachot == "" or not PlanSalles.est_prison(String(sl[cachot]["salle_peinte"]["image"])):
 			cachots_ok = false
-	print("Prisons hors de leur quartier : %d sur %d étages" % [prisons_hors, neuf.plan_donjon.size()])
-	verifier(prisons_hors <= 2 * neuf.plan_donjon.size(), "les prisons sont dans le quartier opposé au boss (sauf 2 par étage au plus)")
-	verifier(cachots_ok, "le cachot est une cellule du quartier des prisons")
+	verifier(cachots_ok, "le cachot est une grande salle de prison")
 	var chevalier := {}
 	var depart_chevalier := ""
 	for c in Aventure.chasseurs(donjon, etage):
@@ -285,6 +279,7 @@ func _imbattable_et_fuite() -> void:
 	verifier(ecart_milieu == ecart_min, "le chevalier part du milieu de l'étage (%d salles au plus de tout)" % ecart_milieu)
 	# Errance : en 10 minutes de jeu, chacun visite plusieurs salles, jamais celle du boss
 	var visitees := {}
+	var rejoint := {}
 	var ici := ""
 	for i in Aventure.salles_ordinaires(donjon, etage):
 		var dist_c: int = Aventure.distances_depuis(salles, i).get(depart_chevalier, 0)
@@ -300,7 +295,11 @@ func _imbattable_et_fuite() -> void:
 			if not visitees.has(c[0]["id"]):
 				visitees[c[0]["id"]] = {}
 			visitees[c[0]["id"]][c[1]] = true
+			if c[1] == ici:
+				rejoint[c[0]["id"]] = true  # dans la salle du héros, c'est l'écran qui le fait marcher : il n'erre plus ici
 	for id in visitees:
+		if rejoint.has(id):
+			continue
 		verifier(visitees[id].size() >= 5, "un chasseur erre de salle en salle (%d salles en 10 min)" % visitees[id].size())
 	print("Errance (10 min) : salles visitées par chasseur %s" % str(visitees.values().map(func(v): return v.size())))
 	# Combat : tous se dirigent vers la salle du héros et finissent par y entrer

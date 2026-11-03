@@ -1,7 +1,7 @@
 extends SceneTree
 ## Retour dans la salle précédente : le héros réapparaît là où il avait franchi la sortie (2026-11-02).
 ## Pour des sorties de chaque côté (bas, gauche, droite, fond), le héros entre dans la sortie à un endroit précis,
-## passe dans la salle voisine, revient aussitôt : il doit être à moins de 60 px de cet endroit, hors de la sortie.
+## passe dans la salle voisine, revient aussitôt : il doit être à moins de 80 px de cet endroit (60 avant le 2026-11-03 : sorties plus hautes retracées dans l'éditeur), hors de la sortie.
 ## « BILAN retour : 0 échec(s) ».  godot --headless --path . -s tests/test_retour_salle.gd
 
 var racine: Control
@@ -77,7 +77,7 @@ func lancer() -> void:
 			sp = nav.salle_peinte
 			var d: float = sp.heros.position.distance_to(point)
 			var dans: bool = sp._sortie_sous(sp.heros.position) >= 0
-			var ok: bool = str(donjon.salle_actuelle[1]) == id and d < 60.0 and not dans
+			var ok: bool = str(donjon.salle_actuelle[1]) == id and d < 80.0 and not dans
 			print("%s salle %s (%s) sortie %d « %s » : franchie en %s, revenu en %s (écart %d px)%s" % [
 				"ok" if ok else "ÉCHEC", id, salles[id]["salle_peinte"]["image"], i, cote, point.round(),
 				sp.heros.position.round(), d, " DANS la sortie" if dans else ""])

@@ -8,8 +8,12 @@ extends RefCounted
 ## 4 passages, où le jeu met les grandes salles), puis des **cercles** : des tours de salles en rectangle qui
 ## partent d'une salle et y reviennent (on peut tourner en rond et semer un poursuivant), puis des **boucles** :
 ## deux salles voisines sur la carte mais éloignées d'au moins BOUCLE_MIN salles par le chemin sont reliées, et
-## quelques autres voisines au hasard. Enfin les salles bonus et le marchand, comme avant.
+## quelques autres voisines au hasard. Puis les **4 prisons aux 4 coins** (2026-11-03, demande de l'utilisateur :
+## _poser_prisons). Enfin les salles bonus et le marchand, comme avant.
 ## Valeurs choisies par Claude, à valider.
+##
+## **Niveau des cryptes** (2026-11-03, demande de l'utilisateur) : un monde à part de SALLES_CRYPTES salles
+## (generer_cryptes), dont ENTREES_CRYPTES entrées, aux 4 coins, mènent chacune au couloir d'une prison.
 
 ## Nombre de salles visé par étage, salles bonus comprises (décision de l'utilisateur : environ 80 depuis le 2026-10-30, 50 avant).
 const TAILLE_ETAGE := 80
@@ -33,6 +37,23 @@ const BONUS_PREVUS := 6
 ## 2026-10-30, 16 avant : même part de l'étage).
 const SALLES_CERCLES := 26
 const CERCLE := Vector2i(1, 3)
+## Prisons (demande de l'utilisateur, 2026-11-03) : une à chaque coin de l'étage, faite de 2 grandes salles de prison
+## puis d'un couloir dont le fond mène aux cryptes. Le couloir est au-dessus de la 2e grande salle sur la carte (on y
+## entre par le bas de son image) ; la 1re grande salle est reliée à une salle de l'étage proche du coin. Leurs
+## salles sont prises sur le nombre visé (TAILLE_ETAGE) : l'étage garde sa taille.
+const PRISONS := 4
+const SALLES_PAR_PRISON := 3
+const SALLES_PRISONS := PRISONS * SALLES_PAR_PRISON
+## Distance (en cases) au coin au-delà de laquelle un chemin d'accès mène la prison plus près, et longueur maximale
+## de ce chemin (choix de Claude).
+const PROCHE_COIN := 2
+const ACCES_PRISON_MAX := 12
+## Niveau des cryptes : nombre de salles, entrées (une par coin), cadre (cases) où elles tiennent, chance de relier
+## deux salles voisines en plus du chemin qui les a fait pousser (petites boucles). Choix de Claude, à valider.
+const SALLES_CRYPTES := 14
+const ENTREES_CRYPTES := 4
+const CADRE_CRYPTES := Vector2i(5, 4)
+const BOUCLES_CRYPTES := 0.3
 
 const HAUT := Vector2i(0, 1)
 const DROITE := Vector2i(1, 0)
@@ -254,7 +275,7 @@ static func generer_plan(etage: int) -> Dictionary:
 	var interdites := _voisines(voie[-1]) + [Vector2i(0, -1)]
 	# Branches jusqu'à la taille visée, de préférence depuis des salles à 1 ou 2 passages (futurs carrefours)
 	var essais := 0
-	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES and essais < 400:
+	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES - SALLES_PRISONS and essais < 400:
 		essais += 1
 		var origines := []
 		var poids := []
@@ -269,7 +290,7 @@ static func generer_plan(etage: int) -> Dictionary:
 		var courante: int = U.choix_pondere(origines, poids)
 		var direction := Vector2i.ZERO
 		for _s in randi_range(BRANCHE.x, BRANCHE.y):
-			if salles.size() >= TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES:
+			if salles.size() >= TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES - SALLES_PRISONS:
 				break
 			var libres := []
 			for c in _voisines(salles[courante]["position"]):
@@ -292,7 +313,7 @@ static func generer_plan(etage: int) -> Dictionary:
 			_poser_bloc(nom, instance, salles, par_case, interdites, boss, ajouter, relier)
 	# Cercles : un tour de salles en rectangle qui part d'une salle existante et y revient
 	essais = 0
-	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS and essais < 300:
+	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS and essais < 300:
 		essais += 1
 		var depuis := []
 		for i in salles:
@@ -301,7 +322,7 @@ static func generer_plan(etage: int) -> Dictionary:
 		var a: int = depuis.pick_random()
 		var tour := _rectangle(salles[a]["position"], randi_range(CERCLE.x, CERCLE.y), randi_range(1, 2),
 			[-1, 1].pick_random(), [-1, 1].pick_random())
-		if tour.size() - 1 > TAILLE_ETAGE - BONUS_PREVUS - salles.size() + 2:
+		if tour.size() - 1 > TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS - salles.size() + 2:
 			continue
 		var possible := true
 		for c in tour.slice(1):
@@ -345,6 +366,8 @@ static func generer_plan(etage: int) -> Dictionary:
 			relier.call(p[0], p[1])
 			ds = _distances_plan(salles, 1)
 			db = _distances_plan(salles, boss)
+	# Prisons aux 4 coins, après les boucles (elles ne sont reliées à l'étage que par leur entrée)
+	_poser_prisons(salles, par_case, interdites, boss, ajouter, relier)
 	var distances := {1: 0}
 	var file := [1]
 	while not file.is_empty():
@@ -398,4 +421,204 @@ static func generer_plan(etage: int) -> Dictionary:
 					if parent in culs_de_sac:
 						culs_de_sac.erase(parent)
 					break
+	return salles
+
+
+static func _manhattan(a: Vector2i, b: Vector2i) -> int:
+	return absi(a.x - b.x) + absi(a.y - b.y)
+
+
+static func _case_libre(c: Vector2i, par_case: Dictionary, interdites: Array) -> bool:
+	return not par_case.has(c) and not (c in interdites) and c.y >= 0
+
+
+## Coins du cadre des positions : [bas gauche, bas droite, haut gauche, haut droite].
+static func coins(positions: Array) -> Array:
+	var bas := Vector2i(1 << 20, 1 << 20)
+	var haut := -bas
+	for p in positions:
+		bas = Vector2i(mini(bas.x, p.x), mini(bas.y, p.y))
+		haut = Vector2i(maxi(haut.x, p.x), maxi(haut.y, p.y))
+	return [bas, Vector2i(haut.x, bas.y), Vector2i(bas.x, haut.y), haut]
+
+
+## Pose les PRISONS prisons, une par coin de l'étage (voir PRISONS) : rôle « prison », clés « prison » (numéro du
+## coin, 0 à 3, comme ``coins``), « prison_salle » (« grande_a », « grande_b », « couloir ») et « coin » (le coin visé).
+## Pour chaque coin, on cherche, parmi toutes les salles de l'étage où l'accrocher, la place où le couloir est le plus
+## près du coin. L'étage pousse surtout vers le haut : ses coins (ceux du bas surtout) sont souvent loin de toute
+## salle. Si la meilleure place laisse le couloir à plus de PROCHE_COIN cases du coin, un **chemin d'accès** de
+## salles ordinaires (« acces_prison ») part de la salle la plus proche du coin et s'en approche (ACCES_PRISON_MAX
+## salles au plus), puis la prison s'accroche au bout. Un coin sans place possible n'a pas de prison.
+static func _poser_prisons(salles: Dictionary, par_case: Dictionary, interdites: Array, boss: int, ajouter: Callable,
+		relier: Callable) -> void:
+	var positions := []
+	for i in salles:
+		positions.append(salles[i]["position"])
+	var liste_coins := coins(positions)
+	for k in mini(PRISONS, liste_coins.size()):
+		var coin: Vector2i = liste_coins[k]
+		var hotes := []
+		for i in salles:
+			if salles[i]["role"] in ["branche", "principale"] and i != 1 and i != boss:
+				hotes.append(i)
+		if hotes.is_empty():
+			continue
+		var meilleur := _place_prison(salles, par_case, interdites, hotes, coin)
+		var continue_coin := false
+		if meilleur.is_empty() or _manhattan(meilleur[3], coin) > PROCHE_COIN:
+			# Chemin d'accès : le plus court, par des cases libres, d'une salle de l'étage jusqu'à près du coin
+			var chemin := _chemin_acces(salles, par_case, interdites, hotes, coin)
+			if chemin.is_empty():
+				continue_coin = true
+			var courante: int = chemin[0] if not chemin.is_empty() else hotes[0]
+			for c in chemin.slice(1):
+				var ident: int = ajouter.call(c, "branche")
+				salles[ident]["acces_prison"] = k
+				relier.call(courante, ident)
+				courante = ident
+			if not continue_coin:
+				# Les cases du chemin sont prises : la place trouvée avant peut ne plus être libre, on la recalcule
+				var au_bout := _place_prison(salles, par_case, interdites, [courante], coin)
+				meilleur = _place_prison(salles, par_case, interdites, hotes, coin)
+				if not au_bout.is_empty() and (meilleur.is_empty() or _manhattan(au_bout[3], coin) <= _manhattan(meilleur[3], coin)):
+					meilleur = au_bout
+		if meilleur.is_empty():
+			continue
+		var precedente: int = meilleur[0]
+		var roles := ["grande_a", "grande_b", "couloir"]
+		for j in 3:
+			var ident: int = ajouter.call(meilleur[j + 1], "prison")
+			salles[ident]["prison"] = k
+			salles[ident]["prison_salle"] = roles[j]
+			salles[ident]["coin"] = coin
+			relier.call(precedente, ident)
+			precedente = ident
+
+
+## Plus court chemin d'accès vers ``coin`` : [salle de départ (id), case 1, case 2...] par des cases libres, jusqu'à
+## une case à PROCHE_COIN + 1 du coin où une prison tient (_place_prison), en ACCES_PRISON_MAX cases au plus ;
+## [] s'il n'y en a pas.
+static func _chemin_acces(salles: Dictionary, par_case: Dictionary, interdites: Array, hotes: Array, coin: Vector2i) -> Array:
+	var parent := {}
+	var depart := {}
+	var file := []
+	for h in hotes:
+		for d in DIRECTIONS:
+			var n: Vector2i = salles[h]["position"] + d
+			if _case_libre(n, par_case, interdites) and not parent.has(n):
+				parent[n] = null
+				depart[n] = h
+				file.append([n, 1])
+	while not file.is_empty():
+		var e: Array = file.pop_front()
+		var c: Vector2i = e[0]
+		if _manhattan(c, coin) <= PROCHE_COIN + 1:
+			# La prison doit tenir au bout (cases du chemin occupées pendant l'essai)
+			var cases := [c]
+			var q = parent[c]
+			while q != null:
+				cases.push_front(q)
+				q = parent[q]
+			var essai := par_case.duplicate()
+			for x in cases:
+				essai[x] = -1
+			var faux := {-1: {"position": c}}
+			if not _place_prison(faux, essai, interdites, [-1], coin).is_empty():
+				var h0: Vector2i = cases[0]
+				while parent[h0] != null:
+					h0 = parent[h0]
+				return [depart[h0]] + cases
+		if e[1] >= ACCES_PRISON_MAX:
+			continue
+		for d in DIRECTIONS:
+			var n: Vector2i = c + d
+			if not parent.has(n) and _case_libre(n, par_case, interdites):
+				parent[n] = c
+				file.append([n, e[1] + 1])
+	return []
+
+
+## Meilleure place d'une prison accrochée à une des salles ``hotes`` : [hôte, grande A, grande B, couloir] (cases ;
+## le couloir au-dessus de la grande B), le couloir au plus près de ``coin`` ; [] sans place.
+static func _place_prison(salles: Dictionary, par_case: Dictionary, interdites: Array, hotes: Array, coin: Vector2i) -> Array:
+	var meilleur := []
+	var meilleur_score := -(1 << 30)
+	for h in hotes:
+		var ph: Vector2i = salles[h]["position"]
+		for da in DIRECTIONS:
+			var a: Vector2i = ph + da
+			if not _case_libre(a, par_case, interdites):
+				continue
+			for db in DIRECTIONS:
+				var b: Vector2i = a + db
+				var c: Vector2i = b + HAUT
+				if b == ph or c == ph or c == a or not _case_libre(b, par_case, interdites) 						or not _case_libre(c, par_case, interdites):
+					continue
+				var score := -3 * _manhattan(c, coin) - _manhattan(ph, coin)
+				if score > meilleur_score:
+					meilleur_score = score
+					meilleur = [h, a, b, c]
+	return meilleur
+
+
+## Plan du niveau des cryptes (2026-11-03) : {id: {"position", "connexions", "role": "crypte"}}, SALLES_CRYPTES
+## salles d'un seul tenant dans un cadre de CADRE_CRYPTES cases, reliées par le chemin qui les a fait pousser et
+## quelques boucles. Les ENTREES_CRYPTES entrées sont les salles les plus proches des 4 coins (« entree » : numéro du
+## coin, comme ``coins`` ; « direction_passage » : côté sans salle, vers l'extérieur, où mène le passage vers la prison).
+static func generer_cryptes() -> Dictionary:
+	var cases := [Vector2i.ZERO]
+	var parent := {Vector2i.ZERO: Vector2i.ZERO}
+	while cases.size() < SALLES_CRYPTES:
+		var options := []
+		for c in cases:
+			for d in DIRECTIONS:
+				var n: Vector2i = c + d
+				if parent.has(n):
+					continue
+				var cadre: Array = coins(cases + [n])
+				var taille: Vector2i = cadre[3] - cadre[0] + Vector2i.ONE
+				if taille.x <= CADRE_CRYPTES.x and taille.y <= CADRE_CRYPTES.y:
+					options.append([c, n])
+		if options.is_empty():
+			break
+		var choix: Array = options.pick_random()
+		parent[choix[1]] = choix[0]
+		cases.append(choix[1])
+	var salles := {}
+	var par_case := {}
+	for c in cases:
+		var ident := salles.size() + 1
+		salles[ident] = {"position": c, "connexions": {}, "role": "crypte"}
+		par_case[c] = ident
+	for c in cases:
+		if c != Vector2i.ZERO:
+			salles[par_case[c]]["connexions"][par_case[parent[c]]] = true
+			salles[par_case[parent[c]]]["connexions"][par_case[c]] = true
+	for c in cases:
+		for d in [DROITE, HAUT]:
+			var n: Vector2i = c + d
+			if par_case.has(n) and not salles[par_case[c]]["connexions"].has(par_case[n]) and randf() < BOUCLES_CRYPTES:
+				salles[par_case[c]]["connexions"][par_case[n]] = true
+				salles[par_case[n]]["connexions"][par_case[c]] = true
+	# Entrées : la salle la plus proche de chaque coin, avec un côté libre vers l'extérieur
+	var liste_coins := coins(cases)
+	var exterieur := [[BAS, GAUCHE], [BAS, DROITE], [GAUCHE, HAUT], [DROITE, HAUT]]
+	var prises := {}
+	for k in mini(ENTREES_CRYPTES, liste_coins.size()):
+		var tries := cases.duplicate()
+		tries.sort_custom(func(a, b): return _manhattan(a, liste_coins[k]) < _manhattan(b, liste_coins[k]))
+		for c in tries:
+			if prises.has(c):
+				continue
+			var cote = null
+			for d in exterieur[k] + DIRECTIONS:
+				if not par_case.has(c + d):
+					cote = d
+					break
+			if cote == null:
+				continue
+			prises[c] = true
+			salles[par_case[c]]["entree"] = k
+			salles[par_case[c]]["direction_passage"] = cote
+			break
 	return salles
