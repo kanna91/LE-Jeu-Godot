@@ -698,7 +698,7 @@ func _nouveautes_31_octobre() -> void:
 	verifier(loin == 0, "coffre des confiscations à 3 salles au plus du cachot, jamais fermé à clé (%d trop loin)" % loin)
 	# Catégorie « Divers » et clés
 	var MI := load("res://scripts/ecrans/menu_inventaire.gd")
-	var babiole := ObjetsDivers.creer("Cuillère d'essai", "argenterie", 25, "Objet d'essai.")  # catalogue vide pour l'instant
+	var babiole := ObjetsDivers.creer("Cuillère d'essai", "argenterie", 25, "Objet d'essai.")  # objet d'essai hors catalogue
 	joueur.recevoir_objet(babiole)
 	verifier(babiole.est_divers() and joueur.equipements.values().find(babiole) == -1, "objet divers : jamais équipé")
 	verifier(MI.objets_de_categorie(joueur, "Divers") == [babiole], "objet divers rangé dans « Divers »")

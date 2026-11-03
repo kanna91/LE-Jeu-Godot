@@ -8,7 +8,7 @@ a déjà demandé de changer. Les fichiers entre crochets disent où se trouve l
 
 ## 1. Les familles d'objets
 
-**O1 — Quatre sortes d'objets** [`objet.gd`, `arme.gd`, `armure.gd`, `consommable.gd`, `objets_divers.gd`]
+**O1 — Sortes d'objets** [`objet.gd`, `arme.gd`, `armure.gd`, `consommable.gd`, `objets_divers.gd`]
 
 | Sorte | Exemples | S'équipe | S'utilise |
 |---|---|---|---|
@@ -16,7 +16,9 @@ a déjà demandé de changer. Les fichiers entre crochets disent où se trouve l
 | Armure | Casque, Plastron, Jambières, Bottes, Ceinture, Gants | oui | non |
 | Bijou | Anneau (2 emplacements), Amulette | oui | non |
 | Consommable | Potions de soin, de mana, de régénération | non | oui |
-| Divers | Bol de soupe, Clé de la cellule (quêtes) ; argenterie, nourriture, objets cassés (catalogue **vide**) | non | non |
+| Divers | Clé de la cellule, Bol de soupe de quête ; vaisselle, argenterie, gemmes, objets cassés (`donnees/objets_divers.json`) | non | non |
+| Nourriture (2026-11-03) | Bol de soupe, fruits, viandes séchée/grillée/bouillie | non | oui : se mange, rend des PV |
+| Ingrédient (2026-11-03) | Légumes, viande crue, viande périmée | non | non (cuisine à venir) |
 
 Les clés rouillées et les clés de boss ne sont pas de vrais objets : un compteur, montré dans la catégorie « Divers »
 de l'inventaire.
@@ -306,4 +308,4 @@ de test n'est jamais confisquée.
 6. **O14** : liste des effets uniques à revoir (étourdissement...).
 7. **O18** : potions de niveau 1 en points fixes, niveaux 2 et 3 en pourcentage.
 8. **O13** : lance de test dans l'inventaire de départ.
-9. **O1** : catalogue des objets divers (argenterie, nourriture, objets cassés) toujours vide.
+9. **O1** : catalogue rempli le 2026-11-03 (liste de l'utilisateur) ; prix, PV de la nourriture et classement nourriture / ingrédient proposés par Claude, à valider.

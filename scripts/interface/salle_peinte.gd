@@ -117,8 +117,10 @@ const TEINTE_FOUILLE := Color(0.42, 0.45, 0.5)
 const OMBRE_OBJETS := 0.42
 ## Hauteur de chaque type d'objet, en hauteurs du héros à la même profondeur.
 ## Emprise au sol : [demi-largeur, demi-profondeur] en parts de la largeur affichée.
-const TAILLES := {"squelette": 0.5}
-const EMPRISES := {"squelette": [0.4, 0.1]}
+## Butin posé dans l'éditeur (Fouille.butins) : petit, sans emprise (on marche dessus), disparaît une fois ramassé.
+const TAILLES := {"squelette": 0.5, "butin": 0.2}
+const EMPRISES := {"squelette": [0.4, 0.1], "butin": [0.0, 0.0]}
+const TEINTE_BUTIN := Color(0.85, 0.85, 0.85)
 ## Portée de la fouille : distance au pied de l'objet, en hauteurs du héros.
 const PORTEE_FOUILLE := 0.55
 
@@ -206,7 +208,7 @@ func charger(id: String, arrivee := -1, avec_miroir := false, objets_places := [
 		if prepare.is_empty():
 			continue
 		objets.append(prepare)
-		if prepare.has("emprise"):
+		if prepare.has("emprise") and prepare["emprise"][0] > 0:
 			donnees["obstacles"].append(_ellipse(Vector2(prepare["x"], prepare["y"]), prepare["emprise"][0], prepare["emprise"][1]))
 	if presences != null:
 		presences.entites = []  # leurs nœuds partent avec l'ancien monde ; placer_presences les recrée
@@ -522,6 +524,9 @@ func _creer_objets() -> void:
 		sprite.scale = Vector2(echelle, echelle)
 		sprite.offset = decalage
 		sprite.modulate = TEINTE_FOUILLE if o.get("fouille", false) else TEINTE_OBJETS
+		if o.get("type", "") == "butin":
+			sprite.modulate = TEINTE_BUTIN
+			noeud.visible = not o.get("fouille", false)
 		noeud.add_child(sprite)
 		tri.add_child(noeud)
 		noeuds_objets.append(noeud)
@@ -556,6 +561,9 @@ func objet_proche() -> int:
 ## L'objet ``i`` a été fouillé : il s'assombrit et n'est plus proposé.
 func marquer_fouille(i: int) -> void:
 	objets[i]["fouille"] = true
+	if objets[i].get("type", "") == "butin":
+		noeuds_objets[i].visible = false  # le butin ramassé disparaît
+		return
 	var image := noeuds_objets[i].get_node_or_null("image") as Sprite2D
 	if image != null:
 		image.modulate = TEINTE_FOUILLE

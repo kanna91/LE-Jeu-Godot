@@ -145,7 +145,7 @@ static func categorie(objet) -> String:
 	if U.ga(objet, "type_objet", null) == "cle":
 		return "Divers — Clé"
 	if objet.est_divers():
-		return "Divers — %s" % ObjetsDivers.SORTES.get(U.ga(objet, "sorte", ""), "Objet")
+		return "%s — %s" % [ObjetsDivers.NOMS_CATEGORIES.get(U.ga(objet, "type_objet", ""), "Divers"), ObjetsDivers.SORTES.get(U.ga(objet, "sorte", ""), "Objet")]
 	return "Objet"
 
 
@@ -189,7 +189,7 @@ static func cle_pile(objet) -> String:
 	if objet.est_consommable() and effet is Dictionary:
 		return "pile|%s|%s|%s" % [objet.nom, effet.get("type"), effet.get("valeur")]
 	if objet.est_divers():
-		return "divers|%s" % objet.nom
+		return "divers|%s|%s" % [U.ga(objet, "type_objet", ""), objet.nom]
 	return "objet|%d" % objet.get_instance_id()
 
 
@@ -415,6 +415,8 @@ static func dessiner_infobulle(ci: CanvasItem, objet, ancre: Rect2, joueur = nul
 			lignes.append([effet, COULEUR_PLUS, 14, false])
 	elif objet.est_divers():
 		lignes.append([String(U.ga(objet, "description", "")), COULEUR_TEXTE, 14, false])
+		if objet.est_nourriture():
+			lignes.append(["Se mange : rend %d PV" % int(U.num(objet, "pv")), COULEUR_PLUS, 14, false])
 		if int(U.num(objet, "valeur")) > 0:
 			lignes.append(["Se revend %d or chez le marchand" % int(U.num(objet, "valeur")), COULEUR_DETAIL, 13, false])
 	else:

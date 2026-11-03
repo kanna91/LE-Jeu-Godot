@@ -32,7 +32,7 @@ func lancer() -> void:
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
 	joueur._d["cles"] = 2
-	# Objets d'essai : le catalogue des objets divers est vide en attendant la liste de l'utilisateur
+	# Objets d'essai (hors catalogue)
 	for l in [["Objet d'essai A", "argenterie", 25], ["Objet d'essai A", "argenterie", 25], ["Objet d'essai B", "nourriture", 2]]:
 		joueur.recevoir_objet(ObjetsDivers.creer(l[0], l[1], l[2], "Objet d'essai (capture)."))
 	joueur.recevoir_objet(Consommable.creer_potion("pv", 1))

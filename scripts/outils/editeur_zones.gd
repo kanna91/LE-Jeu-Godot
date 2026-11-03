@@ -17,6 +17,11 @@ extends Control
 ## un mur invisible (PlanSalles). Une salle sert ainsi à plus de formes d'étage.
 ## Changer de salle : boutons ◀ ▶ et liste en haut à droite, ou Page préc. / suiv. ; la salle quittée est
 ## enregistrée automatiquement si elle a été modifiée.
+## Onglet « Butin » (2026-11-03, demande de l'utilisateur ; touche 7 ou onglet en haut à droite) : poser du butin à
+## un endroit précis (clic), le déplacer (glisser), le retirer (clic droit). Le module à droite définit le butin choisi
+## (et celui des prochains posés) : or (montant, 0 = au hasard), potion (sorte), arme, équipement (armure / bijou),
+## objet divers, nourriture, ingrédient (objet précis du catalogue ou au hasard), nombre, rang. Enregistré dans la clé
+## « butins » du .json de la salle ; dans le jeu, il se ramasse avec E (Fouille.ramasser).
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
@@ -37,6 +42,14 @@ const NOMS_DIRECTIONS := {"devant": "fond", "gauche": "gauche", "droite": "droit
 ## Distance (pixels de l'écran) pour attraper un point ou une arête.
 const PRISE := 9.0
 const ZOOM_MAX := 6.0
+const COULEUR_BUTIN := Color(1, 0.8, 0.2)
+const POTIONS := ["", "pv", "mana", "mixte"]
+const NOMS_POTIONS := ["Au hasard", "Soin", "Mana", "Régénération"]
+const EQUIPEMENTS := ["", "armure", "bijou"]
+const NOMS_EQUIPEMENTS := ["Au hasard", "Armure", "Bijou"]
+const AIDE_BUTIN := "Onglet Butin — clic : poser un butin (réglé dans le module à droite)   clic sur un butin : le choisir   glisser : le déplacer\n" \
+	+ "clic droit : le retirer   le module change le butin choisi (et les suivants)   Échap : ne rien choisir   1-6 : retour aux zones\n" \
+	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer   F1 : replier l'aide"
 
 var salle: SallePeinte
 var calque: Calque
@@ -62,6 +75,24 @@ var position_base := Vector2.ZERO
 var zoom := 1.0
 ## Aide détaillée affichée (F1 pour la replier ; affichée par défaut, demande de l'utilisateur).
 var aide_complete := true
+## Onglet « Butin » actif (sinon : zones).
+var mode_butin := false
+var onglets: TabBar
+var module: PanelContainer
+var choix_categorie: OptionButton
+var choix_objet: OptionButton
+var etiquette_objet: Label
+var choix_quantite: SpinBox
+var etiquette_quantite: Label
+var choix_rang: SpinBox
+var etiquette_rang: Label
+var etiquette_choisi: Label
+## Butin choisi (index dans salle.donnees["butins"], -1 : aucun) ; butin glissé (-1 : aucun).
+var butin_choisi := -1
+var glisse_butin := -1
+## Réglages du prochain butin posé.
+var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": "", "rang": 0}
+var _maj_module := false
 const AIDE := "Tab : éditer / marcher   1-6 : couche (6 : cachettes)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
 	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
 	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction   O : sortie potentielle\n" \
@@ -86,6 +117,7 @@ func _ready() -> void:
 	texte = _etiquette(Vector2(12, 8), 15)
 	aide = _etiquette(Vector2(12, 520), 12)
 	_barre_salles()
+	_creer_module()
 	_charger()
 	if "--capture" in demande:  # vérification hors écran
 		for _i in 20:
@@ -172,6 +204,14 @@ func _charger() -> void:
 				"sorties_potentielles": false}[cle])
 		salle.donnees[cle] = l
 	salle.donnees["arrivees"] = salle.donnees.get("arrivees", {}).duplicate()
+	var butins := []
+	for b in salle.donnees.get("butins", []):
+		if b is Dictionary:
+			butins.append(b.duplicate())
+	salle.donnees["butins"] = butins
+	butin_choisi = -1
+	glisse_butin = -1
+	_remplir_module()
 	echelle_base = salle.monde.scale
 	position_base = salle.monde.position
 	zoom = 1.0
@@ -224,7 +264,11 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		_bouton(ev)
 	elif ev is InputEventMouseMotion:
-		if not glisse.is_empty() and glisse[2] == -1:
+		if glisse_butin >= 0 and glisse_butin < salle.donnees["butins"].size():
+			var m := _borne(souris())
+			salle.donnees["butins"][glisse_butin]["x"] = int(m.x)
+			salle.donnees["butins"][glisse_butin]["y"] = int(m.y)
+		elif not glisse.is_empty() and glisse[2] == -1:
 			# Zone déplacée d'un bloc
 			var decalage: Vector2 = _borne(souris()) - glisse[3]
 			var poly := PackedVector2Array()
@@ -261,6 +305,8 @@ func _touche(ev: InputEventKey) -> void:
 			changer_salle(numero - 1)
 		KEY_ESCAPE:
 			trace.clear()
+			butin_choisi = -1
+			_remplir_module()
 		KEY_R:  # en marchant : le héros revient au point de départ de la salle
 			if not edition:
 				salle.heros.position = salle.sur_le_sol(Vector2(salle.donnees["depart"][0], salle.donnees["depart"][1]))
@@ -273,10 +319,13 @@ func _touche(ev: InputEventKey) -> void:
 				KEY_5: 4, KEY_KP_5: 4, KEY_6: 5, KEY_KP_6: 5}
 			couche = COUCHES[n[ev.keycode]]
 			trace.clear()
+			choisir_onglet(false)
 			if couche == "prisonniers":
 				message = "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image"
 			elif couche == "cachettes":
 				message = "Cachettes : tracez les zones où le héros ne peut être ni vu ni entendu (Tab pour essayer)"
+		KEY_7, KEY_KP_7:
+			choisir_onglet(true)
 		KEY_ENTER, KEY_KP_ENTER:
 			_fermer_trace()
 		KEY_0, KEY_KP_0:
@@ -319,6 +368,8 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		_vue(zoom / 1.2, ev.position)
 	elif ev.button_index == MOUSE_BUTTON_MIDDLE:
 		deplacement = ev.pressed
+	elif mode_butin:
+		_bouton_butin(ev, m)
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		if not trace.is_empty():
 			if trace.size() >= 3 and m.distance_to(trace[0]) * echelle() < PRISE:
@@ -501,6 +552,7 @@ func _memoriser() -> void:
 	for cle in INFOS_SORTIES:
 		copie[cle] = salle.donnees[cle].duplicate()
 	copie["arrivees"] = salle.donnees["arrivees"].duplicate()
+	copie["butins"] = salle.donnees["butins"].duplicate(true)
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -513,9 +565,13 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
-	for cle in INFOS_SORTIES + ["arrivees"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins"]:
 		salle.donnees[cle] = copie[cle]
 	glisse = []
+	glisse_butin = -1
+	if butin_choisi >= salle.donnees["butins"].size():
+		butin_choisi = -1
+	_remplir_module()
 	_change()
 
 
@@ -556,7 +612,7 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
-	for cle in INFOS_SORTIES + ["arrivees"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins"]:
 		zones[cle] = salle.donnees[cle]
 	var donnees := SallePeinte.lire_salle(id)
 	for c in zones:
@@ -577,6 +633,266 @@ func _enregistrer() -> void:
 
 
 # ---------------------------------------------------------------------------
+# Onglet « Butin »
+# ---------------------------------------------------------------------------
+
+## Passe à l'onglet Butin (``butin`` vrai) ou Zones.
+func choisir_onglet(butin: bool) -> void:
+	mode_butin = butin
+	trace.clear()
+	glisse = []
+	glisse_butin = -1
+	if onglets != null and onglets.current_tab != (1 if butin else 0):
+		onglets.current_tab = 1 if butin else 0
+	message = "Butin : cliquez sur le sol pour poser le butin réglé à droite" if butin else ""
+
+
+func _onglet_change(k: int) -> void:
+	if (k == 1) != mode_butin:
+		choisir_onglet(k == 1)
+
+
+## Onglets Zones / Butin et module de réglage du butin (à droite, visible dans l'onglet Butin).
+func _creer_module() -> void:
+	onglets = TabBar.new()
+	onglets.position = Vector2(560, 40)
+	onglets.z_index = 100
+	onglets.focus_mode = Control.FOCUS_NONE
+	onglets.clip_tabs = false
+	onglets.custom_minimum_size = Vector2(180, 0)
+	onglets.add_tab("Zones")
+	onglets.add_tab("Butin")
+	onglets.tab_changed.connect(_onglet_change)
+	add_child(onglets)
+	module = PanelContainer.new()
+	module.position = Vector2(718, 76)
+	module.custom_minimum_size = Vector2(232, 0)
+	module.z_index = 100
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.07, 0.06, 0.09, 0.92)
+	style.border_color = COULEUR_BUTIN
+	style.set_border_width_all(1)
+	style.set_corner_radius_all(6)
+	style.set_content_margin_all(8)
+	module.add_theme_stylebox_override("panel", style)
+	add_child(module)
+	var boite := VBoxContainer.new()
+	module.add_child(boite)
+	var titre := Label.new()
+	titre.text = "Butin"
+	titre.add_theme_color_override("font_color", COULEUR_BUTIN)
+	boite.add_child(titre)
+	etiquette_choisi = _petite_etiquette("")
+	boite.add_child(etiquette_choisi)
+	boite.add_child(_petite_etiquette("Type d'objet"))
+	choix_categorie = OptionButton.new()
+	choix_categorie.focus_mode = Control.FOCUS_NONE
+	for c in Fouille.CATEGORIES_BUTIN:
+		choix_categorie.add_item(Fouille.NOMS_BUTIN[c])
+	choix_categorie.item_selected.connect(_categorie_choisie)
+	boite.add_child(choix_categorie)
+	etiquette_objet = _petite_etiquette("Objet")
+	boite.add_child(etiquette_objet)
+	choix_objet = OptionButton.new()
+	choix_objet.focus_mode = Control.FOCUS_NONE
+	choix_objet.fit_to_longest_item = false
+	choix_objet.custom_minimum_size = Vector2(216, 0)
+	choix_objet.item_selected.connect(_objet_choisi)
+	boite.add_child(choix_objet)
+	etiquette_quantite = _petite_etiquette("Nombre")
+	boite.add_child(etiquette_quantite)
+	choix_quantite = SpinBox.new()
+	choix_quantite.max_value = 9999
+	choix_quantite.value_changed.connect(func(v): _regler("quantite", int(v)))
+	boite.add_child(choix_quantite)
+	etiquette_rang = _petite_etiquette("Rang (0 : selon l'étage)")
+	boite.add_child(etiquette_rang)
+	choix_rang = SpinBox.new()
+	choix_rang.max_value = 6
+	choix_rang.value_changed.connect(func(v): _regler("rang", int(v)))
+	boite.add_child(choix_rang)
+	var retirer := Button.new()
+	retirer.text = "Retirer ce butin"
+	retirer.focus_mode = Control.FOCUS_NONE
+	retirer.pressed.connect(_retirer_choisi)
+	boite.add_child(retirer)
+	module.visible = false
+
+
+func _petite_etiquette(t: String) -> Label:
+	var l := Label.new()
+	l.text = t
+	l.add_theme_font_size_override("font_size", 12)
+	l.add_theme_color_override("font_color", Color(0.75, 0.72, 0.8))
+	return l
+
+
+## Butin que le module montre et règle : le butin choisi, sinon le modèle des prochains.
+func butin_regle() -> Dictionary:
+	if salle != null and butin_choisi >= 0 and butin_choisi < salle.donnees.get("butins", []).size():
+		return salle.donnees["butins"][butin_choisi]
+	return modele_butin
+
+
+## Change un réglage du butin choisi (et du modèle des prochains butins).
+func _regler(cle: String, valeur) -> void:
+	if _maj_module:
+		return
+	var b := butin_regle()
+	if not is_same(b, modele_butin) and b.get(cle) != valeur:
+		_memoriser()
+		b[cle] = valeur
+		_change()
+	modele_butin[cle] = valeur
+
+
+func _categorie_choisie(k: int) -> void:
+	if _maj_module:
+		return
+	var b := butin_regle()
+	if not is_same(b, modele_butin):
+		_memoriser()
+		b["categorie"] = Fouille.CATEGORIES_BUTIN[k]
+		b["objet"] = ""
+		b["potion"] = ""
+		_change()
+	modele_butin["categorie"] = Fouille.CATEGORIES_BUTIN[k]
+	modele_butin["objet"] = ""
+	modele_butin["potion"] = ""
+	_remplir_module()
+
+
+func _objet_choisi(k: int) -> void:
+	var c := String(butin_regle().get("categorie", "or"))
+	if c == "potion":
+		_regler("potion", POTIONS[k])
+	elif c == "equipement":
+		_regler("objet", EQUIPEMENTS[k])
+	elif k == 0:
+		_regler("objet", "")
+	else:
+		_regler("objet", choix_objet.get_item_text(k))
+
+
+func _retirer_choisi() -> void:
+	if butin_choisi >= 0:
+		_retirer_butin(butin_choisi)
+
+
+## Met le module à jour d'après le butin réglé (champs utiles à sa catégorie seulement).
+func _remplir_module() -> void:
+	if module == null:
+		return
+	_maj_module = true
+	var b := butin_regle()
+	var c := String(b.get("categorie", "or"))
+	etiquette_choisi.text = ("Butin %d choisi (clic droit : le retirer)" % (butin_choisi + 1)) if butin_choisi >= 0 \
+		else "Réglage du prochain butin posé"
+	choix_categorie.select(maxi(0, Fouille.CATEGORIES_BUTIN.find(c)))
+	choix_objet.clear()
+	var a_objet := c in ["potion", "equipement", "divers", "nourriture", "ingredient"]
+	if c == "potion":
+		for n in NOMS_POTIONS:
+			choix_objet.add_item(n)
+		choix_objet.select(maxi(0, POTIONS.find(String(b.get("potion", "")))))
+	elif c == "equipement":
+		for n in NOMS_EQUIPEMENTS:
+			choix_objet.add_item(n)
+		choix_objet.select(maxi(0, EQUIPEMENTS.find(String(b.get("objet", "")))))
+	elif a_objet:
+		choix_objet.add_item("Au hasard")
+		var noms := ObjetsDivers.noms(c)
+		for n in noms:
+			choix_objet.add_item(n)
+		choix_objet.select(noms.find(String(b.get("objet", ""))) + 1)
+	etiquette_objet.visible = a_objet
+	choix_objet.visible = a_objet
+	etiquette_objet.text = "Sorte de potion" if c == "potion" else ("Pièce d'équipement" if c == "equipement" else "Objet")
+	etiquette_quantite.text = "Pièces d'or (0 : au hasard)" if c == "or" else "Nombre (0 ou 1 : un seul)"
+	choix_quantite.value = int(b.get("quantite", 0))
+	var a_rang := c in ["arme", "equipement"]
+	etiquette_rang.visible = a_rang
+	choix_rang.visible = a_rang
+	choix_rang.value = int(b.get("rang", 0))
+	module.reset_size()
+	_maj_module = false
+
+
+## Texte court d'un butin (au-dessus de son point dans l'éditeur).
+func resume_butin(b: Dictionary) -> String:
+	var c := String(b.get("categorie", "or"))
+	var q := int(b.get("quantite", 0))
+	if c == "or":
+		return "Or : %s" % (str(q) if q > 0 else "au hasard")
+	var t: String = Fouille.NOMS_BUTIN.get(c, c)
+	if c == "potion":
+		t = "Potion (%s)" % NOMS_POTIONS[maxi(0, POTIONS.find(String(b.get("potion", ""))))].to_lower()
+	elif c == "equipement" and String(b.get("objet", "")) != "":
+		t = NOMS_EQUIPEMENTS[maxi(0, EQUIPEMENTS.find(String(b["objet"])))]
+	elif String(b.get("objet", "")) != "":
+		t = String(b["objet"])
+	elif c != "arme":
+		t += " au hasard"
+	if c in ["arme", "equipement"] and int(b.get("rang", 0)) > 0:
+		t += " (rang %d)" % int(b["rang"])
+	return ("%d × %s" % [q, t]) if q > 1 else t
+
+
+## Pose un butin (réglages du modèle) au point ``m`` de l'image ; renvoie son index.
+func poser_butin(m: Vector2) -> int:
+	_memoriser()
+	var b := modele_butin.duplicate()
+	b["x"] = int(m.x)
+	b["y"] = int(m.y)
+	salle.donnees["butins"].append(b)
+	butin_choisi = salle.donnees["butins"].size() - 1
+	_change()
+	_remplir_module()
+	message = "Butin posé : %s" % resume_butin(b)
+	return butin_choisi
+
+
+func _retirer_butin(k: int) -> void:
+	_memoriser()
+	salle.donnees["butins"].remove_at(k)
+	butin_choisi = -1
+	_change()
+	_remplir_module()
+	message = "Butin retiré (Ctrl+Z pour annuler)"
+
+
+## Butin sous le point ``m`` de l'image (le plus récent d'abord), ou −1.
+func _butin_sous(m: Vector2) -> int:
+	var butins: Array = salle.donnees["butins"]
+	for k in range(butins.size() - 1, -1, -1):
+		if Vector2(butins[k]["x"], butins[k]["y"]).distance_to(m) * echelle() < PRISE + 4:
+			return k
+	return -1
+
+
+func _bouton_butin(ev: InputEventMouseButton, m: Vector2) -> void:
+	if ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
+		var k := _butin_sous(m)
+		if k >= 0:
+			butin_choisi = k
+			_memoriser()
+			glisse_butin = k
+			for cle in modele_butin:  # les prochains butins reprennent ses réglages
+				modele_butin[cle] = salle.donnees["butins"][k].get(cle, modele_butin[cle])
+			_remplir_module()
+		else:
+			poser_butin(m)
+	elif ev.button_index == MOUSE_BUTTON_LEFT and not ev.pressed:
+		if glisse_butin >= 0:
+			glisse_butin = -1
+			_change()
+	elif ev.button_index == MOUSE_BUTTON_RIGHT and ev.pressed:
+		var k := _butin_sous(m)
+		if k >= 0:
+			_retirer_butin(k)
+
+
+# ---------------------------------------------------------------------------
 # Affichage
 # ---------------------------------------------------------------------------
 
@@ -586,18 +902,20 @@ func _process(_delta: float) -> void:
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : couche %s" % nom_couche) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : %s" % ("onglet Butin" if mode_butin else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
-		lignes.append("souris : %d, %d   zoom ×%.1f" % [m.x, m.y, zoom])
+		lignes.append("souris : %d, %d   zoom ×%.1f%s" % [m.x, m.y, zoom,
+			("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin else ""])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = (AIDE if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
+	aide.text = ((AIDE_BUTIN if mode_butin else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
+	module.visible = edition and mode_butin
 
 
 class Calque extends Node2D:
@@ -643,6 +961,20 @@ class Calque extends Node2D:
 					draw_string_outline(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, 4, Color.BLACK)
 					draw_string(police, Vector2(-70, 5), t, HORIZONTAL_ALIGNMENT_CENTER, 140, 14, Color.WHITE)
 					draw_set_transform(Vector2.ZERO)
+		# Butin posé (onglet Butin ; montré aussi dans l'onglet Zones et en marchant avec F2)
+		if ed.mode_butin or ed.voir_zones:
+			var butins: Array = ed.salle.donnees.get("butins", [])
+			for k in butins.size():
+				var b: Dictionary = butins[k]
+				var c := Vector2(b["x"], b["y"])
+				var choisi: bool = ed.mode_butin and k == ed.butin_choisi
+				draw_circle(c, 7.0 * e, Color(COULEUR_BUTIN, 0.9 if ed.mode_butin else 0.45))
+				draw_circle(c, (11.0 if choisi else 7.0) * e, Color.WHITE if choisi else Color.BLACK, false, 2.0 * e)
+				var t: String = ed.resume_butin(b)
+				draw_set_transform(c + Vector2(0, -14 * e), 0, Vector2(e, e))
+				draw_string_outline(police, Vector2(-100, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 200, 13, 4, Color.BLACK)
+				draw_string(police, Vector2(-100, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 200, 13, Color.WHITE if choisi else COULEUR_BUTIN)
+				draw_set_transform(Vector2.ZERO)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]
 			var pts := PackedVector2Array(ed.trace)

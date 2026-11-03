@@ -14,7 +14,8 @@ static func nouveau(nom := "marchand en fuite", donjon = "") -> Marchand:
 	return m
 
 
-## Nouveau stock : 2 à 4 armes, 2 à 4 armures, 1 à 3 bijoux, potions de soin et de mana, 1 à 3 potions au hasard.
+## Nouveau stock : 2 à 4 armes, 2 à 4 armures, 1 à 3 bijoux, potions de soin et de mana, 1 à 3 potions au hasard,
+## 2 à 4 nourritures et 1 à 3 ingrédients (2026-11-03, nombres choisis par Claude).
 func generer_inventaire() -> void:
 	_d["inventaire"] = []
 	for _i in randi_range(2, 4):
@@ -27,6 +28,14 @@ func generer_inventaire() -> void:
 	ajouter_potion("mana", 1)
 	for _i in randi_range(1, 3):
 		ajouter_potion()
+	for _i in randi_range(2, 4):
+		var o = ObjetsDivers.au_hasard("nourriture")
+		if o != null:
+			_d["inventaire"].append(o)
+	for _i in randi_range(1, 3):
+		var o = ObjetsDivers.au_hasard("ingredient")
+		if o != null:
+			_d["inventaire"].append(o)
 
 
 func ajouter_potion(type_potion = null, niveau = null) -> void:

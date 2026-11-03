@@ -6,9 +6,11 @@ extends Ecran
 const ZONE_LISTE := Rect2(20, 102, 430, 376)
 const HAUTEUR_LIGNE := 46
 const PANNEAU_EQUIPEMENT := Rect2(480, 20, 460, 458)
-## Catégories (« Divers » ajoutée le 2026-10-31 : objets neutres et clés du héros).
-const BOUTONS_CATEGORIES := {"Armes": Rect2(20, 20, 70, 34), "Armures": Rect2(93, 20, 84, 34),
-	"Bijoux": Rect2(180, 20, 70, 34), "Consommables": Rect2(253, 20, 128, 34), "Divers": Rect2(384, 20, 66, 34)}
+## Catégories (« Divers » ajoutée le 2026-10-31 : objets neutres et clés du héros ; « Nourriture » et « Ingrédients »
+## le 2026-11-03), sur deux rangées.
+const BOUTONS_CATEGORIES := {"Armes": Rect2(20, 6, 100, 30), "Armures": Rect2(124, 6, 100, 30),
+	"Bijoux": Rect2(228, 6, 100, 30), "Consommables": Rect2(332, 6, 118, 30),
+	"Nourriture": Rect2(20, 38, 138, 30), "Ingrédients": Rect2(162, 38, 138, 30), "Divers": Rect2(304, 38, 146, 30)}
 const BOUTON_QUITTER := Rect2(Ui.LARGEUR - 140, Ui.HAUTEUR - 50, 120, 34)
 const DELAI_DOUBLE_CLIC := 0.4
 const LIGNE := Color8(40, 36, 52)
@@ -39,7 +41,7 @@ func preparer(j) -> Ecran:
 			PANNEAU_EQUIPEMENT.position.y + 44 + (i % 5) * 52, 208, 46)
 	var modes := DescriptionObjet.MODES_TRI.keys()
 	for i in modes.size():
-		boutons_tri[modes[i]] = Rect2(76 + i * 96, 62, 90, 30)
+		boutons_tri[modes[i]] = Rect2(76 + i * 96, 72, 90, 26)
 	couche_decoupee(ZONE_LISTE, _dessiner_liste)
 	return self
 
@@ -62,8 +64,12 @@ static func de_categorie(objets: Array, categorie: String) -> Array:
 				ok = o.est_bijou()
 			"Consommables":
 				ok = o.est_consommable()
+			"Nourriture":
+				ok = o.est_nourriture()
+			"Ingrédients":
+				ok = o.est_ingredient()
 			"Divers":
-				ok = o.est_divers()
+				ok = o.est_divers() and not o.est_nourriture() and not o.est_ingredient()
 		if ok:
 			liste.append(o)
 	return liste
@@ -73,6 +79,8 @@ static func de_categorie(objets: Array, categorie: String) -> Array:
 static func resume_objet(objet) -> String:
 	if objet.est_consommable():
 		return DescriptionObjet.effet_consommable(objet)
+	if objet.est_nourriture():
+		return "Rend %d PV · %s" % [int(U.num(objet, "pv")), String(U.ga(objet, "description", ""))]
 	if objet.est_divers():
 		return String(U.ga(objet, "description", ""))
 	var stats := DescriptionObjet.statistiques(objet)
@@ -112,6 +120,11 @@ static func utiliser_ou_equiper(j, objet) -> String:
 		if j.mana > mana:
 			gains.append("+%d mana" % int(j.mana - mana))
 		return "%s utilisée : %s" % [objet.nom, ", ".join(gains) if not gains.is_empty() else "aucun effet (déjà au maximum)"]
+	if objet.est_nourriture():
+		var gain := ObjetsDivers.manger(j, objet)
+		return "Vous mangez %s : %s" % [objet.nom, ("+%d PV" % gain) if gain > 0 else "aucun effet (PV déjà au maximum)"]
+	if objet.est_ingredient():
+		return "%s ne se mange pas tel quel (il servira à cuisiner)." % objet.nom
 	if objet.est_divers():
 		return "%s ne s'utilise pas." % objet.nom
 	if DescriptionObjet.emplacement_cible(j, objet) != null:
@@ -194,7 +207,7 @@ func _dessiner(ci: Control) -> void:
 		Ui.rect(ci, r, BORDURE if actif else LIGNE, 0, 6)
 		Ui.rect(ci, r, BORDURE, 1, 6)
 		Ui.texte(ci, "%s (%d)" % [nom, compte_categorie(joueur, nom)], r.get_center(), Ui.BLANC, 14, actif, null, "center")
-	Ui.texte(ci, "Trier :", Vector2(22, 68), DescriptionObjet.COULEUR_DETAIL, 14, true)
+	Ui.texte(ci, "Trier :", Vector2(22, 76), DescriptionObjet.COULEUR_DETAIL, 14, true)
 	for mode in boutons_tri:
 		Ui.onglet(ci, boutons_tri[mode], DescriptionObjet.MODES_TRI[mode], mode == tri_actif, boutons_tri[mode].has_point(s), 14)
 	Ui.rect(ci, ZONE_LISTE.grow(4), Color8(12, 10, 16, 200), 0, 8)
@@ -263,7 +276,7 @@ func _dessiner(ci: Control) -> void:
 
 func _dessiner_dessus(ci: Control) -> void:
 	if _survol_objet != null:
-		var aide = null if _survol_objet[0].est_divers() else ("Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper")
+		var aide = "Double-clic : manger" if _survol_objet[0].est_nourriture() else null if _survol_objet[0].est_divers() else ("Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper")
 		DescriptionObjet.dessiner_infobulle(ci, _survol_objet[0], _survol_objet[1], joueur, null, aide)
 	elif _survol_porte != null:
 		DescriptionObjet.dessiner_infobulle(ci, _survol_porte[0], _survol_porte[1], null, null, "Double-clic : retirer")

@@ -408,7 +408,8 @@ func _dessiner_fouille(ci: Control) -> void:
 	var haut := salle_peinte.haut_objet_ecran(i)
 	var cadre := Rect2(haut.x - 62, haut.y - 34, 124, 26)
 	Ui.panneau(ci, cadre, 210)
-	Ui.texte(ci, "Fouiller (E)", cadre.get_center(), Ui.OR, 15, true, null, "center")
+	var libelle := "Ramasser (E)" if salle_peinte.objets[i].get("type", "") == "butin" else "Fouiller (E)"
+	Ui.texte(ci, libelle, cadre.get_center(), Ui.OR, 15, true, null, "center")
 
 
 ## Fouille l'objet à portée du héros (touche E, bouton X de la manette).

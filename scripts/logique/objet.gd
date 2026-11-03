@@ -53,9 +53,19 @@ func est_consommable() -> bool:
 	return U.ga(self, "type_objet", null) == "consommable"
 
 
-## Objet neutre (argenterie, nourriture, objet cassé : ObjetsDivers) ou affichage des clés.
+## Objet neutre (ObjetsDivers : divers, nourriture, ingrédient) ou affichage des clés : ni équipement ni potion.
 func est_divers() -> bool:
-	return U.ga(self, "type_objet", null) in ["divers", "cle"]
+	return U.ga(self, "type_objet", null) in ["divers", "cle", "nourriture", "ingredient"]
+
+
+## Nourriture (ObjetsDivers) : se mange et rend des PV ; onglet « Nourriture ».
+func est_nourriture() -> bool:
+	return U.ga(self, "type_objet", null) == "nourriture"
+
+
+## Ingrédient (ObjetsDivers) : ne se mange pas, servira à cuisiner ; onglet « Ingrédients ».
+func est_ingredient() -> bool:
+	return U.ga(self, "type_objet", null) == "ingredient"
 
 
 ## Attribue un rang : imposé, ou tiré selon l'étage (1-2, 2-3, 3-4, 4-5, puis 5-6).

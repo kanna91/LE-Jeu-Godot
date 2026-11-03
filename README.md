@@ -215,9 +215,23 @@ stick droit pour choisir un bouton de l'interface.
     rang de l'étage + 2 ; précieux avant, corrigé le 2026-11-02) ; les catacombes sont les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
     simplement plus lui parler) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
-    ne s'utilisent (argenterie, nourriture, objets cassés), pour de futures quêtes ou la revente. **Le catalogue
-    (`ObjetsDivers.CATALOGUE`) est vide : l'utilisateur fournira la liste**, et rien n'en donne encore (la fouille est
-    inchangée). Les **clés** du héros s'y affichent en tête (« Clé rouillée ×N ») ;
+    ne s'utilisent (vaisselle, argenterie, gemmes, objets cassés), pour de futures quêtes ou la revente. Les **clés**
+    du héros s'y affichent en tête (« Clé rouillée ×N ») ;
+  - **Catégories « Nourriture » et « Ingrédients »** (2026-11-03, demande de l'utilisateur) dans l'inventaire (deux
+    rangées d'onglets) et chez le marchand. La **nourriture se mange** (double-clic, hors combat) et rend des PV ; les
+    **ingrédients** ne se mangent pas (ils serviront à cuisiner). Le marchand vend 2 à 4 nourritures et 1 à 3
+    ingrédients. **Catalogue** (liste de l'utilisateur) : `donnees/objets_divers.json` — 22 objets divers (gobelets
+    argent/bois/fer/terre cuite, assiettes, chandeliers, couteaux, seau, pépite et dent en or, rubis, émeraude, saphir,
+    grenat, tissu, métal rouillé/tordu, bois, planche), 10 nourritures (bol de soupe, pomme, orange, poire, citron,
+    prune, raisin, viande séchée/grillée/bouillie), 9 ingrédients (carotte, tomate, pomme de terre, navet, oignon, chou,
+    poireau, viande crue, viande périmée). Classement : prêt à manger = nourriture, cru = ingrédient. **Prix et PV
+    proposés par Claude, à valider** (gemmes 80 or, grenat 40, argenterie 20-35 ; soupe et viande grillée 15 PV,
+    fruits 3-6 PV) ; prune, raisin, chou et poireau ajoutés pour les « etc. » de la liste ;
+  - **Butin posé à la main** (2026-11-03) : onglet « Butin » de l'éditeur de zones (voir plus bas). Le butin est sur
+    le sol de chaque salle qui utilise l'image (or en tas, potion en fiole, le reste en sac ; images provisoires de
+    `outils/dessiner_butin.py`), ne bloque pas le passage, se ramasse avec **E** (« Ramasser (E) ») une fois par salle
+    du plan, puis disparaît (`Fouille.ramasser`). Or au hasard = comme un squelette (10-30 × étage) ; or fixé = le
+    montant exact (sans le karma) ; potion du niveau de l'étage ; arme / équipement du rang choisi ou de l'étage ;
   - **choix moraux** (`Rencontres`) : gobelin blessé (le soigner avec une potion : clé ou grimoire ; l'épargner : un
     secret vrai ; l'achever : son corps reste, à fouiller et à siphonner), prisonnier (briser ses chaînes : bruyant, les ennemis de la
     salle accourent, il donne une clé ; lui demander ce qu'il sait : il dit vrai), autel de sang (offrir des PV contre
@@ -468,6 +482,7 @@ stick droit pour choisir un bouton de l'interface.
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
+    | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
     | R | en marchant : héros remis au départ (un héros posé hors du sol est aussi remis sur le sol) |
@@ -825,7 +840,7 @@ stick droit pour choisir un bouton de l'interface.
 | `scripts/noyau/compte.gd` | `Compte` : ce que le joueur garde d'une partie à l'autre (glossaire des ennemis), `user://compte.json`. |
 | `scripts/logique/blocs_salles.gd` + `outils/importer_blocs.py` | `BlocsSalles` : blocs de salles (plan, liens porte à porte, entrées) ; import de leurs images et de leurs zones. |
 | `scripts/logique/karma.gd` | `Karma` : karma du héros, vitesse des Chevaliers de la mort, effets sur les prix, l'or et les diablotins. |
-| `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers et affichage des clés. |
+| `scripts/logique/objets_divers.gd` | `ObjetsDivers` : catalogue des objets divers, nourriture et ingrédients (`donnees/objets_divers.json`), manger, affichage des clés. |
 | `tests/` | Tests et outils de contrôle (voir plus bas). |
 
 ### Correspondance pygame → Godot
@@ -979,6 +994,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
+& $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
+& $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
 & $godot --path . -s tests/test_collisions_salles.gd      # le héros court dans 8 directions : pieds toujours sur le sol (cul-de-sac ; « -- toutes » : toutes les salles)
 ```
 
@@ -1063,6 +1080,25 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Butin posé dans l'éditeur, nourriture et ingrédients, catalogue des objets
+
+- **Éditeur de zones, onglet « Butin »** (touche 7 ou onglet en haut à droite) : on pose du butin à un endroit précis
+  de la salle (clic), on le déplace (glisser), on le retire (clic droit) ; un **module** à droite définit ce que
+  c'est : or (montant ou au hasard), potion (soin, mana, régénération ou au hasard), arme, équipement (armure, bijou
+  ou au hasard), objet divers, nourriture ou ingrédient (objet précis du catalogue ou au hasard), nombre, rang.
+  Ctrl+Z et Ctrl+S comme pour les zones.
+- **Dans le jeu** : le butin est posé au sol (tas d'or, fiole, sac), « Ramasser (E) », une fois par salle du plan.
+  Le butin ajouté après une sauvegarde apparaît aussi dans les parties en cours.
+- **Inventaire et marchand** : onglets **Nourriture** et **Ingrédients**. La nourriture se mange (double-clic) et
+  rend des PV ; les ingrédients serviront à cuisiner. Le marchand en vend.
+- **Catalogue** : la liste de l'utilisateur (41 objets) dans `donnees/objets_divers.json`. Prix, PV et classement
+  nourriture/ingrédient proposés par Claude, à valider.
+- Mentions corrigées : « le catalogue est vide » (règles du README, `objets_divers.gd`).
+- Fichiers : `objets_divers.gd`, `objet.gd` (`est_nourriture`, `est_ingredient`), `fouille.gd` (`butins`,
+  `_ajouter_butins`, `ramasser`), `salle_peinte.gd`, `menu_navigation.gd`, `menu_inventaire.gd`, `menu_marchand.gd`,
+  `marchand.gd`, `description_objet.gd`, `editeur_zones.gd` ; nouveaux : `donnees/objets_divers.json`,
+  `outils/dessiner_butin.py`, `images/objets_salles/butin_*.png`, tests `test_butin_pose.gd`, `capture_butin.gd`.
 
 ### 2026-11-03 — Karma : Chevalier plus rapide ; capture dans la prison la plus proche
 

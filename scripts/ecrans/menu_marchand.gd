@@ -1,6 +1,6 @@
 extends Ecran
 ## Boutique du marchand : onglets Acheter / Vendre / Rachat,
-## six catégories (dont « Divers », 2026-10-31), tri, vente en lot (onglet « Vendre », second clic pour
+## huit catégories (« Divers » 2026-10-31, « Nourriture » et « Ingrédients » 2026-11-03), tri, vente en lot (onglet « Vendre », second clic pour
 ## confirmer), bouton « Inventaire ». Un clic (A) sur un article l'achète, le
 ## vend ou le rachète.
 
@@ -15,8 +15,10 @@ const LIGNE_SURVOL := Color8(70, 62, 92)
 const BORDURE := Color8(150, 110, 60)
 const JAUNE := Color8(255, 255, 0)
 const ONGLETS := {"Acheter": Rect2(20, 20, 110, 34), "Vendre": Rect2(138, 20, 110, 34), "Rachat": Rect2(256, 20, 110, 34)}
-const SOUS_ONGLETS := {"Général": Rect2(20, 62, 86, 30), "Armes": Rect2(112, 62, 80, 30), "Armures": Rect2(198, 62, 88, 30),
-	"Bijoux": Rect2(292, 62, 76, 30), "Consommables": Rect2(374, 62, 116, 30), "Divers": Rect2(496, 62, 76, 30)}
+## Catégories (« Nourriture » et « Ingrédients » ajoutées le 2026-11-03).
+const SOUS_ONGLETS := {"Général": Rect2(20, 62, 72, 30), "Armes": Rect2(96, 62, 62, 30), "Armures": Rect2(162, 62, 74, 30),
+	"Bijoux": Rect2(240, 62, 62, 30), "Consommables": Rect2(306, 62, 110, 30), "Nourriture": Rect2(420, 62, 96, 30),
+	"Ingrédients": Rect2(520, 62, 96, 30), "Divers": Rect2(620, 62, 64, 30)}
 const BOUTON_INVENTAIRE := Rect2(Ui.LARGEUR - 380, Ui.HAUTEUR - 50, 170, 34)
 const BOUTON_QUITTER := Rect2(Ui.LARGEUR - 195, Ui.HAUTEUR - 50, 170, 34)
 const BOURSE := Rect2(Ui.LARGEUR - 200, 20, 180, 34)
@@ -152,7 +154,7 @@ func _dessiner(ci: Control) -> void:
 		var choisi: bool = nom == categories[onglet]
 		Ui.rect(ci, SOUS_ONGLETS[nom], Color8(95, 75, 45) if choisi else Color8(32, 29, 40), 0, 5)
 		Ui.rect(ci, SOUS_ONGLETS[nom], BORDURE if choisi else Color8(70, 62, 80), 1, 5)
-		Ui.texte(ci, nom, SOUS_ONGLETS[nom].get_center(), Ui.BLANC, 14, choisi, null, "center")
+		Ui.texte(ci, nom, SOUS_ONGLETS[nom].get_center(), Ui.BLANC, 13, choisi, null, "center")
 	Ui.texte(ci, "Trier :", Vector2(boutons_tri["arrivee"].position.x - 6, 29), DescriptionObjet.COULEUR_DETAIL, 14, true, null, "topright")
 	for mode in boutons_tri:
 		Ui.onglet(ci, boutons_tri[mode], DescriptionObjet.MODES_TRI[mode], mode == tri_actif, boutons_tri[mode].has_point(s), 14)
