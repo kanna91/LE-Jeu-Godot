@@ -472,7 +472,8 @@ func _dessiner(ci: Control) -> void:
 		Vector2(20, 15), Ui.TEXTE, 15, false, 520)
 	var nom_salle := nom_lisible(salle.get("nom", ""))
 	# « (miroir) » : la salle peinte est affichée retournée (gauche et droite échangées, PlanSalles)
-	Ui.texte(ci, "Étage %d — Salle %d%s%s" % [etage, salle_id, (" : " + nom_salle) if nom_salle != "" else "",
+	var niveau_txt := "Cryptes" if Donjon.est_niveau_unique(etage) else "Étage %d" % int(etage)
+	Ui.texte(ci, "%s — Salle %d%s%s" % [niveau_txt, salle_id, (" : " + nom_salle) if nom_salle != "" else "",
 		" (miroir)" if salle_peinte != null and salle_peinte.miroir else ""],
 		Vector2(20, 38), Ui.OR, 16, true, 520)
 	Dessins.sphere(ci, Vector2(60, Ui.HAUTEUR - 60), Color8(200, 0, 0), joueur.points_de_vie / maxf(1, joueur.points_de_vie_max),

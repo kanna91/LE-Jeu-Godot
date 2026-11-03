@@ -627,23 +627,23 @@
   [
    [
     150,
-    371
+    374
    ],
    [
     190,
-    370
+    373
    ],
    [
     197,
-    350
+    353
    ],
    [
     146,
-    352
+    355
    ],
    [
     150,
-    374
+    377
    ]
   ],
   [
@@ -722,5 +722,14 @@
  "ips": 24,
  "source": "crypte/3",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "feux": [],
+ "eaux": []
 }

@@ -518,5 +518,14 @@
  "ips": 24,
  "source": "grande salle/2",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "feux": [],
+ "eaux": []
 }

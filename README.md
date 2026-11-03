@@ -1013,6 +1013,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-173 : onglet Feux, écran de cuisine, feu de camp et intoxication (hors écran)
+& $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
 & $godot --path . -s tests/test_collisions_salles.gd      # le héros court dans 8 directions : pieds toujours sur le sol (cul-de-sac ; « -- toutes » : toutes les salles)
@@ -1099,6 +1100,20 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — Escaliers des passages prison / cryptes sur la carte
+
+- **Signalement de l'utilisateur** : « une seule sortie vers les prisons » dans les cryptes. Vérifié sur sa
+  sauvegarde et sur des donjons générés : les 4 passages existent, sont ouverts et se franchissent à pied (les
+  14 cryptes, avec ou sans miroir, ont toutes leurs sorties accessibles). Rien ne les distinguait des autres
+  sorties.
+- **Petit escalier** sur la mini-carte et la carte complète (`Carte.dessiner_escalier`, `_escalier_passage`) :
+  collé au côté du passage, pour chaque salle à passage déjà découverte (visitée ou actuelle), sur l'étage
+  (fond des couloirs de prison) comme dans les cryptes. Légende « Passage » de la carte complète.
+- Titres : « Les cryptes » (mini-carte), « Carte des cryptes » (au lieu de « Carte de les cryptes »),
+  « Cryptes — Salle … » dans le bandeau (au lieu de « Étage 101 »). Légende de la carte resserrée (elle passait
+  sous « Fermer »).
+- Captures 180-182 : `tests/capture_escaliers_carte.gd`.
 
 ### 2026-11-03 — Pas de cuisson à la torche ; points d'eau
 

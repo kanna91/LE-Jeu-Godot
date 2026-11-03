@@ -46,9 +46,9 @@ func _dessiner(ci: Control) -> void:
 	for s in salles.values():
 		if s.get("visitee", false):
 			explorees += 1
-	Ui.texte(ci, "Carte de " + Donjon.nom_niveau(etage), Vector2(Ui.LARGEUR / 2, 26), Ui.OR, 22, true, null, "center")
+	Ui.texte(ci, "Carte des cryptes" if Donjon.est_niveau_unique(etage) else "Carte de " + Donjon.nom_niveau(etage), Vector2(Ui.LARGEUR / 2, 26), Ui.OR, 22, true, null, "center")
 	Ui.texte(ci, "%d salles explorées sur %d" % [explorees, salles.size()], zone.position + Vector2(6, 4), Ui.DETAIL, 13)
-	var x := 30.0
+	var x := 16.0
 	for l in Carte.LEGENDE:
 		var genre: String = l[0]
 		var centre_icone := Vector2(x + 9, Ui.HAUTEUR - 32)
@@ -62,7 +62,7 @@ func _dessiner(ci: Control) -> void:
 				Ui.texte(ci, "?", centre_icone, Color8(150, 145, 160), 12, true, null, "center")
 		else:
 			Carte.dessiner_pictogramme(ci, genre, centre_icone, 16)
-		x = Ui.texte(ci, l[1], Vector2(x + 22, Ui.HAUTEUR - 32), Ui.TEXTE, 13, false, null, "midleft").end.x + 14
+		x = Ui.texte(ci, l[1], Vector2(x + 22, Ui.HAUTEUR - 32), Ui.TEXTE, 13, false, null, "midleft").end.x + 10
 	Ui.bouton(ci, bouton, "Fermer", Ui.BOUTON_ROUGE, bouton.has_point(souris()))
 	definir_zones([[["fermer"], bouton]], ["fermer"])
 

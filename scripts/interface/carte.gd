@@ -15,7 +15,7 @@ const COULEURS := {
 }
 const LEGENDE := [["actuelle", "Vous"], ["visitee", "Visitée"], ["connue", "Inexplorée"], ["boss", "Boss"],
 	["coffre", "Coffre"], ["soin", "Source de soin"], ["choix_bonus", "Bonus"], ["marchand", "Marchand"],
-	["piege", "Piège"]]
+	["piege", "Piège"], ["escalier", "Passage"]]
 
 
 ## État de connaissance de chaque salle d'un étage : {id: « actuelle » / « visitee » / « connue »}.
@@ -137,8 +137,37 @@ static func dessiner_pictogramme(ci: CanvasItem, genre, centre: Vector2, taille:
 			var c := Color8(200, 70, 60)
 			Ui.ligne(ci, Vector2(x - r, y - r), Vector2(x + r, y + r), c, 2)
 			Ui.ligne(ci, Vector2(x - r, y + r), Vector2(x + r, y - r), c, 2)
+		"escalier":
+			dessiner_escalier(ci, centre, 2.0 * r + 2.0)
 		"depart":
 			Ui.polygone(ci, PackedVector2Array([Vector2(x, y - r), Vector2(x - r, y + r / 2), Vector2(x + r, y + r / 2)]), Color8(220, 230, 255))
+
+
+## Petit escalier (passage vers un autre niveau : fond d'un couloir de prison, entrée des cryptes), dans un carré
+## de côté ``t`` centré sur ``c`` : trois marches qui descendent vers la droite.
+static func dessiner_escalier(ci: CanvasItem, c: Vector2, t: float) -> void:
+	var cadre := Rect2(c - Vector2(t, t) / 2.0, Vector2(t, t))
+	Ui.rect(ci, cadre, Color8(40, 34, 48), 0, 2)
+	var dedans := cadre.grow(-2.0)
+	var m := dedans.size.x / 3.0
+	for k in 3:
+		var h := m * (3 - k)
+		Ui.rect(ci, Rect2(dedans.position.x + k * m, dedans.end.y - h, ceilf(m), h), Color8(235, 200, 120))
+		Ui.ligne(ci, Vector2(dedans.position.x + k * m, dedans.end.y - h), Vector2(dedans.position.x + (k + 1) * m, dedans.end.y - h), Color8(255, 240, 200), 1)
+	Ui.rect(ci, cadre, Color8(235, 200, 120), 1, 2)
+
+
+## Escaliers des passages découverts (salle visitée ou actuelle avec « passage_niveau »), collés au bord de la salle
+## du côté du passage.
+static func _escalier_passage(ci: CanvasItem, salle: Dictionary, etat: String, c: Vector2, taille_salle: int, zone: Rect2) -> void:
+	var lien = salle.get("passage_niveau", null)
+	if not (lien is Dictionary) or etat == "connue":
+		return
+	var d: Array = lien.get("direction", [0, 1])
+	var t := maxf(10.0, taille_salle * 0.8)
+	var centre := c + Vector2(float(d[0]), -float(d[1])) * (taille_salle / 2.0 + t / 2.0 + 1.0)
+	if zone.encloses(Rect2(centre - Vector2(t, t) / 2.0, Vector2(t, t))):
+		dessiner_escalier(ci, centre, t)
 
 
 static func _couleur_salle(salle: Dictionary, etat: String) -> Color:
@@ -208,6 +237,7 @@ static func dessiner_etage(ci: CanvasItem, donjon, zone: Rect2, pas: float, cent
 			Ui.rect(ci, Rect2(coin + Vector2(-t * 0.5, -t * 0.1), Vector2(t, t * 0.8)), Ui.OR, 0, 1)
 		if chair:
 			_marques_chair(ci, salle, r)
+		_escalier_passage(ci, salle, etat, c, taille_salle, zone)
 		if etat == "actuelle":
 			var g := 2 + int(2 * pulsation)
 			Ui.rect(ci, r.grow(g), Ui.BLANC, 2, maxi(3, taille_salle / 4))
@@ -245,7 +275,8 @@ static func dessiner_mini_carte(ci: CanvasItem, donjon, zone: Rect2) -> void:
 	var interieur := Rect2(zone.position.x + 4, zone.position.y + 22, zone.size.x - 8, zone.size.y - 40)
 	var echelle := zone.size.x / 300.0  # 24 px par case et salles de 16 px pour une carte de 300 px de large
 	dessiner_etage(ci, donjon, interieur, 24 * echelle, Vector2(position), maxi(8, int(16 * echelle)))
-	Ui.texte(ci, "Étage %d" % etage, zone.position + Vector2(10, 4), Ui.OR, 14, true)
+	var titre := Donjon.nom_niveau(etage)
+	Ui.texte(ci, titre.left(1).to_upper() + titre.substr(1), zone.position + Vector2(10, 4), Ui.OR, 14, true)
 	var explorees := 0
 	for s in salles.values():
 		if s.get("visitee", false):

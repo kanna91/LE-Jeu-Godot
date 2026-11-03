@@ -697,5 +697,18 @@
  "bloc": "cuisine",
  "ips": 24,
  "source": "cuisine et salle a manger/salle a manger.jpeg",
- "prisonniers": []
+ "prisonniers": [],
+ "cachettes": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "feux": [
+  [
+   675,
+   321
+  ]
+ ],
+ "eaux": []
 }
