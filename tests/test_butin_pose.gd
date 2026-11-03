@@ -32,8 +32,8 @@ func _catalogue() -> void:
 	var rubis = ObjetsDivers.depuis_catalogue("Rubis")
 	var pomme = ObjetsDivers.depuis_catalogue("Pomme")
 	var carotte = ObjetsDivers.depuis_catalogue("Carotte")
-	verifier(rubis.est_divers() and not rubis.est_nourriture() and int(rubis.valeur) == 80, "rubis : objet divers à 80 or")
-	verifier(pomme.est_nourriture() and int(U.num(pomme, "pv")) == 5, "pomme : nourriture, 5 PV")
+	verifier(rubis.est_divers() and not rubis.est_nourriture() and int(rubis.valeur) == 160, "rubis : objet divers à 160 or (petit 80, grand 240)")
+	verifier(pomme.est_nourriture() and int(U.num(pomme, "pv")) == 15, "pomme : nourriture, 15 PV")
 	verifier(carotte.est_ingredient() and not carotte.est_nourriture(), "carotte : ingrédient")
 	for o in [rubis, pomme, carotte]:
 		verifier(joueur.recevoir_objet(o) == null, "%s jamais équipé" % o.nom)
@@ -44,7 +44,7 @@ func _catalogue() -> void:
 	verifier(DescriptionObjet.categorie(pomme) == "Nourriture — Fruit", "catégorie lisible : " + DescriptionObjet.categorie(pomme))
 	joueur.points_de_vie = joueur.points_de_vie_max - 20
 	var msg: String = MI.utiliser_ou_equiper(joueur, pomme)
-	verifier(int(joueur.points_de_vie) == int(joueur.points_de_vie_max) - 15 and not pomme in joueur.inventaire, "manger la pomme : +5 PV (%s)" % msg)
+	verifier(int(joueur.points_de_vie) == int(joueur.points_de_vie_max) - 5 and not pomme in joueur.inventaire, "manger la pomme : +15 PV (%s)" % msg)
 	MI.utiliser_ou_equiper(joueur, carotte)
 	verifier(carotte in joueur.inventaire, "un ingrédient ne se mange pas")
 	var MM := load("res://scripts/ecrans/menu_marchand.gd")
@@ -53,7 +53,8 @@ func _catalogue() -> void:
 	m.generer_inventaire()
 	verifier(not MM.filtrer_objets(m.inventaire, "Nourriture").is_empty() and not MM.filtrer_objets(m.inventaire, "Ingrédients").is_empty(),
 		"le marchand vend de la nourriture et des ingrédients")
-	verifier(MM.filtrer_objets(m.inventaire, "Divers").is_empty(), "nourriture et ingrédients hors de « Divers » chez le marchand")
+	verifier(MM.filtrer_objets(m.inventaire, "Divers").all(func(o): return not o.est_nourriture() and not o.est_ingredient()),
+		"nourriture et ingrédients hors de « Divers » chez le marchand")
 
 
 func _ramasser() -> void:

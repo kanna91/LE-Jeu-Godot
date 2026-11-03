@@ -15,7 +15,8 @@ static func nouveau(nom := "marchand en fuite", donjon = "") -> Marchand:
 
 
 ## Nouveau stock : 2 à 4 armes, 2 à 4 armures, 1 à 3 bijoux, potions de soin et de mana, 1 à 3 potions au hasard,
-## 2 à 4 nourritures et 1 à 3 ingrédients (2026-11-03, nombres choisis par Claude).
+## 2 à 4 nourritures et 1 à 3 ingrédients, 1 à 3 amadous, parfois silex, marmite, page de recette (2026-11-03,
+## nombres choisis par Claude).
 func generer_inventaire() -> void:
 	_d["inventaire"] = []
 	for _i in randi_range(2, 4):
@@ -36,6 +37,12 @@ func generer_inventaire() -> void:
 		var o = ObjetsDivers.au_hasard("ingredient")
 		if o != null:
 			_d["inventaire"].append(o)
+	# Matériel de cuisine (2026-11-03, choix de Claude) : amadou, parfois un silex, une marmite ou une page de recette
+	for _i in randi_range(1, 3):
+		_d["inventaire"].append(ObjetsDivers.depuis_catalogue("Amadou"))
+	for l in [["Silex", 0.5], ["Marmite", 0.3], ["Page de livre de cuisine", 0.3]]:
+		if randf() < l[1]:
+			_d["inventaire"].append(ObjetsDivers.depuis_catalogue(l[0]))
 
 
 func ajouter_potion(type_potion = null, niveau = null) -> void:

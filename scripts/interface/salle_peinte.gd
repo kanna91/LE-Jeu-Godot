@@ -123,6 +123,10 @@ const EMPRISES := {"squelette": [0.4, 0.1], "butin": [0.0, 0.0]}
 const TEINTE_BUTIN := Color(0.85, 0.85, 0.85)
 ## Portée de la fouille : distance au pied de l'objet, en hauteurs du héros.
 const PORTEE_FOUILLE := 0.55
+## Portée d'une torche pour cuisiner (point « feux » de l'éditeur, posé au sol sous la torche), en hauteurs du héros.
+const PORTEE_TORCHE := 1.0
+## Feu de camp affiché dans la salle (Cuisine), ou null.
+var feu_camp: Node2D = null
 
 static var images_heros := {}
 static var cache_textures := {}
@@ -203,6 +207,7 @@ func charger(id: String, arrivee := -1, avec_miroir := false, objets_places := [
 			polys.append(pts)
 		donnees[c] = polys
 	objets = []
+	feu_camp = null  # parti avec l'ancien monde
 	for o in objets_places:
 		var prepare := _preparer_objet(o)
 		if prepare.is_empty():
@@ -1213,3 +1218,59 @@ func reculer_de_la_sortie() -> void:
 		heros.position += pas
 	sortie_actuelle = _sortie_sous(heros.position)
 	direction = "up" if c.y > 440.0 else "down"
+
+
+# ---------------------------------------------------------------------------
+# Cuisine : torches et feu de camp (2026-11-03)
+# ---------------------------------------------------------------------------
+
+## Vrai si un point « feux » (torche, marqué dans l'éditeur au sol sous la torche) est à portée du héros.
+func torche_proche() -> bool:
+	if heros == null or fond == null:
+		return false
+	for p in donnees.get("feux", []):
+		var x := float(p[0])
+		if miroir:
+			x = fond.get_width() - x
+		var q := Vector2(x, float(p[1]))
+		if heros.position.distance_to(q) < hauteur(q.y) * PORTEE_TORCHE:
+			return true
+	return false
+
+
+## Montre le feu de camp au point ``pos`` de la salle (null : le retire).
+func afficher_feu_camp(pos) -> void:
+	if feu_camp != null and is_instance_valid(feu_camp):
+		feu_camp.queue_free()
+	feu_camp = null
+	if pos == null or tri == null:
+		return
+	feu_camp = FeuDeCamp.new()
+	feu_camp.position = pos
+	feu_camp.taille = hauteur(float(pos.y)) * 0.35
+	tri.add_child(feu_camp)
+
+
+## Feu de camp dessiné : bûches croisées et flammes qui vacillent.
+class FeuDeCamp extends Node2D:
+	var taille := 40.0
+	var t := 0.0
+
+	func _process(delta: float) -> void:
+		t += delta
+		queue_redraw()
+
+	func _draw() -> void:
+		var k := taille / 40.0
+		draw_set_transform(Vector2.ZERO, 0, Vector2(1, 0.3))
+		for i in 4:
+			draw_circle(Vector2.ZERO, (34.0 - i * 6) * k, Color(1, 0.55, 0.15, 0.06))
+		draw_set_transform(Vector2.ZERO)
+		draw_line(Vector2(-18, 2) * k, Vector2(18, -4) * k, Color8(70, 45, 25), 6 * k)
+		draw_line(Vector2(-18, -4) * k, Vector2(18, 2) * k, Color8(90, 58, 30), 6 * k)
+		for i in 3:
+			var h := (26.0 - i * 6 + sin(t * (7.0 + i) + i) * 4.0) * k
+			var l := (11.0 - i * 3) * k
+			var x := sin(t * 5.0 + i * 2.0) * 2.0 * k
+			var couleur: Color = [Color(1, 0.35, 0.05, 0.9), Color(1, 0.65, 0.1, 0.95), Color(1, 0.95, 0.6, 1)][i]
+			draw_colored_polygon(PackedVector2Array([Vector2(-l + x, -2 * k), Vector2(x * 1.5, -h - 4 * k), Vector2(l + x, -2 * k)]), couleur)

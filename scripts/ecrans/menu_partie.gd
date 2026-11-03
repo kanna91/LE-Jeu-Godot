@@ -2,7 +2,7 @@ class_name MenuPartie
 extends RefCounted
 ## Fonctions communes aux écrans de gestion de la partie.
 
-const CAUSES := {"combat": "Tombé au combat", "piège": "Tué par un piège"}
+const CAUSES := {"combat": "Tombé au combat", "piège": "Tué par un piège", "intoxication": "Mort d'une intoxication alimentaire"}
 
 
 ## Date lisible d'une sauvegarde : « 01/10/2026 à 14:05 ».

@@ -14,7 +14,9 @@ const NOMS_CATEGORIES := {"divers": "Divers", "nourriture": "Nourriture", "ingre
 ## Sortes d'objets : {clé : nom lisible}.
 const SORTES := {"argenterie": "Argenterie", "nourriture": "Nourriture", "casse": "Objet cassé", "quete": "Objet de quête",
 	"vaisselle": "Vaisselle", "objet": "Objet", "tresor": "Trésor", "gemme": "Pierre précieuse", "materiau": "Matériau",
-	"plat": "Plat", "fruit": "Fruit", "legume": "Légume", "viande": "Viande"}
+	"plat": "Plat", "fruit": "Fruit", "legume": "Légume", "viande": "Viande", "ustensile": "Ustensile", "outil": "Outil",
+	"page": "Page de recette", "oeuf": "Œuf", "laitage": "Laitage", "cereale": "Céréale", "sucre": "Sucré",
+	"champignon": "Champignon", "aromate": "Aromate"}
 ## Catalogue lu dans donnees/objets_divers.json : [{nom, categorie, sorte, valeur, description, pv?}, ...].
 static var _catalogue: Array = []
 
@@ -58,6 +60,10 @@ static func depuis_catalogue(nom: String):
 			o._d["type_objet"] = String(l.get("categorie", "divers"))
 			if l.has("pv"):
 				o._d["pv"] = int(l["pv"])
+			if l.has("mana"):
+				o._d["mana"] = int(l["mana"])
+			if nom == "Seau en bois":
+				o._d["eau"] = 0  # trouvé vide : il se remplit à la cuisine
 			return o
 	return null
 
@@ -68,13 +74,24 @@ static func au_hasard(categorie: String):
 	return depuis_catalogue(liste.pick_random()) if not liste.is_empty() else null
 
 
-## Mange un objet de nourriture : rend ses PV (sans dépasser le maximum) ; renvoie les PV gagnés.
-static func manger(joueur, objet) -> int:
-	var avant := int(joueur.points_de_vie)
+## Mange un objet de nourriture (jamais en combat) : rend ses PV et son mana (sans dépasser les maximums) ; un plat
+## à risque (``intoxication`` : chance) peut donner une intoxication alimentaire (Maux). Renvoie le message.
+static func manger(joueur, objet) -> String:
+	var pv_avant := int(joueur.points_de_vie)
+	var mana_avant := int(joueur.mana)
 	joueur.points_de_vie = mini(int(joueur.points_de_vie) + int(U.num(objet, "pv")), int(joueur.points_de_vie_max))
+	joueur.mana = mini(int(joueur.mana) + int(U.num(objet, "mana")), int(joueur.mana_max))
 	if objet in joueur.inventaire:
 		joueur.inventaire.erase(objet)
-	return int(joueur.points_de_vie) - avant
+	var gains := []
+	if int(joueur.points_de_vie) > pv_avant:
+		gains.append("+%d PV" % (int(joueur.points_de_vie) - pv_avant))
+	if int(joueur.mana) > mana_avant:
+		gains.append("+%d mana" % (int(joueur.mana) - mana_avant))
+	var message := "Vous mangez %s : %s." % [String(objet.nom).to_lower(), ", ".join(gains) if not gains.is_empty() else "aucun effet (déjà au maximum)"]
+	if randf() < float(U.num(objet, "intoxication")):
+		message += " " + Maux.infliger(joueur, "intoxication")
+	return message
 
 
 ## Objet d'affichage de la clé du boss de l'étage ``etage`` (jamais rangé dans l'inventaire).

@@ -220,13 +220,27 @@ stick droit pour choisir un bouton de l'interface.
   - **Catégories « Nourriture » et « Ingrédients »** (2026-11-03, demande de l'utilisateur) dans l'inventaire (deux
     rangées d'onglets) et chez le marchand. La **nourriture se mange** (double-clic, hors combat) et rend des PV ; les
     **ingrédients** ne se mangent pas (ils serviront à cuisiner). Le marchand vend 2 à 4 nourritures et 1 à 3
-    ingrédients. **Catalogue** (liste de l'utilisateur) : `donnees/objets_divers.json` — 22 objets divers (gobelets
-    argent/bois/fer/terre cuite, assiettes, chandeliers, couteaux, seau, pépite et dent en or, rubis, émeraude, saphir,
-    grenat, tissu, métal rouillé/tordu, bois, planche), 10 nourritures (bol de soupe, pomme, orange, poire, citron,
-    prune, raisin, viande séchée/grillée/bouillie), 9 ingrédients (carotte, tomate, pomme de terre, navet, oignon, chou,
-    poireau, viande crue, viande périmée). Classement : prêt à manger = nourriture, cru = ingrédient. **Prix et PV
-    proposés par Claude, à valider** (gemmes 80 or, grenat 40, argenterie 20-35 ; soupe et viande grillée 15 PV,
-    fruits 3-6 PV) ; prune, raisin, chou et poireau ajoutés pour les « etc. » de la liste ;
+    ingrédients. **Catalogue** (liste de l'utilisateur) : `donnees/objets_divers.json` — objets divers (gobelets,
+    assiettes, chandeliers, couteaux, seau, pépite et dent en or, **pierres en 3 tailles** : petit / normal / grand
+    rubis, émeraude, saphir à 80 / 160 / 240 or, grenat 40 / 80 / 120, décision de l'utilisateur), tissu, métal,
+    bois, planche ; matériel de cuisine : marmite, silex, amadou, page de livre de cuisine), nourritures (**bol de
+    soupe et viande grillée 35 PV, viande bouillie 30, viande séchée 25, fruits 15**, décision de l'utilisateur ;
+    bouillon), ingrédients (légumes, viande crue, viande périmée, œuf, lait, farine, miel, champignon, herbes, ail).
+    La nourriture ne se mange **jamais en combat** ;
+  - **Cuisine** (2026-11-03, règles de l'utilisateur, conception complète dans `CUISINE.md`) : touche **K** en
+    exploration. 1 à 4 ingrédients (+ un bouillon) et une préparation : sans feu, **grillé** (torche à portée, feu de
+    camp ou cuisine), **bouilli** (feu de camp ou cuisine ; hors de la cuisine : marmite + 1 L d'eau du seau de 10 L),
+    **mijoté / four** (seulement au foyer de la cuisine, eau à volonté). **Feu de camp** : bois allumé à une torche
+    (brandon) ou amadou + silex ; 3 plats ou 10 minutes, puis le bois est consumé. Valeurs cachées des ingrédients
+    (`donnees/cuisine.json`) ; recette = somme × multiplicateur, sinon **mixture** (½) ou **plat immonde** (¼). Recettes
+    connues au départ : viande grillée, brochette, viande bouillie, compote ; les autres s'apprennent en les réussissant
+    ou par une **page de livre de cuisine** (plus tard : les prisonniers). Une recette bouillie avec viande laisse un
+    **bouillon** (se boit, ou s'ajoute à un plat sans remplacer l'eau). Liste complète des 14 949 mélanges :
+    `python outils/cuisine_combinaisons.py` → `outils/cuisine/combinaisons.csv` ;
+  - **Maux persistants** (`Maux`, règle de l'utilisateur, servira aussi à la maladie) : **intoxication alimentaire**
+    (viande périmée 1 fois sur 2, viande crue 1 fois sur 4) : régénération des PV coupée, −4 PV par minute en tics de
+    15 s pendant 8 minutes ; une 2ᵉ ajoute sa durée ; **peut tuer** ; compte en exploration et en combat, pas dans
+    les menus. Affichée en rouge sous le bandeau du haut. Pas encore de remède (établi d'alchimie à venir) ;
   - **Butin posé à la main** (2026-11-03) : onglet « Butin » de l'éditeur de zones (voir plus bas). Le butin est sur
     le sol de chaque salle qui utilise l'image (or en tas, potion en fiole, le reste en sac ; images provisoires de
     `outils/dessiner_butin.py`), ne bloque pas le passage, se ramasse avec **E** (« Ramasser (E) ») une fois par salle
@@ -482,6 +496,7 @@ stick droit pour choisir un bouton de l'interface.
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
+    | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : un point par torche, posé au sol au pied de la torche (clic ; glisser = déplacer ; clic droit = retirer). Dans le jeu, près de ce point : griller, allumer du bois (Cuisine). Clé « feux » du .json |
     | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
@@ -994,6 +1009,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
+& $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
+& $godot --path . -s tests/capture_cuisine.gd             # captures 170-173 : onglet Feux, écran de cuisine, feu de camp et intoxication (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
 & $godot --path . -s tests/test_collisions_salles.gd      # le héros court dans 8 directions : pieds toujours sur le sol (cul-de-sac ; « -- toutes » : toutes les salles)
@@ -1080,6 +1097,39 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-03 — La cuisine
+
+- **Cuisine** (touche **K**) : on met 1 à 4 ingrédients dans la marmite, on choisit sans feu, grillé, bouilli ou
+  mijoté, et on obtient une recette, une mixture ou un plat immonde. Griller : près d'une torche, d'un feu de camp ou
+  dans la cuisine. Bouillir : feu de camp (marmite + eau du seau) ou cuisine. Mijoter et le four : seulement dans la
+  cuisine. Feu de camp : bois allumé à une torche ou amadou + silex, 3 plats ou 10 minutes. Bouillon, recettes connues
+  et à découvrir, pages de livre de cuisine.
+- **Intoxication alimentaire** (viande périmée, viande crue) : PV qui baissent toutes les 15 s, régénération
+  coupée, mortelle ; une seule mécanique, qui servira à la maladie.
+- **Éditeur** : onglet « Feux » pour marquer les torches de chaque salle (à faire par l'utilisateur : sans torche
+  marquée, on ne grille qu'au feu de camp ou dans la cuisine).
+- **Objets** : pierres en 3 tailles, nouveaux PV (soupe et viande grillée 35, bouillie 30, séchée 25, fruits 15),
+  nourriture avec du mana, nouveaux ingrédients et le matériel de cuisine ; le marchand en vend.
+- Choix faits par Claude en codant : `CUISINE.md` §8 (brandon 3 min, seau trouvé vide, valeur des plats, marchand…).
+- Fichiers : nouveaux `scripts/logique/cuisine.gd`, `maux.gd`, `scripts/ecrans/menu_cuisine.gd`,
+  `donnees/cuisine.json`, `outils/cuisine_combinaisons.py`, tests `test_cuisine.gd`, `capture_cuisine.gd` ; modifiés
+  `objets_divers.gd`, `objets_divers.json`, `personnage.gd` (régénération), `menu_navigation.gd`, `menu_combat.gd`,
+  `menu_inventaire.gd`, `menu_partie.gd` (cause de mort), `salle_peinte.gd` (torches, feu de camp),
+  `description_objet.gd`, `marchand.gd`, `editeur_zones.gd`, `CUISINE.md`.
+
+### 2026-11-03 — Conception de la cuisine (document, rien de codé)
+
+- `CUISINE.md` : règles décidées avec l'utilisateur (plats hors combat, pierres en 3 tailles, nouveaux PV, recettes
+  connues ou à découvrir, mixtures ×0,5, plats immondes ×0,25, mal persistant réutilisable pour l'intoxication et
+  la maladie), puis les propositions à valider : feu, eau, marmite, valeurs cachées des ingrédients et toutes les
+  recettes classées.
+- Suite (réponses de l'utilisateur) : feu de camp allumé à une torche ou avec amadou + silex (pas de sort de feu),
+  3 plats et 10 minutes au plus ; eau infinie dans la cuisine ; mal persistant mortel, durées qui s'ajoutent, compté
+  en exploration et en combat mais pas dans les menus. Règles et valeurs dans `donnees/cuisine.json` (que le jeu
+  lira) ; **liste complète des 14 949 mélanges** × 4 préparations (recette, mixture ou immonde, PV, mana, raison) :
+  `python outils/cuisine_combinaisons.py` → `outils/cuisine/combinaisons.csv` et `resume.md` (dossier avec
+  `.gdignore`).
 
 ### 2026-11-03 — Butin posé dans l'éditeur, nourriture et ingrédients, catalogue des objets
 

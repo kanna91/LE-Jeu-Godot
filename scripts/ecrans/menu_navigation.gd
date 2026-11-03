@@ -38,6 +38,8 @@ var dernier_instant := 0.0
 var rect_action_salle := Rect2(Ui.LARGEUR / 2 - 110, 470, 220, 40)
 ## Salle peinte affichée sous l'interface, et salle du plan qu'elle montre ([étage, id]).
 var salle_peinte: SallePeinte
+## Mort par un mal persistant déjà signalée (fin de partie demandée une seule fois).
+var _mort_signalee := false
 var salle_affichee := []
 ## Vrai pendant le passage d'une salle à l'autre (fondu, événements de la salle).
 var passage_en_cours := false
@@ -77,6 +79,9 @@ func _afficher_salle(arrivee: int) -> void:
 	var image := String(info.get("image", "salle1"))
 	objets_salle = Fouille.objets_salle(s, image) if not info.is_empty() else []
 	salle_peinte.charger(image, arrivee, bool(info.get("miroir", false)), Fouille.a_afficher(objets_salle, image))
+	var feu_ici := Cuisine.feu(joueur, s)
+	if not feu_ici.is_empty():
+		salle_peinte.afficher_feu_camp(Vector2(float(feu_ici["x"]), float(feu_ici["y"])))
 	# Bas de l'image (hors de l'image), passage sur le bord du sol d'une grande salle (type « bord ») ou sortie
 	# potentielle (2026-11-03) sans salle derrière : mur invisible, pas de porte condamnée. Le passage vers un autre
 	# niveau (fond d'un couloir de prison, entrée des cryptes) reste ouvert.
@@ -362,6 +367,20 @@ func _mise_a_jour(_delta: float) -> void:
 	dernier_instant = maintenant
 	# Régénération en minutes réelles : cet écran est en pause pendant les combats et les menus (Ecrans).
 	joueur.regenerer(_delta)
+	# Cuisine (brandons, feux de camp) et maux persistants (intoxication : peut tuer), au même rythme
+	var message_cuisine := Cuisine.avancer(joueur, _delta)
+	if message_cuisine != "":
+		message_nav = message_cuisine
+		message_fin = maintenant + 4
+	if salle_peinte.feu_camp != null and Cuisine.feu(joueur, donjon.salle_courante()).is_empty():
+		salle_peinte.afficher_feu_camp(null)
+		message_nav = "Le feu de camp s'est éteint."
+		message_fin = maintenant + 4
+	Maux.avancer(joueur, _delta)
+	if Statistiques.mort and not _mort_signalee:
+		_mort_signalee = true
+		_apres_action()
+		return
 	if U.vrai(U.ga(donjon, "message_evenement", "")):
 		message_nav = donjon.message_evenement
 		message_fin = maintenant + 4
@@ -410,6 +429,23 @@ func _dessiner_fouille(ci: Control) -> void:
 	Ui.panneau(ci, cadre, 210)
 	var libelle := "Ramasser (E)" if salle_peinte.objets[i].get("type", "") == "butin" else "Fouiller (E)"
 	Ui.texte(ci, libelle, cadre.get_center(), Ui.OR, 15, true, null, "center")
+
+
+## Contexte de la cuisine ici : torche à portée, foyer de la cuisine, salle du plan, place du héros.
+func contexte_cuisine() -> Dictionary:
+	var image := String(donjon.salle_courante().get("salle_peinte", {}).get("image", ""))
+	return {"torche": salle_peinte.torche_proche(), "cuisine": image in Cuisine.donnees().get("lieux_foyer", []),
+		"salle": donjon.salle_courante(), "pos": [salle_peinte.heros.position.x, salle_peinte.heros.position.y]}
+
+
+## Ouvre l'écran de cuisine (touche K) ; le feu de camp allumé ou éteint est montré au retour.
+func cuisiner() -> void:
+	if passage_en_cours or salle_peinte == null:
+		return
+	await Ecrans.ouvrir(Ecrans._ecran("menu_cuisine").preparer(joueur, contexte_cuisine()))
+	dernier_instant = Animations.temps()
+	var f := Cuisine.feu(joueur, donjon.salle_courante())
+	salle_peinte.afficher_feu_camp(null if f.is_empty() else Vector2(float(f["x"]), float(f["y"])))
 
 
 ## Fouille l'objet à portée du héros (touche E, bouton X de la manette).
@@ -461,7 +497,10 @@ func _dessiner(ci: Control) -> void:
 				direction_survolee = d
 	_dessiner_fouille(ci)
 	_dessiner_discretion(ci)
-	Ui.texte(ci, "Flèches ou ZQSD : marcher · Maj : %s · H : soin · E : fouiller, parler · J : journal" % ("marcher" if salle_peinte.course else "courir"),
+	var maux := Maux.resume(joueur)
+	if maux != "":
+		Ui.texte(ci, maux, Vector2(20, 72), Ui.ROUGE, 15, true)
+	Ui.texte(ci, "Flèches ou ZQSD : marcher · Maj : %s · H : soin · E : fouiller, parler · K : cuisiner · J : journal" % ("marcher" if salle_peinte.course else "courir"),
 		Vector2(Ui.LARGEUR / 2, Ui.HAUTEUR - 8), Ui.DETAIL, 12, false, null, "midbottom")
 	var action_salle = donjon.action_salle()
 	if action_salle != null:
@@ -817,6 +856,8 @@ func _evenement(ev: Dictionary) -> void:
 			await Ecrans.journal(joueur)
 		elif touche == KEY_E:
 			await _interagir()
+		elif touche == KEY_K:
+			await cuisiner()
 		elif touche == KEY_H and not sorts_de_soin().is_empty():
 			message_nav = joueur.lancer_soin_hors_combat(sorts_de_soin()[0])
 			message_fin = Animations.temps() + 3

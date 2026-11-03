@@ -80,7 +80,11 @@ static func resume_objet(objet) -> String:
 	if objet.est_consommable():
 		return DescriptionObjet.effet_consommable(objet)
 	if objet.est_nourriture():
-		return "Rend %d PV · %s" % [int(U.num(objet, "pv")), String(U.ga(objet, "description", ""))]
+		return "%s · %s" % [DescriptionObjet.effet_nourriture(objet), String(U.ga(objet, "description", ""))]
+	if String(objet.nom) == "Seau en bois":
+		return "Eau : %d / 10 litres" % int(U.num(objet, "eau"))
+	if String(objet.nom) == "Brandon allumé":
+		return "Bois allumé : à poser en feu de camp (touche K) avant qu'il s'éteigne"
 	if objet.est_divers():
 		return String(U.ga(objet, "description", ""))
 	var stats := DescriptionObjet.statistiques(objet)
@@ -121,8 +125,9 @@ static func utiliser_ou_equiper(j, objet) -> String:
 			gains.append("+%d mana" % int(j.mana - mana))
 		return "%s utilisée : %s" % [objet.nom, ", ".join(gains) if not gains.is_empty() else "aucun effet (déjà au maximum)"]
 	if objet.est_nourriture():
-		var gain := ObjetsDivers.manger(j, objet)
-		return "Vous mangez %s : %s" % [objet.nom, ("+%d PV" % gain) if gain > 0 else "aucun effet (PV déjà au maximum)"]
+		return ObjetsDivers.manger(j, objet)
+	if String(U.ga(objet, "sorte", "")) == "page":
+		return Cuisine.lire_page(j, objet)
 	if objet.est_ingredient():
 		return "%s ne se mange pas tel quel (il servira à cuisiner)." % objet.nom
 	if objet.est_divers():
@@ -276,7 +281,7 @@ func _dessiner(ci: Control) -> void:
 
 func _dessiner_dessus(ci: Control) -> void:
 	if _survol_objet != null:
-		var aide = "Double-clic : manger" if _survol_objet[0].est_nourriture() else null if _survol_objet[0].est_divers() else ("Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper")
+		var aide = "Double-clic : manger" if _survol_objet[0].est_nourriture() else "Double-clic : lire" if String(U.ga(_survol_objet[0], "sorte", "")) == "page" else null if _survol_objet[0].est_divers() else ("Double-clic : utiliser" if _survol_objet[0].est_consommable() else "Double-clic : équiper")
 		DescriptionObjet.dessiner_infobulle(ci, _survol_objet[0], _survol_objet[1], joueur, null, aide)
 	elif _survol_porte != null:
 		DescriptionObjet.dessiner_infobulle(ci, _survol_porte[0], _survol_porte[1], null, null, "Double-clic : retirer")

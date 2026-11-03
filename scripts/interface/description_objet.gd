@@ -189,7 +189,8 @@ static func cle_pile(objet) -> String:
 	if objet.est_consommable() and effet is Dictionary:
 		return "pile|%s|%s|%s" % [objet.nom, effet.get("type"), effet.get("valeur")]
 	if objet.est_divers():
-		return "divers|%s|%s" % [U.ga(objet, "type_objet", ""), objet.nom]
+		# Plats cuisinés de valeurs différentes, seaux plus ou moins pleins : piles séparées
+		return "divers|%s|%s|%s|%s|%s" % [U.ga(objet, "type_objet", ""), objet.nom, U.num(objet, "pv"), U.num(objet, "mana"), U.num(objet, "eau")]
 	return "objet|%d" % objet.get_instance_id()
 
 
@@ -416,7 +417,9 @@ static func dessiner_infobulle(ci: CanvasItem, objet, ancre: Rect2, joueur = nul
 	elif objet.est_divers():
 		lignes.append([String(U.ga(objet, "description", "")), COULEUR_TEXTE, 14, false])
 		if objet.est_nourriture():
-			lignes.append(["Se mange : rend %d PV" % int(U.num(objet, "pv")), COULEUR_PLUS, 14, false])
+			lignes.append(["Se mange (hors combat) : %s" % effet_nourriture(objet), COULEUR_PLUS, 14, false])
+		if String(objet.nom) == "Seau en bois":
+			lignes.append(["Eau : %d / 10 litres" % int(U.num(objet, "eau")), COULEUR_PLUS, 14, false])
 		if int(U.num(objet, "valeur")) > 0:
 			lignes.append(["Se revend %d or chez le marchand" % int(U.num(objet, "valeur")), COULEUR_DETAIL, 13, false])
 	else:
@@ -486,3 +489,13 @@ class CibleNeutre:
 
 	func _get(_propriete):
 		return 0
+
+
+## Effet d'une nourriture : « rend 35 PV », « rend 10 PV et 29 mana »…
+static func effet_nourriture(objet) -> String:
+	var morceaux := []
+	if int(U.num(objet, "pv")) > 0:
+		morceaux.append("%d PV" % int(U.num(objet, "pv")))
+	if int(U.num(objet, "mana")) > 0:
+		morceaux.append("%d mana" % int(U.num(objet, "mana")))
+	return ("rend " + " et ".join(morceaux)) if not morceaux.is_empty() else "ne nourrit presque pas"

@@ -225,6 +225,7 @@ func _annuler() -> void:
 # ---------------------------------------------------------------------------
 
 func _mise_a_jour(_delta: float) -> void:
+	Maux.avancer(joueur, _delta)  # l'intoxication continue pendant les combats (pas dans les menus)
 	if combat.ennemis.is_empty() or Statistiques.mort:
 		fin_demandee = true
 	if fin_demandee and not EffetsCombat.en_cours():

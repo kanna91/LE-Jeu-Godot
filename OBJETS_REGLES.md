@@ -17,8 +17,8 @@ a déjà demandé de changer. Les fichiers entre crochets disent où se trouve l
 | Bijou | Anneau (2 emplacements), Amulette | oui | non |
 | Consommable | Potions de soin, de mana, de régénération | non | oui |
 | Divers | Clé de la cellule, Bol de soupe de quête ; vaisselle, argenterie, gemmes, objets cassés (`donnees/objets_divers.json`) | non | non |
-| Nourriture (2026-11-03) | Bol de soupe, fruits, viandes séchée/grillée/bouillie | non | oui : se mange, rend des PV |
-| Ingrédient (2026-11-03) | Légumes, viande crue, viande périmée | non | non (cuisine à venir) |
+| Nourriture (2026-11-03) | Bol de soupe et viande grillée 35 PV, viande bouillie 30, séchée 25, fruits 15 ; bouillon ; plats cuisinés | non | oui : se mange hors combat, rend PV (et mana) |
+| Ingrédient (2026-11-03) | Légumes, viandes, œuf, lait, farine, miel, champignon, herbes, ail | non | non : se cuisine (`CUISINE.md`) |
 
 Les clés rouillées et les clés de boss ne sont pas de vrais objets : un compteur, montré dans la catégorie « Divers »
 de l'inventaire.

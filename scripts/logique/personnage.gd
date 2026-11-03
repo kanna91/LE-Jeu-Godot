@@ -213,8 +213,8 @@ func regenerer(secondes: float) -> void:
 			["mana", "mana_max", "regen_de_mana", "reste_regen_mana"]]:
 		var actuel = _d[paire[0]]
 		var maximum = _d[paire[1]]
-		if actuel >= maximum or not est_vivant():
-			_d[paire[3]] = 0.0
+		if actuel >= maximum or not est_vivant() or (paire[0] == "points_de_vie" and Maux.coupe_regen(self)):
+			_d[paire[3]] = 0.0  # un mal persistant (intoxication) coupe la régénération des PV
 			continue
 		var reste: float = float(_d.get(paire[3], 0.0)) + maxf(0.0, float(U.num(self, paire[2]))) * secondes / 60.0
 		var gagne := floori(reste + 1e-6)  # 0,1 s × 600 doit bien faire une minute entière
