@@ -21,14 +21,13 @@ func _initialize() -> void:
 		ed0.numero = ed0.salles.find("porte2")
 		ed0._charger()
 		ed0.choisir_eau()
-		var clic := InputEventMouseButton.new()
-		clic.button_index = MOUSE_BUTTON_LEFT
-		clic.pressed = true
-		ed0._bouton_points(clic, Vector2(300, 450))
-		verifier(ed0.mode_points == "eaux" and ed0.onglets.current_tab == 3 and ed0.salle.donnees["eaux"].size() == 1, "onglet Eau : point d'eau posé")
+		verifier(ed0.couche == "eaux" and ed0.onglets.current_tab == 3, "onglet Eau : couche des zones d'eau")
+		ed0.trace = PackedVector2Array([Vector2(300, 430), Vector2(380, 430), Vector2(380, 470), Vector2(300, 470)])
+		ed0._fermer_trace()
+		verifier(ed0.salle.donnees["eaux"].size() == 1 and ed0.salle.donnees["eaux"][0].size() == 4, "onglet Eau : zone d'eau tracée")
 		# Feux : des zones tracées comme les autres (2026-11-03)
 		ed0.choisir_feux()
-		verifier(ed0.couche == "feux" and ed0.mode_points == "" and ed0.onglets.current_tab == 2, "onglet Feux : couche des zones de feu")
+		verifier(ed0.couche == "feux" and ed0.onglets.current_tab == 2, "onglet Feux : couche des zones de feu")
 		ed0.trace = PackedVector2Array([Vector2(180, 430), Vector2(260, 430), Vector2(260, 470), Vector2(180, 470)])
 		ed0._fermer_trace()
 		verifier(ed0.salle.donnees["feux"].size() == 1 and ed0.salle.donnees["feux"][0].size() == 4 and ed0.salle.donnees["eaux"].size() == 1,
@@ -40,7 +39,7 @@ func _initialize() -> void:
 		ed0.queue_free()
 		await process_frame
 		# Ancien point de torche : devient une petite zone autour de lui
-		var z := SallePeinte.zones_feux([[675, 321]], func(_y): return 100.0)
+		var z := SallePeinte.zones_depuis_points([[675, 321]], func(_y): return 100.0)
 		var poly := PackedVector2Array()
 		for q in z[0]:
 			poly.append(Vector2(q[0], q[1]))
@@ -55,6 +54,10 @@ func _initialize() -> void:
 		verifier(sp.torche_proche(), "héros dans la zone de feu : torche à portée")
 		sp.heros.position = Vector2(400, 450)
 		verifier(not sp.torche_proche(), "héros hors de la zone : pas de torche")
+		sp.donnees["eaux"] = [PackedVector2Array([Vector2(300, 430), Vector2(380, 430), Vector2(380, 470), Vector2(300, 470)])]
+		verifier(not sp.eau_proche(), "héros hors de la zone d'eau : pas d'eau")
+		sp.heros.position = Vector2(340, 450)
+		verifier(sp.eau_proche() and not sp.torche_proche(), "héros dans la zone d'eau : eau à portée")
 		sp.queue_free()
 		await process_frame
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")

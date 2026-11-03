@@ -502,7 +502,7 @@ stick droit pour choisir un bouton de l'interface.
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
     | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : des **zones** tracées au sol près des torches, comme les autres zones (clic : point ; Entrée ou 1er point : fermer ; glisser un point ou l'intérieur ; Maj+clic sur un bord : nouveau point ; clic droit : retirer). Dans le jeu, le héros dans une zone voit « Torche : allumer du bois (K) » (pas de cuisson à la torche). Clé « feux » du .json (polygones ; un ancien point devient une petite zone) |
-    | 9 ou onglet « Eau » | **onglet Eau** (2026-11-03) : un point par point d'eau (puits, fontaine, bassin), posé au sol au bord de l'eau, mêmes gestes. Dans le jeu, près de ce point : remplir son seau. Clé « eaux » du .json |
+    | 9 ou onglet « Eau » | **onglet Eau** (2026-11-04) : des **zones** tracées au sol au bord des points d'eau (puits, fontaine, bassin), mêmes gestes que l'onglet Feux. Dans le jeu, le héros dans une zone voit « Point d'eau : remplir le seau (K) » (« Point d'eau » sans seau). Clé « eaux » du .json (polygones ; un ancien point devient une petite zone) |
     | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
@@ -1016,7 +1016,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
-& $godot --path . -s tests/capture_cuisine.gd             # captures 170-175 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indication dans une zone de feu (hors écran)
+& $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
@@ -1104,6 +1104,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Eau : des zones au lieu de points
+
+- Demande de l'utilisateur : l'onglet « Eau » (touche 9) trace des **zones** comme l'onglet « Feux » (couche
+  « eaux », bleue, « eau N »). Dans le jeu, le héros dans une zone d'eau peut remplir son seau
+  (`SallePeinte.eau_proche`) et voit « Point d'eau : remplir le seau (K) » (« Point d'eau » s'il n'a pas de seau).
+- L'éditeur n'a plus de points du tout : la mécanique des points (`POINTS`, `mode_points`, `_bouton_points`) est
+  retirée ; les onglets Feux et Eau sont décrits par `ONGLETS_ZONES`. Les anciens points d'eau deviennent de petites
+  zones (`SallePeinte.zones_depuis_points`, ex-`zones_feux`).
+- Tests : `test_editeur_zones.gd` (zone d'eau tracée, héros dans / hors de la zone), capture 176.
 
 ### 2026-11-03 — Feux : des zones au lieu de points
 

@@ -1,6 +1,6 @@
 extends SceneTree
 ## Captures de la cuisine (2026-11-03) : onglets « Feux » (170) et « Eau » (174) de l'éditeur, écran de cuisine (171-172), feu de camp
-## dans une salle et intoxication affichée (173), indication dans une zone de feu (175). Rien n'est enregistré dans les salles. Fenêtre hors écran
+## dans une salle et intoxication affichée (173), indications dans une zone de feu (175) et d'eau (176). Rien n'est enregistré dans les salles. Fenêtre hors écran
 ## (override.cfg, voir README) : godot --path . -s tests/capture_cuisine.gd
 
 var racine: Control
@@ -40,7 +40,7 @@ func lancer() -> void:
 		PackedVector2Array([Vector2(580, 450), Vector2(670, 450), Vector2(680, 490), Vector2(575, 490)])]
 	await capturer("170_editeur_feux")
 	ed.choisir_eau()
-	ed.salle.donnees["eaux"] = [[300, 480]]
+	ed.salle.donnees["eaux"] = [PackedVector2Array([Vector2(260, 460), Vector2(360, 460), Vector2(370, 500), Vector2(250, 500)])]
 	await capturer("174_editeur_eau")
 	ed.queue_free()
 	await attendre(2)
@@ -83,6 +83,11 @@ func lancer() -> void:
 	nav.salle_peinte.heros.position = Vector2(580, 470)
 	await attendre(10)
 	await capturer("175_zone_de_feu")
+	# Héros dans une zone d'eau, avec un seau : « Point d'eau : remplir le seau (K) »
+	nav.salle_peinte.donnees["eaux"] = nav.salle_peinte.donnees["feux"]
+	nav.salle_peinte.donnees["feux"] = []
+	await attendre(10)
+	await capturer("176_zone_d_eau")
 	print("fin")
 	Compte.vider()
 	quit()

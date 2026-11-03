@@ -198,8 +198,9 @@ func charger(id: String, arrivee := -1, avec_miroir := false, objets_places := [
 	sorties_murees = []
 	sorties_condamnees = []
 	donnees = lire_salle(id)
-	donnees["feux"] = zones_feux(donnees.get("feux", []), hauteur)
-	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux"]:
+	for cle in ["feux", "eaux"]:
+		donnees[cle] = zones_depuis_points(donnees.get(cle, []), hauteur)
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux", "eaux"]:
 		var polys := []
 		for poly in donnees.get(c, []):
 			var pts := PackedVector2Array()
@@ -917,7 +918,7 @@ func placer_au_retour(p: Vector2, i: int) -> void:
 
 ## Miroir des données de la salle : abscisses x → largeur − x, gauche et droite des sorties échangées.
 func _appliquer_miroir(largeur: float) -> void:
-	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux"]:
+	for c in ["marche", "obstacles", "premier_plan", "sorties", "cachettes", "feux", "eaux"]:
 		var polys: Array = donnees[c]
 		for i in polys.size():
 			var poly: PackedVector2Array = polys[i]
@@ -1233,9 +1234,9 @@ func torche_proche() -> bool:
 	return _dans(heros.position, "feux")
 
 
-## Zones de feu d'une salle : polygones ([[x, y], ...]) ; un ancien point [x, y] devient une zone autour de lui, de
-## la taille de l'ancienne portée (``hauteur_a`` : hauteur du héros selon y).
-static func zones_feux(liste: Array, hauteur_a: Callable) -> Array:
+## Zones de feu ou d'eau d'une salle : polygones ([[x, y], ...]) ; un ancien point [x, y] devient une zone autour de
+## lui, de la taille de l'ancienne portée (``hauteur_a`` : hauteur du héros selon y).
+static func zones_depuis_points(liste: Array, hauteur_a: Callable) -> Array:
 	var zones := []
 	for z in liste:
 		if z is Array and z.size() == 2 and not (z[0] is Array):
@@ -1250,22 +1251,11 @@ static func zones_feux(liste: Array, hauteur_a: Callable) -> Array:
 	return zones
 
 
-## Vrai si un point d'eau (onglet « Eau » de l'éditeur, posé au sol au bord de l'eau) est à portée du héros.
+## Vrai si le héros est dans une zone de point d'eau (onglet « Eau » de l'éditeur, 2026-11-04 ; avant : des points).
 func eau_proche() -> bool:
-	return _point_proche("eaux")
-
-
-func _point_proche(cle: String) -> bool:
 	if heros == null or fond == null:
 		return false
-	for p in donnees.get(cle, []):
-		var x := float(p[0])
-		if miroir:
-			x = fond.get_width() - x
-		var q := Vector2(x, float(p[1]))
-		if heros.position.distance_to(q) < hauteur(q.y) * PORTEE_TORCHE:
-			return true
-	return false
+	return _dans(heros.position, "eaux")
 
 
 ## Montre le feu de camp au point ``pos`` de la salle (null : le retire).

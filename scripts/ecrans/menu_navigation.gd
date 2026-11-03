@@ -423,11 +423,15 @@ func _dessiner_fouille(ci: Control) -> void:
 		return
 	var i := salle_peinte.objet_proche()
 	if i < 0:
-		# Zone de feu (torche) : on peut y allumer du bois (Cuisine, touche K)
+		# Zone de feu (torche) : on peut y allumer du bois ; zone d'eau : remplir son seau (Cuisine, touche K)
+		var libelle_t := ""
 		if salle_peinte.torche_proche():
+			libelle_t = "Torche : allumer du bois (K)"
+		elif salle_peinte.eau_proche():
+			libelle_t = "Point d'eau : remplir le seau (K)" if Cuisine.seau(joueur) != null else "Point d'eau"
+		if libelle_t != "":
 			var pied := salle_peinte.heros.position
 			var tete := salle_peinte.vers_ecran(pied - Vector2(0, salle_peinte.hauteur(pied.y)))
-			var libelle_t := "Torche : allumer du bois (K)"
 			var l_t := Ui.taille_texte(libelle_t, 15, true).x + 24
 			var cadre_t := Rect2(tete.x - l_t / 2, tete.y - 34, l_t, 26)
 			Ui.panneau(ci, cadre_t, 210)
