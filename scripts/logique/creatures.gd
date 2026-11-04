@@ -15,6 +15,8 @@ extends RefCounted
 ## seule attaque (Ennemis.mecanique_ennemis). Image fixe qui respire, en salle comme en combat (``images/gobelins``,
 ## ``outils/importer_loup_squelette.py``).
 
+## PV relevés le 2026-11-04 (au moins 4 coups du héros de départ, voir Gobelin.ENDURANCE_PAR_SOUS_CLASSE) :
+## loup 50-60 (10-20 avant), squelette 60 (20 avant).
 ## Sorte → réglages. Caractéristiques : [min, max] (bornes comprises) ; PV = endurance × 10 (l'endurance est
 ## multipliée par Ennemis.ENDURANCE_PAR_POINT_ENNEMI à la création depuis le 2026-11-03, mêmes PV) ; depuis le 2026-10-29,
 ## endurance divisée par 5 (mêmes PV : loup 10-20, squelette 20) et autres caractéristiques à 0 (décision de
@@ -23,11 +25,11 @@ extends RefCounted
 ## séparées de l'armure et des résistances en points depuis le 2026-10-30.
 const SORTES := {
 	"loup": {"nom": "Loup", "type_ennemi": "bête", "image": "loup01.png",
-		"endurance": [1, 2], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
 		"attaque": "Morsure", "description": "Morsure : des crocs qui percent la chair.",
 		"des": {"perforant": [[4, 2]]}, "vulnerabilites": {"feu": 0.40}, "resistances_pct": {}},
 	"squelette": {"nom": "Squelette", "type_ennemi": "mort-vivant", "image": "squelette01.png",
-		"endurance": [2, 2], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"endurance": [6, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
 		"attaque": "Épée rouillée", "description": "Un coup d'épée rouillée, lent mais lourd.",
 		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 }

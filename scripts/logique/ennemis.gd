@@ -15,8 +15,10 @@ const ORIENTATION_PAR_CLASSE := {"guerrier": "physique", "mage": "magique", "sou
 ## quand le héros est passé à 100 PV ; gardée à 1 pour pouvoir la remettre.
 const MULTIPLICATEUR_DEGATS_ENNEMIS := 1.0
 ## Dégâts × 1,4 pour les élites et × 1,6 pour le boss (2026-11-01, × 0,8 avant).
-const MINI_BOSS := {"pv": 6.0, "degats": 1.4, "taille": 1.35, "pa": 1}
-const BOSS := {"pv": 14.0, "degats": 1.6, "taille": 1.7, "pa": 1}
+## PV × 2,5 et × 6 depuis le 2026-11-04 (× 6 et × 14 avant) : les ennemis ordinaires ont ~3,7 fois plus de PV, les
+## élites (~140 PV) et le boss (~330 PV) n'en gagnent qu'environ 1,5 fois (choix de Claude, à confirmer).
+const MINI_BOSS := {"pv": 2.5, "degats": 1.4, "taille": 1.35, "pa": 1}
+const BOSS := {"pv": 6.0, "degats": 1.6, "taille": 1.7, "pa": 1}
 const IMAGES_GOBELINS_PAR_SOUS_CLASSE := {
 	"archer": ["archer01.png", "archer02.png", "archer03.png", "archer04.png", "archer05.png"],
 	"lancier": ["lancier01.png", "lancier02.png"],

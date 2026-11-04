@@ -51,7 +51,7 @@ func generer_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobelin:
 	return _completer(cs[0], cs[1])
 
 
-## Boss : PV × 14, dégâts × 0,8, 1 PA (2 avant le 2026-10-20), sprite bien plus grand.
+## Boss : PV × 6 (× 14 avant le 2026-11-04), dégâts × 1,6, 1 PA (2 avant le 2026-10-20), sprite bien plus grand.
 func generer_boss_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobelin:
 	if cs.is_empty():
 		cs = definir_classe_gobelin()
@@ -68,7 +68,7 @@ func generer_boss_gobelin(_donjon = null, _niveau = 0, cs: Array = []) -> Gobeli
 	return self
 
 
-## Élite (ancien mini-boss) : un gobelin normal, « Élite », PV × 6, dégâts × 0,8.
+## Élite (ancien mini-boss) : un gobelin normal, « Élite », PV × 2,5 (× 6 avant le 2026-11-04), dégâts × 1,4.
 func generer_mini_boss_gobelin(donjon = null, niveau = 0, cs: Array = []) -> Gobelin:
 	generer_gobelin(donjon, niveau, cs)
 	_d["est_mini_boss"] = true
@@ -187,10 +187,13 @@ static func definir_competence_gobelin(classe: String, sous_classe: String) -> A
 ## Ennemis.ENDURANCE_PAR_POINT_ENNEMI à la création (2026-11-03), les PV restent ceux-ci.
 ## Divisée par 5 le 2026-10-29 (10-12 et 6-8 avant) quand un point est passé de 2 à 10 PV, pour garder à peu près
 ## les mêmes PV (choix de l'utilisateur) : 20 PV pour combattant et défenseur, 10 ou 20 pour les autres.
+## 2026-11-04 (demande de l'utilisateur) : un ennemi doit encaisser au moins 4 coups du héros de départ. Un coup de
+## poing fait au plus 14 (moyenne 6), un sort de départ 11 en moyenne : 3 coups au maximum = 42, donc au moins 43 PV.
+## D'où 50 à 60 PV (60 à 70 pour combattant et défenseur) ; avant : 10 à 20 PV.
 const ENDURANCE_PAR_SOUS_CLASSE := {
-	"combattant": [2, 2], "defenseur": [2, 2],
-	"lancier": [1, 2], "archer": [1, 2],
-	"sorcier": [1, 2], "feticheur": [1, 2], "chaman": [1, 2],
+	"combattant": [6, 7], "defenseur": [6, 7],
+	"lancier": [5, 6], "archer": [5, 6],
+	"sorcier": [5, 6], "feticheur": [5, 6], "chaman": [5, 6],
 }
 
 
