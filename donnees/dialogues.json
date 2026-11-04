@@ -36,6 +36,18 @@
   ],
   "fin": "Le commis se remet à compter ses tonneaux."
  },
+ "cuisiniere": {
+  "_nom": "Cuisinière",
+  "nom": "Cuisinière",
+  "presentation": "Une cuisinière trapue, une louche dans chaque main, vous toise de la tête aux pieds. « Toi, t'es pas d'ici. Tant que tu touches pas à mes marmites, on va bien s'entendre. »",
+  "boutons": ["Parler", "Partir"],
+  "explications": [
+   "« Ici, personne ne se bat. Les gardes, les gobelins, même les plus affreux : ils savent qu'on ne dérange pas la cuisinière. »",
+   "« Tu veux apprendre à cuisiner ? Demande au petit, là, devant les fourneaux. Moi, j'ai du travail. »",
+   "« Et si tu ramènes de la viande, la cuisson se fait au feu, hein. Crue, ça rend malade. »"
+  ],
+  "fin": "La cuisinière retourne à ses marmites en grommelant."
+ },
  "diablotin": {
   "_nom": "Diablotin",
   "accueil": {

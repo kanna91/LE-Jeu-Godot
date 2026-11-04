@@ -446,8 +446,10 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 ## Commis (2026-11-04, demande de l'utilisateur) : un dans la cuisine du bloc cuisine (il explique la cuisine), un
 ## dans le cellier droit (il dit où trouver des ingrédients). Place fixe dans l'image (pixels du fond de 768 px, choix
 ## de Claude : devant les fourneaux, sur le tapis du fond du cellier). Ils ne bougent pas ; on leur parle (E).
-const COMMIS := {"bloc_cuisine_cuisine": {"role": "cuisine", "pos": [455, 352]},
-	"bloc_cuisine_cellier_d": {"role": "cellier", "pos": [520, 374]}}
+## La **cuisinière** (2026-11-04, image fixe de l'utilisateur) est aussi dans la cuisine, devant la table de droite,
+## près des fours ; on lui parle comme aux commis (rôle « cuisiniere »).
+const COMMIS := {"bloc_cuisine_cuisine": [{"role": "cuisine", "pos": [455, 352]}, {"role": "cuisiniere", "pos": [640, 452]}],
+	"bloc_cuisine_cellier_d": [{"role": "cellier", "pos": [520, 374]}]}
 
 
 ## Pose les commis dans les salles de l'étage dont l'image en a un (aussi à la lecture d'une salle : anciennes parties).
@@ -464,14 +466,14 @@ static func _poser_commis_salle(donjon, etage: int, salle: Dictionary) -> void:
 		return
 	if not salle.has("presences"):
 		salle["presences"] = []
-	for p in salle["presences"]:
-		if p.get("sous", "") == "commis":
-			return
 	var miroir := bool(info.get("miroir", false))
-	var pos: Array = COMMIS[image]["pos"]
-	salle["presences"].append({"id": _nouvel_id(meta(donjon, etage)), "genre": "pnj", "sous": "commis", "etat": "actif",
-		"role": COMMIS[image]["role"], "pos": [768.0 - float(pos[0]) if miroir else float(pos[0]), float(pos[1])],
-		"pos_image": "%s%s" % [image, "_m" if miroir else ""]})
+	for c in COMMIS[image]:
+		if salle["presences"].any(func(p): return p.get("sous", "") == "commis" and p.get("role", "") == c["role"]):
+			continue
+		var pos: Array = c["pos"]
+		salle["presences"].append({"id": _nouvel_id(meta(donjon, etage)), "genre": "pnj", "sous": "commis", "etat": "actif",
+			"role": c["role"], "pos": [768.0 - float(pos[0]) if miroir else float(pos[0]), float(pos[1])],
+			"pos_image": "%s%s" % [image, "_m" if miroir else ""]})
 
 
 ## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier par **zone de dialogue** « prisonniers » de l'image

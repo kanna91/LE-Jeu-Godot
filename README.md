@@ -222,7 +222,9 @@ stick droit pour choisir un bouton de l'interface.
     louche) explique la cuisine (touche K, préparations, feu de camp, eau, recettes, bouillon, viande crue) ; un
     **commis dans le cellier droit** dit où trouver des ingrédients (marchand, loups, provisions au sol). Place fixe
     dans l'image (`Aventure.COMMIS`, choix de Claude), animation de repos en boucle (`images/pnj/commis_<rôle>_anim`,
-    `outils/importer_commis.py`) ; on leur parle avec E, autant qu'on veut (une bulle par explication).
+    `outils/importer_commis.py`) ; on leur parle avec E, autant qu'on veut (une bulle par explication). La
+    **cuisinière** (image fixe de l'utilisateur, détourée par `outils/importer_cuisiniere.py`, qui respire doucement)
+    est aussi dans la cuisine, devant la table des fours ; elle bougonne et renvoie au commis pour apprendre à cuisiner.
   - **Dialogues** (2026-11-04) : les textes des personnages (commis, diablotin, succube, gobelin blessé, prisonnier
     enchaîné, autel, gobelins pacifiques, rumeurs, prisonnier des cellules sans quête) sont dans
     `donnees/dialogues.json` (`Dialogues`) ; ceux des prisonniers et de leurs quêtes restent dans
@@ -1119,6 +1121,16 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — La cuisinière
+
+- Demande de l'utilisateur : la **cuisinière** (`C:\ia image\ennemis\cuisinière et commits\cuisinière.jpeg`, vue de
+  face détourée par rembg, `outils/importer_cuisiniere.py` → `images/pnj/cuisiniere.png`) est dans la cuisine, devant
+  la table de droite près des fours. Image fixe qui respire ; on lui parle avec E (textes « cuisiniere » de
+  `donnees/dialogues.json`, modifiables dans le menu Dialogues ; proposés par Claude).
+- `Aventure.COMMIS` : une liste de personnages par image (la cuisine en a deux) ; une ancienne partie reçoit celui
+  qui manque à la lecture de la salle.
+- Tests : `test_commis_dialogues.gd`, capture 183 (commis et cuisinière).
 
 ### 2026-11-04 — Commis, viande des loups, menu Dialogues
 

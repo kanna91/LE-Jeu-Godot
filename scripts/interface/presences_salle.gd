@@ -65,12 +65,17 @@ const RIRE_ATTENTE := Vector2(8.0, 16.0)
 static var _images_diablotin := {}
 ## Commis (2026-11-04) : animation de repos de l'utilisateur (``outils/importer_commis.py`` →
 ## ``images/pnj/commis_<role>_anim/repos_000.png``...), hauteur en hauteurs du héros (un jeune homme, un peu plus petit).
-const TAILLE_COMMIS := 0.95
+## Cuisinière (2026-11-04) : image fixe détourée (``outils/importer_cuisiniere.py`` → ``images/pnj/cuisiniere.png``),
+## qui respire doucement ; petite et trapue.
+const TAILLE_COMMIS := {"cuisine": 0.95, "cellier": 0.95, "cuisiniere": 0.88}
+const IMAGE_CUISINIERE := preload("res://images/pnj/cuisiniere.png")
 const FPS_COMMIS := 24.0
 static var _images_commis := {}
 
 
 static func images_commis(role: String) -> Array:
+	if not _images_commis.has(role) and role == "cuisiniere":
+		_images_commis[role] = []
 	if not _images_commis.has(role):
 		var liste := []
 		var dossier := "res://images/pnj/commis_%s_anim" % role
@@ -628,7 +633,7 @@ static func _hauteur_forme(p: Dictionary) -> float:
 			return TAILLE_GOBELIN * Ennemis.BOSS["taille"]
 		"pnj":
 			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65,
-				"prisonnier_cellule": 0.9, "autel": 0.45, "commis": TAILLE_COMMIS}.get(p["sous"], 0.6)
+				"prisonnier_cellule": 0.9, "autel": 0.45, "commis": TAILLE_COMMIS.get(String(p.get("role", "")), 0.95)}.get(p["sous"], 0.6)
 	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35,
 		"cadavre": TAILLE_GOBELIN * 0.4, "objet_quete": 0.18}.get(p.get("sous", ""), 0.5)
 
@@ -681,7 +686,12 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 				"commis":
 					# Animation de repos de l'utilisateur (images/pnj/commis_<role>_anim), en boucle, pieds au sol
 					var images := images_commis(String(p.get("role", "cuisine")))
-					if not images.is_empty():
+					if p.get("role", "") == "cuisiniere":
+						var tex: Texture2D = IMAGE_CUISINIERE
+						var souffle := 1.0 + 0.012 * sin(temps * 1.6 + int(p.get("id", 0)))
+						var taille := Vector2(hf * tex.get_width() / float(tex.get_height()), hf * souffle)
+						n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)
+					elif not images.is_empty():
 						var k := int((temps + int(p.get("id", 0)) * 0.7) * FPS_COMMIS) % images.size()
 						var tex: Texture2D = images[k]
 						var taille := Vector2(hf * tex.get_width() / float(tex.get_height()), hf)

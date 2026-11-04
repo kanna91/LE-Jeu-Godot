@@ -672,9 +672,9 @@ const COULEUR_COMMIS := Color8(205, 170, 120)
 
 ## Commis de la cuisine (comment on cuisine) ou du cellier (où trouver des ingrédients) : sa présentation, puis
 ## « Comment on cuisine ? » / « Où trouver des ingrédients ? » : ses explications, une bulle par ligne
-## (``commis_<role>`` de dialogues.json). On peut lui reparler autant qu'on veut. Renvoie le message de fin.
+## (``commis_<role>`` de dialogues.json ; la cuisinière : ``cuisiniere``). On peut lui reparler autant qu'on veut. Renvoie le message de fin.
 static func commis(_donjon, p: Dictionary) -> String:
-	var role := "commis_" + String(p.get("role", "cuisine"))
+	var role := "cuisiniere" if p.get("role", "") == "cuisiniere" else "commis_" + String(p.get("role", "cuisine"))
 	var nom := Dialogues.texte(role + "/nom")
 	var boutons := Dialogues.liste(role + "/boutons")
 	if boutons.size() < 2:

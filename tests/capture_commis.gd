@@ -1,5 +1,5 @@
 extends SceneTree
-## Captures des commis et du menu Dialogues (2026-11-04) : commis de la cuisine (183) et du cellier (184) dans leur
+## Captures des commis et du menu Dialogues (2026-11-04) : commis de la cuisine et cuisinière (183) et du cellier (184) dans leur
 ## salle, héros à côté (« Parler (E) »), dialogue du commis de la cuisine (185), menu « Dialogues » de l'éditeur (186).
 ## Rien n'est enregistré. Fenêtre hors écran (override.cfg, voir README) : godot --path . -s tests/capture_commis.gd
 
@@ -42,8 +42,8 @@ func lancer() -> void:
 		Ecrans.pile.append(nav)
 		racine.add_child(nav)
 		await attendre(30)
-		var pos: Array = Aventure.COMMIS[image]["pos"]
-		nav.salle_peinte.heros.position = Vector2(float(pos[0]) - 70, float(pos[1]) + 30)
+		var pos: Array = Aventure.COMMIS[image][0]["pos"]
+		nav.salle_peinte.heros.position = Vector2(float(pos[0]) + 60, float(pos[1]) + 40)
 		await attendre(20)
 		await capturer("183_commis_cuisine" if image == "bloc_cuisine_cuisine" else "184_commis_cellier")
 		Ecrans.pile.erase(nav)

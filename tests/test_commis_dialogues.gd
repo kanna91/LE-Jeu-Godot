@@ -1,5 +1,5 @@
 extends SceneTree
-## Commis, viande des loups et menu « Dialogues » de l'éditeur (2026-11-04, demandes de l'utilisateur) :
+## Commis, cuisinière, viande des loups et menu « Dialogues » de l'éditeur (2026-11-04, demandes de l'utilisateur) :
 ## - tous les textes que le jeu demande à ``Dialogues`` existent dans donnees/dialogues.json ;
 ## - un commis dans la cuisine (rôle « cuisine ») et un dans le cellier droit (« cellier ») du bloc cuisine, à leur
 ##   place fixe ; une ancienne partie sans commis les reçoit à la lecture de la salle ; leurs animations se chargent ;
@@ -54,9 +54,9 @@ func _textes() -> void:
 		dynamiques.append("succube/" + c)
 	for c in Aventure.NOMS_PACTES:
 		dynamiques.append("succube/effets_pactes/" + c)
-	for role in ["cuisine", "cellier"]:
+	for role in ["commis_cuisine", "commis_cellier", "cuisiniere"]:
 		for c in ["nom", "presentation", "boutons", "explications", "fin"]:
-			dynamiques.append("commis_%s/%s" % [role, c])
+			dynamiques.append("%s/%s" % [role, c])
 	for chemin in dynamiques:
 		verifier(Dialogues.valeur(chemin) != null, "texte présent : " + chemin)
 	verifier(Dialogues.texte("diablotin/affaires/coffre", {"direction": "ICI"}).contains("ICI"), "mots entre accolades remplacés")
@@ -78,25 +78,31 @@ func _commis() -> void:
 			if p.get("sous", "") == "commis":
 				var image := String(s["salle_peinte"]["image"])
 				trouves[p["role"]] = image
-				var attendu: Array = Aventure.COMMIS[image]["pos"]
+				var attendu: Array = Aventure.COMMIS[image].filter(func(c): return c["role"] == p["role"])[0]["pos"]
 				verifier(absf(float(p["pos"][1]) - float(attendu[1])) < 0.5 and p["genre"] == "pnj", "commis %s à sa place" % p["role"])
 	verifier(trouves.get("cuisine", "") == "bloc_cuisine_cuisine", "commis de la cuisine dans la cuisine")
 	verifier(trouves.get("cellier", "") == "bloc_cuisine_cellier_d", "commis du cellier dans le cellier droit")
-	verifier(trouves.size() == 2, "deux commis par étage")
+	verifier(trouves.get("cuisiniere", "") == "bloc_cuisine_cuisine", "cuisinière dans la cuisine")
+	verifier(trouves.size() == 3, "deux commis et la cuisinière par étage")
 	# Ancienne partie : la salle n'a pas de commis, il arrive à la lecture de la salle
 	for i in donjon.plan_donjon[1]:
 		var s: Dictionary = donjon.plan_donjon[1][i]
 		if String(s.get("salle_peinte", {}).get("image", "")) == "bloc_cuisine_cuisine":
-			s["presences"] = s["presences"].filter(func(q): return q.get("sous", "") != "commis")
+			# Partie d'avant la cuisinière : seul le commis est là
+			s["presences"] = s["presences"].filter(func(q): return q.get("role", "") != "cuisiniere")
 			donjon.salle_actuelle = [1, int(i)]
 			var liste := Aventure.presences(donjon, s)
+			verifier(liste.any(func(q): return q.get("role", "") == "cuisiniere"), "ancienne partie : cuisinière ajoutée à la lecture")
+			s["presences"] = s["presences"].filter(func(q): return q.get("sous", "") != "commis")
+			liste = Aventure.presences(donjon, s)
 			verifier(liste.any(func(q): return q.get("sous", "") == "commis"), "ancienne partie : commis ajouté à la lecture")
 			Aventure.presences(donjon, s)
-			verifier(s["presences"].filter(func(q): return q.get("sous", "") == "commis").size() == 1, "un seul commis, même relu")
+			verifier(s["presences"].filter(func(q): return q.get("sous", "") == "commis").size() == 2, "commis et cuisinière une seule fois, même relu")
 			verifier(Aventure.action(liste.filter(func(q): return q.get("sous", "") == "commis")[0]) == "Parler", "on parle au commis (E)")
 	for role in ["cuisine", "cellier"]:
 		var images := PresencesSalle.images_commis(role)
 		verifier(images.size() == 145 and images[0] is Texture2D, "animation du commis %s (%d images)" % [role, images.size()])
+	verifier(PresencesSalle.IMAGE_CUISINIERE is Texture2D and PresencesSalle.images_commis("cuisiniere").is_empty(), "image de la cuisinière")
 
 
 func _loups() -> void:
@@ -125,7 +131,7 @@ func _loups() -> void:
 		await Aventure.cadavre(donjon, corps)
 	verifier(corps["fouille"] and compter.call() == avant + 4, "corps de loup fouillé dans le jeu : viande crue")
 	# Commis en mode automatique : la conversation se termine
-	for role in ["cuisine", "cellier"]:
+	for role in ["cuisine", "cellier", "cuisiniere"]:
 		var r = await Rencontres.commis(donjon, {"role": role})
 		verifier(r is String, "conversation du commis %s" % role)
 	Ecrans.auto = false
@@ -143,7 +149,7 @@ func _editeur() -> void:
 	var d: EditeurDialogues = ed.dialogues
 	verifier(d.visible, "menu Dialogues ouvert")
 	var noms: Array = d.personnages.map(func(q): return q["nom"])
-	for n in ["Commis de la cuisine", "Commis du cellier", "Diablotin", "Succube", "Quête : Vieux magicien", "Quête : Mariane"]:
+	for n in ["Cuisinière", "Commis de la cuisine", "Commis du cellier", "Diablotin", "Succube", "Quête : Vieux magicien", "Quête : Mariane"]:
 		verifier(n in noms, "personnage dans le menu : " + n)
 	# Commis de la cuisine : choisir la 1re ligne des explications et la modifier
 	var k: int = noms.find("Commis de la cuisine")
