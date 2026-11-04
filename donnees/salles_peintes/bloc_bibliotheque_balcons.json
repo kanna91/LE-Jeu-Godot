@@ -1,0 +1,251 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_balcons/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_balcons/fond_hd.png",
+ "perspective": {
+  "y_horizon": 232,
+  "hauteur_par_pixel": 0.753,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    85
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  500,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    400
+   ],
+   [
+    700,
+    385
+   ],
+   [
+    620,
+    365
+   ],
+   [
+    500,
+    358
+   ],
+   [
+    380,
+    352
+   ],
+   [
+    250,
+    355
+   ],
+   [
+    140,
+    350
+   ],
+   [
+    80,
+    355
+   ],
+   [
+    0,
+    370
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    25,
+    395
+   ],
+   [
+    110,
+    390
+   ],
+   [
+    115,
+    450
+   ],
+   [
+    30,
+    455
+   ]
+  ],
+  [
+   [
+    395,
+    365
+   ],
+   [
+    470,
+    365
+   ],
+   [
+    470,
+    400
+   ],
+   [
+    395,
+    402
+   ]
+  ],
+  [
+   [
+    265,
+    465
+   ],
+   [
+    385,
+    460
+   ],
+   [
+    390,
+    511
+   ],
+   [
+    270,
+    511
+   ]
+  ],
+  [
+   [
+    560,
+    375
+   ],
+   [
+    625,
+    375
+   ],
+   [
+    625,
+    400
+   ],
+   [
+    560,
+    400
+   ]
+  ],
+  [
+   [
+    690,
+    385
+   ],
+   [
+    767,
+    380
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    700,
+    511
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    82,
+    345
+   ],
+   [
+    130,
+    345
+   ],
+   [
+    132,
+    358
+   ],
+   [
+    80,
+    358
+   ]
+  ],
+  [
+   [
+    322,
+    352
+   ],
+   [
+    372,
+    352
+   ],
+   [
+    374,
+    364
+   ],
+   [
+    320,
+    364
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte de gauche",
+  "escalier du fond",
+  "retour"
+ ],
+ "directions_sorties": [
+  "gauche",
+  "devant",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "passage",
+  "passage"
+ ],
+ "arrivees": {
+  "porte de gauche": [
+   125,
+   372,
+   "right"
+  ],
+  "escalier du fond": [
+   345,
+   375,
+   "down"
+  ]
+ },
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1ejmqrh9b1qy.jpeg"
+}

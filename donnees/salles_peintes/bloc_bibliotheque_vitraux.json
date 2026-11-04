@@ -1,0 +1,193 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_vitraux/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_vitraux/fond_hd.png",
+ "perspective": {
+  "y_horizon": 260,
+  "hauteur_par_pixel": 0.838,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    338,
+    65
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  380,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    390
+   ],
+   [
+    640,
+    370
+   ],
+   [
+    560,
+    355
+   ],
+   [
+    470,
+    340
+   ],
+   [
+    400,
+    335
+   ],
+   [
+    340,
+    335
+   ],
+   [
+    280,
+    340
+   ],
+   [
+    180,
+    355
+   ],
+   [
+    80,
+    380
+   ],
+   [
+    0,
+    395
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    0,
+    330
+   ],
+   [
+    140,
+    335
+   ],
+   [
+    170,
+    390
+   ],
+   [
+    0,
+    400
+   ]
+  ],
+  [
+   [
+    440,
+    345
+   ],
+   [
+    560,
+    345
+   ],
+   [
+    565,
+    375
+   ],
+   [
+    450,
+    375
+   ]
+  ],
+  [
+   [
+    620,
+    340
+   ],
+   [
+    767,
+    335
+   ],
+   [
+    767,
+    380
+   ],
+   [
+    625,
+    380
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    355,
+    330
+   ],
+   [
+    395,
+    330
+   ],
+   [
+    397,
+    342
+   ],
+   [
+    353,
+    342
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte du fond",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "passage"
+ ],
+ "arrivees": {
+  "porte du fond": [
+   375,
+   352,
+   "down"
+  ]
+ },
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1ejs2jlrszfn.jpeg"
+}

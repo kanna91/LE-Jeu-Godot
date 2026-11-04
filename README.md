@@ -188,6 +188,18 @@ stick droit pour choisir un bouton de l'interface.
     d'orientation voulue : on entre dans un cellier par le bas de son image. Zones relevées à la main
     (`outils/importer_blocs.py`, planche `C:\IA\pont-blender\bloc_cuisine\planche_zones.png`, retouchables dans
     l'éditeur de zones) ;
+    Deuxième bloc, **bibliothèque** (2026-11-04, un par étage, 14 images de l'utilisateur) : un **complexe fermé**
+    de 14 salles sur 4 × 4 cases, **deux entrées** seulement (le bas du vestibule au sud, l'allée du fond de la salle
+    au globe au nord), et un **refuge** (zone « bibliotheque » de `zones.json`, `"sans_ennemis": true`) : ni ennemis,
+    ni geôlier, ni Chevalier de la mort n'y sont posés ni n'y entrent. Plan (choix de Claude d'après les portes
+    peintes) : vestibule → nef → allée des lecteurs → salle au globe → étage ; nef ↔ galerie des balcons (→ salle des
+    globes ; → galerie haute → cabinet des cartes, archives) et salle aux vitraux (→ galerie aux tapis) ; vestibule ↔
+    galerie ouest (→ salle de lecture) et salle des piles de livres. On entre dans chaque salle par le bas de son
+    image. Zones relevées par Claude (`outils/importer_blocs.py bibliotheque`, planche
+    `C:\IA\pont-blenderloc_bibliotheque\planche_zones.png`), à retoucher dans l'éditeur. Les blocs sont posés du
+    plus grand au plus petit ; si l'un ne trouve pas de place, le plan de l'étage est refait (10 essais au plus,
+    `GenerateurEtage.ESSAIS_BLOCS`). Les 14 salles de la bibliothèque s'ajoutent à l'étage (`"en_plus"`) : un étage
+    passe d'environ 88 à environ 100 salles, et garde ses boucles ;
   - **Cachettes** (règle de l'utilisateur, 2026-11-01) : zones « cachettes » tracées avec l'éditeur de zones (couche 6).
     Le héros qui s'y trouve n'est **ni vu ni entendu** (bandeau « Caché ») ; les ennemis **ne l'y poursuivent pas** :
     ils n'entrent pas dans la zone, perdent sa trace et ne lancent pas de combat (même le Chevalier de la mort qui le
@@ -1006,7 +1018,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_pv.gd          # PV = 70 (héros) + endurance × 2, caractéristiques du héros, ennemis par étage
 & $godot --path . -s tests/robot.gd -- 2 36000            # partie jouée par l'interface (graine, images)
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
-& $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine par étage, liens porte à porte, deux entrées, images réservées
+& $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine et un bloc bibliothèque par étage, liens porte à porte, deux entrées, images réservées, bibliothèque fermée et refuge
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
 & $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
 & $godot --headless --path . -s tests/test_cri_de_guerre.gd       # gobelin combattant : Cri de guerre s'il est accompagné, sinon Coup d'épée
@@ -1033,6 +1045,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
+& $godot --path . -s tests/capture_bibliotheque.gd        # captures 190-203 : chaque salle du bloc bibliothèque, arrivée par le bas (hors écran)
 & $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
 & $godot --path . -s tests/capture_commis.gd                # captures 183-186 : commis de la cuisine et du cellier, dialogue d'un commis, menu Dialogues (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
@@ -1121,6 +1134,30 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — La bibliothèque
+
+- Demande de l'utilisateur : intégrer les salles « bibliothèque » (`C:\ia image\Salle de donjonibliothèqueibliothèque`,
+  15 images dont un doublon) en un **complexe fermé** à deux ouvertures où le Chevalier de la mort, le geôlier et les
+  ennemis n'entrent pas. Fait comme le bloc cuisine : nouveau bloc **bibliothèque** (`BlocsSalles.BLOCS`, 14 salles,
+  liens porte à porte, deux entrées) et nouvelle zone refuge « bibliotheque » (`donnees/zones.json`).
+- Plan et zones (sol, obstacles, portes, perspective) : choix de Claude d'après les images ; seules les portes
+  utilisées sont tracées, les autres portes peintes restent du décor. À retoucher dans l'éditeur de zones.
+- Générateur : blocs posés du plus grand au plus petit ; plan refait si un bloc manque (`ESSAIS_BLOCS`, 10). Les
+  salles de la bibliothèque s'ajoutent à l'étage (`"en_plus"` dans `BlocsSalles`) : comptées dans la taille, elles
+  prenaient la place des cercles et l'étage n'avait presque plus de boucles (0,1 en moyenne au lieu de 3,8).
+- **Étage relié sans les blocs** (défaut trouvé en testant) : quand une entrée de bloc donnait sur une case vide, la
+  salle créée là ne touchait que le bloc ; elle (et ce qui poussait d'elle) n'était accessible qu'en traversant le
+  bloc. La bibliothèque étant fermée aux ennemis, un chasseur pouvait y rester coincé. Désormais une passe de
+  raccordement (`GenerateurEtage._relier_sans_blocs`) relie ces salles à l'étage (voisine directe, sinon petit couloir
+  de salles), et le plan est refait s'il reste une partie isolée (`relie_sans_blocs`).
+- Tests : `test_aventure.gd` choisit la salle « loin » hors des refuges ; `test_zones.gd` compte les refuges des deux
+  blocs ; `test_grands_etages.gd` ajoute les 14 salles de la bibliothèque à la taille visée.
+- Captures 190-203 : chaque salle de la bibliothèque (`tests/capture_bibliotheque.gd`).
+- Fichiers : `outils/importer_blocs.py` (bloc « bibliotheque », import d'un seul bloc : `python outils/importer_blocs.py
+  bibliotheque`), `images/salles_peintes/bloc_bibliotheque_*`, `donnees/salles_peintes/bloc_bibliotheque_*.json`,
+  `blocs_salles.gd`, `generateur_etage.gd`, `zones.json`.
+- Test : `test_blocs.gd` vérifie les deux blocs (complets, liens, deux entrées sur 30 étages, complexe fermé, refuge).
 
 ### 2026-11-04 — La cuisinière
 

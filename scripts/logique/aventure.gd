@@ -796,7 +796,7 @@ static func centre_etage(donjon, etage: int) -> String:
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	var meilleure := ""
 	var meilleur_ecart := 1 << 20
-	for i in salles_ordinaires(donjon, etage):
+	for i in salles_pour_ennemis(donjon, etage):  # pas un refuge (2026-11-04 : la bibliothèque est souvent au centre)
 		var ecart: int = distances_depuis(salles, i).values().max()
 		if ecart < meilleur_ecart or (ecart == meilleur_ecart and randf() < 0.5):
 			meilleur_ecart = ecart

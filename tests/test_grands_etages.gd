@@ -72,8 +72,15 @@ func _initialize() -> void:
 	print("Boucles : moyenne %.1f (de %d à %d)" % [moy.call(boucles), boucles.min(), boucles.max()])
 	print("Salles bonus : moyenne %.1f" % moy.call(bonus))
 	# Depuis le 2026-11-03, les chemins d'accès aux prisons des coins s'ajoutent (≈ 9 salles en moyenne)
-	verifier(moy.call(tailles) >= GenerateurEtage.TAILLE_ETAGE - 5 and moy.call(tailles) <= GenerateurEtage.TAILLE_ETAGE + 15,
-		"environ %d salles par étage, plus les chemins d'accès aux prisons" % GenerateurEtage.TAILLE_ETAGE)
+	# Depuis le 2026-11-04, les salles des blocs « en_plus » (la bibliothèque, 14) s'ajoutent aussi
+	var en_plus := 0
+	for nom in BlocsSalles.BLOCS:
+		if BlocsSalles.BLOCS[nom].get("en_plus", false):
+			en_plus += BlocsSalles.BLOCS[nom]["salles"].size()
+	var visee := GenerateurEtage.TAILLE_ETAGE + en_plus
+	# + 20 : chemins des prisons (≈ 9) et couloirs qui raccordent les entrées des blocs à l'étage (≈ 5, 2026-11-04)
+	verifier(moy.call(tailles) >= visee - 5 and moy.call(tailles) <= visee + 20,
+		"environ %d salles par étage, plus les chemins d'accès aux prisons" % visee)
 	verifier(tailles.min() >= 40, "aucun étage trop petit (%d)" % tailles.min())
 	verifier(moy.call(carrefours) >= 8, "des carrefours dans chaque étage")
 	verifier(moy.call(boucles) >= 3.5, "des boucles dans chaque étage")

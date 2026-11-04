@@ -1,0 +1,219 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_galerie_haute/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_galerie_haute/fond_hd.png",
+ "perspective": {
+  "y_horizon": 342,
+  "hauteur_par_pixel": 1.241,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    395,
+    66
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  380,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    470
+   ],
+   [
+    720,
+    440
+   ],
+   [
+    700,
+    420
+   ],
+   [
+    560,
+    400
+   ],
+   [
+    450,
+    392
+   ],
+   [
+    300,
+    395
+   ],
+   [
+    200,
+    400
+   ],
+   [
+    130,
+    400
+   ],
+   [
+    60,
+    410
+   ],
+   [
+    0,
+    420
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    470,
+    392
+   ],
+   [
+    540,
+    392
+   ],
+   [
+    540,
+    432
+   ],
+   [
+    472,
+    435
+   ]
+  ],
+  [
+   [
+    550,
+    405
+   ],
+   [
+    705,
+    405
+   ],
+   [
+    710,
+    450
+   ],
+   [
+    560,
+    455
+   ]
+  ],
+  [
+   [
+    205,
+    388
+   ],
+   [
+    280,
+    388
+   ],
+   [
+    280,
+    420
+   ],
+   [
+    205,
+    420
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    75,
+    395
+   ],
+   [
+    130,
+    395
+   ],
+   [
+    132,
+    408
+   ],
+   [
+    72,
+    408
+   ]
+  ],
+  [
+   [
+    408,
+    388
+   ],
+   [
+    458,
+    388
+   ],
+   [
+    460,
+    400
+   ],
+   [
+    406,
+    400
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte de gauche",
+  "porte du fond",
+  "retour"
+ ],
+ "directions_sorties": [
+  "gauche",
+  "devant",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "porte",
+  "passage"
+ ],
+ "arrivees": {
+  "porte de gauche": [
+   110,
+   425,
+   "right"
+  ],
+  "porte du fond": [
+   432,
+   412,
+   "down"
+  ]
+ },
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1ej4oaigb5f4.jpeg"
+}

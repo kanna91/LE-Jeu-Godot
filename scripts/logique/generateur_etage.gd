@@ -247,13 +247,131 @@ static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case
 	for r in BlocsSalles.raccords(nom, origine):
 		var autre: int = par_case.get(r[1], 0)
 		if not autre:
-			autre = ajouter.call(r[1], "branche")
+			autre = ajouter.call(r[1], "branche")  # raccordée à l'étage plus tard (_relier_sans_blocs)
 		relier.call(ids[r[0]], autre)
 	return true
 
 
 ## Plan d'un étage : {id: {"position": Vector2i, "connexions": {id: true}, "role", "effet_bonus", "evenement"}}.
+## Plans essayés au plus pour que tous les blocs trouvent leur place et que l'étage reste relié sans eux (2026-11-04).
+const ESSAIS_BLOCS := 10
+
+
 static func generer_plan(etage: int) -> Dictionary:
+	var plan := {}
+	for _essai in ESSAIS_BLOCS:
+		plan = _generer_plan(etage)
+		if blocs_complets(plan) and relie_sans_blocs(plan):
+			break
+	return plan
+
+
+## Raccorde à l'étage les salles qu'on n'atteint qu'en traversant un bloc (2026-11-04) : tant qu'il en reste, une salle
+## isolée (branche ou voie) voisine sur la grille d'une salle atteinte lui est reliée ; sinon, un petit couloir de
+## salles est tracé sur des cases libres jusqu'à la salle atteinte la plus proche (COULOIR_REPARATION cases au plus).
+const COULOIR_REPARATION := 8
+
+
+static func _relier_sans_blocs(salles: Dictionary, par_case: Dictionary, interdites: Array, boss: int, voulu: int,
+		ajouter: Callable, relier: Callable) -> void:
+	for _tour in 200:
+		# Distances par tout le plan (blocs compris) : aucun raccordement ne doit rapprocher le boss du départ
+		var ds := _distances_plan(salles, 1)
+		var db := _distances_plan(salles, boss)
+		var vus := {1: true}
+		var file := [1]
+		while not file.is_empty():
+			var c: int = file.pop_front()
+			for v in salles[c]["connexions"]:
+				if not vus.has(v) and salles[v]["role"] != "bloc":
+					vus[v] = true
+					file.append(v)
+		var paires := []
+		for i in salles:
+			if vus.has(i) or not (salles[i]["role"] in ["branche", "principale"]):
+				continue
+			for c in _voisines(salles[i]["position"]):
+				var v: int = par_case.get(c, 0)
+				if v and vus.has(v) and v != boss and salles[v]["role"] in ["branche", "principale", "depart"] 						and not _raccourcit(ds, db, i, v, 1, voulu):
+					paires.append([i, v])
+		if not paires.is_empty():
+			var p: Array = paires.pick_random()
+			relier.call(p[0], p[1])
+			continue
+		# Couloir : parcours en largeur sur les cases libres, depuis les salles isolées
+		var depart := {}
+		var file_c := []
+		for i in salles:
+			if not vus.has(i) and salles[i]["role"] in ["branche", "principale"]:
+				depart[salles[i]["position"]] = null
+				file_c.append(salles[i]["position"])
+		if file_c.is_empty():
+			return
+		var avant := depart.duplicate()
+		var trouve := []
+		while not file_c.is_empty() and trouve.is_empty():
+			var c: Vector2i = file_c.pop_front()
+			var longueur := 0
+			var r = c
+			while avant.get(r) != null:
+				r = avant[r]
+				longueur += 1
+			var origine_c: int = par_case.get(r, 0)
+			if longueur > COULOIR_REPARATION:
+				continue
+			for n in _voisines(c):
+				if avant.has(n):
+					continue
+				var v: int = par_case.get(n, 0)
+				if v:
+					if vus.has(v) and v != boss and salles[v]["role"] in ["branche", "principale", "depart"] and avant.get(c) != null 							and not _raccourcit(ds, db, origine_c, v, longueur + 1, voulu):
+						trouve = [n, c]
+						break
+					continue
+				if n in interdites or n.y < 0:
+					continue
+				avant[n] = c
+				file_c.append(n)
+		if trouve.is_empty():
+			return
+		# Chemin : salle atteinte ← cases libres ← salle isolée
+		var cases := []
+		var c2: Vector2i = trouve[1]
+		while avant.get(c2) != null:
+			cases.push_front(c2)
+			c2 = avant[c2]
+		var precedente: int = par_case[c2]
+		for c3 in cases:
+			var nouvelle: int = ajouter.call(c3, "branche")
+			relier.call(precedente, nouvelle)
+			precedente = nouvelle
+		relier.call(precedente, par_case[trouve[0]])
+
+
+## Vrai si toutes les salles hors blocs se rejoignent sans traverser un bloc (2026-11-04) : les blocs sont des
+## refuges fermés aux ennemis ; une partie de l'étage accessible seulement par la bibliothèque piégerait les
+## chasseurs (et ses ennemis ne pourraient jamais rejoindre le héros).
+static func relie_sans_blocs(plan: Dictionary) -> bool:
+	var vus := {1: true}
+	var file := [1]
+	while not file.is_empty():
+		var c: int = file.pop_front()
+		for v in plan[c]["connexions"]:
+			if not vus.has(v) and plan[v]["role"] != "bloc":
+				vus[v] = true
+				file.append(v)
+	return vus.size() == plan.values().filter(func(s): return s["role"] != "bloc").size()
+
+
+## Vrai si chaque bloc de BlocsSalles est posé autant de fois que voulu, en entier, dans le plan.
+static func blocs_complets(plan: Dictionary) -> bool:
+	var attendu := 0
+	for nom in BlocsSalles.BLOCS:
+		attendu += BlocsSalles.BLOCS[nom]["salles"].size() * int(BlocsSalles.BLOCS[nom].get("par_etage", 1))
+	return plan.values().filter(func(s): return s["role"] == "bloc").size() == attendu
+
+
+static func _generer_plan(etage: int) -> Dictionary:
 	var longueur := distance_boss(etage) + 1
 	var voie := _voie_principale(longueur)
 	var salles := {}
@@ -273,6 +391,12 @@ static func generer_plan(etage: int) -> Dictionary:
 			relier.call(ident - 1, ident)
 	var boss := voie.size()
 	var interdites := _voisines(voie[-1]) + [Vector2i(0, -1)]
+	# Salles des blocs « en_plus » (la bibliothèque, 2026-11-04) : elles s'ajoutent à l'étage au lieu de prendre la
+	# place des cercles (sans cela, plus de boucles dans l'étage)
+	var en_plus := 0
+	for nom in BlocsSalles.BLOCS:
+		if BlocsSalles.BLOCS[nom].get("en_plus", false):
+			en_plus += BlocsSalles.BLOCS[nom]["salles"].size() * int(BlocsSalles.BLOCS[nom].get("par_etage", 1))
 	# Branches jusqu'à la taille visée, de préférence depuis des salles à 1 ou 2 passages (futurs carrefours)
 	var essais := 0
 	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES - SALLES_PRISONS and essais < 400:
@@ -306,14 +430,17 @@ static func generer_plan(etage: int) -> Dictionary:
 			relier.call(courante, nouvelle)
 			courante = nouvelle
 	# Blocs de salles (BlocsSalles, 2026-10-31) : posés après les branches, avant les cercles
+	# Les plus grands d'abord (2026-11-04 : la bibliothèque, 4 × 4 cases, a besoin de place)
+	var noms_blocs := BlocsSalles.BLOCS.keys()
+	noms_blocs.sort_custom(func(a, b): return BlocsSalles.BLOCS[a]["salles"].size() > BlocsSalles.BLOCS[b]["salles"].size())
 	var instance := 0
-	for nom in BlocsSalles.BLOCS:
+	for nom in noms_blocs:
 		for _k in int(BlocsSalles.BLOCS[nom].get("par_etage", 1)):
 			instance += 1
 			_poser_bloc(nom, instance, salles, par_case, interdites, boss, ajouter, relier)
 	# Cercles : un tour de salles en rectangle qui part d'une salle existante et y revient
 	essais = 0
-	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS and essais < 300:
+	while salles.size() - en_plus < TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS and essais < 300:
 		essais += 1
 		var depuis := []
 		for i in salles:
@@ -322,7 +449,7 @@ static func generer_plan(etage: int) -> Dictionary:
 		var a: int = depuis.pick_random()
 		var tour := _rectangle(salles[a]["position"], randi_range(CERCLE.x, CERCLE.y), randi_range(1, 2),
 			[-1, 1].pick_random(), [-1, 1].pick_random())
-		if tour.size() - 1 > TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS - salles.size() + 2:
+		if tour.size() - 1 > TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS - (salles.size() - en_plus) + 2:
 			continue
 		var possible := true
 		for c in tour.slice(1):
@@ -367,6 +494,7 @@ static func generer_plan(etage: int) -> Dictionary:
 			ds = _distances_plan(salles, 1)
 			db = _distances_plan(salles, boss)
 	# Prisons aux 4 coins, après les boucles (elles ne sont reliées à l'étage que par leur entrée)
+	_relier_sans_blocs(salles, par_case, interdites, boss, voulu, ajouter, relier)
 	_poser_prisons(salles, par_case, interdites, boss, ajouter, relier)
 	var distances := {1: 0}
 	var file := [1]

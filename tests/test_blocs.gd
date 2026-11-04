@@ -3,6 +3,8 @@ extends SceneTree
 ## des cases libres, avec ses liens porte à porte (salle à manger → cuisine → petite porte → celliers) et ses deux
 ## entrées raccordées au reste de l'étage ; ses images ne servent nulle part ailleurs ; chaque sortie mène là où il
 ## faut, et revenir par la même porte ramène dans la salle d'où l'on vient ; tout l'étage reste accessible.
+## Bloc bibliothèque (2026-11-04) : mêmes vérifications, plus : complexe fermé (aucun passage vers l'étage hors de ses
+## deux entrées) et refuge (Zones.refuge : ni ennemis, ni geôlier, ni Chevalier de la mort).
 ## godot --headless --path . -s tests/test_blocs.gd
 
 var echecs := 0
@@ -17,7 +19,7 @@ func verifier(condition: bool, cas: String) -> void:
 func _initialize() -> void:
 	seed(1031)
 	var etages := 0
-	var deux_entrees := 0
+	var deux_entrees := {}
 	for k in 30:
 		Sauvegarde.reinitialiser_monde()
 		var donjon := Donjon.nouveau(Personnage.nouveau())
@@ -25,29 +27,32 @@ func _initialize() -> void:
 			if Donjon.est_niveau_unique(etage):
 				continue  # cryptes : pas de bloc cuisine (2026-11-03)
 			etages += 1
-			if _etage(donjon.plan_donjon[etage], "%d/%d" % [k, etage]):
-				deux_entrees += 1
-	print("Étages : %d, bloc cuisine à deux entrées : %d" % [etages, deux_entrees])
-	verifier(deux_entrees == etages, "toujours deux entrées raccordées (%d / %d)" % [deux_entrees, etages])
+			for bloc in BlocsSalles.BLOCS:
+				if _etage(donjon.plan_donjon[etage], "%d/%d %s" % [k, etage, bloc], bloc):
+					deux_entrees[bloc] = deux_entrees.get(bloc, 0) + 1
+	for bloc in BlocsSalles.BLOCS:
+		print("Étages : %d, bloc %s à deux entrées : %d" % [etages, bloc, deux_entrees.get(bloc, 0)])
+		verifier(deux_entrees.get(bloc, 0) == etages, "bloc %s : toujours deux entrées raccordées (%d / %d)" % [bloc, deux_entrees.get(bloc, 0), etages])
 	print("BILAN blocs : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
 
 
 ## Vérifie un étage ; vrai si ses deux entrées mènent au reste de l'étage.
-func _etage(salles: Dictionary, nom: String) -> bool:
-	var b: Dictionary = BlocsSalles.BLOCS["cuisine"]
+func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
+	var b: Dictionary = BlocsSalles.BLOCS[bloc]
 	var ids := {}
 	for id in salles:
 		var s: Dictionary = salles[id]
-		if s.get("bloc") == "cuisine":
+		if s.get("bloc") == bloc:
 			ids[s["bloc_salle"]] = id
-		elif s.has("salle_peinte"):
+		elif not s.has("bloc") and s.has("salle_peinte"):
 			verifier(not BlocsSalles.image_de_bloc(String(s["salle_peinte"].get("image", ""))), "%s : image de bloc hors bloc" % nom)
-	verifier(ids.size() == b["salles"].size(), "%s : bloc cuisine complet (%d salles)" % [nom, ids.size()])
+	verifier(ids.size() == b["salles"].size(), "%s : bloc complet (%d salles)" % [nom, ids.size()])
 	if ids.size() != b["salles"].size():
 		return false
 	# Positions et images
-	var origine: Vector2i = salles[ids["manger"]]["position"]
+	var premiere: String = b["salles"].keys()[0]
+	var origine: Vector2i = salles[ids[premiere]]["position"] - b["salles"][premiere]["position"]
 	for cle in ids:
 		var s: Dictionary = salles[ids[cle]]
 		verifier(s["position"] == origine + b["salles"][cle]["position"], "%s : position de %s" % [nom, cle])
@@ -69,6 +74,20 @@ func _etage(salles: Dictionary, nom: String) -> bool:
 		var s: Dictionary = salles[ids[cle]]
 		for conn in s["connections"]:
 			verifier(PlanSalles.sortie_vers(s, str(conn)) >= 0, "%s : %s → %s sans porte" % [nom, cle, conn])
+	# Complexe fermé : hors des entrées, aucune salle du bloc ne mène hors du bloc
+	var entrees_cles: Array = b["entrees"].map(func(e): return e[0])
+	var vers_dehors := 0
+	for cle in ids:
+		for conn in salles[ids[cle]]["connections"]:
+			if salles[str(conn)].get("bloc", "") != bloc:
+				vers_dehors += 1
+				verifier(cle in entrees_cles, "%s : %s mène hors du bloc sans être une entrée" % [nom, cle])
+	verifier(vers_dehors <= b["entrees"].size(), "%s : %d passages vers l'étage (au plus %d)" % [nom, vers_dehors, b["entrees"].size()])
+	if bloc == "bibliotheque":
+		for cle in ids:
+			verifier(Zones.refuge(salles[ids[cle]]), "%s : %s est un refuge" % [nom, cle])
+			for p in salles[ids[cle]].get("presences", []):
+				verifier(not (p.get("genre", "") in Aventure.ENNEMIS), "%s : ennemi %s dans %s" % [nom, p.get("genre"), cle])
 	# Entrées : une salle extérieure (hors bloc) derrière chacune, du bon côté
 	var raccordees := 0
 	for e in b["entrees"]:

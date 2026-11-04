@@ -40,6 +40,53 @@ const BLOCS := {
 		],
 		"par_etage": 1,
 	},
+	## Bloc « bibliothèque » (2026-11-04, images de l'utilisateur) : un **complexe fermé** de 14 salles, deux entrées
+	## seulement (le bas du vestibule, au sud ; l'allée du fond de la salle au globe, au nord) ; c'est un **refuge**
+	## (zone « bibliotheque » de zones.json : ni ennemis, ni geôlier, ni Chevalier de la mort). Plan de Claude d'après
+	## les portes peintes : vestibule → (fond) nef → (fond) allée → (fond) salle au globe → étage ; la nef ouvre à gauche
+	## sur la galerie des balcons (→ salle des globes, → galerie haute → cabinet des cartes, archives) et à droite sur
+	## la salle aux vitraux (→ galerie aux tapis) ; le vestibule ouvre à gauche sur la galerie ouest (→ salle de
+	## lecture) et à droite sur la salle des piles de livres. On entre dans chaque salle par le bas de son image.
+	"bibliotheque": {
+		"salles": {
+			"vestibule": {"image": "bloc_bibliotheque_vestibule", "position": Vector2i(0, 0), "nom": "Vestibule de la bibliothèque"},
+			"nef": {"image": "bloc_bibliotheque_nef", "position": Vector2i(0, 1), "nom": "Nef de la bibliothèque"},
+			"allee": {"image": "bloc_bibliotheque_allee", "position": Vector2i(0, 2), "nom": "Allée des lecteurs"},
+			"globe": {"image": "bloc_bibliotheque_globe", "position": Vector2i(0, 3), "nom": "Salle au globe"},
+			"galerie_ouest": {"image": "bloc_bibliotheque_galerie_ouest", "position": Vector2i(-1, 0), "nom": "Galerie ouest"},
+			"lecture": {"image": "bloc_bibliotheque_lecture", "position": Vector2i(-2, 0), "nom": "Salle de lecture"},
+			"piles": {"image": "bloc_bibliotheque_piles", "position": Vector2i(1, 0), "nom": "Salle des piles de livres"},
+			"balcons": {"image": "bloc_bibliotheque_balcons", "position": Vector2i(-1, 1), "nom": "Galerie des balcons"},
+			"globes": {"image": "bloc_bibliotheque_globes", "position": Vector2i(-2, 1), "nom": "Salle des globes"},
+			"galerie_haute": {"image": "bloc_bibliotheque_galerie_haute", "position": Vector2i(-1, 2), "nom": "Galerie haute"},
+			"cartes": {"image": "bloc_bibliotheque_cartes", "position": Vector2i(-2, 2), "nom": "Cabinet des cartes"},
+			"archives": {"image": "bloc_bibliotheque_archives", "position": Vector2i(-1, 3), "nom": "Archives"},
+			"vitraux": {"image": "bloc_bibliotheque_vitraux", "position": Vector2i(1, 1), "nom": "Salle aux vitraux"},
+			"tapis": {"image": "bloc_bibliotheque_tapis", "position": Vector2i(1, 2), "nom": "Galerie aux tapis"},
+		},
+		"liens": [
+			["vestibule", 0, "galerie_ouest", 1],
+			["vestibule", 1, "nef", 3],
+			["vestibule", 2, "piles", 0],
+			["nef", 0, "allee", 1],
+			["nef", 1, "balcons", 2],
+			["nef", 2, "vitraux", 1],
+			["allee", 0, "globe", 1],
+			["galerie_ouest", 0, "lecture", 0],
+			["balcons", 0, "globes", 0],
+			["balcons", 1, "galerie_haute", 2],
+			["galerie_haute", 0, "cartes", 0],
+			["galerie_haute", 1, "archives", 0],
+			["vitraux", 0, "tapis", 0],
+		],
+		"entrees": [
+			["vestibule", 3, Vector2i(0, -1)],
+			["globe", 0, Vector2i(0, 1)],
+		],
+		"par_etage": 1,
+		## Ses salles s'ajoutent à la taille de l'étage (GenerateurEtage : elles ne prennent pas la place des cercles).
+		"en_plus": true,
+	},
 }
 
 

@@ -1,0 +1,245 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_vestibule/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_vestibule/fond_hd.png",
+ "perspective": {
+  "y_horizon": 279,
+  "hauteur_par_pixel": 0.904,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    60
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  560,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    400
+   ],
+   [
+    700,
+    380
+   ],
+   [
+    660,
+    360
+   ],
+   [
+    600,
+    350
+   ],
+   [
+    460,
+    345
+   ],
+   [
+    330,
+    345
+   ],
+   [
+    200,
+    350
+   ],
+   [
+    120,
+    355
+   ],
+   [
+    40,
+    355
+   ],
+   [
+    0,
+    360
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    240,
+    395
+   ],
+   [
+    460,
+    390
+   ],
+   [
+    465,
+    470
+   ],
+   [
+    250,
+    475
+   ]
+  ],
+  [
+   [
+    0,
+    395
+   ],
+   [
+    120,
+    395
+   ],
+   [
+    125,
+    440
+   ],
+   [
+    0,
+    445
+   ]
+  ],
+  [
+   [
+    705,
+    390
+   ],
+   [
+    767,
+    385
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    715,
+    511
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    30,
+    345
+   ],
+   [
+    85,
+    345
+   ],
+   [
+    87,
+    358
+   ],
+   [
+    28,
+    358
+   ]
+  ],
+  [
+   [
+    368,
+    342
+   ],
+   [
+    420,
+    342
+   ],
+   [
+    422,
+    354
+   ],
+   [
+    366,
+    354
+   ]
+  ],
+  [
+   [
+    605,
+    346
+   ],
+   [
+    650,
+    346
+   ],
+   [
+    652,
+    358
+   ],
+   [
+    603,
+    358
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte de gauche",
+  "escalier du fond",
+  "porte de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "gauche",
+  "devant",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "passage",
+  "porte",
+  "passage"
+ ],
+ "arrivees": {
+  "porte de gauche": [
+   70,
+   375,
+   "right"
+  ],
+  "escalier du fond": [
+   395,
+   365,
+   "down"
+  ],
+  "porte de droite": [
+   615,
+   372,
+   "left"
+  ]
+ },
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1ejzc3g9nx1v.jpeg"
+}

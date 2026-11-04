@@ -274,7 +274,7 @@ func _imbattable_et_fuite() -> void:
 			depart_chevalier = c[1]
 	var ecart_milieu: int = Aventure.distances_depuis(salles, depart_chevalier).values().max()
 	var ecart_min := 1 << 20
-	for i in Aventure.salles_ordinaires(donjon, etage):
+	for i in Aventure.salles_pour_ennemis(donjon, etage):
 		ecart_min = mini(ecart_min, Aventure.distances_depuis(salles, i).values().max())
 	verifier(ecart_milieu == ecart_min, "le chevalier part du milieu de l'étage (%d salles au plus de tout)" % ecart_milieu)
 	# Errance : en 10 minutes de jeu, chacun visite plusieurs salles, jamais celle du boss
@@ -304,7 +304,7 @@ func _imbattable_et_fuite() -> void:
 	print("Errance (10 min) : salles visitées par chasseur %s" % str(visitees.values().map(func(v): return v.size())))
 	# Combat : tous se dirigent vers la salle du héros et finissent par y entrer
 	var loin := ""
-	for i in Aventure.salles_ordinaires(donjon, etage):
+	for i in Aventure.salles_pour_ennemis(donjon, etage):  # pas un refuge (cuisine, bibliothèque) : ils n'y entrent pas
 		var plus_pres := 1 << 20
 		for c in Aventure.chasseurs(donjon, etage):
 			plus_pres = mini(plus_pres, Aventure.distances_depuis(salles, i).get(c[1], 0))

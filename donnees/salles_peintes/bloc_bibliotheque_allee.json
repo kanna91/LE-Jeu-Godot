@@ -1,0 +1,211 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_allee/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_allee/fond_hd.png",
+ "perspective": {
+  "y_horizon": 318,
+  "hauteur_par_pixel": 1.089,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    410,
+    100
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  400,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    420
+   ],
+   [
+    700,
+    400
+   ],
+   [
+    600,
+    370
+   ],
+   [
+    470,
+    350
+   ],
+   [
+    410,
+    343
+   ],
+   [
+    360,
+    343
+   ],
+   [
+    290,
+    350
+   ],
+   [
+    180,
+    362
+   ],
+   [
+    80,
+    390
+   ],
+   [
+    0,
+    410
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    185,
+    375
+   ],
+   [
+    330,
+    372
+   ],
+   [
+    325,
+    425
+   ],
+   [
+    195,
+    430
+   ]
+  ],
+  [
+   [
+    600,
+    365
+   ],
+   [
+    720,
+    368
+   ],
+   [
+    725,
+    395
+   ],
+   [
+    605,
+    395
+   ]
+  ],
+  [
+   [
+    135,
+    345
+   ],
+   [
+    185,
+    345
+   ],
+   [
+    185,
+    370
+   ],
+   [
+    135,
+    370
+   ]
+  ],
+  [
+   [
+    510,
+    340
+   ],
+   [
+    580,
+    340
+   ],
+   [
+    580,
+    365
+   ],
+   [
+    510,
+    365
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    358,
+    340
+   ],
+   [
+    410,
+    340
+   ],
+   [
+    412,
+    350
+   ],
+   [
+    356,
+    350
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "porte du fond",
+  "retour"
+ ],
+ "directions_sorties": [
+  "devant",
+  "bas"
+ ],
+ "types_sorties": [
+  "porte",
+  "passage"
+ ],
+ "arrivees": {
+  "porte du fond": [
+   385,
+   360,
+   "down"
+  ]
+ },
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1dv2exfay7o5.jpeg"
+}

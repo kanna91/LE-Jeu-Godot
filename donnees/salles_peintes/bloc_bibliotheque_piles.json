@@ -1,0 +1,162 @@
+{
+ "fond": "images/salles_peintes/bloc_bibliotheque_piles/fond.jpeg",
+ "fond_hd": "images/salles_peintes/bloc_bibliotheque_piles/fond_hd.png",
+ "perspective": {
+  "y_horizon": 258,
+  "hauteur_par_pixel": 0.831,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    72
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  330,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    420
+   ],
+   [
+    720,
+    370
+   ],
+   [
+    640,
+    345
+   ],
+   [
+    560,
+    340
+   ],
+   [
+    400,
+    340
+   ],
+   [
+    250,
+    345
+   ],
+   [
+    130,
+    350
+   ],
+   [
+    60,
+    350
+   ],
+   [
+    0,
+    355
+   ]
+  ]
+ ],
+ "obstacles": [
+  [
+   [
+    330,
+    350
+   ],
+   [
+    440,
+    348
+   ],
+   [
+    445,
+    380
+   ],
+   [
+    335,
+    383
+   ]
+  ],
+  [
+   [
+    615,
+    375
+   ],
+   [
+    720,
+    370
+   ],
+   [
+    725,
+    440
+   ],
+   [
+    620,
+    445
+   ]
+  ],
+  [
+   [
+    490,
+    455
+   ],
+   [
+    600,
+    450
+   ],
+   [
+    605,
+    511
+   ],
+   [
+    490,
+    511
+   ]
+  ]
+ ],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "retour"
+ ],
+ "directions_sorties": [
+  "bas"
+ ],
+ "types_sorties": [
+  "passage"
+ ],
+ "arrivees": {},
+ "bloc": "bibliotheque",
+ "ips": 24,
+ "source": "bibliothèque/mw1eih830p44dn.jpeg"
+}
