@@ -126,7 +126,10 @@ func _cuisine(donjon, etage: int, nom: String) -> void:
 				verifier(not p.get("genre", "") in Aventure.ENNEMIS, "%s : %s dans la cuisine" % [nom, p.get("genre")])
 				verifier(p.get("sous", "") != "gobelin_blesse", "%s : gobelin blessé dans la cuisine" % nom)
 	# Refuges : le bloc cuisine et le bloc bibliothèque (2026-11-04)
-	verifier(refuges.size() == BlocsSalles.BLOCS["cuisine"]["salles"].size() + BlocsSalles.BLOCS["bibliotheque"]["salles"].size(),
+	var attendus := 0
+	for b in BlocsSalles.BLOCS:
+		attendus += BlocsSalles.BLOCS[b]["salles"].size()
+	verifier(refuges.size() == attendus,
 		"%s : %d salles refuges" % [nom, refuges.size()])
 	if refuges.is_empty():
 		return

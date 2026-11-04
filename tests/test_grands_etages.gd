@@ -78,8 +78,9 @@ func _initialize() -> void:
 		if BlocsSalles.BLOCS[nom].get("en_plus", false):
 			en_plus += BlocsSalles.BLOCS[nom]["salles"].size()
 	var visee := GenerateurEtage.TAILLE_ETAGE + en_plus
-	# + 20 : chemins des prisons (≈ 9) et couloirs qui raccordent les entrées des blocs à l'étage (≈ 5, 2026-11-04)
-	verifier(moy.call(tailles) >= visee - 5 and moy.call(tailles) <= visee + 20,
+	# + 30 : chemins des prisons (≈ 9), salles d'entrée des blocs et couloirs qui les raccordent à l'étage (≈ 15 avec
+	# la bibliothèque et le laboratoire, 2026-11-04)
+	verifier(moy.call(tailles) >= visee - 5 and moy.call(tailles) <= visee + 30,
 		"environ %d salles par étage, plus les chemins d'accès aux prisons" % visee)
 	verifier(tailles.min() >= 40, "aucun étage trop petit (%d)" % tailles.min())
 	verifier(moy.call(carrefours) >= 8, "des carrefours dans chaque étage")

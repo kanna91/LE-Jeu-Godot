@@ -1,0 +1,172 @@
+{
+ "fond": "images/salles_peintes/couloir_livre33/fond.jpeg",
+ "fond_hd": "images/salles_peintes/couloir_livre33/fond_hd.png",
+ "perspective": {
+  "y_horizon": 289,
+  "hauteur_par_pixel": 0.947,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    360,
+    67
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "depart": [
+  384,
+  480
+ ],
+ "marche": [
+  [
+   [
+    0,
+    511
+   ],
+   [
+    767,
+    511
+   ],
+   [
+    767,
+    470
+   ],
+   [
+    700,
+    420
+   ],
+   [
+    640,
+    402
+   ],
+   [
+    600,
+    398
+   ],
+   [
+    480,
+    398
+   ],
+   [
+    300,
+    384
+   ],
+   [
+    230,
+    383
+   ],
+   [
+    150,
+    386
+   ],
+   [
+    100,
+    400
+   ],
+   [
+    60,
+    420
+   ],
+   [
+    0,
+    440
+   ]
+  ]
+ ],
+ "obstacles": [],
+ "premier_plan": [],
+ "sorties": [
+  [
+   [
+    150,
+    374
+   ],
+   [
+    230,
+    374
+   ],
+   [
+    232,
+    386
+   ],
+   [
+    148,
+    386
+   ]
+  ],
+  [
+   [
+    480,
+    389
+   ],
+   [
+    600,
+    389
+   ],
+   [
+    602,
+    401
+   ],
+   [
+    478,
+    401
+   ]
+  ],
+  [
+   [
+    0,
+    499
+   ],
+   [
+    767,
+    499
+   ],
+   [
+    767,
+    517
+   ],
+   [
+    0,
+    517
+   ]
+  ]
+ ],
+ "noms_sorties": [
+  "passage de gauche",
+  "passage de droite",
+  "retour"
+ ],
+ "directions_sorties": [
+  "gauche",
+  "droite",
+  "bas"
+ ],
+ "types_sorties": [
+  "passage",
+  "passage",
+  "passage"
+ ],
+ "sorties_potentielles": [
+  true,
+  true,
+  false
+ ],
+ "arrivees": {
+  "passage de gauche": [
+   250,
+   402,
+   "right"
+  ],
+  "passage de droite": [
+   460,
+   417,
+   "left"
+  ]
+ },
+ "ips": 24,
+ "source": "couloir livre/mvwhejuk1wft6f.jpeg"
+}

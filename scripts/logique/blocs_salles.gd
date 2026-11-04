@@ -87,6 +87,99 @@ const BLOCS := {
 		## Ses salles s'ajoutent à la taille de l'étage (GenerateurEtage : elles ne prennent pas la place des cercles).
 		"en_plus": true,
 	},
+	## Bloc « laboratoire » d'alchimie (2026-11-04, 36 images de l'utilisateur) : complexe fermé, **refuge** (zone
+	## « laboratoire » de zones.json), **trois entrées** (couloir des fioles au sud, couloir de l'ouest, fond de l'étude à
+	## l'escalier au nord). Structure cohérente (demande de l'utilisateur) : une porte de gauche mène à la porte de
+	## droite de la salle voisine et inversement, le fond d'une salle au bas de la suivante ; des images en miroir
+	## (« miroir ») pour que les portes tombent du bon côté. Ailes : salle principale au centre (deux colonnes), distillation
+	## à l'ouest, fourneaux à l'est, étude au nord ; quelques boucles là où deux portes se font face. Plan de Claude.
+	"laboratoire": {
+		"salles": {
+			"couloir_sud": {"image": "bloc_laboratoire_couloir_sud", "position": Vector2i(0, -1), "nom": "Couloir des fioles"},
+			"couloir_entree": {"image": "bloc_laboratoire_couloir_entree", "position": Vector2i(0, 0), "nom": "Couloir de l'apothicaire", "miroir": true},
+			"reserve": {"image": "bloc_laboratoire_reserve", "position": Vector2i(1, 0), "nom": "Réserve de l'apothicaire"},
+			"grande_salle": {"image": "bloc_laboratoire_grande_salle", "position": Vector2i(0, 1), "nom": "Grande salle du laboratoire"},
+			"salle_balcons": {"image": "bloc_laboratoire_salle_balcons", "position": Vector2i(0, 2), "nom": "Salle aux balcons"},
+			"salle_piliers": {"image": "bloc_laboratoire_salle_piliers", "position": Vector2i(0, 3), "nom": "Salle aux piliers"},
+			"salle_escaliers": {"image": "bloc_laboratoire_salle_escaliers", "position": Vector2i(0, 4), "nom": "Salle aux escaliers"},
+			"couloir_nord": {"image": "bloc_laboratoire_couloir_nord", "position": Vector2i(0, 5), "nom": "Couloir du nord"},
+			"salle_est": {"image": "bloc_laboratoire_salle_est", "position": Vector2i(1, 1), "nom": "Laboratoire de l'est"},
+			"salle_tables": {"image": "bloc_laboratoire_salle_tables", "position": Vector2i(1, 2), "nom": "Salle des grandes tables"},
+			"salle_vitraux": {"image": "bloc_laboratoire_salle_vitraux", "position": Vector2i(1, 3), "nom": "Salle aux vitraux verts"},
+			"salle_manuscrits": {"image": "bloc_laboratoire_salle_manuscrits", "position": Vector2i(1, 4), "nom": "Salle des manuscrits"},
+			"salle_couleurs": {"image": "bloc_laboratoire_salle_couleurs", "position": Vector2i(1, 5), "nom": "Salle aux vitraux de couleur"},
+			"etude_entree": {"image": "bloc_laboratoire_etude_entree", "position": Vector2i(0, 6), "nom": "Cabinet d'étude"},
+			"etude_escalier": {"image": "bloc_laboratoire_etude_escalier", "position": Vector2i(0, 7), "nom": "Étude à l'escalier"},
+			"etude_cartes": {"image": "bloc_laboratoire_etude_cartes", "position": Vector2i(-1, 6), "nom": "Étude des parchemins"},
+			"etude_vitrail": {"image": "bloc_laboratoire_etude_vitrail", "position": Vector2i(-2, 6), "nom": "Étude au grand vitrail"},
+			"couloir_reserve": {"image": "bloc_laboratoire_couloir_reserve", "position": Vector2i(-3, 6), "nom": "Couloir des réserves", "miroir": true},
+			"etude_haute": {"image": "bloc_laboratoire_etude_haute", "position": Vector2i(-1, 7), "nom": "Étude haute", "miroir": true},
+			"distillation_entree": {"image": "bloc_laboratoire_distillation_entree", "position": Vector2i(-1, 1), "nom": "Salle de distillation"},
+			"distillation_cuves": {"image": "bloc_laboratoire_distillation_cuves", "position": Vector2i(-1, 2), "nom": "Salle des cuves"},
+			"distillation_balcon": {"image": "bloc_laboratoire_distillation_balcon", "position": Vector2i(-1, 3), "nom": "Distillerie au balcon"},
+			"distillation_ballons": {"image": "bloc_laboratoire_distillation_ballons", "position": Vector2i(-1, 4), "nom": "Salle des ballons"},
+			"distillation_lustre": {"image": "bloc_laboratoire_distillation_lustre", "position": Vector2i(-2, 4), "nom": "Distillerie au lustre", "miroir": true},
+			"distillation_verte": {"image": "bloc_laboratoire_distillation_verte", "position": Vector2i(-2, 5), "nom": "Distillerie verte"},
+			"distillation_cornues": {"image": "bloc_laboratoire_distillation_cornues", "position": Vector2i(-2, 1), "nom": "Salle des cornues", "miroir": true},
+			"distillation_piliers": {"image": "bloc_laboratoire_distillation_piliers", "position": Vector2i(-2, 2), "nom": "Distillerie aux piliers"},
+			"couloir_ouest": {"image": "bloc_laboratoire_couloir_ouest", "position": Vector2i(-3, 2), "nom": "Couloir de l'ouest", "miroir": true},
+			"fourneaux_entree": {"image": "bloc_laboratoire_fourneaux_entree", "position": Vector2i(2, 3), "nom": "Salle du grand fourneau"},
+			"fourneaux_forge": {"image": "bloc_laboratoire_fourneaux_forge", "position": Vector2i(3, 3), "nom": "Forge alchimique"},
+			"fourneaux_cheminees": {"image": "bloc_laboratoire_fourneaux_cheminees", "position": Vector2i(3, 4), "nom": "Salle des cheminées"},
+			"fourneaux_chaudron": {"image": "bloc_laboratoire_fourneaux_chaudron", "position": Vector2i(3, 5), "nom": "Salle du chaudron"},
+			"fourneaux_escalier": {"image": "bloc_laboratoire_fourneaux_escalier", "position": Vector2i(3, 6), "nom": "Fourneau à l'escalier"},
+			"fourneaux_creusets": {"image": "bloc_laboratoire_fourneaux_creusets", "position": Vector2i(2, 4), "nom": "Salle des creusets", "miroir": true},
+			"fourneaux_cuisson": {"image": "bloc_laboratoire_fourneaux_cuisson", "position": Vector2i(2, 5), "nom": "Salle des fours"},
+			"fourneaux_brasier": {"image": "bloc_laboratoire_fourneaux_brasier", "position": Vector2i(2, 6), "nom": "Salle du brasier", "miroir": true},
+		},
+		"liens": [
+			["couloir_sud", 0, "couloir_entree", 2],
+			["couloir_entree", 0, "reserve", 0],
+			["couloir_entree", 1, "grande_salle", 3],
+			["grande_salle", 0, "distillation_entree", 2],
+			["grande_salle", 2, "salle_est", 0],
+			["grande_salle", 1, "salle_balcons", 1],
+			["salle_balcons", 0, "salle_piliers", 1],
+			["salle_piliers", 0, "salle_escaliers", 2],
+			["salle_escaliers", 0, "couloir_nord", 1],
+			["salle_escaliers", 1, "salle_manuscrits", 0],
+			["salle_est", 1, "salle_tables", 1],
+			["salle_tables", 0, "salle_vitraux", 2],
+			["salle_vitraux", 0, "salle_manuscrits", 2],
+			["salle_vitraux", 1, "fourneaux_entree", 0],
+			["salle_manuscrits", 1, "salle_couleurs", 0],
+			["couloir_nord", 0, "etude_entree", 2],
+			["etude_entree", 0, "etude_cartes", 1],
+			["etude_entree", 1, "etude_escalier", 2],
+			["etude_escalier", 0, "etude_haute", 0],
+			["etude_cartes", 0, "etude_vitrail", 1],
+			["etude_vitrail", 0, "couloir_reserve", 0],
+			["distillation_entree", 0, "distillation_cornues", 0],
+			["distillation_entree", 1, "distillation_cuves", 2],
+			["distillation_cornues", 1, "distillation_piliers", 2],
+			["distillation_piliers", 0, "couloir_ouest", 0],
+			["distillation_piliers", 1, "distillation_cuves", 0],
+			["distillation_cuves", 1, "distillation_balcon", 1],
+			["distillation_balcon", 0, "distillation_ballons", 1],
+			["distillation_ballons", 0, "distillation_lustre", 0],
+			["distillation_lustre", 1, "distillation_verte", 0],
+			["fourneaux_entree", 1, "fourneaux_forge", 0],
+			["fourneaux_forge", 1, "fourneaux_cheminees", 2],
+			["fourneaux_cheminees", 0, "fourneaux_creusets", 0],
+			["fourneaux_cheminees", 1, "fourneaux_chaudron", 1],
+			["fourneaux_chaudron", 0, "fourneaux_escalier", 1],
+			["fourneaux_creusets", 1, "fourneaux_cuisson", 1],
+			["fourneaux_cuisson", 0, "fourneaux_brasier", 1],
+			["fourneaux_brasier", 0, "fourneaux_escalier", 0],
+		],
+		"entrees": [
+			["couloir_sud", 1, Vector2i(0, -1)],
+			["etude_escalier", 1, Vector2i(0, 1)],
+			["couloir_ouest", 1, Vector2i(0, -1)],
+		],
+		"par_etage": 1,
+		"en_plus": true,
+	},
 }
 
 
@@ -120,10 +213,10 @@ static func salles_peintes(nom: String, ids: Dictionary, exterieurs: Dictionary)
 	var resultat := {}
 	for cle in b["salles"]:
 		var image: String = b["salles"][cle]["image"]
-		var n: int = PlanSalles.directions(image, false).size()
+		var n: int = PlanSalles.directions(image, bool(b["salles"][cle].get("miroir", false))).size()
 		var sorties := []
 		sorties.resize(n)
-		resultat[cle] = {"v": PlanSalles.VERSION, "image": image, "miroir": false,
+		resultat[cle] = {"v": PlanSalles.VERSION, "image": image, "miroir": bool(b["salles"][cle].get("miroir", false)),
 			"face": [PlanSalles.FACE.x, PlanSalles.FACE.y], "sorties": sorties, "sans_porte": [], "bloc": nom}
 	for l in b["liens"]:
 		resultat[l[0]]["sorties"][l[1]] = str(ids[l[2]])

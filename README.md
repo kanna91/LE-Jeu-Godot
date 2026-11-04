@@ -199,7 +199,20 @@ stick droit pour choisir un bouton de l'interface.
     `C:\IA\pont-blenderloc_bibliotheque\planche_zones.png`), à retoucher dans l'éditeur. Les blocs sont posés du
     plus grand au plus petit ; si l'un ne trouve pas de place, le plan de l'étage est refait (10 essais au plus,
     `GenerateurEtage.ESSAIS_BLOCS`). Les 14 salles de la bibliothèque s'ajoutent à l'étage (`"en_plus"`) : un étage
-    passe d'environ 88 à environ 100 salles, et garde ses boucles ;
+    passe d'environ 88 à environ 100 salles (environ 155 avec le laboratoire), et garde ses boucles ;
+    Troisième bloc, **laboratoire d'alchimie** (2026-11-04, un par étage, 36 images de l'utilisateur en 5 groupes) :
+    complexe fermé, **refuge** (zone « laboratoire »), **trois entrées** (couloir des fioles au sud, couloir de l'ouest,
+    fond de l'étude à l'escalier au nord). **Structure cohérente** (demande de l'utilisateur) : une porte de gauche
+    mène à la porte de droite de la salle voisine et inversement, le fond d'une salle au bas de la suivante ; 8 images
+    sont affichées en **miroir** (`"miroir"` dans `BlocsSalles`) pour que leurs portes tombent du bon côté. Ailes :
+    salle principale au centre (deux colonnes, la grande salle ouvre à l'ouest, au nord et à l'est), distillation à
+    l'ouest, fourneaux à l'est, étude au nord ; quelques boucles là où deux portes peintes se font face. Portes relevées
+    par Claude (`outils/importer_blocs.py`, `LABO`), sol et obstacles **détourés automatiquement**
+    (`outils/detourer_sols.py`), à retoucher dans l'éditeur ;
+  - **Couloirs aux livres** (2026-11-04, 37 images de l'utilisateur, `outils/importer_couloirs_livres.py` →
+    `couloir_livre01` … `couloir_livre37`) : salles ordinaires du reste de l'étage, jamais dans les cryptes, les prisons
+    ni les blocs (`PlanSalles` : les salles réservées ont leurs images). Toutes leurs portes sont des **sorties
+    potentielles** (une porte sans salle derrière devient un mur, sans malus) ; sol détouré automatiquement ;
   - **Cachettes** (règle de l'utilisateur, 2026-11-01) : zones « cachettes » tracées avec l'éditeur de zones (couche 6).
     Le héros qui s'y trouve n'est **ni vu ni entendu** (bandeau « Caché ») ; les ennemis **ne l'y poursuivent pas** :
     ils n'entrent pas dans la zone, perdent sa trace et ne lancent pas de combat (même le Chevalier de la mort qui le
@@ -1045,6 +1058,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
+& $godot --path . -s tests/capture_laboratoire.gd        # captures 210-245 : chaque salle du bloc laboratoire, arrivée par le bas (hors écran)
 & $godot --path . -s tests/capture_bibliotheque.gd        # captures 190-203 : chaque salle du bloc bibliothèque, arrivée par le bas (hors écran)
 & $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
 & $godot --path . -s tests/capture_commis.gd                # captures 183-186 : commis de la cuisine et du cellier, dialogue d'un commis, menu Dialogues (hors écran)
@@ -1134,6 +1148,25 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Laboratoire d'alchimie et couloirs aux livres
+
+- **Laboratoire** (`C:\ia image\Salle de donjon\laboratoire d'alchimie`, 36 images) : bloc « laboratoire » de 36
+  salles, complexe fermé et refuge (ni ennemis, ni geôlier, ni Chevalier de la mort), trois entrées, plan cohérent
+  (porte de gauche ↔ porte de droite, fond ↔ bas, miroir si besoin), vérifié par `test_blocs.gd`. Les blocs peuvent
+  maintenant afficher une salle en miroir (`"miroir"`). Ses 36 salles s'ajoutent à l'étage (`en_plus`).
+- **Couloirs aux livres** (`C:\ia image\Salle de donjon\couloire\couloir livre`, 37 images) : nouvelles images des
+  salles ordinaires, toutes portes potentielles. Les 4 images posées à la racine de `couloire` n'ont pas été prises
+  (seulement le dossier « couloir livre », comme demandé).
+- Sol et obstacles des 73 nouvelles images : détourage automatique (`detourer_sols.py`) ; il a échoué sur
+  `couloir_livre33` (sol tracé à la main par Claude). Portes, perspective et plan : relevés par Claude, à retoucher
+  dans l'éditeur.
+- Un étage compte maintenant environ 155 salles (80 visées + 14 de la bibliothèque + 36 du laboratoire, plus les
+  chemins des prisons et les salles d'entrée des blocs).
+- Captures 210-245 : chaque salle du laboratoire (`tests/capture_laboratoire.gd`).
+- Fichiers : `outils/importer_blocs.py` (`LABO`, sol détouré pris en compte), nouveau `outils/importer_couloirs_livres.py`,
+  `blocs_salles.gd` (bloc laboratoire, miroir), `zones.json` (zone « laboratoire »), tests `test_blocs.gd` (cohérence des
+  portes, miroir), `test_zones.gd` (refuges de tous les blocs).
 
 ### 2026-11-04 — La bibliothèque
 

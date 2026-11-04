@@ -288,6 +288,80 @@ BLOCS = {
 }
 
 
+# ---------------------------------------------------------------------------
+# Laboratoire d'alchimie (2026-11-04, 36 images de l'utilisateur, en 5 sous-dossiers). Plan dans BlocsSalles (complexe
+# fermé, 3 entrées). Ici, pour chaque salle : image et portes **de l'image** (sans miroir) utilisées par le plan,
+# relevées par Claude sur les planches C:\IA\pont-blender\bloc_laboratoire\travail\quad_NN.png :
+# (direction de l'image, x début, x fin, y du sol au pied de la porte). Le sol et les obstacles viennent du détourage
+# automatique (outils/detourer_sols.py bloc_laboratoire_...), la perspective est estimée d'après le fond du sol.
+# ---------------------------------------------------------------------------
+LABO_SOURCE = r"C:\ia image\Salle de donjon\laboratoire d'alchimie"
+LABO = {
+    "couloir_sud": ("couloir/mw1fosrrn52a2m.jpeg", [("devant", 300, 380, 348)]),
+    "couloir_entree": ("couloir/mw1fo5l2mhsmij.jpeg", [("gauche", 0, 55, 398), ("devant", 480, 550, 355)]),
+    "reserve": ("salle principale/mw1fes1df0f669.jpeg", [("gauche", 40, 100, 348)]),
+    "grande_salle": ("salle principale/mw1fdnle5hanaq.jpeg", [("gauche", 60, 120, 348), ("devant", 300, 340, 332),
+                                                              ("droite", 600, 660, 332)]),
+    "salle_balcons": ("salle principale/mw1fazl08cmw6s.jpeg", [("devant", 510, 570, 362)]),
+    "salle_piliers": ("salle principale/mw1fcuscwplys7.jpeg", [("devant", 560, 620, 332)]),
+    "salle_escaliers": ("salle principale/mw1fax6lr8xlgs.jpeg", [("devant", 230, 280, 348), ("droite", 500, 560, 362)]),
+    "couloir_nord": ("couloir/mw1fo8fgcx50k3.jpeg", [("devant", 310, 365, 335)]),
+    "salle_est": ("salle principale/mw1ffa5wt98ykq.jpeg", [("gauche", 90, 150, 345), ("devant", 380, 440, 302)]),
+    "salle_tables": ("salle principale/mw1ffdde1fr2fh.jpeg", [("devant", 300, 350, 332)]),
+    "salle_vitraux": ("salle principale/mw1fcs6j93w39q.jpeg", [("devant", 500, 560, 362), ("droite", 700, 767, 362)]),
+    "salle_manuscrits": ("salle principale/mw1feovnoajwin.jpeg", [("gauche", 0, 50, 382), ("devant", 200, 270, 338)]),
+    "salle_couleurs": ("salle principale/mw1few377clq7e.jpeg", []),
+    "etude_entree": ("étude/mw1fru764bass6.jpeg", [("gauche", 0, 60, 342), ("devant", 260, 320, 302)]),
+    "etude_escalier": ("étude/mw1fr818r0x30u.jpeg", [("gauche", 10, 80, 332), ("devant", 150, 220, 322)]),
+    "etude_cartes": ("étude/mw1fq8klnkk6dj.jpeg", [("gauche", 10, 130, 332), ("droite", 450, 510, 332)]),
+    "etude_vitrail": ("étude/mw1fqck52ytny8.jpeg", [("gauche", 60, 180, 345), ("droite", 600, 680, 342)]),
+    "couloir_reserve": ("couloir/mw1fpa4ehzt0ly.jpeg", [("gauche", 55, 120, 380)]),
+    "etude_haute": ("étude/mw1frqg2pqsq42.jpeg", [("gauche", 0, 50, 362)]),
+    "distillation_entree": ("distillation/mw1fih5kxqobol.jpeg", [("gauche", 70, 150, 332), ("devant", 330, 400, 342),
+                                                                 ("droite", 470, 560, 348)]),
+    "distillation_cuves": ("distillation/mw1fi1tlsvs6fv.jpeg", [("gauche", 0, 55, 312), ("devant", 480, 560, 332)]),
+    "distillation_balcon": ("distillation/mw1fi2yfopnqm1.jpeg", [("devant", 320, 440, 378)]),
+    "distillation_ballons": ("distillation/mw1fi449igklwe.jpeg", [("gauche", 60, 130, 358)]),
+    "distillation_lustre": ("distillation/mw1fi920bu3sgn.jpeg", [("gauche", 60, 150, 348), ("devant", 250, 330, 332)]),
+    "distillation_verte": ("distillation/mw1fifptu0c0gb.jpeg", []),
+    "distillation_cornues": ("distillation/mw1fipap8rnbh0.jpeg", [("gauche", 20, 120, 358), ("devant", 560, 640, 348)]),
+    "distillation_piliers": ("distillation/mw1fhz8ioq56n1.jpeg", [("gauche", 20, 90, 345), ("droite", 560, 630, 345)]),
+    "couloir_ouest": ("couloir/mw1foop3eva15a.jpeg", [("gauche", 50, 130, 362)]),
+    "fourneaux_entree": ("fourneaux/mw1fjx5z0gnln0.jpeg", [("gauche", 60, 120, 368), ("droite", 560, 640, 342)]),
+    "fourneaux_forge": ("fourneaux/mw1fkuavtkvfq4.jpeg", [("gauche", 30, 100, 348), ("devant", 440, 500, 362)]),
+    "fourneaux_cheminees": ("fourneaux/mw1flbyugckx7p.jpeg", [("gauche", 0, 50, 332), ("devant", 300, 360, 340)]),
+    "fourneaux_chaudron": ("fourneaux/mw1fm6w8igm1wp.jpeg", [("devant", 270, 330, 312)]),
+    "fourneaux_escalier": ("fourneaux/mw1fjstrvhrloz.jpeg", [("gauche", 10, 90, 325)]),
+    "fourneaux_creusets": ("fourneaux/mw1fju4w2pd25r.jpeg", [("gauche", 40, 100, 338), ("devant", 225, 275, 332)]),
+    "fourneaux_cuisson": ("fourneaux/mw1fk0zr0khby5.jpeg", [("devant", 400, 470, 342)]),
+    "fourneaux_brasier": ("fourneaux/mw1fkhfju0hhae.jpeg", [("gauche", 0, 60, 332)]),
+}
+NOMS_PORTES = {"gauche": "porte de gauche", "droite": "porte de droite", "devant": "passage du fond"}
+
+
+def _salle_labo(image, portes):
+    """Zones d'une salle du laboratoire : sorties de ``portes`` puis le retour (bas) ; sol provisoire (remplacé par le
+    détourage automatique), perspective d'après le fond du sol (héros ≈ 210 px en bas de l'image)."""
+    sorties = []
+    for direction, x0, x1, y in portes:
+        rect = [(x0, y - 6), (x1, y - 6), (min(767, x1 + 2), y + 6), (max(0, x0 - 2), y + 6)]
+        if direction == "gauche":
+            arrivee = [min(767, x1 + 20), y + 22, "right"]
+        elif direction == "droite":
+            arrivee = [max(0, x0 - 20), y + 22, "left"]
+        else:
+            arrivee = [(x0 + x1) // 2, y + 22, "down"]
+        sorties.append([NOMS_PORTES[direction], direction, "porte", rect, arrivee])
+    sorties.append(["retour", "bas", "passage", BAS, None])
+    fond = min([p[3] for p in portes] + [345])
+    h_fond = round(210 * 70 / (511 - fond + 70))
+    return {"image": image, "marche": [(0, 511), (767, 511), (767, fond + 10), (0, fond + 10)], "obstacles": [],
+            "sorties": sorties, "hauteurs": ((fond, h_fond), (511, 210)), "depart": [384, 480]}
+
+
+BLOCS["laboratoire"] = {"source": LABO_SOURCE, "salles": {cle: _salle_labo(*v) for cle, v in LABO.items()}}
+
+
 def ident(bloc, salle):
     return "bloc_%s_%s" % (bloc, salle)
 
@@ -354,7 +428,7 @@ def planche(bloc, donnees, sources):
 
 
 def main():
-    from detourer_sols import zones_manuelles
+    from detourer_sols import detourage
     choisis = [x for x in sys.argv[1:] if not x.startswith("--")]
     for bloc, b in BLOCS.items():
         if choisis and bloc not in choisis:
@@ -369,7 +443,7 @@ def main():
             os.makedirs(dossier, exist_ok=True)
             sources[nom].save(os.path.join(dossier, "fond.jpeg"), quality=95)
             donnees[nom] = donnees_salle(bloc, nom, z)
-            donnees[nom].update(zones_manuelles(i))  # retouches de l'éditeur de zones
+            donnees[nom].update(detourage(i))  # sol détouré (laboratoire), puis retouches de l'éditeur de zones
             with open(os.path.join(DONNEES, i + ".json"), "w", encoding="utf8") as f:
                 json.dump(donnees[nom], f, ensure_ascii=False, indent=1)
         if "--sans-ia" not in sys.argv:

@@ -31,8 +31,8 @@ func _initialize() -> void:
 				if _etage(donjon.plan_donjon[etage], "%d/%d %s" % [k, etage, bloc], bloc):
 					deux_entrees[bloc] = deux_entrees.get(bloc, 0) + 1
 	for bloc in BlocsSalles.BLOCS:
-		print("Étages : %d, bloc %s à deux entrées : %d" % [etages, bloc, deux_entrees.get(bloc, 0)])
-		verifier(deux_entrees.get(bloc, 0) == etages, "bloc %s : toujours deux entrées raccordées (%d / %d)" % [bloc, deux_entrees.get(bloc, 0), etages])
+		print("Étages : %d, bloc %s : toutes ses entrées raccordées sur %d étages" % [etages, bloc, deux_entrees.get(bloc, 0)])
+		verifier(deux_entrees.get(bloc, 0) == etages, "bloc %s : toujours toutes ses entrées raccordées (%d / %d)" % [bloc, deux_entrees.get(bloc, 0), etages])
 	print("BILAN blocs : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
 
@@ -57,7 +57,7 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 		var s: Dictionary = salles[ids[cle]]
 		verifier(s["position"] == origine + b["salles"][cle]["position"], "%s : position de %s" % [nom, cle])
 		verifier(s["salle_peinte"]["image"] == b["salles"][cle]["image"], "%s : image de %s" % [nom, cle])
-		verifier(not s["salle_peinte"]["miroir"], "%s : %s jamais en miroir" % [nom, cle])
+		verifier(bool(s["salle_peinte"]["miroir"]) == bool(b["salles"][cle].get("miroir", false)), "%s : %s en miroir comme prévu" % [nom, cle])
 		for autre in salles:
 			if autre != ids[cle]:
 				verifier(salles[autre]["position"] != s["position"], "%s : case de %s partagée" % [nom, cle])
@@ -69,6 +69,16 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 		verifier(str(c["salle_peinte"]["sorties"][l[3]]) == ids[l[0]], "%s : %s ramène à %s" % [nom, l[2], l[0]])
 		verifier(PlanSalles.sortie_vers(c, ids[l[0]]) == l[3], "%s : retour de %s par la bonne porte" % [nom, l[2]])
 		verifier(ids[l[2]] in a["connections"] and ids[l[0]] in c["connections"], "%s : %s et %s reliés au plan" % [nom, l[0], l[2]])
+	# Laboratoire (2026-11-04, structure cohérente) : chaque porte mène du côté où elle est (miroir compris) et arrive
+	# par la porte d'en face (fond → bas, gauche → droite)
+	if bloc == "laboratoire":
+		for l in b["liens"]:
+			var sa: Dictionary = salles[ids[l[0]]]
+			var sb: Dictionary = salles[ids[l[2]]]
+			var da := PlanSalles.absolue(PlanSalles.directions(sa["salle_peinte"]["image"], sa["salle_peinte"]["miroir"])[l[1]], PlanSalles.FACE)
+			var db := PlanSalles.absolue(PlanSalles.directions(sb["salle_peinte"]["image"], sb["salle_peinte"]["miroir"])[l[3]], PlanSalles.FACE)
+			verifier(da == sb["position"] - sa["position"] and db == sa["position"] - sb["position"],
+				"%s : porte de %s vers %s du bon côté" % [nom, l[0], l[2]])
 	# Chaque connexion d'une salle du bloc a sa porte (aucun passage sans porte peinte)
 	for cle in ids:
 		var s: Dictionary = salles[ids[cle]]
@@ -83,7 +93,7 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 				vers_dehors += 1
 				verifier(cle in entrees_cles, "%s : %s mène hors du bloc sans être une entrée" % [nom, cle])
 	verifier(vers_dehors <= b["entrees"].size(), "%s : %d passages vers l'étage (au plus %d)" % [nom, vers_dehors, b["entrees"].size()])
-	if bloc == "bibliotheque":
+	if bloc in ["bibliotheque", "laboratoire"]:
 		for cle in ids:
 			verifier(Zones.refuge(salles[ids[cle]]), "%s : %s est un refuge" % [nom, cle])
 			for p in salles[ids[cle]].get("presences", []):

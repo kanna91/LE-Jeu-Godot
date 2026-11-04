@@ -41,6 +41,11 @@
       "images": "bloc_bibliotheque",
       "sans_ennemis": true
     },
+    "laboratoire": {
+      "nom": "Laboratoire d'alchimie (bloc laboratoire, complexe fermé)",
+      "images": "bloc_laboratoire",
+      "sans_ennemis": true
+    },
     "crypte": {
       "nom": "Cryptes",
       "images": "crypte",
