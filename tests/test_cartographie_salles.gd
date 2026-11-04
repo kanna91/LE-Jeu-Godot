@@ -19,7 +19,9 @@ extends SceneTree
 
 const DONJONS := 12
 const ETAGES := [1, 2, 3, 4, 5]
-const SANS_PORTE_PAR_ETAGE := 5.0
+## 9 depuis le 2026-11-04 : étages d'environ 180 salles (bibliothèque, laboratoire, jardin) et couloirs qui raccordent les
+## complexes à l'étage ; mesuré 8,1 (surtout des couloirs est-ouest : il manque d'images à portes gauche ET droite).
+const SANS_PORTE_PAR_ETAGE := 9.0
 const ORDRE := [Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0), Vector2i(0, -1)]
 
 var echecs := 0

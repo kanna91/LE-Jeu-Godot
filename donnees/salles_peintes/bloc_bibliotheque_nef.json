@@ -164,33 +164,33 @@
    ],
    [
     280,
-    366
+    370
    ],
    [
-    283,
-    380
+    282,
+    382
    ],
    [
-    222,
-    384
+    223,
+    382
    ]
   ],
   [
    [
     490,
-    366
+    370
    ],
    [
     545,
     370
    ],
    [
-    548,
-    384
+    547,
+    382
    ],
    [
-    487,
-    380
+    488,
+    382
    ]
   ],
   [
@@ -213,9 +213,9 @@
   ]
  ],
  "noms_sorties": [
-  "arche du fond",
-  "allée de gauche",
-  "allée de droite",
+  "passage du fond",
+  "porte de gauche",
+  "porte de droite",
   "retour"
  ],
  "directions_sorties": [
@@ -225,24 +225,24 @@
   "bas"
  ],
  "types_sorties": [
-  "passage",
-  "passage",
-  "passage",
+  "porte",
+  "porte",
+  "porte",
   "passage"
  ],
  "arrivees": {
-  "arche du fond": [
+  "passage du fond": [
    385,
-   378,
+   384,
    "down"
   ],
-  "allée de gauche": [
-   275,
+  "porte de gauche": [
+   300,
    398,
    "right"
   ],
-  "allée de droite": [
-   495,
+  "porte de droite": [
+   470,
    398,
    "left"
   ]

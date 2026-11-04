@@ -127,8 +127,15 @@ func _cuisine(donjon, etage: int, nom: String) -> void:
 				verifier(p.get("sous", "") != "gobelin_blesse", "%s : gobelin blessé dans la cuisine" % nom)
 	# Refuges : le bloc cuisine et le bloc bibliothèque (2026-11-04)
 	var attendus := 0
+	var jardin := []
 	for b in BlocsSalles.BLOCS:
-		attendus += BlocsSalles.BLOCS[b]["salles"].size()
+		for cle in BlocsSalles.BLOCS[b]["salles"]:
+			if not String(BlocsSalles.BLOCS[b]["salles"][cle]["image"]).begins_with("bloc_jardin"):
+				attendus += 1  # le jardin n'est pas un refuge (2026-11-04)
+	for id in salles:
+		if Zones.sans_chasseurs(salles[id]):
+			jardin.append(String(id))
+	verifier(jardin.size() == 18, "%s : %d salles du jardin sans chasseurs" % [nom, jardin.size()])
 	verifier(refuges.size() == attendus,
 		"%s : %d salles refuges" % [nom, refuges.size()])
 	if refuges.is_empty():
@@ -140,7 +147,18 @@ func _cuisine(donjon, etage: int, nom: String) -> void:
 		for c in Aventure.chasseurs(donjon, etage):
 			var vers := Aventure.prochaine_salle(donjon, c[0], c[1])
 			verifier(not vers in refuges, "%s : un %s entre dans la cuisine" % [nom, c[0]["genre"]])
+			verifier(not vers in jardin, "%s : un %s entre dans le jardin" % [nom, c[0]["genre"]])
 			Aventure.changer_de_salle(donjon, c[0], c[1], vers)
+	# Héros dans le jardin (2026-11-04) : les chasseurs attirés s'arrêtent à ses portes
+	if not jardin.is_empty():
+		donjon.salle_actuelle = [etage, int(jardin.pick_random())]
+		Aventure.attirer(donjon)
+		for _k in 1000:
+			for c in Aventure.chasseurs(donjon, etage):
+				var vers := Aventure.prochaine_salle(donjon, c[0], c[1])
+				verifier(not vers in jardin, "%s : un %s attiré entre dans le jardin" % [nom, c[0]["genre"]])
+				Aventure.changer_de_salle(donjon, c[0], c[1], vers)
+		donjon.salle_actuelle = [etage, int(refuges[0])]
 	# Ancienne partie : un groupe dans la cuisine en est chassé
 	var intrus := {"id": 99999, "genre": "groupe", "etat": "actif", "nombre": 1, "elite": false, "pacifique": false}
 	salles[refuges[0]]["presences"].append(intrus)

@@ -67,6 +67,24 @@
     0,
     400
    ]
+  ],
+  [
+   [
+    268,
+    326
+   ],
+   [
+    332,
+    326
+   ],
+   [
+    420,
+    470
+   ],
+   [
+    268,
+    470
+   ]
   ]
  ],
  "obstacles": [
@@ -129,6 +147,24 @@
  "sorties": [
   [
    [
+    270,
+    326
+   ],
+   [
+    330,
+    326
+   ],
+   [
+    332,
+    338
+   ],
+   [
+    268,
+    338
+   ]
+  ],
+  [
+   [
     0,
     499
    ],
@@ -147,15 +183,24 @@
   ]
  ],
  "noms_sorties": [
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
+  "devant",
   "bas"
  ],
  "types_sorties": [
+  "porte",
   "passage"
  ],
- "arrivees": {},
+ "arrivees": {
+  "passage du fond": [
+   300,
+   354,
+   "down"
+  ]
+ },
  "bloc": "bibliotheque",
  "ips": 24,
  "source": "bibliothèque/mw1duxzcisvl4r.jpeg"

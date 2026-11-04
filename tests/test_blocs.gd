@@ -71,8 +71,12 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 		verifier(ids[l[2]] in a["connections"] and ids[l[0]] in c["connections"], "%s : %s et %s reliés au plan" % [nom, l[0], l[2]])
 	# Laboratoire (2026-11-04, structure cohérente) : chaque porte mène du côté où elle est (miroir compris) et arrive
 	# par la porte d'en face (fond → bas, gauche → droite)
-	if bloc == "laboratoire":
+	# Depuis le 2026-11-04 : tous les blocs (bibliothèque refaite, jardin), sauf les liens vers les celliers de la cuisine
+	# (on y entre par le bas de leur image : exception acceptée par l'utilisateur le 2026-10-31)
+	if true:
 		for l in b["liens"]:
+			if String(l[2]).begins_with("cellier"):
+				continue
 			var sa: Dictionary = salles[ids[l[0]]]
 			var sb: Dictionary = salles[ids[l[2]]]
 			var da := PlanSalles.absolue(PlanSalles.directions(sa["salle_peinte"]["image"], sa["salle_peinte"]["miroir"])[l[1]], PlanSalles.FACE)
@@ -93,6 +97,16 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 				vers_dehors += 1
 				verifier(cle in entrees_cles, "%s : %s mène hors du bloc sans être une entrée" % [nom, cle])
 	verifier(vers_dehors <= b["entrees"].size(), "%s : %d passages vers l'étage (au plus %d)" % [nom, vers_dehors, b["entrees"].size()])
+	if bloc == "cuisine":
+		# Jardin (2026-11-04) : ni geôlier ni Chevalier de la mort ; pas un refuge (les autres ennemis peuvent y être)
+		for cle in ids:
+			var s: Dictionary = salles[ids[cle]]
+			if String(s["salle_peinte"]["image"]).begins_with("bloc_jardin"):
+				verifier(Zones.sans_chasseurs(s) and not Zones.refuge(s), "%s : %s sans chasseurs, pas un refuge" % [nom, cle])
+				verifier(Aventure.fermee_a(s, "geolier") and Aventure.fermee_a(s, "imbattable") and not Aventure.fermee_a(s, "groupe"),
+					"%s : %s fermé au geôlier et au chevalier, ouvert aux autres" % [nom, cle])
+				for p in s.get("presences", []):
+					verifier(not (p.get("genre", "") in Aventure.CHASSEURS), "%s : chasseur dans %s" % [nom, cle])
 	if bloc in ["bibliotheque", "laboratoire"]:
 		for cle in ids:
 			verifier(Zones.refuge(salles[ids[cle]]), "%s : %s est un refuge" % [nom, cle])

@@ -71,27 +71,63 @@
     0,
     395
    ]
-  ]
- ],
- "obstacles": [
+  ],
   [
    [
-    0,
+    8,
+    334
+   ],
+   [
+    62,
+    334
+   ],
+   [
+    420,
+    470
+   ],
+   [
+    8,
+    470
+   ]
+  ],
+  [
+   [
+    353,
     330
    ],
    [
-    140,
-    335
+    397,
+    330
    ],
    [
-    170,
-    390
+    420,
+    470
+   ],
+   [
+    340,
+    470
+   ]
+  ],
+  [
+   [
+    8,
+    334
+   ],
+   [
+    62,
+    334
+   ],
+   [
+    122,
+    480
    ],
    [
     0,
-    400
+    480
    ]
-  ],
+  ]
+ ],
+ "obstacles": [
   [
    [
     440,
@@ -133,6 +169,24 @@
  "sorties": [
   [
    [
+    10,
+    334
+   ],
+   [
+    60,
+    334
+   ],
+   [
+    62,
+    346
+   ],
+   [
+    8,
+    346
+   ]
+  ],
+  [
+   [
     355,
     330
    ],
@@ -169,21 +223,29 @@
   ]
  ],
  "noms_sorties": [
-  "porte du fond",
+  "porte de gauche",
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
+  "gauche",
   "devant",
   "bas"
  ],
  "types_sorties": [
   "porte",
+  "porte",
   "passage"
  ],
  "arrivees": {
-  "porte du fond": [
+  "porte de gauche": [
+   80,
+   362,
+   "right"
+  ],
+  "passage du fond": [
    375,
-   352,
+   358,
    "down"
   ]
  },

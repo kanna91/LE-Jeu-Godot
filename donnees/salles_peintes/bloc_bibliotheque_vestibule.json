@@ -134,11 +134,11 @@
   [
    [
     30,
-    345
+    346
    ],
    [
     85,
-    345
+    346
    ],
    [
     87,
@@ -206,7 +206,7 @@
  ],
  "noms_sorties": [
   "porte de gauche",
-  "escalier du fond",
+  "passage du fond",
   "porte de droite",
   "retour"
  ],
@@ -218,24 +218,24 @@
  ],
  "types_sorties": [
   "porte",
-  "passage",
+  "porte",
   "porte",
   "passage"
  ],
  "arrivees": {
   "porte de gauche": [
-   70,
-   375,
+   105,
+   374,
    "right"
   ],
-  "escalier du fond": [
-   395,
-   365,
+  "passage du fond": [
+   394,
+   370,
    "down"
   ],
   "porte de droite": [
-   615,
-   372,
+   585,
+   374,
    "left"
   ]
  },

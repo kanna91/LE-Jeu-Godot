@@ -67,6 +67,24 @@
     0,
     380
    ]
+  ],
+  [
+   [
+    18,
+    339
+   ],
+   [
+    82,
+    339
+   ],
+   [
+    420,
+    470
+   ],
+   [
+    18,
+    470
+   ]
   ]
  ],
  "obstacles": [
@@ -147,6 +165,24 @@
  "sorties": [
   [
    [
+    20,
+    339
+   ],
+   [
+    80,
+    339
+   ],
+   [
+    82,
+    351
+   ],
+   [
+    18,
+    351
+   ]
+  ],
+  [
+   [
     0,
     499
    ],
@@ -165,15 +201,24 @@
   ]
  ],
  "noms_sorties": [
+  "porte de gauche",
   "retour"
  ],
  "directions_sorties": [
+  "gauche",
   "bas"
  ],
  "types_sorties": [
+  "porte",
   "passage"
  ],
- "arrivees": {},
+ "arrivees": {
+  "porte de gauche": [
+   100,
+   367,
+   "right"
+  ]
+ },
  "bloc": "bibliotheque",
  "ips": 24,
  "source": "bibliothèque/mw1ejnjt0hclmn.jpeg"

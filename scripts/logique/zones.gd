@@ -67,6 +67,12 @@ static func refuge(salle: Dictionary) -> bool:
 	return bool(reglages(zone_salle(salle)).get("sans_ennemis", false))
 
 
+## Zone interdite aux chasseurs (« sans_chasseurs » : le jardin, 2026-11-04) : ni le geôlier ni le Chevalier de la
+## mort n'y vont ; les autres ennemis oui.
+static func sans_chasseurs(salle: Dictionary) -> bool:
+	return bool(reglages(zone_salle(salle)).get("sans_chasseurs", false))
+
+
 ## Vrai si la zone fixe elle-même son nombre d'élites (aucune élite de plus ne doit y apparaître).
 static func elites_fixes(zone: String) -> bool:
 	return reglages(zone).get("nombre_elites") != null

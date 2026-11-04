@@ -362,6 +362,60 @@ def _salle_labo(image, portes):
 BLOCS["laboratoire"] = {"source": LABO_SOURCE, "salles": {cle: _salle_labo(*v) for cle, v in LABO.items()}}
 
 
+# ---------------------------------------------------------------------------
+# Jardin : potager et verger (2026-11-04, 19 images de l'utilisateur dont un doublon : vergé/mw1h1g3hyh225o.jpeg =
+# mw1h0nd9vsdaek.jpeg, écarté). Rattaché au bloc cuisine dans BlocsSalles (arche du fond de la réserve). Mêmes
+# conventions que le laboratoire : portes de l'image (sans miroir) utilisées par le plan, sol détouré automatiquement.
+# ---------------------------------------------------------------------------
+JARDIN_SOURCE = r"C:\ia image\Salle de donjon"
+JARDIN = {
+    "potager_entree": ("potager/mw1hab008xu7cs.jpeg", [('devant', 390, 470, 262), ('gauche', 150, 230, 300), ('droite', 580, 650, 285)]),
+    "potager_ouest": ("potager/mw1haehsc0i0cw.jpeg", [('devant', 360, 430, 268), ('gauche', 50, 130, 300)]),
+    "potager_est": ("potager/mw1hbcnbg9kjkd.jpeg", [('devant', 350, 420, 298), ('gauche', 20, 90, 290)]),
+    "potager_allee": ("potager/mw1havpk56f2ze.jpeg", [('devant', 310, 370, 250)]),
+    "potager_haut": ("potager/mw1hb6djg6eb0j.jpeg", [('devant', 400, 520, 275)]),
+    "potager_arcades": ("potager/mw1h9zdc1z0rba.jpeg", [('devant', 500, 580, 262)]),
+    "verger_entree": ("vergé/mw1h0a6b9fhe8p.jpeg", [('gauche', 80, 200, 360), ('devant', 380, 460, 335), ('droite', 600, 700, 330)]),
+    "verger_ouest": ("vergé/mw1h0ftqtbghg8.jpeg", [('devant', 300, 420, 335), ('gauche', 30, 120, 340)]),
+    "verger_est": ("vergé/mw1h0tv9uv4uwu.jpeg", [('gauche', 150, 260, 300), ('devant', 380, 460, 310)]),
+    "verger_centre": ("vergé/mw1h0nd9vsdaek.jpeg", [('devant', 280, 360, 330), ('gauche', 40, 160, 365), ('droite', 620, 720, 380)]),
+    "verger_vieux_murs": ("vergé/mw1h1qli7qbccw.jpeg", [('devant', 320, 440, 345), ('gauche', 130, 220, 355)]),
+    "verger_colonnes": ("vergé/mw1h1bh0isspgt.jpeg", [('devant', 380, 460, 335), ('gauche', 170, 260, 350)]),
+    "verger_escaliers": ("vergé/mw1ghmzxd7ixxi.jpeg", [('devant', 330, 440, 300), ('droite', 640, 740, 320)]),
+    "verger_terrasse": ("vergé/mw1h0blhs8w6s3.jpeg", [('gauche', 140, 250, 370)]),
+    "verger_ruines": ("vergé/mw1h0vjxu7a8he.jpeg", [('devant', 380, 460, 322), ('gauche', 80, 180, 310)]),
+    "verger_clos": ("vergé/mw1h1zqj7p08zq.jpeg", [('devant', 380, 460, 300), ('droite', 470, 560, 330)]),
+    "verger_nord": ("vergé/mw1h0cvpn8rjaa.jpeg", [('devant', 230, 320, 282)]),
+    "potager_cache": ("potager/mw1hc07pcvqdob.jpeg", []),
+}
+
+BLOCS["jardin"] = {"source": JARDIN_SOURCE, "salles": {cle: _salle_labo(*v) for cle, v in JARDIN.items()}}
+
+# Bibliothèque refaite le 2026-11-04 (demande de l'utilisateur : même cohérence que le laboratoire, une porte de côté
+# mène à la porte d'en face de la salle voisine) : portes utilisées par le nouveau plan (sans miroir), qui remplacent
+# celles du relevé du 2026-11-04 ; le sol, les obstacles et la perspective restent ceux du relevé.
+BIBLIO_PORTES = {
+    "vestibule": [('gauche', 30, 85, 352), ('devant', 368, 420, 348), ('droite', 605, 650, 352)],
+    "nef": [('devant', 355, 415, 362), ('gauche', 225, 280, 376), ('droite', 490, 545, 376)],
+    "allee": [('devant', 358, 410, 345)],
+    "globe": [('devant', 380, 440, 328)],
+    "galerie_ouest": [('gauche', 10, 50, 339)],
+    "archives": [('gauche', 20, 80, 345)],
+    "balcons": [('gauche', 82, 130, 352), ('devant', 322, 372, 358)],
+    "globes": [('devant', 270, 330, 332)],
+    "lecture": [('devant', 300, 380, 335)],
+    "piles": [],
+    "vitraux": [('gauche', 10, 60, 340), ('devant', 355, 395, 336)],
+    "galerie_haute": [('devant', 408, 458, 394)],
+    "cartes": [('devant', 300, 380, 338)],
+    "tapis": [],
+}
+
+for _cle, _portes in BIBLIO_PORTES.items():
+    _s = _salle_labo(BLOCS["bibliotheque"]["salles"][_cle]["image"], _portes)
+    BLOCS["bibliotheque"]["salles"][_cle]["sorties"] = _s["sorties"]
+
+
 def ident(bloc, salle):
     return "bloc_%s_%s" % (bloc, salle)
 

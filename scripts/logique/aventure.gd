@@ -225,9 +225,11 @@ const PNJ_HORS_REFUGE := ["gobelin_blesse"]
 const HORS_CRYPTES := ["geolier"]
 
 
-## Vrai si la salle est fermée à un ennemi du genre ``genre`` : refuge (cuisine) pour tous, cryptes pour les geôliers.
+## Vrai si la salle est fermée à un ennemi du genre ``genre`` : refuge (cuisine, bibliothèque, laboratoire) pour tous,
+## cryptes pour les geôliers, jardin (« sans_chasseurs », 2026-11-04) pour les CHASSEURS.
 static func fermee_a(salle: Dictionary, genre: String) -> bool:
-	return Zones.refuge(salle) or (genre in HORS_CRYPTES and bool(salle.get("crypte", false)))
+	return Zones.refuge(salle) or (genre in HORS_CRYPTES and bool(salle.get("crypte", false))) \
+		or (genre in CHASSEURS and Zones.sans_chasseurs(salle))
 
 
 ## Salles ordinaires où un ennemi peut être posé ou aller (pas les refuges).
@@ -797,6 +799,8 @@ static func centre_etage(donjon, etage: int) -> String:
 	var meilleure := ""
 	var meilleur_ecart := 1 << 20
 	for i in salles_pour_ennemis(donjon, etage):  # pas un refuge (2026-11-04 : la bibliothèque est souvent au centre)
+		if fermee_a(salles[i], "imbattable"):
+			continue  # ni le jardin, fermé au Chevalier de la mort
 		var ecart: int = distances_depuis(salles, i).values().max()
 		if ecart < meilleur_ecart or (ecart == meilleur_ecart and randf() < 0.5):
 			meilleur_ecart = ecart

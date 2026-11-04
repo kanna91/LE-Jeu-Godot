@@ -15,8 +15,12 @@ extends RefCounted
 
 ## Bloc « cuisine » (images « cuisine et salle a manger ») : salle à manger → (porte du fond) cuisine → (porte du fond
 ## à gauche, qui mène vers l'avant) salle de la petite porte → (gauche) cellier gauche, (droite) cellier droit.
-## Deux entrées (décision de l'utilisateur) : le bas de la salle à manger et l'arche du fond de la petite porte.
-## Un bloc cuisine par étage.
+## Entrées : le bas de la salle à manger ; l'arche du fond de la réserve mène depuis le 2026-11-04 au **jardin**
+## (potager puis verger, 18 salles, demande de l'utilisateur), qui ouvre sur l'étage à deux endroits (la porte de gauche
+## du fond du clos du verger et celui de la sortie du verger, toutes deux au nord : une entrée de côté n'avait pas
+## toujours de salle extérieure avec une porte en face). Le jardin n'est pas un refuge : les ennemis
+## ordinaires peuvent y être et y entrer, mais **ni le geôlier ni le Chevalier de la mort** (zone « jardin » de
+## zones.json, « sans_chasseurs »). Portes cohérentes (gauche ↔ droite, fond ↔ bas, miroir si besoin). Un bloc par étage.
 const BLOCS := {
 	"cuisine": {
 		"salles": {
@@ -25,6 +29,25 @@ const BLOCS := {
 			"petite": {"image": "bloc_cuisine_petite", "position": Vector2i(0, 2), "nom": "Réserve de la cuisine"},
 			"cellier_g": {"image": "bloc_cuisine_cellier_g", "position": Vector2i(-1, 2), "nom": "Cellier"},
 			"cellier_d": {"image": "bloc_cuisine_cellier_d", "position": Vector2i(1, 2), "nom": "Cellier"},
+			# Jardin : potager et verger (2026-11-04), derrière l'arche du fond de la réserve
+			"potager_entree": {"image": "bloc_jardin_potager_entree", "position": Vector2i(0, 3), "nom": "Entrée du potager"},
+			"potager_ouest": {"image": "bloc_jardin_potager_ouest", "position": Vector2i(-1, 3), "nom": "Potager de l'ouest", "miroir": true},
+			"potager_est": {"image": "bloc_jardin_potager_est", "position": Vector2i(1, 3), "nom": "Potager de l'est"},
+			"potager_allee": {"image": "bloc_jardin_potager_allee", "position": Vector2i(0, 4), "nom": "Allée du potager"},
+			"potager_haut": {"image": "bloc_jardin_potager_haut", "position": Vector2i(-1, 4), "nom": "Potager haut"},
+			"potager_arcades": {"image": "bloc_jardin_potager_arcades", "position": Vector2i(1, 4), "nom": "Potager aux arcades"},
+			"verger_entree": {"image": "bloc_jardin_verger_entree", "position": Vector2i(0, 5), "nom": "Entrée du verger"},
+			"verger_ouest": {"image": "bloc_jardin_verger_ouest", "position": Vector2i(-1, 5), "nom": "Verger de l'ouest", "miroir": true},
+			"verger_est": {"image": "bloc_jardin_verger_est", "position": Vector2i(1, 5), "nom": "Verger de l'est"},
+			"verger_centre": {"image": "bloc_jardin_verger_centre", "position": Vector2i(0, 6), "nom": "Cœur du verger"},
+			"verger_vieux_murs": {"image": "bloc_jardin_verger_vieux_murs", "position": Vector2i(-1, 6), "nom": "Verger des vieux murs", "miroir": true},
+			"verger_colonnes": {"image": "bloc_jardin_verger_colonnes", "position": Vector2i(1, 6), "nom": "Verger aux colonnes"},
+			"verger_escaliers": {"image": "bloc_jardin_verger_escaliers", "position": Vector2i(0, 7), "nom": "Verger aux escaliers"},
+			"verger_terrasse": {"image": "bloc_jardin_verger_terrasse", "position": Vector2i(1, 7), "nom": "Terrasse du verger"},
+			"verger_ruines": {"image": "bloc_jardin_verger_ruines", "position": Vector2i(-1, 7), "nom": "Verger en ruine"},
+			"verger_clos": {"image": "bloc_jardin_verger_clos", "position": Vector2i(-2, 7), "nom": "Clos du verger"},
+			"verger_nord": {"image": "bloc_jardin_verger_nord", "position": Vector2i(0, 8), "nom": "Sortie du verger"},
+			"potager_cache": {"image": "bloc_jardin_potager_cache", "position": Vector2i(-1, 8), "nom": "Potager caché"},
 		},
 		## [salle, index de sortie de son image, salle reliée, index de sortie de l'image de celle-ci]
 		"liens": [
@@ -32,52 +55,78 @@ const BLOCS := {
 			["cuisine", 0, "petite", 3],
 			["petite", 1, "cellier_g", 0],
 			["petite", 2, "cellier_d", 0],
+			["petite", 0, "potager_entree", 3],
+			["potager_entree", 1, "potager_ouest", 1],
+			["potager_entree", 2, "potager_est", 1],
+			["potager_entree", 0, "potager_allee", 1],
+			["potager_ouest", 0, "potager_haut", 1],
+			["potager_est", 0, "potager_arcades", 1],
+			["potager_allee", 0, "verger_entree", 3],
+			["potager_haut", 0, "verger_ouest", 2],
+			["potager_arcades", 0, "verger_est", 2],
+			["verger_entree", 0, "verger_ouest", 1],
+			["verger_entree", 2, "verger_est", 0],
+			["verger_entree", 1, "verger_centre", 3],
+			["verger_ouest", 0, "verger_vieux_murs", 2],
+			["verger_est", 1, "verger_colonnes", 2],
+			["verger_centre", 1, "verger_vieux_murs", 1],
+			["verger_centre", 2, "verger_colonnes", 1],
+			["verger_centre", 0, "verger_escaliers", 2],
+			["verger_colonnes", 0, "verger_terrasse", 1],
+			["verger_vieux_murs", 0, "verger_ruines", 2],
+			["verger_escaliers", 1, "verger_terrasse", 0],
+			["verger_escaliers", 0, "verger_nord", 1],
+			["verger_ruines", 1, "verger_clos", 1],
+			["verger_ruines", 0, "potager_cache", 0],
 		],
 		## [salle, index de sortie, direction de la carte de la salle extérieure]
 		"entrees": [
 			["manger", 1, Vector2i(0, -1)],
-			["petite", 0, Vector2i(0, 1)],
+			["verger_clos", 0, Vector2i(0, 1)],
+			["verger_nord", 0, Vector2i(0, 1)],
 		],
 		"par_etage": 1,
+		"en_plus": true,
 	},
 	## Bloc « bibliothèque » (2026-11-04, images de l'utilisateur) : un **complexe fermé** de 14 salles, deux entrées
 	## seulement (le bas du vestibule, au sud ; l'allée du fond de la salle au globe, au nord) ; c'est un **refuge**
 	## (zone « bibliotheque » de zones.json : ni ennemis, ni geôlier, ni Chevalier de la mort). Plan de Claude d'après
-	## les portes peintes : vestibule → (fond) nef → (fond) allée → (fond) salle au globe → étage ; la nef ouvre à gauche
-	## sur la galerie des balcons (→ salle des globes, → galerie haute → cabinet des cartes, archives) et à droite sur
-	## la salle aux vitraux (→ galerie aux tapis) ; le vestibule ouvre à gauche sur la galerie ouest (→ salle de
-	## lecture) et à droite sur la salle des piles de livres. On entre dans chaque salle par le bas de son image.
+	## les portes peintes, refait le 2026-11-04 avec la même cohérence que le laboratoire (une porte de côté mène à la
+	## porte d'en face de la voisine, le fond au bas de la suivante, miroir si besoin) : vestibule → nef → allée → salle au
+	## globe → étage ; vestibule ↔ galerie ouest (à gauche) et archives (à droite) ; nef ↔ galerie des balcons (à gauche :
+	## → salle des globes → salle de lecture → salle des piles) et salle aux vitraux (à droite : → galerie haute →
+	## cabinet des cartes → galerie aux tapis).
 	"bibliotheque": {
 		"salles": {
 			"vestibule": {"image": "bloc_bibliotheque_vestibule", "position": Vector2i(0, 0), "nom": "Vestibule de la bibliothèque"},
 			"nef": {"image": "bloc_bibliotheque_nef", "position": Vector2i(0, 1), "nom": "Nef de la bibliothèque"},
 			"allee": {"image": "bloc_bibliotheque_allee", "position": Vector2i(0, 2), "nom": "Allée des lecteurs"},
 			"globe": {"image": "bloc_bibliotheque_globe", "position": Vector2i(0, 3), "nom": "Salle au globe"},
-			"galerie_ouest": {"image": "bloc_bibliotheque_galerie_ouest", "position": Vector2i(-1, 0), "nom": "Galerie ouest"},
-			"lecture": {"image": "bloc_bibliotheque_lecture", "position": Vector2i(-2, 0), "nom": "Salle de lecture"},
-			"piles": {"image": "bloc_bibliotheque_piles", "position": Vector2i(1, 0), "nom": "Salle des piles de livres"},
-			"balcons": {"image": "bloc_bibliotheque_balcons", "position": Vector2i(-1, 1), "nom": "Galerie des balcons"},
-			"globes": {"image": "bloc_bibliotheque_globes", "position": Vector2i(-2, 1), "nom": "Salle des globes"},
-			"galerie_haute": {"image": "bloc_bibliotheque_galerie_haute", "position": Vector2i(-1, 2), "nom": "Galerie haute"},
-			"cartes": {"image": "bloc_bibliotheque_cartes", "position": Vector2i(-2, 2), "nom": "Cabinet des cartes"},
-			"archives": {"image": "bloc_bibliotheque_archives", "position": Vector2i(-1, 3), "nom": "Archives"},
+			"galerie_ouest": {"image": "bloc_bibliotheque_galerie_ouest", "position": Vector2i(-1, 0), "nom": "Galerie ouest", "miroir": true},
+			"lecture": {"image": "bloc_bibliotheque_lecture", "position": Vector2i(-1, 3), "nom": "Salle de lecture"},
+			"piles": {"image": "bloc_bibliotheque_piles", "position": Vector2i(-1, 4), "nom": "Salle des piles de livres"},
+			"balcons": {"image": "bloc_bibliotheque_balcons", "position": Vector2i(-1, 1), "nom": "Galerie des balcons", "miroir": true},
+			"globes": {"image": "bloc_bibliotheque_globes", "position": Vector2i(-1, 2), "nom": "Salle des globes"},
+			"galerie_haute": {"image": "bloc_bibliotheque_galerie_haute", "position": Vector2i(1, 2), "nom": "Galerie haute"},
+			"cartes": {"image": "bloc_bibliotheque_cartes", "position": Vector2i(1, 3), "nom": "Cabinet des cartes"},
+			"archives": {"image": "bloc_bibliotheque_archives", "position": Vector2i(1, 0), "nom": "Archives"},
 			"vitraux": {"image": "bloc_bibliotheque_vitraux", "position": Vector2i(1, 1), "nom": "Salle aux vitraux"},
-			"tapis": {"image": "bloc_bibliotheque_tapis", "position": Vector2i(1, 2), "nom": "Galerie aux tapis"},
+			"tapis": {"image": "bloc_bibliotheque_tapis", "position": Vector2i(1, 4), "nom": "Galerie aux tapis"},
 		},
 		"liens": [
-			["vestibule", 0, "galerie_ouest", 1],
+			["vestibule", 0, "galerie_ouest", 0],
 			["vestibule", 1, "nef", 3],
-			["vestibule", 2, "piles", 0],
+			["vestibule", 2, "archives", 0],
 			["nef", 0, "allee", 1],
-			["nef", 1, "balcons", 2],
-			["nef", 2, "vitraux", 1],
+			["nef", 1, "balcons", 0],
+			["nef", 2, "vitraux", 0],
 			["allee", 0, "globe", 1],
-			["galerie_ouest", 0, "lecture", 0],
-			["balcons", 0, "globes", 0],
-			["balcons", 1, "galerie_haute", 2],
-			["galerie_haute", 0, "cartes", 0],
-			["galerie_haute", 1, "archives", 0],
-			["vitraux", 0, "tapis", 0],
+			["balcons", 1, "globes", 1],
+			["globes", 0, "lecture", 1],
+			["lecture", 0, "piles", 0],
+			["vitraux", 1, "galerie_haute", 1],
+			["galerie_haute", 0, "cartes", 1],
+			["cartes", 0, "tapis", 0],
 		],
 		"entrees": [
 			["vestibule", 3, Vector2i(0, -1)],

@@ -192,14 +192,14 @@ stick droit pour choisir un bouton de l'interface.
     de 14 salles sur 4 × 4 cases, **deux entrées** seulement (le bas du vestibule au sud, l'allée du fond de la salle
     au globe au nord), et un **refuge** (zone « bibliotheque » de `zones.json`, `"sans_ennemis": true`) : ni ennemis,
     ni geôlier, ni Chevalier de la mort n'y sont posés ni n'y entrent. Plan (choix de Claude d'après les portes
-    peintes) : vestibule → nef → allée des lecteurs → salle au globe → étage ; nef ↔ galerie des balcons (→ salle des
-    globes ; → galerie haute → cabinet des cartes, archives) et salle aux vitraux (→ galerie aux tapis) ; vestibule ↔
-    galerie ouest (→ salle de lecture) et salle des piles de livres. On entre dans chaque salle par le bas de son
-    image. Zones relevées par Claude (`outils/importer_blocs.py bibliotheque`, planche
-    `C:\IA\pont-blenderloc_bibliotheque\planche_zones.png`), à retoucher dans l'éditeur. Les blocs sont posés du
+    peintes, refait le 2026-11-04 avec des portes cohérentes) : vestibule → nef → allée des lecteurs → salle au globe →
+    étage ; vestibule ↔ galerie ouest (à gauche) et archives (à droite) ; nef ↔ galerie des balcons (à gauche : → salle
+    des globes → salle de lecture → salle des piles) et salle aux vitraux (à droite : → galerie haute → cabinet des
+    cartes → galerie aux tapis). Zones relevées par Claude (`outils/importer_blocs.py bibliotheque`, planche
+    `C:\IA\pont-blender\bloc_bibliotheque\planche_zones.png`), à retoucher dans l'éditeur. Les blocs sont posés du
     plus grand au plus petit ; si l'un ne trouve pas de place, le plan de l'étage est refait (10 essais au plus,
     `GenerateurEtage.ESSAIS_BLOCS`). Les 14 salles de la bibliothèque s'ajoutent à l'étage (`"en_plus"`) : un étage
-    passe d'environ 88 à environ 100 salles (environ 155 avec le laboratoire), et garde ses boucles ;
+    passe d'environ 88 à environ 100 salles (environ 155 avec le laboratoire, environ 180 avec le jardin), et garde ses boucles ;
     Troisième bloc, **laboratoire d'alchimie** (2026-11-04, un par étage, 36 images de l'utilisateur en 5 groupes) :
     complexe fermé, **refuge** (zone « laboratoire »), **trois entrées** (couloir des fioles au sud, couloir de l'ouest,
     fond de l'étude à l'escalier au nord). **Structure cohérente** (demande de l'utilisateur) : une porte de gauche
@@ -209,6 +209,15 @@ stick droit pour choisir un bouton de l'interface.
     l'ouest, fourneaux à l'est, étude au nord ; quelques boucles là où deux portes peintes se font face. Portes relevées
     par Claude (`outils/importer_blocs.py`, `LABO`), sol et obstacles **détourés automatiquement**
     (`outils/detourer_sols.py`), à retoucher dans l'éditeur ;
+  - **Jardin : potager et verger** (2026-11-04, 18 images de l'utilisateur ; une 19e était un doublon) : rattaché au
+    bloc cuisine par l'**arche du fond de la réserve** (« petite porte »), et à l'étage par **deux autres entrées** (le
+    fond du clos du verger et celui de la sortie du verger, au nord). Ce n'est **pas un refuge** : les ennemis ordinaires
+    peuvent y être posés et y entrer, mais **ni le geôlier ni le Chevalier de la mort** (zone « jardin » de
+    `zones.json`, `"sans_chasseurs": true`, `Zones.sans_chasseurs`, `Aventure.fermee_a`). Potager au sud (6 salles),
+    verger au nord (11), un potager caché ; portes cohérentes (gauche ↔ droite, fond ↔ bas, 3 salles en miroir) ;
+  - **Bibliothèque refaite** (2026-11-04, demande de l'utilisateur) avec la même cohérence : les salles de côté
+    s'ouvrent par une porte en face (galerie ouest, archives, galerie des balcons, salle aux vitraux), et plus par le
+    bas ; nouvelles portes du fond relevées (salle des globes, de lecture, cabinet des cartes) ;
   - **Couloirs aux livres** (2026-11-04, 37 images de l'utilisateur, `outils/importer_couloirs_livres.py` →
     `couloir_livre01` … `couloir_livre37`) : salles ordinaires du reste de l'étage, jamais dans les cryptes, les prisons
     ni les blocs (`PlanSalles` : les salles réservées ont leurs images). Toutes leurs portes sont des **sorties
@@ -1149,6 +1158,24 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
 
 ## Journal des modifications
 
+### 2026-11-04 — Jardin (potager et verger), bibliothèque cohérente
+
+- **Jardin** (`C:\ia image\Salle de donjon\potager` et `...ergé`) : 18 salles ajoutées au bloc cuisine, derrière
+  l'arche du fond de la réserve, deux entrées sur l'étage. Ni geôlier ni Chevalier de la mort (nouvelle règle de zone
+  « sans_chasseurs ») ; les autres ennemis oui. L'ancienne entrée de la cuisine par l'arche de la réserve mène donc
+  maintenant au jardin.
+- **Bibliothèque** : plan refait avec des portes cohérentes (test : `test_blocs.gd` vérifie la cohérence de tous les
+  blocs, sauf les deux celliers de la cuisine, exception acceptée en 2026-10-31).
+- Le centre de l'étage (départ du Chevalier de la mort) n'est jamais dans le jardin.
+- Sols : détourage automatique ; tracé ou complété à la main par Claude pour `potager_allee` (détourage raté) et pour
+  les nouvelles portes de la bibliothèque (archives, globes, vitraux) et du clos du verger.
+- Taille : un étage compte maintenant environ 180 salles (le bloc cuisine, jardin compris, s'ajoute aussi).
+- Passages sans porte peinte (flèche de secours) : environ 8 par étage (3,6 avant), surtout des couloirs est-ouest ; il
+  manque des images avec une porte à gauche ET à droite. Tolérance de `test_cartographie_salles.gd` portée à 9.
+- Captures 250-267 : chaque salle du jardin (`tests/capture_jardin.gd`).
+- Tests : `test_blocs.gd` (cohérence, jardin sans chasseurs), `test_zones.gd` (18 salles sans chasseurs, chasseurs
+  attirés qui s'arrêtent aux portes du jardin), `test_aventure.gd`.
+
 ### 2026-11-04 — Laboratoire d'alchimie et couloirs aux livres
 
 - **Laboratoire** (`C:\ia image\Salle de donjon\laboratoire d'alchimie`, 36 images) : bloc « laboratoire » de 36
@@ -1170,7 +1197,7 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
 
 ### 2026-11-04 — La bibliothèque
 
-- Demande de l'utilisateur : intégrer les salles « bibliothèque » (`C:\ia image\Salle de donjonibliothèqueibliothèque`,
+- Demande de l'utilisateur : intégrer les salles « bibliothèque » (`C:\ia image\Salle de donjon\bibliothèque\bibliothèque`,
   15 images dont un doublon) en un **complexe fermé** à deux ouvertures où le Chevalier de la mort, le geôlier et les
   ennemis n'entrent pas. Fait comme le bloc cuisine : nouveau bloc **bibliothèque** (`BlocsSalles.BLOCS`, 14 salles,
   liens porte à porte, deux entrées) et nouvelle zone refuge « bibliotheque » (`donnees/zones.json`).

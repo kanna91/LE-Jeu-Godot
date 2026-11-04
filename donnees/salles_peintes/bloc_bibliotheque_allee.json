@@ -152,19 +152,19 @@
   [
    [
     358,
-    340
+    339
    ],
    [
     410,
-    340
+    339
    ],
    [
     412,
-    350
+    351
    ],
    [
     356,
-    350
+    351
    ]
   ],
   [
@@ -187,7 +187,7 @@
   ]
  ],
  "noms_sorties": [
-  "porte du fond",
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
@@ -199,9 +199,9 @@
   "passage"
  ],
  "arrivees": {
-  "porte du fond": [
-   385,
-   360,
+  "passage du fond": [
+   384,
+   367,
    "down"
   ]
  },

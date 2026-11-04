@@ -133,24 +133,6 @@
  "sorties": [
   [
    [
-    75,
-    395
-   ],
-   [
-    130,
-    395
-   ],
-   [
-    132,
-    408
-   ],
-   [
-    72,
-    408
-   ]
-  ],
-  [
-   [
     408,
     388
    ],
@@ -187,29 +169,21 @@
   ]
  ],
  "noms_sorties": [
-  "porte de gauche",
-  "porte du fond",
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "gauche",
   "devant",
   "bas"
  ],
  "types_sorties": [
   "porte",
-  "porte",
   "passage"
  ],
  "arrivees": {
-  "porte de gauche": [
-   110,
-   425,
-   "right"
-  ],
-  "porte du fond": [
-   432,
-   412,
+  "passage du fond": [
+   433,
+   416,
    "down"
   ]
  },

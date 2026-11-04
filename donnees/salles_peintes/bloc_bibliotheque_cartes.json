@@ -147,6 +147,24 @@
  "sorties": [
   [
    [
+    300,
+    332
+   ],
+   [
+    380,
+    332
+   ],
+   [
+    382,
+    344
+   ],
+   [
+    298,
+    344
+   ]
+  ],
+  [
+   [
     0,
     499
    ],
@@ -165,15 +183,24 @@
   ]
  ],
  "noms_sorties": [
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
+  "devant",
   "bas"
  ],
  "types_sorties": [
+  "porte",
   "passage"
  ],
- "arrivees": {},
+ "arrivees": {
+  "passage du fond": [
+   340,
+   360,
+   "down"
+  ]
+ },
  "bloc": "bibliotheque",
  "ips": 24,
  "source": "bibliothèque/mw1e6yfvzq4q69.jpeg"

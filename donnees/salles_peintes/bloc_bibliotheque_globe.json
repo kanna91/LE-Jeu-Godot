@@ -165,7 +165,7 @@
   ]
  ],
  "noms_sorties": [
-  "allée du fond",
+  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
@@ -173,13 +173,13 @@
   "bas"
  ],
  "types_sorties": [
-  "passage",
+  "porte",
   "passage"
  ],
  "arrivees": {
-  "allée du fond": [
+  "passage du fond": [
    410,
-   345,
+   350,
    "down"
   ]
  },

@@ -12,6 +12,7 @@
     "  'chance_pacifique' : chance qu'un groupe de gobelins ne veuille pas se battre (jamais pour les autres sortes) ;",
     "  'chance_loup' : chance qu'un loup accompagne un groupe de gobelins qui compte un archer ou un chaman ;",
     "  'chance_feticheur' : chance qu'un féticheur gobelin mène un groupe de 2 squelettes ou plus (il n'est pas une élite) ;",
+    "  'sans_chasseurs' : vrai = ni le geôlier ni le Chevalier de la mort n'y sont posés ni n'y entrent ; les autres ennemis oui (le jardin) ;",
     "  'sans_ennemis' : vrai = refuge : aucun ennemi n'y est posé ni n'y entre (gobelins, squelettes, geôliers, Chevalier de la mort...),",
     "    seuls les personnages neutres y vont ; les chasseurs s'arrêtent à la porte.",
     "Sortes : 'gobelin' (classe au hasard, chaque membre la sienne), une classe de gobelin ('combattant', 'archer', 'lancier',",
@@ -35,6 +36,11 @@
       "nom": "Cuisine (bloc cuisine et salle à manger)",
       "images": "bloc_cuisine",
       "sans_ennemis": true
+    },
+    "jardin": {
+      "nom": "Jardin (potager et verger, rattachés à la cuisine)",
+      "images": "bloc_jardin",
+      "sans_chasseurs": true
     },
     "bibliotheque": {
       "nom": "Bibliothèque (bloc bibliothèque, complexe fermé)",
