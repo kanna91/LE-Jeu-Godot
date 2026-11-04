@@ -381,6 +381,7 @@ static func defs() -> Dictionary:
 		"illumination": _alteration_caracteristiques("Illumination", "bonus", ["intelligence", "sagesse"], 0.05, 1),
 		"transcendance": _alteration_caracteristiques("Transcendance", "bonus", CARACTERISTIQUES, 0.04, 1),
 	}
+	DonneesEnnemis.appliquer_alterations(d)  # durées et cumuls réglés dans l'éditeur (2026-11-04)
 	_definitions = d
 	for element in TYPES_ALTERATIONS:
 		for nom in TYPES_ALTERATIONS[element]:

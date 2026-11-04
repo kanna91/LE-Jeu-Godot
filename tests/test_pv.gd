@@ -24,7 +24,7 @@ func _initialize() -> void:
 		"lancier": "generer_lancier_gobelin", "archer": "generer_archer_gobelin", "sorcier": "generer_sorcier_gobelin",
 		"feticheur": "generer_feticheur_gobelin", "chaman": "generer_chaman_gobelin"}
 	for sous_classe in fabriques:
-		var bornes: Array = Gobelin.ENDURANCE_PAR_SOUS_CLASSE[sous_classe]
+		var bornes: Array = Gobelin.bornes_endurance(sous_classe)
 		var vus := {}
 		for i in 60:
 			var g = Gobelin.nouveau(null).call(fabriques[sous_classe])

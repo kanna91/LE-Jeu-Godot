@@ -29,6 +29,7 @@ extends Control
 ## Onglet « Eau » (touche 9), même principe (2026-11-04) : des zones au bord des points d'eau ; le héros dans une de
 ## ces zones peut remplir son seau (Cuisine), avec l'indication « Point d'eau : remplir le seau (K) ». Clés « feux »
 ## et « eaux » du .json de la salle (polygones ; les anciens points deviennent de petites zones).
+## Menu Données › Ennemis (F4, 2026-11-04) : compétences, altérations, IA et butin des ennemis (EditeurEnnemis).
 ## Menu « Dialogues » (2026-11-04, bouton en haut à droite ou F3) : modifier les dialogues de tous les personnages
 ## (``donnees/dialogues.json`` et ``donnees/prisonniers.json``), voir ``EditeurDialogues``.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
@@ -141,6 +142,7 @@ var glisse_butin := -1
 var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": "", "rang": 0}
 var _maj_module := false
 var dialogues: EditeurDialogues
+var donnees_ennemis: EditeurEnnemis
 const AIDE := "Tab : éditer / marcher   1-6 : zones   7 : butin   8 : feux   9 : eau   E : ennemis (ou menu Couche)
 " 	+ "clic : ajouter un point (Entrée ou 1er point : fermer)   glisser un point : le déplacer   Maj+clic sur un bord : nouveau point
 " 	+ "clic droit : retirer point / zone   sorties, prisonniers : glisser l'intérieur = déplacer   D : direction   O : sortie potentielle
@@ -170,6 +172,14 @@ func _ready() -> void:
 	for a in demande:  # --couche=ennemis : couche choisie au départ (captures)
 		if a.begins_with("--couche="):
 			choisir_couche(a.trim_prefix("--couche="))
+		if a.begins_with("--ennemis="):  # --ennemis=3 : données des ennemis ouvertes sur l'onglet 3 (captures)
+			ouvrir_donnees_ennemis()
+			await get_tree().process_frame
+			donnees_ennemis.onglets.current_tab = int(a.trim_prefix("--ennemis="))
+			if donnees_ennemis.onglets.current_tab == 0:
+				donnees_ennemis.choisir_competence("Perforation")
+			elif donnees_ennemis.onglets.current_tab == 1:
+				donnees_ennemis.choisir_alteration("saignement")
 	if "--capture" in demande:  # vérification hors écran
 		for _i in 20:
 			await get_tree().process_frame
@@ -229,6 +239,7 @@ func _barre_menus() -> void:
 	vue.add_check_item("Aide détaillée en bas   (F1)", M_AIDE)
 	var donnees := _menu(barre, "Données")
 	donnees.add_item("Dialogues des personnages   (F3)", M_DIALOGUES)
+	donnees.add_item("Ennemis : compétences, altérations, IA, butin   (F4)", M_DONNEES_ENNEMIS)
 	var vide := Control.new()
 	vide.size_flags_horizontal = Control.SIZE_EXPAND_FILL
 	barre.add_child(vide)
@@ -344,7 +355,13 @@ func basculer_mode() -> void:
 
 ## Ouvre l'éditeur des données des ennemis (compétences, altérations, IA, butin), par-dessus la salle.
 func ouvrir_donnees_ennemis() -> void:
-	message = "Données des ennemis : bientôt"
+	if donnees_ennemis == null:
+		donnees_ennemis = EditeurEnnemis.new()
+		add_child(donnees_ennemis)
+		donnees_ennemis.ferme.connect(func(): message = "Données des ennemis fermées")
+	else:
+		donnees_ennemis.charger()
+	donnees_ennemis.visible = true
 
 
 ## Ouvre le menu des dialogues des personnages (par-dessus la salle).
@@ -462,7 +479,7 @@ func echelle() -> float:
 # ---------------------------------------------------------------------------
 
 func _unhandled_input(ev: InputEvent) -> void:
-	if dialogues != null and dialogues.visible:
+	if (dialogues != null and dialogues.visible) or (donnees_ennemis != null and donnees_ennemis.visible):
 		return
 	if ev is InputEventKey and ev.pressed and not ev.echo:
 		_touche(ev)

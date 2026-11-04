@@ -233,6 +233,22 @@ func mort_au_combat(donjon) -> void:
 			var objet = generer_objet_butin()
 			donjon.personnage.ajouter_objet_inventaire(objet)
 			print("%s a lâché %s" % [_d["nom"], objet.nom])
+		lacher_butin(donjon)
+
+
+## Butin réglé dans l'éditeur des ennemis (DonneesEnnemis, 2026-11-04) : chaque objet a sa chance (%) ; le héros le
+## reçoit tout de suite (Fouille.ramasser). Renvoie les messages.
+func lacher_butin(donjon) -> Array:
+	var messages := []
+	if donjon == null or donjon.personnage == null:
+		return messages
+	for b in DonneesEnnemis.butin_de(str(U.ga(self, "sous_classe", ""))):
+		if b is Dictionary and randf() * 100.0 < float(b.get("chance", 0)):
+			var m := Fouille.ramasser(b, donjon.personnage, maxi(1, Objet.compteur_etage_objet))
+			messages.append(m)
+			print("Butin de %s : %s" % [_d["nom"], m])
+			EffetsCombat.signaler_texte(self, m.trim_prefix("Vous ramassez ").trim_suffix("."))
+	return messages
 
 
 func verifier_points_d_action_suffisants(cout_action) -> bool:
@@ -249,6 +265,8 @@ func _competence(nom_classe: String):
 		if competence.nom_classe == nom_classe:
 			return competence
 	var competence := Competences.creer(nom_classe)
+	if competence == null:
+		return null
 	competence.niveau = int(U.ga(self, "niveau_competences", 0))
 	_d["competences"].append(competence)
 	return competence
@@ -285,123 +303,16 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 				continue
 		var competence = null
 		var cible_choisie = null
-		var classe = U.ga(self, "classe", null)
 		var sous_classe = U.ga(self, "sous_classe", null)
-		if classe == "creature":
-			competence = _d["competences"][0]  # loup, squelette : leur seule attaque (Creatures)
-		elif classe == "guerrier":
-			if sous_classe == "combattant":
-				# Cri de guerre (2026-11-01) : s'il a au moins un allié vivant et que personne n'est déjà en rage
-				# (la rage dure 3 tours) ; sinon Botte secrète une fois sur trois, Coup d'épée le reste du temps.
-				# Le Chevalier de la mort (même IA) garde toujours sa Lame de la mort.
-				var allies := 0
-				var en_rage := false
-				for e in donjon.ennemis:
-					if e.est_vivant():
-						if e != self:
-							allies += 1
-						if e.a_l_alteration("rage"):
-							en_rage = true
-				var chevalier: bool = U.ga(self, "anim_combat", "") == "chevalier"
-				if chevalier:
-					competence = _competence("Coup_d_epee")
-				elif allies >= 1 and not en_rage:
-					competence = _competence("Cri_de_guerre")
-				else:
-					competence = _competence("Botte_secrete" if randf() < 1.0 / 3 else "Coup_d_epee")
-			elif sous_classe == "lancier":
-				if randf() < 2.0 / 3:
-					competence = _competence("Coup_de_lance")
-				elif not personnage.a_l_alteration("saignement"):
-					competence = _competence("Perforation")
-				else:
-					competence = _competence("Rafale_de_lance")
-			elif sous_classe == "archer":
-				if _d["mana"] >= _competence("Précision").cout_mana and not a_l_alteration("précis"):
-					competence = _competence("Précision")
-				elif randf() < 2.0 / 3:
-					competence = _competence("Tir")
-				elif randf() < 0.5:
-					competence = _competence("Tir_precis")
-				else:
-					competence = _competence("Tir_empoisonne")
-			elif sous_classe == "defenseur":
-				if randf() < 2.0 / 3:
-					competence = _competence("Coup_de_gourdin")
-				else:
-					var protege := false
-					for e in donjon.ennemis:
-						if e.a_l_alteration("protection"):
-							protege = true
-					competence = _competence("Grand_coup_de_gourdin" if protege else "Protection")
-		elif classe == "mage":
-			if sous_classe == "sorcier":
-				if _d["magie"] == true:
-					if _d["mana"] > 5:
-						var disponibles := []
-						for c in ["Boule_de_feu", "Trait_des_Ombres", "Projectile_des_ombres"]:
-							disponibles.append(_competence(c))
-						var trouve := false
-						while not disponibles.is_empty():
-							competence = disponibles.pick_random()
-							if not (competence.nom_classe == "Projectile_des_ombres" and personnage.a_l_alteration("brulure")):
-								trouve = true
-								break
-							disponibles.erase(competence)
-						if not trouve:
-							competence = _competence("Projectile_des_ombres")
-					else:
-						competence = _competence("Projectile_des_ombres")
-				if _d["magie"] == false:
-					competence = _competence("Coup_de_baton")
-			elif sous_classe == "feticheur":
-				var deja_subi := func(comp) -> bool:
-					var noms := []
-					var ta = U.ga(comp, "type_alteration", null)
-					if ta != null:
-						for nom in ta:
-							if ta[nom] > 0:
-								noms.append(nom)
-					if noms.is_empty():
-						return false
-					for nom in noms:
-						if not personnage.a_l_alteration(Alterations.nom_canonique(nom)):
-							return false
-					return true
-				var sorts_f := []
-				for c in ["Caresse_des_ombres", "Enflammer", "Silence"]:
-					sorts_f.append(_competence(c))
-				var soins := []
-				for c in ["Soin_mineur"]:
-					var s = _competence(c)
-					if _utilisable(s):
-						soins.append(s)
-				var blesse: bool = _d["points_de_vie"] <= _d["points_de_vie_max"] * 0.50
-				if blesse and peut_etre_soigne() and not soins.is_empty() and randf() < CHANCE_SOIN_IA:
-					competence = soins.pick_random()
-				else:
-					var choix := []
-					for c in sorts_f:
-						if _utilisable(c) and not deja_subi.call(c):
-							choix.append(c)
-					choix.append(_competence("Projectile_des_ombres"))
-					competence = choix.pick_random()
-		elif classe == "soutien":
-			var cibles_possibles := []
-			for e in donjon.ennemis:
-				if e.est_vivant() and e.points_de_vie <= e.points_de_vie_max * 0.50 and e.peut_etre_soigne():
-					cibles_possibles.append(e)
-			var soins := []
-			for c in ["Soin_mineur", "Recupe"]:
-				var s = _competence(c)
-				if _utilisable(s):
-					soins.append(s)
-			if not cibles_possibles.is_empty() and not soins.is_empty() and randf() < CHANCE_SOIN_IA:
-				competence = soins.pick_random()
-				cible_choisie = U.min_par(cibles_possibles, func(e): return e.points_de_vie / maxf(1, e.points_de_vie_max))
-			else:
-				competence = _competence("Boule_de_feu")
-		if competence != null and not _utilisable(competence):
+		# Le Chevalier de la mort garde toujours sa Lame de la mort ; les autres suivent leurs règles d'IA (éditeur des
+		# ennemis, DonneesEnnemis ; l'ancienne IA codée en dur y est traduite, 2026-11-04)
+		if U.ga(self, "anim_combat", "") == "chevalier":
+			competence = _competence("Coup_d_epee")
+		else:
+			var choix := choisir_par_regles(DonneesEnnemis.ia_de(str(sous_classe)), personnage, donjon)
+			competence = choix[0]
+			cible_choisie = choix[1]
+		if competence == null or not _utilisable(competence):
 			var secours: Array = ATTAQUES_DE_SECOURS.get(sous_classe, []) + ["Coup_de_baton"]
 			for c in secours:
 				var remplacante = _competence(c)
@@ -424,6 +335,76 @@ func mecanique_ennemis(personnage, donjon, combat) -> void:
 		combat.lancer(competence, self, donjon, personnage, [cible_choisie] if cible_choisie != null else null)
 		if _d["points_d_action"] >= pa_avant:
 			_d["points_d_action"] = 0
+
+
+## Première règle d'IA qui passe (chance, conditions, compétence utilisable) : [compétence, cible ou null], ou
+## [null, null] (l'attaque de secours sera jouée).
+func choisir_par_regles(regles: Array, personnage, donjon) -> Array:
+	for r in regles:
+		if not (r is Dictionary) or randf() * 100.0 >= float(r.get("chance", 100)):
+			continue
+		var competence = _competence(String(r.get("competence", "")))
+		if competence == null or not _utilisable(competence):
+			continue
+		var ok := true
+		for cond in r.get("si", []):
+			if cond is Array and not cond.is_empty() and not condition_ia(String(cond[0]), str(cond[1]) if cond.size() > 1 else "",
+					competence, personnage, donjon):
+				ok = false
+				break
+		if not ok:
+			continue
+		var cible = null
+		if String(r.get("cible", "auto")) == "allie_blesse":
+			cible = allie_le_plus_blesse(donjon)
+		return [competence, cible]
+	return [null, null]
+
+
+## Une condition d'une règle d'IA (DonneesEnnemis.CONDITIONS).
+func condition_ia(condition: String, valeur: String, competence, personnage, donjon) -> bool:
+	var alt := Alterations.nom_canonique(valeur)
+	match condition:
+		"toujours", "":
+			return true
+		"soi_blesse":
+			return _d["points_de_vie"] <= _d["points_de_vie_max"] * 0.50 and peut_etre_soigne()
+		"allie_blesse":
+			return allie_le_plus_blesse(donjon) != null
+		"a_des_allies":
+			return donjon.ennemis.any(func(e): return e != self and e.est_vivant())
+		"heros_sans":
+			return not personnage.a_l_alteration(alt)
+		"heros_avec":
+			return personnage.a_l_alteration(alt)
+		"soi_sans":
+			return not a_l_alteration(alt)
+		"groupe_sans":
+			return not donjon.ennemis.any(func(e): return e.est_vivant() and e.a_l_alteration(alt))
+		"groupe_avec":
+			return donjon.ennemis.any(func(e): return e.est_vivant() and e.a_l_alteration(alt))
+		"heros_sans_ses_alterations":
+			var noms := []
+			var ta = U.ga(competence, "type_alteration", null)
+			if ta is Dictionary:
+				for nom in ta:
+					if float(ta[nom]) > 0:
+						noms.append(nom)
+			return noms.is_empty() or noms.any(func(n): return not personnage.a_l_alteration(Alterations.nom_canonique(n)))
+		"mana_au_moins":
+			return float(_d["mana"]) >= float(valeur) if valeur.is_valid_float() else true
+	return true
+
+
+## Ennemi vivant (lui compris) sous la moitié de ses PV et qui peut encore être soigné, le plus blessé ; ou null.
+func allie_le_plus_blesse(donjon):
+	var blesses := []
+	for e in donjon.ennemis:
+		if e.est_vivant() and e.points_de_vie <= e.points_de_vie_max * 0.50 and e.peut_etre_soigne():
+			blesses.append(e)
+	if blesses.is_empty():
+		return null
+	return U.min_par(blesses, func(e): return e.points_de_vie / maxf(1, e.points_de_vie_max))
 
 
 ## Un ennemi ne peut être soigné qu'une fois par combat (potion ou compétence de soin) ; les ennemis

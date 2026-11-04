@@ -53,7 +53,7 @@ static func creer(donjon, sorte: String) -> Gobelin:
 	e._d["sous_classe"] = sorte
 	e._d["type_ennemi"] = r["type_ennemi"]
 	for c in ["endurance", "force", "dextérité", "intelligence", "sagesse"]:
-		var b: Array = r[c]
+		var b: Array = r[c] if c != "endurance" else Gobelin.bornes_endurance(sorte)  # PV de l'éditeur (2026-11-04)
 		var points := randi_range(b[0], b[1])
 		if c == "endurance":
 			points *= Ennemis.ENDURANCE_PAR_POINT_ENNEMI  # « 1 point = 10 PV » (2026-11-03)
@@ -67,6 +67,11 @@ static func creer(donjon, sorte: String) -> Gobelin:
 	attaque._d["type_degats"] = r["des"].keys()
 	attaque._d["cout_mana"] = 0
 	e._d["competences"] = [attaque]
+	for nom in DonneesEnnemis.competences_de(sorte):  # compétences données dans l'éditeur des ennemis
+		if String(nom) != "Coup_d_epee":
+			var c := Competences.creer(String(nom))
+			if c != null:
+				e._d["competences"].append(c)
 	e._d["des_fixes"] = r["des"].duplicate(true)
 	Degats.ajouter_pourcentages(e, r["vulnerabilites"], r["resistances_pct"])
 	e._d["image"] = r["image"]

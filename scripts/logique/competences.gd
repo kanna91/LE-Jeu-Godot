@@ -43,8 +43,13 @@ static func _valeur(v):
 
 
 ## Crée une compétence ou un sort par le nom de sa classe Python.
-static func creer(nom_classe: String) -> Competence:
+## ``sans_editions`` : sans les réglages de l'éditeur des ennemis (pour montrer les valeurs d'origine).
+static func creer(nom_classe: String, sans_editions := false) -> Competence:
 	_charger()
+	var demande := nom_classe
+	# Nouvelle compétence de l'éditeur (DonneesEnnemis) : copie d'une compétence existante, puis ses réglages
+	if not _sorts.has(nom_classe) and not _competences.has(nom_classe) and DonneesEnnemis.base_de(nom_classe) != "":
+		nom_classe = DonneesEnnemis.base_de(nom_classe)
 	var comp: Competence
 	if _sorts.has(nom_classe):
 		var s: Dictionary = _sorts[nom_classe]
@@ -61,4 +66,6 @@ static func creer(nom_classe: String) -> Competence:
 		push_error("Compétence inconnue : " + nom_classe)
 		return null
 	BasesCompetences.preparer(comp)
+	if not sans_editions:
+		DonneesEnnemis.appliquer_competence(comp, demande)  # réglages de l'éditeur des ennemis (2026-11-04)
 	return comp

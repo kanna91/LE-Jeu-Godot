@@ -1,0 +1,344 @@
+{
+ "sortes": {
+  "combattant": {
+   "pv": [
+    60,
+    70
+   ],
+   "competences": [
+    "Coup_d_epee",
+    "Botte_secrete",
+    "Cri_de_guerre"
+   ],
+   "ia": [
+    {
+     "competence": "Cri_de_guerre",
+     "chance": 100,
+     "si": [
+      [
+       "a_des_allies",
+       ""
+      ],
+      [
+       "groupe_sans",
+       "rage"
+      ]
+     ]
+    },
+    {
+     "competence": "Botte_secrete",
+     "chance": 33
+    },
+    {
+     "competence": "Coup_d_epee",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "lancier": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_d_epee",
+    "Botte_secrete",
+    "Cri_de_guerre",
+    "Coup_de_lance",
+    "Rafale_de_lance",
+    "Perforation"
+   ],
+   "ia": [
+    {
+     "competence": "Coup_de_lance",
+     "chance": 67
+    },
+    {
+     "competence": "Perforation",
+     "chance": 100,
+     "si": [
+      [
+       "heros_sans",
+       "saignement"
+      ]
+     ]
+    },
+    {
+     "competence": "Rafale_de_lance",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "archer": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_d_epee",
+    "Botte_secrete",
+    "Cri_de_guerre",
+    "Tir",
+    "Tir_precis",
+    "Tir_empoisonne",
+    "Précision"
+   ],
+   "ia": [
+    {
+     "competence": "Précision",
+     "chance": 100,
+     "si": [
+      [
+       "soi_sans",
+       "précis"
+      ]
+     ]
+    },
+    {
+     "competence": "Tir",
+     "chance": 67
+    },
+    {
+     "competence": "Tir_precis",
+     "chance": 50
+    },
+    {
+     "competence": "Tir_empoisonne",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "defenseur": {
+   "pv": [
+    60,
+    70
+   ],
+   "competences": [
+    "Coup_d_epee",
+    "Botte_secrete",
+    "Cri_de_guerre",
+    "Coup_de_gourdin",
+    "Grand_coup_de_gourdin",
+    "Protection"
+   ],
+   "ia": [
+    {
+     "competence": "Coup_de_gourdin",
+     "chance": 67
+    },
+    {
+     "competence": "Grand_coup_de_gourdin",
+     "chance": 100,
+     "si": [
+      [
+       "groupe_avec",
+       "protection"
+      ]
+     ]
+    },
+    {
+     "competence": "Protection",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "sorcier": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_de_baton",
+    "Boule_de_feu",
+    "Trait_des_Ombres",
+    "Projectile_des_ombres"
+   ],
+   "ia": [
+    {
+     "competence": "Boule_de_feu",
+     "chance": 33,
+     "si": [
+      [
+       "mana_au_moins",
+       "6"
+      ]
+     ]
+    },
+    {
+     "competence": "Trait_des_Ombres",
+     "chance": 50,
+     "si": [
+      [
+       "mana_au_moins",
+       "6"
+      ]
+     ]
+    },
+    {
+     "competence": "Projectile_des_ombres",
+     "chance": 100,
+     "si": [
+      [
+       "heros_sans",
+       "brulure"
+      ]
+     ]
+    },
+    {
+     "competence": "Boule_de_feu",
+     "chance": 50
+    },
+    {
+     "competence": "Trait_des_Ombres",
+     "chance": 100
+    },
+    {
+     "competence": "Coup_de_baton",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "feticheur": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_de_baton",
+    "Boule_de_feu",
+    "Projectile_des_ombres",
+    "Caresse_des_ombres",
+    "Enflammer",
+    "Silence",
+    "Soin_mineur"
+   ],
+   "ia": [
+    {
+     "competence": "Soin_mineur",
+     "chance": 33,
+     "si": [
+      [
+       "soi_blesse",
+       ""
+      ]
+     ]
+    },
+    {
+     "competence": "Caresse_des_ombres",
+     "chance": 25,
+     "si": [
+      [
+       "heros_sans_ses_alterations",
+       ""
+      ]
+     ]
+    },
+    {
+     "competence": "Enflammer",
+     "chance": 33,
+     "si": [
+      [
+       "heros_sans_ses_alterations",
+       ""
+      ]
+     ]
+    },
+    {
+     "competence": "Silence",
+     "chance": 50,
+     "si": [
+      [
+       "heros_sans_ses_alterations",
+       ""
+      ]
+     ]
+    },
+    {
+     "competence": "Projectile_des_ombres",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "chaman": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_de_baton",
+    "Boule_de_feu",
+    "Projectile_des_ombres",
+    "Silence",
+    "Soin_mineur",
+    "Recupe"
+   ],
+   "ia": [
+    {
+     "competence": "Soin_mineur",
+     "chance": 17,
+     "si": [
+      [
+       "allie_blesse",
+       ""
+      ]
+     ],
+     "cible": "allie_blesse"
+    },
+    {
+     "competence": "Recupe",
+     "chance": 20,
+     "si": [
+      [
+       "allie_blesse",
+       ""
+      ]
+     ],
+     "cible": "allie_blesse"
+    },
+    {
+     "competence": "Boule_de_feu",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "loup": {
+   "pv": [
+    50,
+    60
+   ],
+   "competences": [
+    "Coup_d_epee"
+   ],
+   "ia": [
+    {
+     "competence": "Coup_d_epee",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  },
+  "squelette": {
+   "pv": [
+    60,
+    60
+   ],
+   "competences": [
+    "Coup_d_epee"
+   ],
+   "ia": [
+    {
+     "competence": "Coup_d_epee",
+     "chance": 100
+    }
+   ],
+   "butin": []
+  }
+ }
+}

@@ -159,7 +159,16 @@ static func definir_nom_gobelin(sous_classe: String) -> String:
 	return PREFIXES.pick_random() + " " + sous_classe
 
 
+## Compétences d'une sous-classe : celles de l'éditeur des ennemis (DonneesEnnemis, 2026-11-04) ; ``classe`` ne sert
+## plus que pour une sous-classe inconnue (anciennes listes ci-dessous).
 static func definir_competence_gobelin(classe: String, sous_classe: String) -> Array:
+	if DonneesEnnemis.SORTES.has(sous_classe):
+		var liste := []
+		for nom in DonneesEnnemis.competences_de(sous_classe):
+			var c := Competences.creer(String(nom))
+			if c != null:
+				liste.append(c)
+		return liste
 	var noms := []
 	if classe == "guerrier":
 		noms = ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre"]
@@ -197,6 +206,16 @@ const ENDURANCE_PAR_SOUS_CLASSE := {
 }
 
 
+## Bornes d'endurance (en « points de 10 PV ») d'une sorte : PV réglés dans l'éditeur des ennemis (DonneesEnnemis,
+## par pas de 10), sinon ENDURANCE_PAR_SOUS_CLASSE.
+static func bornes_endurance(sorte: String) -> Array:
+	if DonneesEnnemis.SORTES.has(sorte):
+		var pv := DonneesEnnemis.pv_de(sorte)
+		var bas := maxi(1, ceili(float(pv[0]) / 10.0))
+		return [bas, maxi(bas, floori(float(pv[1]) / 10.0))]
+	return ENDURANCE_PAR_SOUS_CLASSE.get(sorte, [6, 8])
+
+
 ## Caractéristiques tirées selon la sous-classe : [principale, secondaire] ; bornes comprises.
 ## Principale 1 à 4, secondaire et toutes les autres 1 à 2 (endurance : ENDURANCE_PAR_SOUS_CLASSE).
 const STATS_PAR_SOUS_CLASSE := {
@@ -220,7 +239,7 @@ const PARADE_PAR_SOUS_CLASSE := {"combattant": [2, 4], "lancier": [2, 4], "defen
 
 ## Le critique ne vient que des caractéristiques (Ennemis.calculer_stats : dextérité, intelligence).
 static func definir_attribut_gobelin(g, classe: String, sous_classe: String) -> void:
-	var bornes: Array = ENDURANCE_PAR_SOUS_CLASSE.get(sous_classe, [6, 8])
+	var bornes: Array = bornes_endurance(sous_classe)
 	g.endurance = randi_range(bornes[0], bornes[1]) * Ennemis.ENDURANCE_PAR_POINT_ENNEMI + Ennemis.bonus_globaux["endurance"]
 	var stats: Array = STATS_PAR_SOUS_CLASSE.get(sous_classe, ["force", "dextérité"])
 	for c in ["force", "dextérité", "intelligence", "sagesse"]:

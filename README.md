@@ -68,6 +68,13 @@ stick droit pour choisir un bouton de l'interface.
   - **PV des ennemis** (2026-11-04, demande de l'utilisateur) : au début de la partie, un ennemi ordinaire encaisse
     **au moins 4 coups** du héros (3 coups de poing au maximum de leurs dés font 42, ou 57 contre un squelette) :
     50 à 60 PV (60 à 70 pour combattant, défenseur et squelette). Élites PV × 2,5 (~140), boss × 6 (~330).
+  - **Données des ennemis réglables** (2026-11-04, éditeur de zones › Données › Ennemis) : PV, compétences, IA et
+    butin de chaque sorte (7 gobelins, loup, squelette) dans `donnees/ennemis.json` ; réglages des compétences et
+    des altérations (durée, cumul) dans `donnees/competences_editees.json`, appliqués tels quels (aussi au héros
+    s'il a la même compétence). **IA** : des règles essayées dans l'ordre (compétence, chance, conditions, cible) ;
+    l'ancienne IA codée en dur y est traduite avec les mêmes chances (`DonneesEnnemis.IA_DEFAUT`) ; le Chevalier de
+    la mort garde sa Lame de la mort. **Butin** : vide par défaut (les ennemis ne donnent toujours rien) ; un objet
+    réglé est reçu par le héros à la mort de l'ennemi, selon sa chance (`Ennemis.lacher_butin`, `Fouille.ramasser`).
   - **Plus de montée de niveau** (supprimée le 2026-10-31, avec l'expérience du héros, les points de caractéristique
     et les points passifs ; le héros reste au niveau 1). Le bandeau du haut montre l'or, les clés, les PA et les repos (plus le niveau ni l'expérience).
   - **Plus de combat en entrant dans une salle : les ennemis y rôdent, visibles** (à la Fear & Hunger), en
@@ -597,7 +604,8 @@ stick droit pour choisir un bouton de l'interface.
     | Ctrl+Z / Ctrl+S | annuler (100 pas) / enregistrer |
     | Page préc. / Page suiv. | salle précédente / suivante (deux appuis si rien n'est enregistré) |
     | F2 | zones visibles ou non en marchant |
-    | F3 ou bouton « Dialogues » | **menu Dialogues** (2026-11-04) : à gauche les personnages (ceux de `donnees/dialogues.json` et, de `donnees/prisonniers.json`, les prisonniers ordinaires, chaque quête et les objets des quêtes), au milieu leurs textes, à droite le texte choisi, modifiable. Dans une liste (bulles d'un commis, répliques d'une étape, lore...) : « Ajouter une ligne » / « Supprimer la ligne ». Les mots entre accolades ({direction}, {pv}...) sont remplacés dans le jeu. Ctrl+S ou « Enregistrer » ; « Fermer » (Échap) enregistre aussi |
+    | F4 ou menu Données › Ennemis | **données des ennemis** (2026-11-04, `scripts/outils/editeur_ennemis.gd`, données `DonneesEnnemis`) : 5 onglets. **Compétences** : façonner une compétence ou un sort (nom, description, coût en mana et en PA, cibles, coups, types de dégâts, multiplicateur de dégâts, altérations infligées et leur chance, tours en plus) ; « Nouvelle (copie) » en crée une à partir de celle choisie ; « D'origine » efface les réglages (et supprime une nouvelle compétence). **Altérations** : durée et cumul maximal de chacune. **Ennemis** : PV (par 10) et compétences de chaque sorte (« Donner cette compétence », « Retirer », « Façonner »). **IA** : règles jouées dans l'ordre (compétence, chance, jusqu'à 2 conditions, cible), ↑ ↓ ✕, « Ajouter une règle ». **Butin** : objets lâchés à la mort (catégorie, objet du catalogue ou au hasard, nombre, rang, chance). Enregistrer : Ctrl+S ; Fermer (Échap) enregistre aussi. Fichiers `donnees/ennemis.json` et `donnees/competences_editees.json` |
+    | F3 ou menu Données › Dialogues | **menu Dialogues** (2026-11-04) : à gauche les personnages (ceux de `donnees/dialogues.json` et, de `donnees/prisonniers.json`, les prisonniers ordinaires, chaque quête et les objets des quêtes), au milieu leurs textes, à droite le texte choisi, modifiable. Dans une liste (bulles d'un commis, répliques d'une étape, lore...) : « Ajouter une ligne » / « Supprimer la ligne ». Les mots entre accolades ({direction}, {pv}...) sont remplacés dans le jeu. Ctrl+S ou « Enregistrer » ; « Fermer » (Échap) enregistre aussi |
     Sorties : on peut seulement déplacer ou ajouter des points (leur nombre et leur ordre servent au plan du
     donjon). Salles avec un masque de premier plan au pixel (portes, salles, culs-de-sac) : la couche bleue ne
     change pas l'affichage, seulement la vue des ennemis (un message le rappelle). **Ctrl+S** écrit
@@ -1097,6 +1105,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
 & $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état), couche Ennemis, menus, course
+& $godot --headless --path . -s tests/test_editeur_ennemis.gd  # données des ennemis : IA par défaut (mêmes chances), compétence réglée / copiée, altération, PV, butin, interface
 & $godot --headless --path . -s tests/test_ennemis_interdits.gd  # ennemis interdits dans des salles : jamais posés ni entrés (ronde, poursuite)
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
@@ -1195,6 +1204,21 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Données des ennemis : compétences, altérations, IA, butin
+
+- **Demande de l'utilisateur** : dans l'éditeur, un onglet pour assigner et façonner les compétences et leurs
+  altérations et les distribuer aux ennemis ; le gestionnaire de l'IA ; le butin des ennemis, avec la liste de tous
+  les objets du jeu.
+- **Éditeur** : menu Données › Ennemis (F4) de l'éditeur de zones, 5 onglets (Compétences, Altérations, Ennemis, IA,
+  Butin) ; voir la table des commandes de l'éditeur.
+- **Jeu** : `DonneesEnnemis` (nouveau) ; `Gobelin.definir_competence_gobelin` et `bornes_endurance`, `Creatures.creer`
+  (PV et compétences en plus), `Competences.creer` (réglages, nouvelles compétences « base », option
+  `sans_editions`), `Alterations.defs` (durée, cumul), `Ennemis.mecanique_ennemis` → `choisir_par_regles`,
+  `condition_ia`, `allie_le_plus_blesse` (l'ancienne IA en `if` est remplacée par ses règles), `lacher_butin`.
+- Mesuré (test) : lancier Coup de lance 68 %, Perforation 32 % (Rafale si le héros saigne) ; combattant en rage
+  Botte secrète 33 % ; combattant avec un allié sans rage : Cri de guerre.
+- Tests : `test_editeur_ennemis.gd` (nouveau), `test_pv.gd` (bornes de l'éditeur).
 
 ### 2026-11-04 — Éditeur : menus déroulants, course, ennemis permis par salle
 
