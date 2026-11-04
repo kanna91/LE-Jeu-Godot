@@ -29,6 +29,8 @@ extends Control
 ## Onglet « Eau » (touche 9), même principe (2026-11-04) : des zones au bord des points d'eau ; le héros dans une de
 ## ces zones peut remplir son seau (Cuisine), avec l'indication « Point d'eau : remplir le seau (K) ». Clés « feux »
 ## et « eaux » du .json de la salle (polygones ; les anciens points deviennent de petites zones).
+## Menu « Dialogues » (2026-11-04, bouton en haut à droite ou F3) : modifier les dialogues de tous les personnages
+## (``donnees/dialogues.json`` et ``donnees/prisonniers.json``), voir ``EditeurDialogues``.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
 
@@ -115,11 +117,12 @@ var glisse_butin := -1
 ## Réglages du prochain butin posé.
 var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": "", "rang": 0}
 var _maj_module := false
+var dialogues: EditeurDialogues
 const AIDE := "Tab : éditer / marcher   1-6 : couche (6 : cachettes)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
 	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
 	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction   O : sortie potentielle\n" \
 	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer\n" \
-	+ "◀ ▶ / Page préc./suiv. : salle (enregistre la salle quittée)   H : héros visible   P : poser le héros   " 	+ "R (en marchant) : héros au départ   F2 : zones en marchant   F1 : replier l'aide"
+	+ "◀ ▶ / Page préc./suiv. : salle (enregistre la salle quittée)   H : héros visible   P : poser le héros   " 	+ "R (en marchant) : héros au départ   F2 : zones en marchant   F3 : dialogues   F1 : replier l'aide"
 
 
 func _ready() -> void:
@@ -162,7 +165,7 @@ func _etiquette(p: Vector2, taille: int) -> Label:
 ## Boutons ◀ ▶ et liste des salles, en haut à droite (changer de salle sans quitter l'éditeur).
 func _barre_salles() -> void:
 	var barre := HBoxContainer.new()
-	barre.position = Vector2(560, 6)
+	barre.position = Vector2(530, 6)
 	barre.z_index = 100
 	add_child(barre)
 	var prec := Button.new()
@@ -172,7 +175,7 @@ func _barre_salles() -> void:
 	barre.add_child(prec)
 	liste_salles = OptionButton.new()
 	liste_salles.focus_mode = Control.FOCUS_NONE
-	liste_salles.custom_minimum_size = Vector2(250, 0)
+	liste_salles.custom_minimum_size = Vector2(215, 0)
 	for id in salles:
 		liste_salles.add_item(id)
 	liste_salles.item_selected.connect(func(k): changer_salle(k))
@@ -182,6 +185,22 @@ func _barre_salles() -> void:
 	suiv.focus_mode = Control.FOCUS_NONE
 	suiv.pressed.connect(func(): changer_salle(numero + 1))
 	barre.add_child(suiv)
+	var bouton_dialogues := Button.new()
+	bouton_dialogues.text = "Dialogues"
+	bouton_dialogues.focus_mode = Control.FOCUS_NONE
+	bouton_dialogues.pressed.connect(ouvrir_dialogues)
+	barre.add_child(bouton_dialogues)
+
+
+## Ouvre le menu des dialogues des personnages (par-dessus la salle).
+func ouvrir_dialogues() -> void:
+	if dialogues == null:
+		dialogues = EditeurDialogues.new()
+		add_child(dialogues)
+		dialogues.ferme.connect(func(): message = "Dialogues fermés")
+	else:
+		dialogues.charger()
+	dialogues.visible = true
 
 
 ## Passe à la salle ``k`` (la salle quittée est enregistrée si elle a été modifiée).
@@ -284,6 +303,8 @@ func echelle() -> float:
 # ---------------------------------------------------------------------------
 
 func _unhandled_input(ev: InputEvent) -> void:
+	if dialogues != null and dialogues.visible:
+		return
 	if ev is InputEventKey and ev.pressed and not ev.echo:
 		_touche(ev)
 		return
@@ -325,6 +346,8 @@ func _touche(ev: InputEventKey) -> void:
 			_appliquer_mode()
 		KEY_F2:
 			voir_zones = not voir_zones
+		KEY_F3:
+			ouvrir_dialogues()
 		KEY_F1:
 			aide_complete = not aide_complete
 		KEY_PAGEDOWN:

@@ -218,6 +218,17 @@ stick droit pour choisir un bouton de l'interface.
     Validé par l'utilisateur : élite+ = élite aux PV × 1,5 ; « bague de niveau +2 » = **rare** à l'étage 1 (meilleur
     rang de l'étage + 2 ; précieux avant, corrigé le 2026-11-02) ; les catacombes sont les salles « crypte ». Limite : le prisonnier est peint dans l'image, il y reste après son départ (on ne peut
     simplement plus lui parler) ;
+  - **Commis** (2026-11-04, animations de l'utilisateur) : un **commis dans la cuisine** du bloc cuisine (celui à la
+    louche) explique la cuisine (touche K, préparations, feu de camp, eau, recettes, bouillon, viande crue) ; un
+    **commis dans le cellier droit** dit où trouver des ingrédients (marchand, loups, provisions au sol). Place fixe
+    dans l'image (`Aventure.COMMIS`, choix de Claude), animation de repos en boucle (`images/pnj/commis_<rôle>_anim`,
+    `outils/importer_commis.py`) ; on leur parle avec E, autant qu'on veut (une bulle par explication).
+  - **Dialogues** (2026-11-04) : les textes des personnages (commis, diablotin, succube, gobelin blessé, prisonnier
+    enchaîné, autel, gobelins pacifiques, rumeurs, prisonnier des cellules sans quête) sont dans
+    `donnees/dialogues.json` (`Dialogues`) ; ceux des prisonniers et de leurs quêtes restent dans
+    `donnees/prisonniers.json`. Les deux se modifient dans l'éditeur de zones, menu **Dialogues** ;
+  - **Viande des loups** (règle de l'utilisateur, 2026-11-04) : chaque loup d'un corps fouillé donne **1 viande crue**
+    (ingrédient) en plus du reste (`Fouille.VIANDE_PAR_LOUP`) ;
   - **Catégorie « Divers »** (2026-10-31) dans l'inventaire et chez le marchand : objets neutres qui ne s'équipent ni
     ne s'utilisent (vaisselle, argenterie, gemmes, objets cassés), pour de futures quêtes ou la revente. Les **clés**
     du héros s'y affichent en tête (« Clé rouillée ×N ») ;
@@ -518,6 +529,7 @@ stick droit pour choisir un bouton de l'interface.
     | Ctrl+Z / Ctrl+S | annuler (100 pas) / enregistrer |
     | Page préc. / Page suiv. | salle précédente / suivante (deux appuis si rien n'est enregistré) |
     | F2 | zones visibles ou non en marchant |
+    | F3 ou bouton « Dialogues » | **menu Dialogues** (2026-11-04) : à gauche les personnages (ceux de `donnees/dialogues.json` et, de `donnees/prisonniers.json`, les prisonniers ordinaires, chaque quête et les objets des quêtes), au milieu leurs textes, à droite le texte choisi, modifiable. Dans une liste (bulles d'un commis, répliques d'une étape, lore...) : « Ajouter une ligne » / « Supprimer la ligne ». Les mots entre accolades ({direction}, {pv}...) sont remplacés dans le jeu. Ctrl+S ou « Enregistrer » ; « Fermer » (Échap) enregistre aussi |
     Sorties : on peut seulement déplacer ou ajouter des points (leur nombre et leur ordre servent au plan du
     donjon). Salles avec un masque de premier plan au pixel (portes, salles, culs-de-sac) : la couche bleue ne
     change pas l'affichage, seulement la vue des ennemis (un message le rappelle). **Ctrl+S** écrit
@@ -850,6 +862,7 @@ stick droit pour choisir un bouton de l'interface.
 | `outils/` | Scripts Python de préparation des images et des données ; `importer_objets.py` copie et nettoie les objets à poser dans les salles ; `affiner_premier_plan.py` détoure au pixel le premier plan des salles de test_salle ; `importer_animations.py` copie les animations de `C:\ia image` et écrit `donnees/combat_anime.json` ; `importer_salles.py` copie les salles peintes de `test_salle` et écrit `donnees/salles_peintes/<id>.json` ; `importer_grandes_salles.py` fait de même pour les grandes salles (zones relevées à la main, image agrandie par IA) ; `importer_animations_diablotin.py` copie les animations du diablotin faites par Grok. |
 | `scripts/interface/salle_peinte.gd` | `SallePeinte` : moteur de salle peinte (port de `test_salle.gd` sans l'éditeur ; décor animé = vidéo Theora lue par un `VideoStreamPlayer` caché dont la texture remplace l'image fixe, `nouveau_lecteur`, `video_prete` ; `sortie_atteinte`). |
 | `scripts/logique/aventure.gd`, `rencontres.gd` | Donjon d'aventure : population des étages, combats des présences, fuite, capture, objets, clés (`Aventure`) ; personnages et choix moraux (`Rencontres`). |
+| `scripts/logique/dialogues.gd`, `donnees/dialogues.json` | Textes des personnages (`Dialogues.texte("diablotin/accueil/neutre", {mots})`), modifiables dans l'éditeur de zones (menu Dialogues, `scripts/outils/editeur_dialogues.gd`). |
 | `scripts/interface/presences_salle.gd` | `PresencesSalle` : ennemis qui rôdent, personnages et objets dans la salle peinte (formes, vue, ouïe, poursuite, contact). |
 | `scripts/ecrans/ecran_dialogue.gd` | Dialogue à choix (`Ecrans.dialogue`). |
 | `scripts/logique/plan_salles.gd` | `PlanSalles` : attribution des salles peintes au plan du donjon (chaque apparence une fois par étage, quartier des prisons, quartier des cryptes) et sortie qui mène à chaque voisine. |
@@ -1018,6 +1031,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
+& $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
+& $godot --path . -s tests/capture_commis.gd                # captures 183-186 : commis de la cuisine et du cellier, dialogue d'un commis, menu Dialogues (hors écran)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
 & $godot --path . -s tests/test_collisions_salles.gd      # le héros court dans 8 directions : pieds toujours sur le sol (cul-de-sac ; « -- toutes » : toutes les salles)
@@ -1104,6 +1119,23 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Commis, viande des loups, menu Dialogues
+
+- **Commis** (animations de l'utilisateur, `C:\ia image\ennemis\cuisinière et commits`) : le commis 02 (louche)
+  dans la cuisine explique comment cuisiner ; le commis 01, dans le cellier droit, dit où trouver des ingrédients.
+  Images importées par `outils/importer_commis.py` (repos de face, 145 images à 24 i/s, 320 px de haut). Ils sont
+  posés à la création de l'étage et, dans une ancienne partie, à la lecture de leur salle.
+- **Loups** : un loup fouillé donne 1 viande crue.
+- **Menu Dialogues** dans l'éditeur de zones (F3 ou bouton « Dialogues ») : tous les textes des personnages,
+  modifiables. Pour cela, les textes de `rencontres.gd` sont passés dans `donnees/dialogues.json` (nouveau module
+  `Dialogues`) : `INFOS_CHEVALIER`, `ASTUCES`, `LORE`, `EFFETS_PACTES` deviennent `infos_chevalier()`, `astuces()`,
+  `lore()` (une ligne = une histoire), `effet_pacte()`.
+- Fichiers : nouveaux `scripts/logique/dialogues.gd`, `scripts/outils/editeur_dialogues.gd`, `donnees/dialogues.json`,
+  `outils/importer_commis.py`, `images/pnj/commis_cuisine_anim`, `images/pnj/commis_cellier_anim` ; modifiés
+  `rencontres.gd`, `aventure.gd` (`COMMIS`, `poser_commis`), `presences_salle.gd`, `fouille.gd`, `editeur_zones.gd`.
+- Tests : nouveau `test_commis_dialogues.gd`, captures 183-186 (`capture_commis.gd`) ; `test_aventure.gd` et
+  `capture_aventure.gd` adaptés.
 
 ### 2026-11-04 — Eau : des zones au lieu de points
 

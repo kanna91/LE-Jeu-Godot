@@ -26,6 +26,11 @@ Les valeurs des ingrédients et des plats sont **cachées au joueur** [Décidé]
 - **[Décidé]** Bonus pour les recettes longues (+0,1 au multiplicateur par ingrédient au-delà de 2).
 - **[Décidé]** Nouveaux ingrédients d'accord (œuf, lait, farine, miel, champignon, herbes, ail).
 - **[Décidé]** Jardin et potager de plusieurs salles à venir (sources d'ingrédients).
+- **[Décidé]** (2026-11-04) Chaque **loup** fouillé donne **1 viande crue**. Sources d'ingrédients aujourd'hui : le
+  marchand, les loups, le butin posé dans les salles (éditeur, onglet Butin).
+- **[Décidé]** (2026-11-04) Deux **commis** expliquent tout cela au joueur : celui de la cuisine (comment cuisiner),
+  celui du cellier droit (où trouver des ingrédients). Leurs textes : `donnees/dialogues.json`, modifiables dans
+  l'éditeur de zones (menu Dialogues).
 
 ## 2. Mal persistant (intoxication, et plus tard la maladie)
 

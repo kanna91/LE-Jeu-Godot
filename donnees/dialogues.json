@@ -1,0 +1,184 @@
+{
+ "_lisez_moi": [
+  "Dialogues des personnages (2026-11-04), modifiables dans l'éditeur de zones (bouton « Dialogues »). Les prisonniers des cellules et leurs quêtes sont dans prisonniers.json (même menu).",
+  "Les mots entre accolades ({direction}, {pv}...) sont remplacés dans le jeu : les garder tels quels.",
+  "« _nom » : nom du personnage dans le menu. Une liste (crochets) peut avoir autant de lignes qu'on veut : une bulle par ligne pour les commis."
+ ],
+ "commis_cuisine": {
+  "_nom": "Commis de la cuisine",
+  "nom": "Commis",
+  "presentation": "Un jeune commis, une louche à la main, surveille les fourneaux. Il sursaute en vous voyant, puis se détend. « Ah… vous n'êtes pas un geôlier. Vous avez faim ? »",
+  "boutons": ["Comment on cuisine ?", "Partir"],
+  "explications": [
+   "« Ici, c'est la cuisine. Pas un gobelin, pas un garde n'ose y mettre les pieds : vous êtes en sécurité. »",
+   "« Pour cuisiner, appuyez sur K. Mettez un à quatre ingrédients dans la marmite, puis choisissez la préparation : sans feu, grillé, bouilli, ou mijoté au four. »",
+   "« Mijoter et cuire au four, ça ne se fait qu'ici, au foyer. Et ici, l'eau ne manque jamais. »",
+   "« Dehors, pour griller ou faire bouillir, il vous faut un feu de camp : du bois allumé à une torche, ou de l'amadou et un silex. Un feu de camp tient trois plats, ou dix minutes. »",
+   "« Pour faire bouillir loin d'ici, il faut une marmite et de l'eau. Un seau en bois se remplit ici, ou à un point d'eau. Chaque plat bouilli en prend un litre. »",
+   "« Une bonne recette vaut bien plus que ses ingrédients. Un mélange au hasard donne une mixture… ou pire, un plat immonde. »",
+   "« Vous connaissez déjà la viande grillée, la brochette, la viande bouillie et la compote. Les autres recettes, il faut les trouver en essayant, ou sur des pages de livre de cuisine. »",
+   "« Et gardez le bouillon ! Une recette bouillie avec de la viande en laisse un : il se boit, ou s'ajoute à un autre plat. »",
+   "« Surtout, ne mangez jamais la viande crue. Une fois sur quatre, c'est l'intoxication. »"
+  ],
+  "fin": "Le commis retourne à ses fourneaux."
+ },
+ "commis_cellier": {
+  "_nom": "Commis du cellier",
+  "nom": "Commis",
+  "presentation": "Un commis maigre compte les tonneaux à voix basse. « Encore quelqu'un qui a faim… Il ne reste plus grand-chose, vous savez. »",
+  "boutons": ["Où trouver des ingrédients ?", "Partir"],
+  "explications": [
+   "« Le plus sûr, c'est le marchand. Il vend des légumes, de la viande, des œufs, de la farine… quand il en a. »",
+   "« Les loups, aussi. Quand vous en tuez un, fouillez son corps : il y a toujours un bon morceau de viande crue à prendre. »",
+   "« Ouvrez l'œil dans les salles : il traîne parfois des provisions par terre. Ramassez-les avec E. »",
+   "« La viande, faites-la cuire ! Crue, elle rend malade une fois sur quatre. »",
+   "« Pour la cuisine, allez voir mon collègue, un peu plus loin. Il vous expliquera. »"
+  ],
+  "fin": "Le commis se remet à compter ses tonneaux."
+ },
+ "diablotin": {
+  "_nom": "Diablotin",
+  "accueil": {
+   "cruel": "Le diablotin recule en sifflant. « Toi... Je sais ce que tu as fait. Une question, peut-être deux. Pas plus. »",
+   "mefiant": "Le diablotin te jauge, méfiant. « Hmm. Pose tes questions. Vite. »",
+   "bon": "Le diablotin bat joyeusement des ailes. « Ah, c'est toi ! On parle de ta bonté jusque dans les murs. Demande, demande ! »",
+   "neutre": "Un petit diablotin rouge ricane en voletant. « Tu veux savoir des choses, hein ? Pose tes questions... mais pas trop. »"
+  },
+  "sujets": {
+   "affaires": "Mes affaires ?",
+   "chevalier": "Le Chevalier de la mort ?",
+   "etage": "Cet étage ?",
+   "autre": "Autre chose ?"
+  },
+  "rien_a_dire": "« Je n'ai plus rien à t'apprendre... pour l'instant. »",
+  "note_journal": "(Noté dans votre journal : touche J.)",
+  "reste": "Le diablotin hausse les épaules et reste là, à ricaner.",
+  "disparait": "Le diablotin disparaît dans un nuage de soufre... avec un petit rire. (Journal : J)",
+  "chevalier": {
+   "tranchant": "Le Chevalier de la mort ? Les lames glissent sur lui. Elles l'effleurent à peine.",
+   "lame": "Il frappe avec une grande lame... mais pas seulement avec elle. Hé hé.",
+   "feu": "Le feu ne le brûle pas. Garde tes flammes pour d'autres.",
+   "ombre_lame": "Sa lame est trempée dans l'ombre : elle te blesse aussi avec des ténèbres.",
+   "perforant": "Les pointes, les flèches, les lances ? Elles ne le percent pas.",
+   "froid": "Le froid ne le ralentit pas. Il est déjà plus froid que la glace.",
+   "contondant": "Les masses rebondissent sur lui. Tu peux taper, il ne plie pas.",
+   "foudre": "La foudre ne l'arrête pas. Elle le fait à peine frissonner.",
+   "mana": "Quand sa lame te touche, elle peut aspirer ta magie... et user tes forces.",
+   "arcane": "L'arcane ? Il s'en moque. La magie pure n'a pas de prise sur lui.",
+   "fuir": "Inutile de chercher à l'affronter. Fuis. Il vaut toujours mieux fuir.",
+   "ombre": "L'ombre ne lui fait rien : il en est fait.",
+   "chaos": "Même le chaos ne le blesse pas. Rien ne le blesse vraiment.",
+   "bruit": "Et surtout, pas de bruit ! Le bruit l'attire : brise des chaînes... et il arrive."
+  },
+  "conseils": {
+   "ombre": "Reste immobile dans les coins les plus sombres : personne ne te verra. Marche dans l'ombre, et on te verra de moitié moins loin.",
+   "course": "Courir, c'est bruyant. Les gobelins de la salle t'entendent de loin.",
+   "piliers": "Les piliers et les obstacles coupent la vue. Mets-les entre toi et ceux qui te cherchent.",
+   "pacifiques": "Les gobelins qui lèvent les mains ne veulent pas se battre. Épargne-les, ils te le rendront. Tue-les trop souvent, et les Chevaliers de la mort se multiplieront.",
+   "geolier": "Le geôlier ne tue pas : il t'assomme et t'enferme au cachot. Tes affaires finissent dans un coffre, perdues, ou dans les poches de gobelins... sauf ton arme, toujours dans le coffre.",
+   "cachettes": "Certains murs cachent des choses : une petite lueur quand tu passes tout près. Les clés des salles fermées y dorment souvent.",
+   "succube": "Si tu croises une dame aux ailes de cuir, elle te vendra ce que tu veux. Le prix, c'est ta vie. Pour toujours.",
+   "fuite": "Un combat qui tourne mal ? Fuis. Ça ne marche pas toujours, mais c'est mieux que mourir.",
+   "suivre": "Ceux qui te poursuivent peuvent te suivre d'une salle à l'autre. Une porte ne suffit pas toujours."
+  },
+  "lore": [],
+  "affaires": {
+   "coffre": "Tes affaires ? Le geôlier les a jetées dans un coffre, {direction}. Ton or aussi. Hé hé.",
+   "porteur": "Un gobelin se promène avec certaines de tes affaires, {direction}. Il faudra les lui reprendre."
+  },
+  "etage": {
+   "gardien_faible": "Le boss de cet étage craint {element}.",
+   "gardien_fort": "Le boss de cet étage se moque {element}. Garde-les pour un autre.",
+   "geolier": "Le geôlier rôde {direction}. Évite-le si tu tiens à tes affaires.",
+   "pupitre": "Les livres du savoir dorment {direction}.",
+   "cachette": "Une cachette secrète attend {direction}. Regarde bien les murs !",
+   "chevalier": "Un Chevalier de la mort erre {direction}. Ne fais pas de bruit.",
+   "succube": "Une dame aux ailes de cuir attend {direction}.",
+   "cle_boss": "La clé du boss ? Une élite la garde sur elle. Elle rôde {direction}.",
+   "cle_boss_corps": "La clé du boss est restée sur un corps, {direction}. Fouille-le !",
+   "verrou": "Une salle fermée à clé se trouve {direction}."
+  },
+  "mensonges": {
+   "salle_secrete": "Il y a une salle secrète {direction}, derrière un mur qui sonne creux. Un trésor y dort depuis toujours.",
+   "coffre": "Un coffre plein d'or t'attend {direction}. Personne ne l'a encore ouvert. Hé hé.",
+   "arme_chevalier": "Quelque part dans ce donjon dort une lame bénie, la seule qui blesse vraiment le Chevalier de la mort. Trouve-la, et il tremblera devant toi !"
+  }
+ },
+ "rumeurs": {
+  "_nom": "Rumeurs (gobelin blessé, prisonnier enchaîné)",
+  "gardien": "Le boss de cet étage craint {faible}... mais il se moque {fort}. Hé hé.",
+  "etage": {
+   "geolier": "Le geôlier rôde {direction}.",
+   "verrou": "Une salle fermée à clé se trouve {direction}.",
+   "pupitre": "Les livres du savoir dorment {direction}.",
+   "cachette": "Une cachette secrète attend {direction}. Regarde bien les murs !",
+   "chevalier": "Un Chevalier de la mort erre {direction}. Ne fais pas de bruit."
+  },
+  "rien": "Cet étage ? Rien d'intéressant, rien du tout... ou peut-être que si.",
+  "faits": [
+   {"vrai": "Les gobelins qui lèvent les mains ne veulent pas se battre. Tue-les, et les Sans-Visage se multiplieront.",
+    "faux": "Les gobelins qui lèvent les mains cachent de l'or. Tue-les sans hésiter !"},
+   {"vrai": "Les Sans-Visage ne meurent pas. Fuis-les, toujours.",
+    "faux": "Les Sans-Visage craignent l'acier : frappe-les de toutes tes forces !"},
+   {"vrai": "Derrière un pilier, le geôlier ne te voit pas.",
+    "faux": "Le geôlier voit à travers la pierre. Te cacher ne sert à rien."},
+   {"vrai": "Qui court se fait entendre de loin. Marche, si tu veux rester discret.",
+    "faux": "Les gobelins sont sourds comme des pots. Cours tant que tu veux !"}
+  ]
+ },
+ "succube": {
+  "_nom": "Succube",
+  "accueil": "Une femme aux ailes de cuir vous sourit dans la pénombre. « Pas d'épée entre nous... Je peux te donner ce que tu désires. Il me faut seulement un peu de ta vie. » (PV max : {pv})",
+  "boutons": ["Petits pactes (25 % de vie)", "Grands pactes (50 % de vie)", "Partir"],
+  "effets_pactes": {
+   "voile": "jusqu'à la fin de l'étage, les ennemis voient deux fois moins loin, et vous restez caché dans l'ombre même en marchant",
+   "carte": "tout l'étage apparaît sur la carte, avec ses cachettes, ses geôliers et ses Chevaliers de la mort, jusqu'à la fin de l'étage",
+   "baiser": "la prochaine fois qu'un geôlier vous attrape, il vous lâche et s'enfuit",
+   "apaisement": "un Chevalier de la mort de cet étage disparaît",
+   "mort": "la prochaine fois que vous mourez, vous vous réveillez au cachot avec 1 PV, sans rien perdre"
+  },
+  "deja_scelle": "« Ce pacte, tu l'as déjà. Je ne vends pas deux fois la même chose. »",
+  "aucun_chevalier": "« Il n'y a rien de tel à apaiser dans cet étage... pas encore. »",
+  "pas_assez_de_vie": "« Il ne te reste pas assez de vie pour ça. Je ne veux pas d'un cadavre. »",
+  "confirmation": "« {pacte}, contre {prix} PV max. Pour toujours. Tu acceptes ? »",
+  "hesite": "« Tu hésites... Je suis patiente. »",
+  "alors": "« Alors ? »",
+  "scelle": "La succube s'efface dans un rire doux.",
+  "partir": "La succube vous regarde partir. « Tu reviendras. »"
+ },
+ "gobelin_blesse": {
+  "_nom": "Gobelin blessé",
+  "presentation": "Un gobelin gît contre le mur, une plaie ouverte au flanc. Il lève une main tremblante : « Pitié... pas moi... »",
+  "soigne": "Le gobelin se relève, incrédule. Avant de filer, il vous glisse {cadeau}.",
+  "sans_potion": "Vous n'avez rien pour le soigner. Il vous regarde partir.",
+  "epargne": "« Merci... » souffle-t-il. « {rumeur} »",
+  "acheve": "Vous l'achevez."
+ },
+ "prisonnier_enchaine": {
+  "_nom": "Prisonnier enchaîné",
+  "presentation": "Un homme maigre est enchaîné au mur. « Libérez-moi, par pitié... Je sais des choses sur ce donjon. »",
+  "libere": "Les chaînes cèdent dans un fracas qui résonne dans tout l'étage ! L'homme vous donne une clé volée aux gardes (clés : {cles}) et s'enfuit. « {rumeur} »",
+  "renseigne": "« {rumeur} »",
+  "laisse": "Vous le laissez à son sort."
+ },
+ "prisonnier_cellule": {
+  "_nom": "Prisonnier des cellules (sans quête)",
+  "presentation": "Un prisonnier vous regarde à travers les barreaux.",
+  "rien_a_dire": "Le prisonnier n'a rien à vous dire.",
+  "laisse": "Vous laissez le prisonnier à sa cellule.",
+  "tue": "Vous le tuez entre ses barreaux."
+ },
+ "autel": {
+  "_nom": "Autel de sang",
+  "presentation": "Un autel couvert de sang séché. Une voix murmure dans votre tête : « Ton sang... contre ma force. » ({pv} PV)",
+  "refus": "Vous vous détournez de l'autel.",
+  "trop_faible": "Vous êtes trop faible : l'autel prendrait votre vie.",
+  "offrande": "Le sang coule sur la pierre... et une force nouvelle vous envahit : {caracteristique} +1.",
+  "sec": "L'autel est sec. Il a eu ce qu'il voulait."
+ },
+ "pacifiques": {
+  "_nom": "Gobelins pacifiques",
+  "un": "Le gobelin lève les mains, terrorisé. « Pas de combat ! Pas de combat ! »",
+  "plusieurs": "Les {nombre} gobelins lèvent les mains, terrorisés. « Pas de combat ! Pas de combat ! »"
+ }
+}

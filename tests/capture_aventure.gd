@@ -176,7 +176,7 @@ func lancer() -> void:
 	joueur.points_de_vie = 40
 	var lignes := []
 	for cle in ["voile", "carte", "baiser"]:
-		lignes.append("%s (−%d PV max) : %s." % [Aventure.NOMS_PACTES[cle], Aventure.prix_pacte(joueur, cle), Rencontres.EFFETS_PACTES[cle]])
+		lignes.append("%s (−%d PV max) : %s." % [Aventure.NOMS_PACTES[cle], Aventure.prix_pacte(joueur, cle), Rencontres.effet_pacte(cle)])
 	dlg = Ecrans._ecran("ecran_dialogue").preparer("Succube", "\n".join(lignes), ["Voile", "Carte de chair", "Baiser du geôlier", "Retour"],
 		Ecrans.capture(), Rencontres.COULEUR_SUCCUBE)
 	racine.add_child(dlg)

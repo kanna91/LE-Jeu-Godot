@@ -19,7 +19,8 @@ extends RefCounted
 ## - **Succube** (un étage sur deux, pas de combat) : un pacte contre une part des PV max, pour toujours
 ##   (``Aventure.PACTES``), puis elle disparaît ; on peut refuser et revenir.
 ## Chaque choix est un acte de Karma.ACTES (karma ±, compté dans ``donjon.moralite`` : clémence, cruauté).
-## **Textes et valeurs choisis par Claude, à valider.**
+## **Textes** : ``donnees/dialogues.json`` (``Dialogues``, modifiables dans l'éditeur de zones, bouton « Dialogues »,
+## 2026-11-04). Commis de la cuisine et du cellier (2026-11-04) : ils expliquent la cuisine et où trouver des ingrédients.
 
 ## Autel : part des PV max offerts, et caractéristiques possibles.
 const SANG_AUTEL := 0.4
@@ -31,54 +32,43 @@ const DIABLOTIN_REPONSES := 2
 ## Part des réponses à « Cet étage ? » qui sont des mensonges sur le donjon (décision de l'utilisateur, 2026-10-27).
 const CHANCE_MENSONGE := 1.0 / 3.0
 ## Ce que les diablotins disent du Chevalier de la mort, dans cet ordre, **un élément à la fois** (demande de
-## l'utilisateur, 2026-10-31 : avant, la première réponse listait toutes ses résistances d'un coup) : [clé, texte].
+## l'utilisateur, 2026-10-31 : avant, la première réponse listait toutes ses résistances d'un coup) : [clé, texte]
+## (``diablotin/chevalier`` de dialogues.json, dans l'ordre du fichier).
 ## Ces informations vont au **glossaire du compte** (``Compte``) : elles ne sont jamais redites, même dans une autre
 ## partie. Fiche de l'utilisateur « chevalier de la mort.odt » ; règles dans ``Aventure.CHEVALIER``. Sa limite de
 ## dégâts subis (1 ou 2 par coup) reste **secrète** : aucun diablotin n'en parle (décision de l'utilisateur).
-const INFOS_CHEVALIER := [
-	["tranchant", "Le Chevalier de la mort ? Les lames glissent sur lui. Elles l'effleurent à peine."],
-	["lame", "Il frappe avec une grande lame... mais pas seulement avec elle. Hé hé."],
-	["feu", "Le feu ne le brûle pas. Garde tes flammes pour d'autres."],
-	["ombre_lame", "Sa lame est trempée dans l'ombre : elle te blesse aussi avec des ténèbres."],
-	["perforant", "Les pointes, les flèches, les lances ? Elles ne le percent pas."],
-	["froid", "Le froid ne le ralentit pas. Il est déjà plus froid que la glace."],
-	["contondant", "Les masses rebondissent sur lui. Tu peux taper, il ne plie pas."],
-	["foudre", "La foudre ne l'arrête pas. Elle le fait à peine frissonner."],
-	["mana", "Quand sa lame te touche, elle peut aspirer ta magie... et user tes forces."],
-	["arcane", "L'arcane ? Il s'en moque. La magie pure n'a pas de prise sur lui."],
-	["fuir", "Inutile de chercher à l'affronter. Fuis. Il vaut toujours mieux fuir."],
-	["ombre", "L'ombre ne lui fait rien : il en est fait."],
-	["chaos", "Même le chaos ne le blesse pas. Rien ne le blesse vraiment."],
-	["bruit", "Et surtout, pas de bruit ! Le bruit l'attire : brise des chaînes... et il arrive."],
-]
+static func infos_chevalier() -> Array:
+	var t := Dialogues.table("diablotin/chevalier")
+	return t.keys().map(func(k): return [k, String(t[k])])
+
+
 const NOM_CHEVALIER := "Chevalier de la mort"
-## Conseils sur les mécaniques du jeu : [clé, texte, ennemi] (textes de Claude, à valider). Un conseil qui parle
-## d'un ennemi (``ennemi`` non vide) est une information générale sur lui : il va aussi au glossaire du compte et
-## n'est jamais redit, même dans une autre partie ; les autres ne valent que pour la partie.
-const ASTUCES := [
-	["ombre", "Reste immobile dans les coins les plus sombres : personne ne te verra. Marche dans l'ombre, et on te verra de moitié moins loin.", ""],
-	["course", "Courir, c'est bruyant. Les gobelins de la salle t'entendent de loin.", "Gobelins"],
-	["piliers", "Les piliers et les obstacles coupent la vue. Mets-les entre toi et ceux qui te cherchent.", ""],
-	["pacifiques", "Les gobelins qui lèvent les mains ne veulent pas se battre. Épargne-les, ils te le rendront. Tue-les trop souvent, et les Chevaliers de la mort se multiplieront.", "Gobelins"],
-	["geolier", "Le geôlier ne tue pas : il t'assomme et t'enferme au cachot. Tes affaires finissent dans un coffre, perdues, ou dans les poches de gobelins... sauf ton arme, toujours dans le coffre.", "Geôlier"],
-	["cachettes", "Certains murs cachent des choses : une petite lueur quand tu passes tout près. Les clés des salles fermées y dorment souvent.", ""],
-	["succube", "Si tu croises une dame aux ailes de cuir, elle te vendra ce que tu veux. Le prix, c'est ta vie. Pour toujours.", ""],
-	["fuite", "Un combat qui tourne mal ? Fuis. Ça ne marche pas toujours, mais c'est mieux que mourir.", ""],
-	["suivre", "Ceux qui te poursuivent peuvent te suivre d'une salle à l'autre. Une porte ne suffit pas toujours.", ""],
-]
-## Lore du jeu et des personnages, raconté par les diablotins : [clé, texte] (à écrire par l'utilisateur).
-const LORE := []
-const SUJETS_DIABLOTIN := {"affaires": "Mes affaires ?", "chevalier": "Le Chevalier de la mort ?", "etage": "Cet étage ?",
-	"autre": "Autre chose ?"}
+## Conseils sur les mécaniques du jeu : [clé, texte, ennemi] (``diablotin/conseils`` de dialogues.json). Un conseil
+## qui parle d'un ennemi (ENNEMIS_CONSEILS) est une information générale sur lui : il va aussi au glossaire du compte
+## et n'est jamais redit, même dans une autre partie ; les autres ne valent que pour la partie.
+const ENNEMIS_CONSEILS := {"course": "Gobelins", "pacifiques": "Gobelins", "geolier": "Geôlier"}
+
+
+static func astuces() -> Array:
+	var t := Dialogues.table("diablotin/conseils")
+	return t.keys().map(func(k): return [k, String(t[k]), ENNEMIS_CONSEILS.get(k, "")])
+
+
+## Lore du jeu et des personnages, raconté par les diablotins : [clé, texte] (``diablotin/lore``, à écrire par
+## l'utilisateur ; clé : numéro de la ligne).
+static func lore() -> Array:
+	var l := Dialogues.liste("diablotin/lore")
+	var r := []
+	for k in l.size():
+		if String(l[k]).strip_edges() != "":
+			r.append([str(k), String(l[k])])
+	return r
+
+
 const COULEUR_SUCCUBE := Color8(215, 120, 210)
-## Ce que fait chaque pacte, dit au joueur.
-const EFFETS_PACTES := {
-	"voile": "jusqu'à la fin de l'étage, les ennemis voient deux fois moins loin, et vous restez caché dans l'ombre même en marchant",
-	"carte": "tout l'étage apparaît sur la carte, avec ses cachettes, ses geôliers et ses Chevaliers de la mort, jusqu'à la fin de l'étage",
-	"baiser": "la prochaine fois qu'un geôlier vous attrape, il vous lâche et s'enfuit",
-	"apaisement": "un Chevalier de la mort de cet étage disparaît",
-	"mort": "la prochaine fois que vous mourez, vous vous réveillez au cachot avec 1 PV, sans rien perdre",
-}
+## Ce que fait chaque pacte, dit au joueur (``succube/effets_pactes``).
+static func effet_pacte(cle: String) -> String:
+	return Dialogues.texte("succube/effets_pactes/" + cle)
 
 
 ## Sorties d'une salle peinte, vues par le héros (toujours tourné vers le nord, comme la carte).
@@ -179,20 +169,20 @@ static func phrase(donjon, sujet: String, vraie: bool) -> String:
 				autres.erase(faible)
 				fort = faible
 				faible = autres.pick_random()
-			return "Le boss de cet étage craint %s... mais il se moque %s. Hé hé." % [
-				Aventure.NOMS_ELEMENTS[faible], Aventure.NOMS_ELEMENTS_DE[fort]]
+			return Dialogues.texte("rumeurs/gardien", {"faible": Aventure.NOMS_ELEMENTS[faible],
+				"fort": Aventure.NOMS_ELEMENTS_DE[fort]})
 		"etage":
 			var sujets := [
-				["Le geôlier rôde %s.", func(p): return p["genre"] == "geolier"],
-				["Une salle fermée à clé se trouve %s.", func(_p): return false],
-				["Les livres du savoir dorment %s.", func(p): return p.get("sous") == "pupitre"],
-				["Une cachette secrète attend %s. Regarde bien les murs !", func(p): return p.get("sous") == "cachette"],
-				["Un Chevalier de la mort erre %s. Ne fais pas de bruit.", func(p): return p["genre"] == "imbattable"],
+				["geolier", func(p): return p["genre"] == "geolier"],
+				["verrou", func(_p): return false],
+				["pupitre", func(p): return p.get("sous") == "pupitre"],
+				["cachette", func(p): return p.get("sous") == "cachette"],
+				["chevalier", func(p): return p["genre"] == "imbattable"],
 			]
 			sujets.shuffle()
 			for s in sujets:
 				var cible := ""
-				if s[0].begins_with("Une salle fermée"):
+				if s[0] == "verrou":
 					for i in donjon.plan_donjon[int(donjon.salle_actuelle[0])]:
 						if donjon.plan_donjon[int(donjon.salle_actuelle[0])][i].get("verrouillee", false):
 							cible = i
@@ -201,21 +191,14 @@ static func phrase(donjon, sujet: String, vraie: bool) -> String:
 				if cible == "":
 					continue
 				var dir := direction(donjon, cible)
-				return s[0] % (dir if vraie else _direction_fausse(donjon, dir))
-			return "Cet étage ? Rien d'intéressant, rien du tout... ou peut-être que si."
+				return Dialogues.texte("rumeurs/etage/" + s[0], {"direction": dir if vraie else _direction_fausse(donjon, dir)})
+			return Dialogues.texte("rumeurs/rien")
 		_:
-			var faits := [
-				["Les gobelins qui lèvent les mains ne veulent pas se battre. Tue-les, et les Sans-Visage se multiplieront.",
-					"Les gobelins qui lèvent les mains cachent de l'or. Tue-les sans hésiter !"],
-				["Les Sans-Visage ne meurent pas. Fuis-les, toujours.",
-					"Les Sans-Visage craignent l'acier : frappe-les de toutes tes forces !"],
-				["Derrière un pilier, le geôlier ne te voit pas.",
-					"Le geôlier voit à travers la pierre. Te cacher ne sert à rien."],
-				["Qui court se fait entendre de loin. Marche, si tu veux rester discret.",
-					"Les gobelins sont sourds comme des pots. Cours tant que tu veux !"],
-			]
-			var f: Array = faits.pick_random()
-			return f[0] if vraie else f[1]
+			var faits := Dialogues.liste("rumeurs/faits")
+			if faits.is_empty():
+				return Dialogues.texte("rumeurs/rien")
+			var f: Dictionary = faits.pick_random()
+			return String(f.get("vrai" if vraie else "faux", ""))
 
 
 ## Ajoute une information au journal du joueur (écran Journal) : ``sujet`` (titre de la rubrique), ``texte``.
@@ -242,17 +225,17 @@ static func infos_diablotin(donjon, sujet: String) -> Array:
 	match sujet:
 		"chevalier":
 			# Un élément à la fois, dans l'ordre ; ce que le compte sait déjà n'est jamais redit
-			for info in INFOS_CHEVALIER:
+			for info in infos_chevalier():
 				var cle: String = "chevalier/" + info[0]
 				if not dits.has(cle) and not Compte.connu(cle):
 					liste.append([cle, info[1], NOM_CHEVALIER])
 					break
 		"autre":
-			for a in ASTUCES:
+			for a in astuces():
 				var cle: String = "astuce/" + a[0]
 				if not dits.has(cle) and not (a[2] != "" and Compte.connu(cle)):
 					liste.append([cle, a[1], "Conseils"])
-			for l in LORE:
+			for l in lore():
 				if not dits.has("lore/" + l[0]):
 					liste.append(["lore/" + l[0], l[1], "Histoires du donjon"])
 		"affaires":
@@ -262,34 +245,32 @@ static func infos_diablotin(donjon, sujet: String) -> Array:
 						continue
 					var cle := "affaires/%d/%s" % [etage, p.get("id")]
 					if p.get("sous") == "coffre_confisque" and not dits.has(cle):
-						liste.append([cle, "Tes affaires ? Le geôlier les a jetées dans un coffre, %s. Ton or aussi. Hé hé." % direction(donjon, i), "Tes affaires"])
+						liste.append([cle, Dialogues.texte("diablotin/affaires/coffre", {"direction": direction(donjon, i)}), "Tes affaires"])
 					elif p.get("genre") == "porteur" and not p.get("objets", []).is_empty() and not dits.has(cle):
-						liste.append([cle, "Un gobelin se promène avec certaines de tes affaires, %s. Il faudra les lui reprendre." % direction(donjon, i), "Tes affaires"])
+						liste.append([cle, Dialogues.texte("diablotin/affaires/porteur", {"direction": direction(donjon, i)}), "Tes affaires"])
 		"etage":
 			var m := Aventure.meta(donjon, etage)
 			var rubrique := "Étage %d" % etage
 			var faits := []
 			if m.has("boss_faiblesse"):
-				faits.append(["gardien_faible", "Le boss de cet étage craint %s." % Aventure.NOMS_ELEMENTS[m["boss_faiblesse"]]])
-				faits.append(["gardien_fort", "Le boss de cet étage se moque %s. Garde-les pour un autre." % Aventure.NOMS_ELEMENTS_DE[m["boss_force"]]])
+				faits.append(["gardien_faible", Dialogues.texte("diablotin/etage/gardien_faible", {"element": Aventure.NOMS_ELEMENTS[m["boss_faiblesse"]]})])
+				faits.append(["gardien_fort", Dialogues.texte("diablotin/etage/gardien_fort", {"element": Aventure.NOMS_ELEMENTS_DE[m["boss_force"]]})])
 			var reperes := [
-				["geolier", "Le geôlier rôde %s. Évite-le si tu tiens à tes affaires.", func(p): return p["genre"] == "geolier"],
-				["pupitre", "Les livres du savoir dorment %s.", func(p): return p.get("sous") == "pupitre"],
-				["cachette", "Une cachette secrète attend %s. Regarde bien les murs !", func(p): return p.get("sous") == "cachette"],
-				["chevalier", "Un Chevalier de la mort erre %s. Ne fais pas de bruit.", func(p): return p["genre"] == "imbattable"],
-				["succube", "Une dame aux ailes de cuir attend %s.", func(p): return p.get("sous") == "succube"],
-				["cle_boss", "La clé du boss ? Une élite la garde sur elle. Elle rôde %s.",
-					func(p): return p.has("cle_boss") and p["genre"] == "groupe" and p.get("etat") == "actif"],
-				["cle_boss_corps", "La clé du boss est restée sur un corps, %s. Fouille-le !",
-					func(p): return p.has("cle_boss") and p.get("sous") == "cadavre" and not p.get("cle_prise", false)],
+				["geolier", func(p): return p["genre"] == "geolier"],
+				["pupitre", func(p): return p.get("sous") == "pupitre"],
+				["cachette", func(p): return p.get("sous") == "cachette"],
+				["chevalier", func(p): return p["genre"] == "imbattable"],
+				["succube", func(p): return p.get("sous") == "succube"],
+				["cle_boss", func(p): return p.has("cle_boss") and p["genre"] == "groupe" and p.get("etat") == "actif"],
+				["cle_boss_corps", func(p): return p.has("cle_boss") and p.get("sous") == "cadavre" and not p.get("cle_prise", false)],
 			]
 			for r in reperes:
-				var salle := _salle_avec(donjon, r[2])
+				var salle := _salle_avec(donjon, r[1])
 				if salle != "":
-					faits.append([r[0], r[1] % direction(donjon, salle)])
+					faits.append([r[0], Dialogues.texte("diablotin/etage/" + r[0], {"direction": direction(donjon, salle)})])
 			for i in donjon.plan_donjon[etage]:
 				if donjon.plan_donjon[etage][i].get("verrouillee", false) and not donjon.plan_donjon[etage][i].get("cle_boss", false):
-					faits.append(["verrou", "Une salle fermée à clé se trouve %s." % direction(donjon, i)])
+					faits.append(["verrou", Dialogues.texte("diablotin/etage/verrou", {"direction": direction(donjon, i)})])
 					break
 			for f in faits:
 				var cle := "etage/%d/%s" % [etage, f[0]]
@@ -306,23 +287,19 @@ static func mensonges_diablotin(donjon) -> Array:
 	var etage := int(donjon.salle_actuelle[0])
 	var rubrique := "Étage %d" % etage
 	var liste := []
-	for r in [["pupitre", "Les livres du savoir dorment %s.", func(p): return p.get("sous") == "pupitre"],
-			["cachette", "Une cachette secrète attend %s. Regarde bien les murs !", func(p): return p.get("sous") == "cachette"]]:
+	for r in [["pupitre", func(p): return p.get("sous") == "pupitre"],
+			["cachette", func(p): return p.get("sous") == "cachette"]]:
 		var cle := "etage/%d/%s" % [etage, r[0]]
-		var salle := _salle_avec(donjon, r[2])
+		var salle := _salle_avec(donjon, r[1])
 		if salle != "" and not dits.has(cle):
-			liste.append(["mensonge/%d/%s" % [etage, r[0]], r[1] % _direction_fausse(donjon, direction(donjon, salle)), rubrique, [cle]])
-	var inventes := [
-		["salle_secrete", "Il y a une salle secrète %s, derrière un mur qui sonne creux. Un trésor y dort depuis toujours."],
-		["coffre", "Un coffre plein d'or t'attend %s. Personne ne l'a encore ouvert. Hé hé."],
-	]
-	for r in inventes:
-		var cle := "mensonge/%d/%s" % [etage, r[0]]
+			liste.append(["mensonge/%d/%s" % [etage, r[0]], Dialogues.texte("diablotin/etage/" + r[0],
+				{"direction": _direction_fausse(donjon, direction(donjon, salle))}), rubrique, [cle]])
+	for r in ["salle_secrete", "coffre"]:
+		var cle := "mensonge/%d/%s" % [etage, r]
 		if not dits.has(cle):
-			liste.append([cle, r[1] % _direction_fausse(donjon, ""), rubrique, []])
+			liste.append([cle, Dialogues.texte("diablotin/mensonges/" + r, {"direction": _direction_fausse(donjon, "")}), rubrique, []])
 	if not dits.has("mensonge/arme_chevalier"):
-		liste.append(["mensonge/arme_chevalier", "Quelque part dans ce donjon dort une lame bénie, la seule qui blesse " + \
-			"vraiment le Chevalier de la mort. Trouve-la, et il tremblera devant toi !", rubrique, []])
+		liste.append(["mensonge/arme_chevalier", Dialogues.texte("diablotin/mensonges/arme_chevalier"), rubrique, []])
 	return liste
 
 
@@ -349,10 +326,10 @@ static func repondre(donjon, sujet: String) -> Array:
 ## Vrai si l'information ``cle`` sur un ennemi fait toujours partie du jeu (le glossaire d'un compte peut garder
 ## une information retirée depuis, comme la limite de dégâts du Chevalier, apprise en v0.3 : elle n'est plus montrée).
 static func info_ennemi_valide(cle: String) -> bool:
-	for info in INFOS_CHEVALIER:
+	for info in infos_chevalier():
 		if "chevalier/" + info[0] == cle:
 			return true
-	for a in ASTUCES:
+	for a in astuces():
 		if "astuce/" + a[0] == cle and a[2] != "":
 			return true
 	return false
@@ -363,9 +340,7 @@ static func ennemi_de(cle: String) -> String:
 	if cle.begins_with("chevalier/"):
 		return NOM_CHEVALIER
 	if cle.begins_with("astuce/"):
-		for a in ASTUCES:
-			if "astuce/" + a[0] == cle:
-				return a[2]
+		return ENNEMIS_CONSEILS.get(cle.trim_prefix("astuce/"), "")
 	return ""
 
 
@@ -373,12 +348,12 @@ static func ennemi_de(cle: String) -> String:
 static func accueil_diablotin(joueur) -> String:
 	var k := Karma.valeur(joueur)
 	if k <= -Karma.PALIER:
-		return "Le diablotin recule en sifflant. « Toi... Je sais ce que tu as fait. Une question, peut-être deux. Pas plus. »"
+		return Dialogues.texte("diablotin/accueil/cruel")
 	if k < 0:
-		return "Le diablotin te jauge, méfiant. « Hmm. Pose tes questions. Vite. »"
+		return Dialogues.texte("diablotin/accueil/mefiant")
 	if k >= Karma.PALIER:
-		return "Le diablotin bat joyeusement des ailes. « Ah, c'est toi ! On parle de ta bonté jusque dans les murs. Demande, demande ! »"
-	return "Un petit diablotin rouge ricane en voletant. « Tu veux savoir des choses, hein ? Pose tes questions... mais pas trop. »"
+		return Dialogues.texte("diablotin/accueil/bon")
+	return Dialogues.texte("diablotin/accueil/neutre")
 
 
 ## Conversation avec un diablotin : il répond à DIABLOTIN_REPONSES questions au plus (une information nouvelle
@@ -392,13 +367,13 @@ static func diablotin(donjon, p: Dictionary) -> String:
 			if not infos_diablotin(donjon, sujet).is_empty() or (sujet == "etage" and not mensonges_diablotin(donjon).is_empty()):
 				sujets.append(sujet)
 		if sujets.is_empty():
-			texte = "« Je n'ai plus rien à t'apprendre... pour l'instant. »"
+			texte = Dialogues.texte("diablotin/rien_a_dire")
 			await Ecrans.dialogue("Diablotin", texte, ["Partir"], COULEUR_DIABLOTIN)
 			break
 		sujets = sujets.slice(0, 3)
 		var boutons := []
 		for sujet in sujets:
-			boutons.append(SUJETS_DIABLOTIN[sujet])
+			boutons.append(Dialogues.texte("diablotin/sujets/" + sujet))
 		boutons.append("Partir")
 		var choix := await Ecrans.dialogue("Diablotin", texte, boutons, COULEUR_DIABLOTIN)
 		if choix >= sujets.size():
@@ -407,33 +382,34 @@ static func diablotin(donjon, p: Dictionary) -> String:
 		reponses += 1
 		texte = "« %s »" % info[1]
 		if reponses >= DIABLOTIN_REPONSES:
-			await Ecrans.dialogue("Diablotin", texte + "\n(Noté dans votre journal : touche J.)", ["..."], COULEUR_DIABLOTIN)
+			await Ecrans.dialogue("Diablotin", texte + "\n" + Dialogues.texte("diablotin/note_journal"), ["..."], COULEUR_DIABLOTIN)
 		else:
-			texte += "\n(Noté dans votre journal : touche J.)"
+			texte += "\n" + Dialogues.texte("diablotin/note_journal")
 		if Ecrans.auto:
 			break
 	if reponses == 0:
-		return "Le diablotin hausse les épaules et reste là, à ricaner."
+		return Dialogues.texte("diablotin/reste")
 	p["etat"] = "utilise"
-	return "Le diablotin disparaît dans un nuage de soufre... avec un petit rire. (Journal : J)"
+	return Dialogues.texte("diablotin/disparait")
 
 
 ## Conversation avec une succube : petits pactes (25 % des PV max) ou grands (50 %), confirmation, puis elle
 ## disparaît. Renvoie le message de fin.
 static func succube(donjon, p: Dictionary) -> String:
 	var joueur = donjon.personnage
-	var texte := "Une femme aux ailes de cuir vous sourit dans la pénombre. « Pas d'épée entre nous... Je peux te " + \
-		"donner ce que tu désires. Il me faut seulement un peu de ta vie. » (PV max : %d)" % joueur.points_de_vie_max
+	var texte := Dialogues.texte("succube/accueil", {"pv": joueur.points_de_vie_max})
+	var boutons_accueil := Dialogues.liste("succube/boutons")
+	if boutons_accueil.size() != 3:
+		boutons_accueil = ["Petits pactes (25 % de vie)", "Grands pactes (50 % de vie)", "Partir"]
 	while true:
-		var choix := await Ecrans.dialogue("Succube", texte, ["Petits pactes (25 % de vie)", "Grands pactes (50 % de vie)",
-			"Partir"], COULEUR_SUCCUBE)
+		var choix := await Ecrans.dialogue("Succube", texte, boutons_accueil, COULEUR_SUCCUBE)
 		if choix == 2:
 			break
 		var liste: Array = ["voile", "carte", "baiser"] if choix == 0 else ["apaisement", "mort"]
 		var lignes := []
 		var boutons := []
 		for cle in liste:
-			lignes.append("%s (−%d PV max) : %s." % [Aventure.NOMS_PACTES[cle], Aventure.prix_pacte(joueur, cle), EFFETS_PACTES[cle]])
+			lignes.append("%s (−%d PV max) : %s." % [Aventure.NOMS_PACTES[cle], Aventure.prix_pacte(joueur, cle), effet_pacte(cle)])
 			var raison := Aventure.pacte_impossible(donjon, cle)
 			boutons.append(Aventure.NOMS_PACTES[cle] + ("" if raison == "" else " (%s)" % raison))
 		boutons.append("Retour")
@@ -442,21 +418,20 @@ static func succube(donjon, p: Dictionary) -> String:
 			var cle: String = liste[pacte]
 			var raison := Aventure.pacte_impossible(donjon, cle)
 			if raison != "":
-				texte = {"déjà scellé": "« Ce pacte, tu l'as déjà. Je ne vends pas deux fois la même chose. »",
-					"aucun Chevalier de la mort ici": "« Il n'y a rien de tel à apaiser dans cet étage... pas encore. »",
-					"pas assez de vie": "« Il ne te reste pas assez de vie pour ça. Je ne veux pas d'un cadavre. »"}[raison]
+				texte = Dialogues.texte("succube/" + {"déjà scellé": "deja_scelle", "aucun Chevalier de la mort ici": "aucun_chevalier",
+					"pas assez de vie": "pas_assez_de_vie"}.get(raison, "alors"))
 			else:
-				var oui := await Ecrans.dialogue("Succube", "« %s, contre %d PV max. Pour toujours. Tu acceptes ? »" % [
-					Aventure.NOMS_PACTES[cle], Aventure.prix_pacte(joueur, cle)], ["Sceller le pacte", "Renoncer"], COULEUR_SUCCUBE)
+				var oui := await Ecrans.dialogue("Succube", Dialogues.texte("succube/confirmation", {"pacte": Aventure.NOMS_PACTES[cle],
+					"prix": Aventure.prix_pacte(joueur, cle)}), ["Sceller le pacte", "Renoncer"], COULEUR_SUCCUBE)
 				if oui == 0:
 					p["etat"] = "utilise"
-					return Aventure.sceller_pacte(donjon, cle) + " La succube s'efface dans un rire doux."
-				texte = "« Tu hésites... Je suis patiente. »"
+					return Aventure.sceller_pacte(donjon, cle) + " " + Dialogues.texte("succube/scelle")
+				texte = Dialogues.texte("succube/hesite")
 		else:
-			texte = "« Alors ? »"
+			texte = Dialogues.texte("succube/alors")
 		if Ecrans.auto:
 			break
-	return "La succube vous regarde partir. « Tu reviendras. »"
+	return Dialogues.texte("succube/partir")
 
 
 # ---------------------------------------------------------------------------
@@ -481,20 +456,19 @@ static func _cle_ou_livre(joueur, etage := 1) -> String:
 static func gobelin_blesse(donjon, p: Dictionary) -> String:
 	var joueur = donjon.personnage
 	var potion = _potion(joueur)
-	var choix := await Ecrans.dialogue("Gobelin blessé", "Un gobelin gît contre le mur, une plaie ouverte au flanc. " + \
-		"Il lève une main tremblante : « Pitié... pas moi... »",
+	var choix := await Ecrans.dialogue("Gobelin blessé", Dialogues.texte("gobelin_blesse/presentation"),
 		["Le soigner (une potion)" if potion != null else "Le soigner (aucune potion)", "L'épargner et partir", "L'achever"])
 	if choix == 0 and potion != null:
 		joueur.retirer_objet_inventaire(potion)
 		p["etat"] = "utilise"
 		Karma.acte(donjon, "soigner_gobelin_blesse")
-		return "Le gobelin se relève, incrédule. Avant de filer, il vous glisse %s." % _cle_ou_livre(joueur, int(donjon.salle_actuelle[0]))
+		return Dialogues.texte("gobelin_blesse/soigne", {"cadeau": _cle_ou_livre(joueur, int(donjon.salle_actuelle[0]))})
 	if choix == 0:
-		return "Vous n'avez rien pour le soigner. Il vous regarde partir."
+		return Dialogues.texte("gobelin_blesse/sans_potion")
 	if choix == 1:
 		p["etat"] = "utilise"
 		Karma.acte(donjon, "epargner_gobelin_blesse")
-		return "« Merci... » souffle-t-il. « %s »" % phrase(donjon, "etage", true)
+		return Dialogues.texte("gobelin_blesse/epargne", {"rumeur": phrase(donjon, "etage", true)})
 	Statistiques.noter(joueur, "pacifiques_tues")
 	# Son corps reste là : on peut le fouiller et siphonner son âme
 	var sorte: String = PresencesSalle.SORTES_GOBELINS[int(p.get("id", 0)) * 7 % PresencesSalle.SORTES_GOBELINS.size()]
@@ -506,7 +480,7 @@ static func gobelin_blesse(donjon, p: Dictionary) -> String:
 	p["nom_corps"] = "le gobelin"
 	p["membres"] = [{"sous_classe": CombatAnime.TYPES.find_key(sorte)}]
 	p["t_mort"] = Animations.temps()  # son animation de mort reprend là où il s'était effondré
-	return ("Vous l'achevez. " + Karma.acte(donjon, "achever_gobelin_blesse")).strip_edges()
+	return (Dialogues.texte("gobelin_blesse/acheve") + " " + Karma.acte(donjon, "achever_gobelin_blesse")).strip_edges()
 
 
 # ---------------------------------------------------------------------------
@@ -568,7 +542,7 @@ static func prisonnier_a_quete(donjon, p: Dictionary) -> Array:
 static func _prisonnier_ordinaire(donjon, p: Dictionary) -> String:
 	var t := textes_prisonniers()
 	var accueil: Array = t.get("accueil", [])
-	var texte: String = accueil.pick_random() if not accueil.is_empty() else "Un prisonnier vous regarde à travers les barreaux."
+	var texte: String = accueil.pick_random() if not accueil.is_empty() else Dialogues.texte("prisonnier_cellule/presentation")
 	var choix := await Ecrans.dialogue("Prisonnier", texte, ["Parler", "Le tuer", "Partir"], Color8(170, 160, 140))
 	if choix == 0:
 		var dits := _dits(donjon)
@@ -579,10 +553,10 @@ static func _prisonnier_ordinaire(donjon, p: Dictionary) -> String:
 				var info := String(t["informations"][k])
 				noter_journal(donjon, "Prisonniers", info)
 				return "« %s »" % info
-		return "Le prisonnier n'a rien à vous dire."
+		return Dialogues.texte("prisonnier_cellule/rien_a_dire")
 	if choix == 1:
 		return _tuer_prisonnier(donjon, p)
-	return "Vous laissez le prisonnier à sa cellule."
+	return Dialogues.texte("prisonnier_cellule/laisse")
 
 
 ## Le héros tue le prisonnier entre ses barreaux (karma −1) : il devient un corps dont l'âme se siphonne.
@@ -595,42 +569,39 @@ static func _tuer_prisonnier(donjon, p: Dictionary) -> String:
 	p["humain"] = true
 	p["nom_corps"] = "le prisonnier"
 	p["t_mort"] = Animations.temps()
-	return ("Vous le tuez entre ses barreaux. " + Karma.acte(donjon, "tuer_prisonnier_cellule")).strip_edges()
+	return (Dialogues.texte("prisonnier_cellule/tue") + " " + Karma.acte(donjon, "tuer_prisonnier_cellule")).strip_edges()
 
 
 ## Prisonnier enchaîné ; renvoie [message, bruit] (bruit : les ennemis de la salle accourent).
 static func prisonnier(donjon, p: Dictionary) -> Array:
 	var joueur = donjon.personnage
-	var choix := await Ecrans.dialogue("Prisonnier", "Un homme maigre est enchaîné au mur. « Libérez-moi, par pitié... " + \
-		"Je sais des choses sur ce donjon. »", ["Briser ses chaînes (bruyant)", "Lui demander ce qu'il sait", "Le laisser"])
+	var choix := await Ecrans.dialogue("Prisonnier", Dialogues.texte("prisonnier_enchaine/presentation"), ["Briser ses chaînes (bruyant)", "Lui demander ce qu'il sait", "Le laisser"])
 	if choix == 0:
 		p["etat"] = "utilise"
 		Karma.acte(donjon, "liberer_prisonnier")
 		joueur._d["cles"] = int(U.ga(joueur, "cles", 0)) + 1
-		return ["Les chaînes cèdent dans un fracas qui résonne dans tout l'étage ! L'homme vous donne une clé volée aux " +
-			"gardes (clés : %d) et s'enfuit. « %s »" % [joueur.cles, phrase(donjon, "gardien", true)], true]
+		return [Dialogues.texte("prisonnier_enchaine/libere", {"cles": joueur.cles, "rumeur": phrase(donjon, "gardien", true)}), true]
 	if choix == 1:
-		return ["« %s »" % phrase(donjon, ["gardien", "etage"].pick_random(), true), false]
-	return ["Vous le laissez à son sort.", false]
+		return [Dialogues.texte("prisonnier_enchaine/renseigne", {"rumeur": phrase(donjon, ["gardien", "etage"].pick_random(), true)}), false]
+	return [Dialogues.texte("prisonnier_enchaine/laisse"), false]
 
 
 ## Autel de sang ; renvoie le message de fin.
 static func autel(donjon, p: Dictionary) -> String:
 	var joueur = donjon.personnage
 	var perte := int(ceil(joueur.points_de_vie_max * SANG_AUTEL))
-	var choix := await Ecrans.dialogue("Autel de sang", "Un autel couvert de sang séché. Une voix murmure dans votre tête : " + \
-		"« Ton sang... contre ma force. » (%d PV)" % perte, ["Offrir votre sang", "Refuser"], Color8(200, 60, 60))
+	var choix := await Ecrans.dialogue("Autel de sang", Dialogues.texte("autel/presentation", {"pv": perte}), ["Offrir votre sang", "Refuser"], Color8(200, 60, 60))
 	if choix != 0:
-		return "Vous vous détournez de l'autel."
+		return Dialogues.texte("autel/refus")
 	if joueur.points_de_vie <= perte:
-		return "Vous êtes trop faible : l'autel prendrait votre vie."
+		return Dialogues.texte("autel/trop_faible")
 	joueur.points_de_vie -= perte
 	Statistiques.noter(joueur, "degats_subis", perte)
 	var cle: String = CARACTERISTIQUES.keys().pick_random()
 	joueur._d[cle] = int(U.ga(joueur, cle, 0)) + 1
 	joueur.calculer_stats()
 	p["etat"] = "utilise"
-	return "Le sang coule sur la pierre... et une force nouvelle vous envahit : %s +1." % CARACTERISTIQUES[cle]
+	return Dialogues.texte("autel/offrande", {"caracteristique": CARACTERISTIQUES[cle]})
 
 
 ## Parle à un personnage ; renvoie [message, bruit].
@@ -646,9 +617,11 @@ static func parler(donjon, p: Dictionary) -> Array:
 			return await prisonnier_cellule(donjon, p)
 		"succube":
 			return [await succube(donjon, p), false]
+		"commis":
+			return [await commis(donjon, p), false]
 		"autel":
 			if p.get("etat") != "actif":
-				return ["L'autel est sec. Il a eu ce qu'il voulait.", false]
+				return [Dialogues.texte("autel/sec"), false]
 			return [await autel(donjon, p), false]
 	return ["", false]
 
@@ -685,7 +658,33 @@ static func epargner_pacifiques(donjon, p: Dictionary) -> String:
 ## Groupe de gobelins pacifiques touché : [attaquer ?]. Vrai : le joueur choisit de les attaquer.
 static func pacifiques(_donjon, p: Dictionary) -> bool:
 	var n := int(p.get("nombre", 1))
-	var choix := await Ecrans.dialogue("Gobelins pacifiques", ("Le gobelin" if n == 1 else "Les %d gobelins" % n) + \
-		" lève%s les mains, terrorisé%s. « Pas de combat ! Pas de combat ! »" % ["" if n == 1 else "nt", "" if n == 1 else "s"],
-		["Les laisser partir", "Les attaquer"])
+	var choix := await Ecrans.dialogue("Gobelins pacifiques", Dialogues.texte("pacifiques/un") if n == 1 \
+		else Dialogues.texte("pacifiques/plusieurs", {"nombre": n}), ["Les laisser partir", "Les attaquer"])
 	return choix == 1
+
+
+# ---------------------------------------------------------------------------
+# Commis (2026-11-04, animations de l'utilisateur)
+# ---------------------------------------------------------------------------
+
+const COULEUR_COMMIS := Color8(205, 170, 120)
+
+
+## Commis de la cuisine (comment on cuisine) ou du cellier (où trouver des ingrédients) : sa présentation, puis
+## « Comment on cuisine ? » / « Où trouver des ingrédients ? » : ses explications, une bulle par ligne
+## (``commis_<role>`` de dialogues.json). On peut lui reparler autant qu'on veut. Renvoie le message de fin.
+static func commis(_donjon, p: Dictionary) -> String:
+	var role := "commis_" + String(p.get("role", "cuisine"))
+	var nom := Dialogues.texte(role + "/nom")
+	var boutons := Dialogues.liste(role + "/boutons")
+	if boutons.size() < 2:
+		boutons = ["Parler", "Partir"]
+	var choix := await Ecrans.dialogue(nom, Dialogues.texte(role + "/presentation"), boutons, COULEUR_COMMIS)
+	if choix != 0:
+		return ""
+	var lignes := Dialogues.liste(role + "/explications")
+	for k in lignes.size():
+		var r := await Ecrans.dialogue(nom, String(lignes[k]), ["…" if k < lignes.size() - 1 else "Merci", "Partir"], COULEUR_COMMIS)
+		if r != 0 or Ecrans.auto:
+			break
+	return Dialogues.texte(role + "/fin")

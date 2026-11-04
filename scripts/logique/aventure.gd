@@ -414,6 +414,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 	ecarter_des_salles_paisibles(donjon, etage)
 	_fixer_elites(donjon, etage, m)
 	_poser_prisonniers(donjon, etage, m)
+	poser_commis(donjon, etage)
 	_poser_cle_boss(donjon, etage, m, salles_pour_ennemis(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
 	Karma.synchroniser(donjon)  # vitesse des Chevaliers de la mort de ce nouvel étage selon le karma
 
@@ -440,6 +441,37 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 			salles[i]["presences"].append(isole)
 	_fixer_elites(donjon, etage, m)
 	_poser_prisonniers(donjon, etage, m)
+
+
+## Commis (2026-11-04, demande de l'utilisateur) : un dans la cuisine du bloc cuisine (il explique la cuisine), un
+## dans le cellier droit (il dit où trouver des ingrédients). Place fixe dans l'image (pixels du fond de 768 px, choix
+## de Claude : devant les fourneaux, sur le tapis du fond du cellier). Ils ne bougent pas ; on leur parle (E).
+const COMMIS := {"bloc_cuisine_cuisine": {"role": "cuisine", "pos": [455, 352]},
+	"bloc_cuisine_cellier_d": {"role": "cellier", "pos": [520, 374]}}
+
+
+## Pose les commis dans les salles de l'étage dont l'image en a un (aussi à la lecture d'une salle : anciennes parties).
+static func poser_commis(donjon, etage: int) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	for i in salles:
+		_poser_commis_salle(donjon, etage, salles[i])
+
+
+static func _poser_commis_salle(donjon, etage: int, salle: Dictionary) -> void:
+	var info: Dictionary = salle.get("salle_peinte", {})
+	var image := String(info.get("image", ""))
+	if not COMMIS.has(image):
+		return
+	if not salle.has("presences"):
+		salle["presences"] = []
+	for p in salle["presences"]:
+		if p.get("sous", "") == "commis":
+			return
+	var miroir := bool(info.get("miroir", false))
+	var pos: Array = COMMIS[image]["pos"]
+	salle["presences"].append({"id": _nouvel_id(meta(donjon, etage)), "genre": "pnj", "sous": "commis", "etat": "actif",
+		"role": COMMIS[image]["role"], "pos": [768.0 - float(pos[0]) if miroir else float(pos[0]), float(pos[1])],
+		"pos_image": "%s%s" % [image, "_m" if miroir else ""]})
 
 
 ## Prisonniers des cellules (ébauche, 2026-11-01) : un prisonnier par **zone de dialogue** « prisonniers » de l'image
@@ -605,6 +637,7 @@ static func presences(donjon, salle: Dictionary) -> Array:
 		salle["presences"] = salle.get("presences", []).filter(func(q): return not (q.get("genre", "") in HORS_CRYPTES))
 	if salle_paisible(salle) or Zones.refuge(salle):
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
+	_poser_commis_salle(donjon, int(donjon.salle_actuelle[0]), salle)  # parties d'avant les commis
 	var liste := []
 	for p in salle.get("presences", []):
 		if p.get("etat", "actif") == "actif" or (p["genre"] == "objet" and not p["sous"] in ["cachette", "cadavre", "objet_quete"]):
@@ -974,7 +1007,7 @@ static func cadavre(donjon, p: Dictionary) -> String:
 		var action: String = boutons[choix] if choix < boutons.size() else "Partir"
 		if action.begins_with("Fouiller"):
 			p["fouille"] = true
-			messages.append(Fouille.fouiller_corps(joueur, donjon, p.get("pacifique", false)))
+			messages.append(Fouille.fouiller_corps(joueur, donjon, p.get("pacifique", false), p.get("membres", [])))
 			if p.has("cle_boss") and not p.get("cle_prise", false):
 				p["cle_prise"] = true
 				messages.append(donner_cle_boss(joueur, int(p["cle_boss"])))

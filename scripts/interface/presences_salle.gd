@@ -63,6 +63,25 @@ const FPS_DIABLOTIN := 12.0
 const RIRE_DISTANCE := 1.5
 const RIRE_ATTENTE := Vector2(8.0, 16.0)
 static var _images_diablotin := {}
+## Commis (2026-11-04) : animation de repos de l'utilisateur (``outils/importer_commis.py`` →
+## ``images/pnj/commis_<role>_anim/repos_000.png``...), hauteur en hauteurs du héros (un jeune homme, un peu plus petit).
+const TAILLE_COMMIS := 0.95
+const FPS_COMMIS := 24.0
+static var _images_commis := {}
+
+
+static func images_commis(role: String) -> Array:
+	if not _images_commis.has(role):
+		var liste := []
+		var dossier := "res://images/pnj/commis_%s_anim" % role
+		var info = JSON.parse_string(FileAccess.get_file_as_string(dossier + "/animations.json"))
+		if info is Dictionary:
+			for k in int(info.get("images", 0)):
+				liste.append(load("%s/repos_%03d.png" % [dossier, k]))
+		_images_commis[role] = liste
+	return _images_commis[role]
+
+
 ## Images de la succube (détourées par ``outils/importer_succube.py``), une variante par succube.
 const IMAGES_SUCCUBE := [preload("res://images/pnj/succube_1.png"), preload("res://images/pnj/succube_2.png"),
 	preload("res://images/pnj/succube_3.png")]
@@ -609,7 +628,7 @@ static func _hauteur_forme(p: Dictionary) -> float:
 			return TAILLE_GOBELIN * Ennemis.BOSS["taille"]
 		"pnj":
 			return {"succube": 1.3, "diablotin": 0.5, "gobelin_blesse": TAILLE_GOBELIN * 0.4, "prisonnier": 0.65,
-				"prisonnier_cellule": 0.9, "autel": 0.45}.get(p["sous"], 0.6)
+				"prisonnier_cellule": 0.9, "autel": 0.45, "commis": TAILLE_COMMIS}.get(p["sous"], 0.6)
 	return {"pupitre": 0.55, "ratelier": 0.7, "cachette": 0.2, "coffre_confisque": 0.35, "coffre_gardien": 0.35,
 		"cadavre": TAILLE_GOBELIN * 0.4, "objet_quete": 0.18}.get(p.get("sous", ""), 0.5)
 
@@ -659,6 +678,14 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 					n.draw_set_transform(Vector2.ZERO, 0, Vector2(sens, 1))
 					n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)
 					n.draw_set_transform(Vector2.ZERO)
+				"commis":
+					# Animation de repos de l'utilisateur (images/pnj/commis_<role>_anim), en boucle, pieds au sol
+					var images := images_commis(String(p.get("role", "cuisine")))
+					if not images.is_empty():
+						var k := int((temps + int(p.get("id", 0)) * 0.7) * FPS_COMMIS) % images.size()
+						var tex: Texture2D = images[k]
+						var taille := Vector2(hf * tex.get_width() / float(tex.get_height()), hf)
+						n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)
 				"succube":
 					# Image détourée (une des trois variantes selon l'id), qui respire doucement
 					var tex: Texture2D = IMAGES_SUCCUBE[int(p.get("id", 0)) % IMAGES_SUCCUBE.size()]

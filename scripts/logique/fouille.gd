@@ -73,7 +73,36 @@ static func _tirer_pondere(table) -> Variant:
 const CORPS_PACIFIQUE := {"or": [2, 6], "potion": 0.10, "equipement": 0.02}
 
 
-static func fouiller_corps(joueur, donjon, pacifique: bool) -> String:
+## Loups (règle de l'utilisateur, 2026-11-04) : chaque loup du corps fouillé donne en plus 1 viande crue (ingrédient).
+const VIANDE_PAR_LOUP := 1
+
+
+static func fouiller_corps(joueur, donjon, pacifique: bool, membres := []) -> String:
+	var viande := viande_des_loups(joueur, membres)
+	var message := _fouiller_corps(joueur, donjon, pacifique)
+	if viande == "":
+		return message
+	if message.ends_with("rien d'intéressant."):
+		return "Vous fouillez le corps : %s." % viande
+	return message.trim_suffix(".") + ", " + viande + "."
+
+
+## Viande crue des loups parmi ``membres`` (``Aventure.membres``), donnée au héros : texte (« » s'il n'y en a pas).
+static func viande_des_loups(joueur, membres: Array) -> String:
+	var n := 0
+	for m in membres:
+		if m is Dictionary and String(m.get("sous_classe", "")) == "loup":
+			n += VIANDE_PAR_LOUP
+	if n == 0:
+		return ""
+	for _k in n:
+		var o = ObjetsDivers.depuis_catalogue("Viande crue")
+		if o != null:
+			joueur.recevoir_objet(o)
+	return "%d viande%s crue%s" % [n, "s" if n > 1 else "", "s" if n > 1 else ""]
+
+
+static func _fouiller_corps(joueur, donjon, pacifique: bool) -> String:
 	var etage: int = int(donjon.salle_actuelle[0])
 	Statistiques.noter(joueur, "objets_fouilles")
 	if pacifique:

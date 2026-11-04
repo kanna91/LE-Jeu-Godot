@@ -550,7 +550,7 @@ func _diablotins() -> void:
 	Compte.vider()
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
-	verifier(Rencontres.infos_diablotin(donjon, "chevalier")[0][1] == Rencontres.INFOS_CHEVALIER[0][1], "chevalier : première information d'abord")
+	verifier(Rencontres.infos_diablotin(donjon, "chevalier")[0][1] == Rencontres.infos_chevalier()[0][1], "chevalier : première information d'abord")
 	verifier(Rencontres.infos_diablotin(donjon, "affaires").is_empty(), "pas d'affaires à retrouver avant une capture")
 	var geolier := {}
 	for i in donjon.plan_donjon[1]:
@@ -571,7 +571,7 @@ func _diablotins() -> void:
 	verifier(textes.size() > 5, "le journal se remplit (%d entrées)" % textes.size())
 	verifier(uniques.size() == textes.size(), "aucune information dite deux fois")
 	var ordre := []
-	var textes_chevalier := Rencontres.INFOS_CHEVALIER.map(func(i): return i[1])
+	var textes_chevalier := Rencontres.infos_chevalier().map(func(i): return i[1])
 	for t in textes:
 		if t in textes_chevalier:
 			ordre.append(textes_chevalier.find(t))
@@ -610,9 +610,9 @@ func _glossaire_du_compte() -> void:
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
 	var info := Rencontres.repondre(donjon, "chevalier")
-	verifier(info[0] == "chevalier/" + Rencontres.INFOS_CHEVALIER[0][0], "chevalier : un élément à la fois, dans l'ordre")
+	verifier(info[0] == "chevalier/" + Rencontres.infos_chevalier()[0][0], "chevalier : un élément à la fois, dans l'ordre")
 	verifier(Compte.glossaire().get(Rencontres.NOM_CHEVALIER, []).size() == 1, "l'information sur le chevalier va au glossaire")
-	for i in Rencontres.INFOS_CHEVALIER:
+	for i in Rencontres.infos_chevalier():
 		verifier(not ("lames, pointes, masses" in i[1]), "plus de liste de résistances d'un coup")
 		verifier(not ("blessure" in i[1] or "plafond" in i[0]), "la limite de dégâts du chevalier reste secrète")
 	verifier(not Rencontres.info_ennemi_valide("chevalier/plafond"), "information retirée : plus montrée au glossaire")
@@ -621,7 +621,7 @@ func _glossaire_du_compte() -> void:
 	var donjon2 := Donjon.nouveau(joueur2)
 	verifier(Compte.glossaire().get(Rencontres.NOM_CHEVALIER, []).size() == 1, "le glossaire survit à une nouvelle partie")
 	var suivante := Rencontres.infos_diablotin(donjon2, "chevalier")
-	verifier(not suivante.is_empty() and suivante[0][0] == "chevalier/" + Rencontres.INFOS_CHEVALIER[1][0],
+	verifier(not suivante.is_empty() and suivante[0][0] == "chevalier/" + Rencontres.infos_chevalier()[1][0],
 		"nouvelle partie : le diablotin passe à l'information suivante")
 	for k in 30:
 		await Rencontres.diablotin(donjon2, {"genre": "pnj", "sous": "diablotin", "etat": "actif"})
