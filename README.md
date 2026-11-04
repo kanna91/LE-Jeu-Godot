@@ -114,7 +114,20 @@ stick droit pour choisir un bouton de l'interface.
     `Donjon.nouveau` crée les `Donjon.NOMBRE_ETAGES` étages d'un coup (plan, images des salles, population ;
     ≈ 400 salles en 0,6 s). Vaincre le boss du 5e étage puis « Monter » termine la partie : **écran de victoire**
     (l'écran de fin, titre « VICTOIRE », `principal.gd` résultat `["victoire"]`). Avant, le donjon était sans fin et
-    chaque étage était créé à la montée. Taille d'un étage : environ 80 salles (`GenerateurEtage.TAILLE_ETAGE`).
+    chaque étage était créé à la montée. Taille d'un étage : environ 185 salles (étage carré, ci-dessous).
+  - **Étage carré en 5 secteurs** (décision de l'utilisateur, 2026-11-04 ; avant : un long ruban, le boss au bout d'une
+    voie de 35 à 40 salles) : un carré de 19 cases (`GenerateurEtage.COTE`). Le **boss au centre** (une seule porte,
+    par le bas), le **départ au bas du secteur central** (`DEPART`), une **prison à chaque coin**, les **complexes** sur
+    les côtés : laboratoire et cuisine-jardin à gauche et à droite (tirés au hasard), bibliothèque en haut ; le bas reste
+    libre pour de futurs complexes. Les salles ordinaires forment **5 secteurs de patrouille** (clé « secteur » de la
+    salle : 0 à 3 = coins bas gauche, bas droite, haut gauche, haut droite ; 4 = centre, `GenerateurEtage.CENTRE`) :
+    au moins `SALLES_COIN` (9) salles autour de chaque prison, au moins `SALLES_CENTRE` (22) au centre. Un coin ne
+    touche le centre que par **un passage** (`FRONTIERES_PAR_COIN`) ; la salle du côté du coin est une **salle
+    frontière** (clé « frontiere »). Aucun autre passage ne relie deux secteurs (les complexes, fermés aux geôliers,
+    les relient pour le héros). Les chemins évitent deux pas horizontaux de suite (`PENALITE_HORIZONTALE`) : une salle
+    qui ne mène qu'à gauche et à droite n'a que 8 apparences parmi les images, contre 94 pour un couloir vertical.
+    **Les geôliers ne suivent pas encore les secteurs** (à brancher : 5 geôliers, un par coin et un central, qui
+    s'arrête au bord de son secteur ; au plus 2 geôliers par salle).
 
   **Ce que contient un étage** (`Aventure.preparer_etage`, une fois, enregistré dans la partie : clé « presences »
   de chaque salle, réglages de l'étage dans `donjon.aventure`) :
@@ -178,8 +191,8 @@ stick droit pour choisir un bouton de l'interface.
   - **Blocs de salles** (2026-10-31, demande de l'utilisateur : on va remplacer petit à petit les salles tirées au
     hasard par des **blocs de salles connectés les uns aux autres**) : un lot d'images de l'utilisateur forme des
     salles reliées dans un ordre fixé (`BlocsSalles.BLOCS` : position de chaque salle sur la carte, liens **porte à
-    porte**, entrées vers le reste de l'étage). Le générateur pose chaque bloc après les branches, sur des cases
-    libres, ses entrées raccordées à des salles existantes (`GenerateurEtage._poser_bloc`) ; ses salles reçoivent leur
+    porte**, entrées vers le reste de l'étage). Le générateur pose chaque bloc contre un côté de l'étage carré
+    (depuis le 2026-11-04), ses entrées raccordées à l'étage (`GenerateurEtage._poser_bloc`) ; ses salles reçoivent leur
     image et leurs sorties dès la création de l'étage (`Donjon._habiller_blocs`) ; ses images (`bloc_*`) ne servent
     jamais ailleurs. Premier bloc, **cuisine** (un par étage) : **salle à manger** (entrée par le bas, depuis l'étage)
     → porte du fond → **cuisine** → porte du fond à gauche (elle mène vers l'avant, le nord) → **réserve de la
@@ -346,9 +359,8 @@ stick droit pour choisir un bouton de l'interface.
     faut la vaincre puis fouiller son corps (siphonner son âme fait aussi tomber la clé). Les clés rouillées n'y font
     rien. Les **diablotins** peuvent dire où rôde l'élite qui la porte (vrai : elle touche un ennemi). La clé du boss
     s'affiche dans la catégorie « Divers » de l'inventaire ;
-  - **Boss loin du départ** (décision de l'utilisateur, 2026-11-01) : **35 salles à l'étage 1 à 40 au dernier**, par
-    le plus court chemin (`GenerateurEtage.DISTANCE_BOSS`, `distance_boss`) ; aucune boucle ni entrée de bloc ne
-    peut raccourcir ce chemin (`_raccourcit`) ;
+  - **Boss au centre de l'étage** (décision de l'utilisateur, 2026-11-04 : la clé du boss suffit, plus besoin de
+    l'éloigner du départ ; du 2026-11-01 au 2026-11-04 : à 35 à 40 salles du départ) ;
   - **Ennemis isolés** (décision de l'utilisateur, 2026-11-01 : plus d'ennemis, pas plus de groupes) : dans une salle
     ordinaire sans groupe, un ennemi rôde seul une fois sur six (`Aventure.CHANCE_ISOLE` ; jamais élite, pacifique
     ni loup). Mesure : ≈ 9 ennemis isolés et ≈ 30 ennemis hostiles par étage (≈ 19 avant) ;
@@ -1044,10 +1056,10 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
 & $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
 & $godot --headless --path . -s tests/test_cri_de_guerre.gd       # gobelin combattant : Cri de guerre s'il est accompagné, sinon Coup d'épée
-& $godot --headless --path . -s tests/test_boss_cle.gd            # boss à 35-40 salles sans raccourci, salle fermée, clé portée par une élite, ennemis isolés
+& $godot --headless --path . -s tests/test_boss_cle.gd            # boss au bout d'un seul passage, salle fermée, clé portée par une élite, ennemis isolés
 & $godot --headless --path . -s tests/test_karma.gd               # karma (vitesse du chevalier, prix, or, mensonges), capture dans la prison la plus proche, pacifiques, corps et âmes
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
-& $godot --headless --path . -s tests/test_grands_etages.gd        # grands étages : ~80 salles (TAILLE_ETAGE), tout accessible, carrefours, boucles, plan dessiné en texte
+& $godot --headless --path . -s tests/test_grands_etages.gd        # étage carré : taille, 5 secteurs, une frontière par coin, tout accessible, carrefours, boucles, plan en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
 & $godot --headless --path . -s tests/sonde_prisons.gd      # sonde : prisons hors quartier, passages sans porte, carrefours par quartier (100 étages)
 & $godot --headless --path . -s tests/test_zones.gd        # zones : quartier des cryptes d'un seul tenant (toutes les images, une fois), squelettes + un seul féticheur élite, zones.json, 1d2 tous les 2 points (150 étages)
@@ -1069,6 +1081,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
 & $godot --headless --path . -s tests/test_chasseurs_libres.gd # geôliers et Chevaliers de la mort jamais enfermés par les blocs fermés (15 donjons)
 & $godot --path . -s tests/capture_jardin.gd             # captures 250-267 : chaque salle du jardin (hors écran)
+& $godot --path . -s tests/capture_etage_carre.gd        # captures 270-272 : carte complète de trois étages carrés (hors écran)
 & $godot --path . -s tests/capture_laboratoire.gd        # captures 210-245 : chaque salle du bloc laboratoire, arrivée par le bas (hors écran)
 & $godot --path . -s tests/capture_bibliotheque.gd        # captures 190-203 : chaque salle du bloc bibliothèque, arrivée par le bas (hors écran)
 & $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
@@ -1159,6 +1172,27 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Étage carré en 5 secteurs (geôliers pas encore branchés)
+
+- **Décision de l'utilisateur** : l'étage devient un carré, le boss au centre, une prison à chaque coin, les complexes
+  sur les côtés ; 5 secteurs de patrouille (un par coin, un au centre) qui ne se touchent qu'à des salles frontières.
+  Pas de longue voie jusqu'au boss : la clé suffit.
+- `GenerateurEtage` réécrit (le niveau des cryptes ne change pas) : complexes collés aux bords (`_poser_bloc`), prisons
+  aux coins, voie du départ au boss, un passage par coin vers le centre, entrées des complexes raccordées (dans la
+  marge du carré si besoin), branches par secteur, boucles dans un même secteur, salles bonus et marchand. Clés
+  « secteur » et « frontiere » sur chaque salle (copiées par `Donjon.generer_etage`). `secteurs_complets` vérifie le
+  découpage ; `dernier_echec` donne la raison d'un plan raté. Supprimés : `DISTANCE_BOSS`, `distance_boss`, la voie
+  principale montante, les cercles, `_relier_sans_blocs`, les chemins d'accès aux prisons.
+- Chemins en escalier plutôt qu'en long couloir horizontal (`PENALITE_HORIZONTALE`) : **5,1 passages sans porte peinte
+  par étage** (7,7 avec le ruban, 18,5 au premier essai du carré). La salle devant l'entrée d'un complexe garde
+  toujours sa porte vers lui (`PlanSalles.PENALITE_SANS_PORTE_BLOC`).
+- Mesure : environ 185 salles par étage (73 de blocs, 12 de prisons, une centaine d'ordinaires) ; coins de 9 à 20
+  salles, centre d'environ 35.
+- À trancher : le boss est à **4 salles** du départ (le départ est juste sous le centre) ; les ennemis hostiles passent
+  d'environ 30 à **43 par étage** (plus de salles ordinaires, même densité).
+- Tests : `test_grands_etages.gd` (taille, 5 secteurs), `test_boss_cle.gd` (le boss n'a qu'un passage) ; captures
+  270-272 (`tests/capture_etage_carre.gd`).
 
 ### 2026-11-04 — Une image, une salle
 

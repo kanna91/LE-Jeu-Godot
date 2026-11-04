@@ -1,6 +1,6 @@
 extends SceneTree
 ## Boss plus loin et fermé à clé, ennemis isolés (décisions de l'utilisateur, 2026-11-01) : sur 20 donjons de 5 étages,
-## le boss est à DISTANCE_BOSS (35 à 40) salles du départ par le plus court chemin (aucun raccourci) ; sa salle est
+## le boss (au centre de l'étage carré depuis le 2026-11-04 ; avant : à 35 à 40 salles du départ) n'a qu'un passage ; sa salle est
 ## fermée et ne s'ouvre qu'avec la clé du boss de l'étage, portée par une élite loin du départ ; vaincue, son corps
 ## donne la clé (fouillé ou siphonné) ; les ennemis isolés sont seuls, sans loup.
 ## godot --headless --path . -s tests/test_boss_cle.gd
@@ -36,7 +36,8 @@ func _initialize() -> void:
 			var boss := str(donjon.salle_boss(e))
 			var d := Aventure.distances_depuis(salles, depart)
 			distances.append(int(d[boss]))
-			verifier(int(d[boss]) == GenerateurEtage.distance_boss(e), "%d/%d : boss à %d salles (voulu %d)" % [k, e, d[boss], GenerateurEtage.distance_boss(e)])
+			# Étage carré (2026-11-04) : le boss au centre, une seule porte ; la clé suffit à l'éloigner (plus de distance imposée)
+			verifier(d.has(boss) and salles[boss]["connections"].size() == 1, "%d/%d : boss au bout d'un seul passage" % [k, e])
 			verifier(salles[boss].get("verrouillee", false) and salles[boss].get("cle_boss", false), "%d/%d : salle du boss fermée" % [k, e])
 			var porteurs := []
 			for i in salles:

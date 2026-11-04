@@ -39,6 +39,9 @@ const IMAGE_DEPART := "salle1"
 const IMAGE_BOSS := "salle2"
 ## Poids du choix (voir l'en-tête).
 const PENALITE_SANS_PORTE := 1000
+## En plus, pour un passage sans porte vers l'entrée d'un bloc (2026-11-04, étage carré) : la salle devant un complexe
+## garde toujours sa porte vers lui, quitte à perdre une autre porte.
+const PENALITE_SANS_PORTE_BLOC := 2000
 const PENALITE_PORTE_CONDAMNEE := 30
 const BONUS_IMAGE_PREFEREE := 15
 ## Grandes salles (``"grande_salle"`` du .json, images de l'utilisateur) réservées aux **carrefours** (décision de
@@ -448,6 +451,10 @@ static func _evaluer(salles: Dictionary, id: String, etage: int, image: String, 
 		if not utilisees.has(a):
 			sans_porte.append(voisines[a])
 	score -= PENALITE_SANS_PORTE * sans_porte.size()
+	if not salle.has("bloc"):
+		for v in sans_porte:
+			if v is String and v != PASSAGE and salles.has(v) and salles[v].has("bloc"):
+				score -= PENALITE_SANS_PORTE_BLOC
 	sans_porte.erase(PASSAGE)
 	var index_passage := -1
 	for k in sorties.size():

@@ -25,6 +25,9 @@ func _initialize() -> void:
 	for n in ETAGES_TESTES:
 		var etage := 1 + n % 10
 		var plan := GenerateurEtage.generer_plan(etage)
+		verifier(not plan.is_empty(), "étage %d : plan raté (%s)" % [etage, GenerateurEtage.dernier_echec])
+		if plan.is_empty():
+			continue
 		tailles.append(plan.size())
 		# Tout est relié au départ
 		var vues := {1: true}
@@ -60,6 +63,7 @@ func _initialize() -> void:
 			if plan[i]["role"] == "boss":
 				boss_n += 1
 		verifier(boss_n == 1, "un seul boss par étage")
+		verifier(GenerateurEtage.secteurs_complets(plan), "étage %d : 5 secteurs, une prison et une frontière par coin" % etage)
 		if n == 0:
 			dessiner(plan)
 	var moy := func(l: Array) -> float:
@@ -71,15 +75,15 @@ func _initialize() -> void:
 	print("Carrefours (3-4 passages) : moyenne %.1f (de %d à %d)" % [moy.call(carrefours), carrefours.min(), carrefours.max()])
 	print("Boucles : moyenne %.1f (de %d à %d)" % [moy.call(boucles), boucles.min(), boucles.max()])
 	print("Salles bonus : moyenne %.1f" % moy.call(bonus))
-	# Depuis le 2026-11-04 (règle de l'utilisateur) : une salle ordinaire par image ; blocs et prisons en plus. Les
-	# salles en trop (chemins des prisons, raccords des blocs) prennent un miroir : au plus 2 × le nombre d'images.
+	# Étage carré (2026-11-04) : blocs, prisons, SALLES_COIN salles par coin et SALLES_CENTRE au centre au moins, plus
+	# les chemins qui relient tout ; les salles en trop prennent un miroir : au plus 2 × le nombre d'images.
 	var blocs := 0
 	for nom in BlocsSalles.BLOCS:
 		blocs += BlocsSalles.BLOCS[nom]["salles"].size()
 	var images := GenerateurEtage.salles_visees()
-	var visee := images + blocs + GenerateurEtage.SALLES_PRISONS
-	verifier(moy.call(tailles) >= visee - 10 and moy.call(tailles) <= visee + 25,
-		"environ %d salles par étage (%d images ordinaires, %d salles de blocs, prisons)" % [visee, images, blocs])
+	var visee := blocs + GenerateurEtage.SALLES_PRISONS + 4 * GenerateurEtage.SALLES_COIN + GenerateurEtage.SALLES_CENTRE
+	verifier(tailles.min() >= visee and moy.call(tailles) <= visee + 60,
+		"environ %d à %d salles par étage (moyenne %.1f)" % [visee, visee + 60, moy.call(tailles)])
 	verifier(tailles.max() <= 2 * images + blocs + GenerateurEtage.SALLES_PRISONS, "jamais plus de salles que d'images et de miroirs")
 	verifier(moy.call(carrefours) >= 8, "des carrefours dans chaque étage")
 	verifier(moy.call(boucles) >= 3.5, "des boucles dans chaque étage")

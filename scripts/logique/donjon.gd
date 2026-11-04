@@ -350,8 +350,11 @@ func generer_etage(etage: int) -> void:
 			data = _create_room_data()
 		if salle.has("evenement"):
 			data["evenement"] = salle["evenement"]
-		if salle.has("acces_prison"):
-			data["acces_prison"] = salle["acces_prison"]
+		# Secteur de patrouille (étage carré, 2026-11-04) : 0 à 3 = coins, GenerateurEtage.CENTRE = centre
+		if salle.has("secteur"):
+			data["secteur"] = salle["secteur"]
+		if salle.get("frontiere", false):
+			data["frontiere"] = true
 		data["position"] = salle["position"]
 		var connexions: Array = salle["connexions"].keys()
 		connexions.sort()
