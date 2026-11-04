@@ -1067,6 +1067,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
+& $godot --headless --path . -s tests/test_chasseurs_libres.gd # geôliers et Chevaliers de la mort jamais enfermés par les blocs fermés (15 donjons)
+& $godot --path . -s tests/capture_jardin.gd             # captures 250-267 : chaque salle du jardin (hors écran)
 & $godot --path . -s tests/capture_laboratoire.gd        # captures 210-245 : chaque salle du bloc laboratoire, arrivée par le bas (hors écran)
 & $godot --path . -s tests/capture_bibliotheque.gd        # captures 190-203 : chaque salle du bloc bibliothèque, arrivée par le bas (hors écran)
 & $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
@@ -1157,6 +1159,29 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Une image, une salle
+
+- **Règle de l'utilisateur** : plus de taille fixe de 80 salles ; **chaque image ne sert qu'une fois** par étage. Seule
+  exception : le **miroir** d'une image déjà utilisée, pour les salles en trop, **une seule fois** par image (jamais
+  deux fois la même apparence, jamais trois fois la même image).
+- `GenerateurEtage` : le reste de l'étage (hors blocs et prisons) vise une salle par image ordinaire
+  (`salles_visees`, 62 aujourd'hui) ; `MARGE_RACCORDS` (14) salles sont gardées pour ce qui s'ajoute à la fin. Les coins
+  des prisons sont pris sur l'étage **sans les blocs** (les grands blocs éloignaient les coins : les chemins d'accès
+  ajoutaient des dizaines de salles).
+- `PlanSalles._attribuer_ordinaires` : deux affectations ; d'abord une image neuve par salle (à l'endroit ou en miroir,
+  le mieux), puis, pour les salles en trop seulement, l'autre sens d'une image déjà utilisée.
+- Mesure : étages de 151 à 167 salles (73 de blocs, 12 de prisons, 66 à 82 ordinaires) ; 4 à 20 images servent deux
+  fois (une fois en miroir). La voie principale (35 à 40 salles jusqu'au boss) et les chemins des prisons en prennent
+  la plus grande part : de nouvelles images ordinaires réduiraient encore les miroirs.
+- Défaut corrigé : sur un étage, 10 salles n'étaient accessibles qu'en traversant un bloc (le raccordement avait
+  échoué) ; couloirs de raccordement plus longs (`COULOIR_REPARATION` 20) et plus d'essais de plan (`ESSAIS_BLOCS` 20).
+- Défaut corrigé : un chasseur attiré par le héros calculait son chemin à travers le jardin ou les refuges, qui lui
+  sont fermés ; quand ce chemin était le seul court, il renonçait et errait. Il contourne maintenant ces zones
+  (`Aventure.distances_pour`).
+- Tests : `test_grands_etages.gd` (taille selon les images), `test_cartographie_salles.gd` (au plus 2 fois par image,
+  1 fois par apparence), `test_prisons_cryptes.gd` (coins sans les blocs), nouveau `test_chasseurs_libres.gd` (aucun
+  chasseur enfermé), `test_aventure.gd` (le héros attend hors du jardin).
 
 ### 2026-11-04 — Jardin (potager et verger), bibliothèque cohérente
 

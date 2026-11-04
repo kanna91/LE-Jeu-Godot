@@ -41,7 +41,8 @@ func _etage(donjon, k: int) -> void:
 	var salles: Dictionary = donjon.plan_donjon[1]
 	var positions := []
 	for id in salles:
-		positions.append(salles[id]["position"])
+		if not salles[id].has("bloc"):  # coins de l'étage sans les blocs (2026-11-04)
+			positions.append(salles[id]["position"])
 	var coins := GenerateurEtage.coins(positions)
 	var prisons := {}
 	var images_prison := {}

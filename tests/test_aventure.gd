@@ -281,7 +281,9 @@ func _imbattable_et_fuite() -> void:
 	var visitees := {}
 	var rejoint := {}
 	var ici := ""
-	for i in Aventure.salles_ordinaires(donjon, etage):
+	for i in Aventure.salles_pour_ennemis(donjon, etage):
+		if Aventure.fermee_a(salles[i], "imbattable") or Aventure.fermee_a(salles[i], "geolier"):
+			continue  # le héros attend dans une salle où les chasseurs peuvent venir (pas le jardin, 2026-11-04)
 		var dist_c: int = Aventure.distances_depuis(salles, i).get(depart_chevalier, 0)
 		if dist_c >= 6:
 			ici = i

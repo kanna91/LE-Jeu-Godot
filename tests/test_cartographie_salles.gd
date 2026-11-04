@@ -52,6 +52,16 @@ func _initialize() -> void:
 				vues[cle] = int(vues.get(cle, 0)) + 1
 			var apparences := 2 * PlanSalles.images().keys().filter(func(i): return not PlanSalles.reservee(String(i))).size()
 			var plafond := ceili(float(ordinaires) / apparences)
+			# 2026-11-04 (règle de l'utilisateur) : chaque apparence une fois, chaque image deux fois au plus (une fois en miroir)
+			var par_image := {}
+			for cle in vues:
+				var im: String = String(cle).split("|")[0]
+				par_image[im] = int(par_image.get(im, 0)) + vues[cle]
+			for im in par_image:
+				if par_image[im] > 2:
+					echecs += 1
+					print("ÉCHEC : %s utilisée %d fois à l'étage %d." % [im, par_image[im], etage])
+			plafond = 1
 			for cle in vues:
 				if vues[cle] > plafond:
 					echecs += 1

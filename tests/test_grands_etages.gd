@@ -71,18 +71,16 @@ func _initialize() -> void:
 	print("Carrefours (3-4 passages) : moyenne %.1f (de %d à %d)" % [moy.call(carrefours), carrefours.min(), carrefours.max()])
 	print("Boucles : moyenne %.1f (de %d à %d)" % [moy.call(boucles), boucles.min(), boucles.max()])
 	print("Salles bonus : moyenne %.1f" % moy.call(bonus))
-	# Depuis le 2026-11-03, les chemins d'accès aux prisons des coins s'ajoutent (≈ 9 salles en moyenne)
-	# Depuis le 2026-11-04, les salles des blocs « en_plus » (la bibliothèque, 14) s'ajoutent aussi
-	var en_plus := 0
+	# Depuis le 2026-11-04 (règle de l'utilisateur) : une salle ordinaire par image ; blocs et prisons en plus. Les
+	# salles en trop (chemins des prisons, raccords des blocs) prennent un miroir : au plus 2 × le nombre d'images.
+	var blocs := 0
 	for nom in BlocsSalles.BLOCS:
-		if BlocsSalles.BLOCS[nom].get("en_plus", false):
-			en_plus += BlocsSalles.BLOCS[nom]["salles"].size()
-	var visee := GenerateurEtage.TAILLE_ETAGE + en_plus
-	# + 30 : chemins des prisons (≈ 9), salles d'entrée des blocs et couloirs qui les raccordent à l'étage (≈ 15 avec
-	# la bibliothèque et le laboratoire, 2026-11-04)
-	verifier(moy.call(tailles) >= visee - 5 and moy.call(tailles) <= visee + 30,
-		"environ %d salles par étage, plus les chemins d'accès aux prisons" % visee)
-	verifier(tailles.min() >= 40, "aucun étage trop petit (%d)" % tailles.min())
+		blocs += BlocsSalles.BLOCS[nom]["salles"].size()
+	var images := GenerateurEtage.salles_visees()
+	var visee := images + blocs + GenerateurEtage.SALLES_PRISONS
+	verifier(moy.call(tailles) >= visee - 10 and moy.call(tailles) <= visee + 25,
+		"environ %d salles par étage (%d images ordinaires, %d salles de blocs, prisons)" % [visee, images, blocs])
+	verifier(tailles.max() <= 2 * images + blocs + GenerateurEtage.SALLES_PRISONS, "jamais plus de salles que d'images et de miroirs")
 	verifier(moy.call(carrefours) >= 8, "des carrefours dans chaque étage")
 	verifier(moy.call(boucles) >= 3.5, "des boucles dans chaque étage")
 	print("BILAN grands étages : %d échec(s)" % echecs)

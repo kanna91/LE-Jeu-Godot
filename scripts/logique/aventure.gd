@@ -793,6 +793,21 @@ static func distances_depuis(salles: Dictionary, depuis: String) -> Dictionary:
 	return dist
 
 
+## Distances depuis ``depuis`` par les seules salles ouvertes au chasseur de genre ``genre`` (2026-11-04 : un chasseur
+## attiré cherchait un chemin à travers le jardin ou les refuges, qui lui sont fermés, et renonçait).
+static func distances_pour(salles: Dictionary, depuis: String, genre: String) -> Dictionary:
+	var dist := {depuis: 0}
+	var file := [depuis]
+	while not file.is_empty():
+		var c: String = file.pop_front()
+		for v in salles[c].get("connections", []):
+			var vs := str(v)
+			if not dist.has(vs) and salles.has(vs) and not fermee_a(salles[vs], genre):
+				dist[vs] = dist[c] + 1
+				file.append(vs)
+	return dist
+
+
 ## Salle ordinaire au milieu de l'étage : celle d'où la salle la plus éloignée est la plus proche.
 static func centre_etage(donjon, etage: int) -> String:
 	var salles: Dictionary = donjon.plan_donjon[etage]
@@ -834,7 +849,7 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 	if p.has("but") and str(p["but"]) == ici:
 		p.erase("but")
 	if p.has("but") and salles.has(str(p["but"])):
-		var dist := distances_depuis(salles, str(p["but"]))
+		var dist := distances_pour(salles, str(p["but"]), String(p["genre"]))
 		var pas := ""
 		for v in salles[ici].get("connections", []):
 			if salles.has(str(v)) and fermee_a(salles[str(v)], String(p["genre"])):

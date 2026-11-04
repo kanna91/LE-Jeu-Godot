@@ -3,7 +3,7 @@ extends RefCounted
 ## Génération des étages.
 ##
 ## **Grands étages** (demande de l'utilisateur, 2026-10-27 : « les étages doivent être grands », croisements,
-## cercles) : environ TAILLE_ETAGE salles (29 avant). Une voie principale du départ au boss, puis des
+## cercles) : une salle ordinaire par image (``salles_visees``, 2026-11-04 ; 80 salles avant, 29 au début). Une voie principale du départ au boss, puis des
 ## **branches** qui partent de préférence des salles à 1 ou 2 passages (elles deviennent des **carrefours** à 3 ou
 ## 4 passages, où le jeu met les grandes salles), puis des **cercles** : des tours de salles en rectangle qui
 ## partent d'une salle et y reviennent (on peut tourner en rond et semer un poursuivant), puis des **boucles** :
@@ -15,8 +15,32 @@ extends RefCounted
 ## **Niveau des cryptes** (2026-11-03, demande de l'utilisateur) : un monde à part de SALLES_CRYPTES salles
 ## (generer_cryptes), dont ENTREES_CRYPTES entrées, aux 4 coins, mènent chacune au couloir d'une prison.
 
-## Nombre de salles visé par étage, salles bonus comprises (décision de l'utilisateur : environ 80 depuis le 2026-10-30, 50 avant).
-const TAILLE_ETAGE := 80
+## Taille de l'étage (2026-11-04, décision de l'utilisateur : « retire la contrainte des 80 salles de base ; chaque image
+## ne doit être utilisée qu'une seule fois ») : le reste de l'étage (hors blocs et prisons) vise autant de salles qu'il y a
+## d'images ordinaires (``salles_visees``) ; MARGE_RACCORDS salles sont gardées pour ce qui s'ajoute à la fin (chemins
+## des prisons, salles et couloirs qui raccordent les blocs). Une salle de trop prend le miroir d'une image déjà
+## utilisée (PlanSalles), jamais une troisième fois la même image. Avant : 80 salles visées (50 avant le 2026-10-30).
+const MARGE_RACCORDS := 14
+## Part de la taille visée réservée aux cercles (le reste : voie principale et branches).
+const PART_CERCLES := 0.3
+
+
+## Salles ordinaires visées sur un étage : une par image ordinaire (ni bloc, ni prison, ni crypte).
+static func salles_visees() -> int:
+	var n := 0
+	for image in PlanSalles.images():
+		if not PlanSalles.reservee(String(image)):
+			n += 1
+	return n
+
+
+## Salles ordinaires du plan (ni blocs ni prisons).
+static func _ordinaires(salles: Dictionary) -> int:
+	var n := 0
+	for i in salles:
+		if not (salles[i]["role"] in ["bloc", "prison"]):
+			n += 1
+	return n
 ## Distance du boss au départ (en salles, par le plus court chemin) : de DISTANCE_BOSS.x à l'étage 1 à
 ## DISTANCE_BOSS.y au dernier étage (décision de l'utilisateur, 2026-11-01 : « 35 à 40 salles » ; 15 à 24 avant).
 ## La voie principale fait cette longueur, et **rien ne la raccourcit** : les boucles et les entrées des blocs qui
@@ -40,7 +64,7 @@ const CERCLE := Vector2i(1, 3)
 ## Prisons (demande de l'utilisateur, 2026-11-03) : une à chaque coin de l'étage, faite de 2 grandes salles de prison
 ## puis d'un couloir dont le fond mène aux cryptes. Le couloir est au-dessus de la 2e grande salle sur la carte (on y
 ## entre par le bas de son image) ; la 1re grande salle est reliée à une salle de l'étage proche du coin. Leurs
-## salles sont prises sur le nombre visé (TAILLE_ETAGE) : l'étage garde sa taille.
+## salles s'ajoutent aux salles ordinaires visées.
 const PRISONS := 4
 const SALLES_PAR_PRISON := 3
 const SALLES_PRISONS := PRISONS * SALLES_PAR_PRISON
@@ -254,7 +278,7 @@ static func _poser_bloc(nom: String, instance: int, salles: Dictionary, par_case
 
 ## Plan d'un étage : {id: {"position": Vector2i, "connexions": {id: true}, "role", "effet_bonus", "evenement"}}.
 ## Plans essayés au plus pour que tous les blocs trouvent leur place et que l'étage reste relié sans eux (2026-11-04).
-const ESSAIS_BLOCS := 10
+const ESSAIS_BLOCS := 20
 
 
 static func generer_plan(etage: int) -> Dictionary:
@@ -269,7 +293,7 @@ static func generer_plan(etage: int) -> Dictionary:
 ## Raccorde à l'étage les salles qu'on n'atteint qu'en traversant un bloc (2026-11-04) : tant qu'il en reste, une salle
 ## isolée (branche ou voie) voisine sur la grille d'une salle atteinte lui est reliée ; sinon, un petit couloir de
 ## salles est tracé sur des cases libres jusqu'à la salle atteinte la plus proche (COULOIR_REPARATION cases au plus).
-const COULOIR_REPARATION := 8
+const COULOIR_REPARATION := 20
 
 
 static func _relier_sans_blocs(salles: Dictionary, par_case: Dictionary, interdites: Array, boss: int, voulu: int,
@@ -391,15 +415,12 @@ static func _generer_plan(etage: int) -> Dictionary:
 			relier.call(ident - 1, ident)
 	var boss := voie.size()
 	var interdites := _voisines(voie[-1]) + [Vector2i(0, -1)]
-	# Salles des blocs « en_plus » (la bibliothèque, 2026-11-04) : elles s'ajoutent à l'étage au lieu de prendre la
-	# place des cercles (sans cela, plus de boucles dans l'étage)
-	var en_plus := 0
-	for nom in BlocsSalles.BLOCS:
-		if BlocsSalles.BLOCS[nom].get("en_plus", false):
-			en_plus += BlocsSalles.BLOCS[nom]["salles"].size() * int(BlocsSalles.BLOCS[nom].get("par_etage", 1))
+	# Taille visée (salles ordinaires) : une par image ; les blocs et les prisons s'ajoutent
+	var visee := salles_visees() - BONUS_PREVUS - MARGE_RACCORDS
+	var avant_cercles := visee - roundi(visee * PART_CERCLES)
 	# Branches jusqu'à la taille visée, de préférence depuis des salles à 1 ou 2 passages (futurs carrefours)
 	var essais := 0
-	while salles.size() < TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES - SALLES_PRISONS and essais < 400:
+	while _ordinaires(salles) < avant_cercles and essais < 400:
 		essais += 1
 		var origines := []
 		var poids := []
@@ -414,7 +435,7 @@ static func _generer_plan(etage: int) -> Dictionary:
 		var courante: int = U.choix_pondere(origines, poids)
 		var direction := Vector2i.ZERO
 		for _s in randi_range(BRANCHE.x, BRANCHE.y):
-			if salles.size() >= TAILLE_ETAGE - BONUS_PREVUS - SALLES_CERCLES - SALLES_PRISONS:
+			if _ordinaires(salles) >= avant_cercles:
 				break
 			var libres := []
 			for c in _voisines(salles[courante]["position"]):
@@ -440,7 +461,7 @@ static func _generer_plan(etage: int) -> Dictionary:
 			_poser_bloc(nom, instance, salles, par_case, interdites, boss, ajouter, relier)
 	# Cercles : un tour de salles en rectangle qui part d'une salle existante et y revient
 	essais = 0
-	while salles.size() - en_plus < TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS and essais < 300:
+	while _ordinaires(salles) < visee and essais < 300:
 		essais += 1
 		var depuis := []
 		for i in salles:
@@ -449,7 +470,7 @@ static func _generer_plan(etage: int) -> Dictionary:
 		var a: int = depuis.pick_random()
 		var tour := _rectangle(salles[a]["position"], randi_range(CERCLE.x, CERCLE.y), randi_range(1, 2),
 			[-1, 1].pick_random(), [-1, 1].pick_random())
-		if tour.size() - 1 > TAILLE_ETAGE - BONUS_PREVUS - SALLES_PRISONS - (salles.size() - en_plus) + 2:
+		if tour.size() - 1 > visee - _ordinaires(salles) + 2:
 			continue
 		var possible := true
 		for c in tour.slice(1):
@@ -579,9 +600,12 @@ static func coins(positions: Array) -> Array:
 ## salles au plus), puis la prison s'accroche au bout. Un coin sans place possible n'a pas de prison.
 static func _poser_prisons(salles: Dictionary, par_case: Dictionary, interdites: Array, boss: int, ajouter: Callable,
 		relier: Callable) -> void:
+	# Coins de l'étage sans les blocs (2026-11-04) : les grands blocs (jardin, laboratoire) éloignaient les coins, et les
+	# chemins d'accès aux prisons ajoutaient des dizaines de salles
 	var positions := []
 	for i in salles:
-		positions.append(salles[i]["position"])
+		if salles[i]["role"] != "bloc":
+			positions.append(salles[i]["position"])
 	var liste_coins := coins(positions)
 	for k in mini(PRISONS, liste_coins.size()):
 		var coin: Vector2i = liste_coins[k]

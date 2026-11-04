@@ -135,38 +135,98 @@ static func attribuer_salles(salles: Dictionary, etage: int, a_faire: Array, pri
 		total += r[1]
 	if a_faire.is_empty():
 		return total
-	var libres := []
-	var noms: Array = images().keys()
+	return total + _attribuer_ordinaires(salles, etage, a_faire, prises)
+
+
+## Pénalité d'une salle qui reçoit le miroir d'une image déjà utilisée (2e et dernière fois), plutôt qu'une image neuve.
+const PENALITE_DEUXIEME := 25
+
+
+## Salles ordinaires (2026-11-04, règle de l'utilisateur) : **chaque image une seule fois** ; s'il y a plus de salles
+## que d'images, les salles en trop reçoivent le **miroir** d'une image déjà utilisée (au plus une fois par image :
+## jamais deux fois la même apparence, jamais trois fois la même image). Deux affectations globales (méthode
+## hongroise) : 1) une image par salle (à l'endroit ou en miroir, le mieux) ; les salles en trop prennent une colonne
+## « attendre » dont le coût est leur meilleur score moins PENALITE_DEUXIEME ; 2) ces salles reçoivent l'apparence
+## restante (l'autre sens) d'une image utilisée. Renvoie le total des scores.
+static func _attribuer_ordinaires(salles: Dictionary, etage: int, a_faire: Array, prises: Dictionary) -> int:
+	var noms: Array = images().keys().filter(func(i): return not reservee(String(i)))
 	noms.sort()
-	for image in noms:
-		if reservee(image):
-			continue  # images des blocs, des prisons et des cryptes : seulement dans leurs salles
-		for miroir in [false, true]:
-			if not prises.has("%s|%s" % [image, miroir]):
-				libres.append([image, miroir])
-	if libres.is_empty():
-		for image in noms:
-			if not reservee(image):
-				libres.append([image, false])
-				libres.append([image, true])
-	var une_fois := libres.duplicate()
-	while a_faire.size() > libres.size():
-		libres += une_fois
-	var couts := []
-	var infos := []
+	var usages := {}  # image → [miroirs déjà utilisés]
+	for cle in prises:
+		var morceaux: PackedStringArray = String(cle).split("|")
+		if not reservee(morceaux[0]):
+			if not usages.has(morceaux[0]):
+				usages[morceaux[0]] = []
+			usages[morceaux[0]].append(morceaux[1] == "true")
+	# Scores de chaque salle pour chaque apparence
+	var evals := {}
 	for id in a_faire:
+		for image in noms:
+			for miroir in [false, true]:
+				evals["%s|%s|%s" % [id, image, miroir]] = _evaluer(salles, id, etage, image, miroir)
+	var total := 0
+	# 1) images neuves
+	var neuves: Array = noms.filter(func(i): return not usages.has(i))
+	var rangs := a_faire.duplicate()
+	var en_trop := maxi(0, rangs.size() - neuves.size())
+	var couts := []
+	for id in rangs:
 		var ligne := []
-		var ligne_infos := []
-		for l in libres:
-			var e := _evaluer(salles, id, etage, l[0], l[1])
-			ligne.append(-float(e[0]))
-			ligne_infos.append(e[1])
+		var meilleur := -INF
+		for image in noms:
+			for miroir in [false, true]:
+				meilleur = maxf(meilleur, float(evals["%s|%s|%s" % [id, image, miroir]][0]))
+		for image in neuves:
+			ligne.append(-float(maxi(evals["%s|%s|false" % [id, image]][0], evals["%s|%s|true" % [id, image]][0])))
+		for _k in en_trop:
+			ligne.append(-(meilleur - PENALITE_DEUXIEME))
 		couts.append(ligne)
-		infos.append(ligne_infos)
-	var choix := _affectation(couts, a_faire.size(), libres.size())
-	for k in a_faire.size():
-		salles[a_faire[k]]["salle_peinte"] = infos[k][choix[k]]
-		total -= int(couts[k][choix[k]])
+	var reste := []
+	if not rangs.is_empty() and neuves.size() + en_trop > 0:
+		var choix := _affectation(couts, rangs.size(), neuves.size() + en_trop)
+		for k in rangs.size():
+			if choix[k] >= neuves.size():
+				reste.append(rangs[k])
+				continue
+			var image: String = neuves[choix[k]]
+			var a: Array = evals["%s|%s|false" % [rangs[k], image]]
+			var b: Array = evals["%s|%s|true" % [rangs[k], image]]
+			var e: Array = a if a[0] >= b[0] else b
+			salles[rangs[k]]["salle_peinte"] = e[1]
+			usages[image] = [bool(e[1]["miroir"])]
+			total += int(e[0])
+	else:
+		reste = rangs
+	if reste.is_empty():
+		return total
+	# 2) l'autre sens d'une image déjà utilisée une seule fois
+	var libres := []
+	for image in noms:
+		var u: Array = usages.get(image, [])
+		if u.size() == 0:
+			libres.append([image, false])
+			libres.append([image, true])
+		elif u.size() == 1:
+			libres.append([image, not bool(u[0])])
+	if reste.size() > libres.size():
+		push_warning("PlanSalles : plus de salles ordinaires (%d) que d'apparences libres (%d) : des images reviennent" % [reste.size(), libres.size()])
+		var une_fois := []
+		for image in noms:
+			une_fois.append([image, false])
+			une_fois.append([image, true])
+		while reste.size() > libres.size():
+			libres += une_fois
+	couts = []
+	for id in reste:
+		var ligne := []
+		for l in libres:
+			ligne.append(-float(evals["%s|%s|%s" % [id, l[0], l[1]]][0]))
+		couts.append(ligne)
+	var choix2 := _affectation(couts, reste.size(), libres.size())
+	for k in reste.size():
+		var e: Array = evals["%s|%s|%s" % [reste[k], libres[choix2[k]][0], libres[choix2[k]][1]]]
+		salles[reste[k]]["salle_peinte"] = e[1]
+		total += int(e[0])
 	return total
 
 
