@@ -322,8 +322,15 @@ func _imbattable_et_fuite() -> void:
 		for t in 400:
 			for c in Aventure.avancer_chasseurs(donjon, 1.0):
 				entres[c[0]["id"]] = c[0].get("cherche", false)
-		verifier(entres.size() == Aventure.chasseurs(donjon, etage).size(), "combat : tous les chasseurs arrivent dans la salle (%d/%d)" % [
-			entres.size(), Aventure.chasseurs(donjon, etage).size()])
+		# Depuis le 2026-11-04 : seuls les chasseurs dont le territoire contient la salle peuvent y arriver
+		var attendus := Aventure.chasseurs(donjon, etage).filter(func(c): return not c[0].has("territoire") or loin in c[0]["territoire"])
+		# (et jamais plus de 2 geôliers dans une salle)
+		var chevaliers := attendus.filter(func(c): return c[0]["genre"] != "geolier")
+		var nb_geoliers := mini(Aventure.MAX_GEOLIERS_PAR_SALLE, attendus.size() - chevaliers.size())
+		var arrives := chevaliers.filter(func(c): return entres.has(c[0]["id"])).size()
+		var geoliers_arrives := attendus.filter(func(c): return c[0]["genre"] == "geolier" and entres.has(c[0]["id"])).size()
+		verifier(arrives == chevaliers.size() and geoliers_arrives >= nb_geoliers,
+			"combat : tous les chasseurs arrivent dans la salle (%d/%d)" % [arrives + geoliers_arrives, chevaliers.size() + nb_geoliers])
 		verifier(entres.values().all(func(v): return v), "combat : ils savent où est le héros en entrant")
 	# Vacarme : chevalier loin (> 3 salles) téléporté à exactement 3 salles ; geôliers non téléportés, dirigés vers le bruit
 	var bruit_ici := ""
@@ -380,7 +387,8 @@ func _capture() -> void:
 	verifier(not geolier.is_empty(), "il y a un geôlier")
 	var arme = joueur.arme_equipee
 	# Depuis le 2026-11-03 : la prison la plus proche de la salle où le héros est pris
-	var prison_attendue := Aventure.cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]))
+	# Depuis le 2026-11-04 : la prison de son coin pour un geôlier de coin
+	var prison_attendue := Aventure.cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]), int(geolier.get("secteur", -1)))
 	var message: String = Aventure.capturer(donjon, geolier)
 	verifier(message != "", "message de capture")
 	# La lance de test (« god mode ») n'est jamais confisquée (demande de l'utilisateur, 2026-10-29)

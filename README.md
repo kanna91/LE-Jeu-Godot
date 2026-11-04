@@ -82,7 +82,8 @@ stick droit pour choisir un bouton de l'interface.
     l'utilisateur : 300 PV, chaque coup subi ramené à 1 ou 2 dégâts, 3 sur un critique ; frappe 2d6 tranchant +
     1d6 ombre ; plus lent que le héros qui marche ; une fois lancé à sa poursuite, il le **traque sur au moins
     2 salles** sans perdre sa trace ; mieux vaut le fuir) et le **geôlier** (s'il touche le héros, il l'emmène au
-    cachot). **1 chevalier et 2 geôliers par étage** (décision de l'utilisateur, 2026-10-27 ; le karma négatif en
+    cachot). **1 chevalier et 5 geôliers par étage** (décisions de l'utilisateur, 2026-10-27 et 2026-11-04 : un geôlier
+    par secteur, voir « Étage carré » ; le karma négatif en
     ajoute un tous les 5 points, voir « Karma »).
   - **L'étage vit** (règles de l'utilisateur, 2026-10-27 ; `Aventure` « chasseurs », `menu_navigation._faire_vivre_l_etage`) :
     le chevalier part du **milieu de l'étage** (`Aventure.centre_etage` : la salle d'où la plus lointaine est la plus
@@ -98,7 +99,8 @@ stick droit pour choisir un bouton de l'interface.
     salle** (ils l'entendent de plus loin), pas le reste de l'étage (décision de l'utilisateur). **Toute défaite est
     la mort** ; seul le geôlier mène en prison.
   - **Capture** (`Aventure.capturer`) : depuis le 2026-11-03 (règle de l'utilisateur), le geôlier met le héros dans la
-    **prison la plus proche** de la salle où il est pris (des 4 prisons des coins, la plus proche par le chemin ; il se
+    **prison la plus proche** de la salle où il est pris (depuis le 2026-11-04 : la prison de son coin pour un geôlier
+    de coin ; sinon, des 4 prisons des coins, la plus proche par le chemin ; il se
     réveille dans sa 2e grande salle, au fond, à côté du couloir des cryptes : `Aventure.cellule_la_plus_proche`) ; le
     coffre des confiscations est près de cette prison. Sans prison (ancienne partie) : le **cachot** de l'étage (une
     salle à image « prison » la plus loin du boss, à au moins 3 salles du départ, qui sert aussi au Pacte de mort ;
@@ -126,8 +128,15 @@ stick droit pour choisir un bouton de l'interface.
     frontière** (clé « frontiere »). Aucun autre passage ne relie deux secteurs (les complexes, fermés aux geôliers,
     les relient pour le héros). Les chemins évitent deux pas horizontaux de suite (`PENALITE_HORIZONTALE`) : une salle
     qui ne mène qu'à gauche et à droite n'a que 8 apparences parmi les images, contre 94 pour un couloir vertical.
-    **Les geôliers ne suivent pas encore les secteurs** (à brancher : 5 geôliers, un par coin et un central, qui
-    s'arrête au bord de son secteur ; au plus 2 geôliers par salle).
+  - **Un geôlier par secteur** (décision de l'utilisateur, 2026-11-04 : 5 geôliers par étage, `Aventure.GEOLIERS_PAR_ETAGE`) :
+    chacun patrouille dans son **territoire** (`Aventure.territoires`, clés « secteur » et « territoire » du geôlier) et
+    **s'arrête à son bord**, même quand il poursuit le héros (`but_permis` : il va à la salle de son territoire la plus
+    proche du héros) ou le suit d'une salle à l'autre. Territoire d'un geôlier de coin : son secteur plus au moins
+    `MORSURE_CENTRE` (5) salles du centre derrière sa salle frontière, et assez pour en avoir `TERRITOIRE_MIN` (20)
+    (mesure : 20 à 31 salles, morsure de 5 à 8). Geôlier central : tout le centre sauf la salle du boss, plus les 4
+    salles frontières (45 à 60 salles) ; il part à côté du boss. **Jamais plus de 2 geôliers dans une salle**
+    (`MAX_GEOLIERS_PAR_SALLE`, `ouverte_au`). Un geôlier de coin enferme le héros dans **sa** prison ; le central, dans
+    la plus proche. Anciennes parties sans secteurs : 2 geôliers qui vont partout (`GEOLIERS_SANS_SECTEURS`).
 
   **Ce que contient un étage** (`Aventure.preparer_etage`, une fois, enregistré dans la partie : clé « presences »
   de chaque salle, réglages de l'étage dans `donjon.aventure`) :
@@ -380,7 +389,7 @@ stick droit pour choisir un bouton de l'interface.
   | Groupes par salle ordinaire | 0 : 80 %, 1 : 20 % (« très peu », décision de l'utilisateur du 2026-10-30 ; 35/50/15 avant) ; 2 ennemis au plus par groupe, loup compris (`Aventure.MAX_PAR_GROUPE`) ; ≈ 8 groupes par étage de 50 salles, ≈ 13 depuis les étages de 80 |
   | Élite / pacifique | 12 % / 15 % des groupes |
   | Chevalier de la mort par étage | 1 de base, + 1 par palier de 5 points de karma négatif |
-  | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 2 / 7 (utilisateur) / 2 |
+  | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 5, un par secteur (utilisateur) / 7 (utilisateur) / 2 |
   | Pupitre, râtelier | pupitre un étage sur deux (50 %), râtelier 1 par étage |
   | Cachettes | 2 à 3 par étage, au moins une clé par salle verrouillée ; le reste : or 45, objet 40, grimoire 15 (poids) |
   | Grimoire | sort de palier 0 à l'étage (5 au plus) ; gobelin soigné : grimoire 25 %, clé 75 % |
@@ -1080,6 +1089,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
 & $godot --headless --path . -s tests/test_chasseurs_libres.gd # geôliers et Chevaliers de la mort jamais enfermés par les blocs fermés (15 donjons)
+& $godot --headless --path . -s tests/test_geoliers_secteurs.gd # 5 geôliers, territoires ≥ 20 salles, ronde et poursuite sans sortir du territoire, 2 par salle au plus, capture dans sa prison
 & $godot --path . -s tests/capture_jardin.gd             # captures 250-267 : chaque salle du jardin (hors écran)
 & $godot --path . -s tests/capture_etage_carre.gd        # captures 270-272 : carte complète de trois étages carrés (hors écran)
 & $godot --path . -s tests/capture_laboratoire.gd        # captures 210-245 : chaque salle du bloc laboratoire, arrivée par le bas (hors écran)
@@ -1172,6 +1182,21 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Cinq geôliers, un par secteur
+
+- **Décision de l'utilisateur** : 5 geôliers, un par coin et un central basé au boss ; chacun s'arrête au bord de son
+  secteur ; au plus 2 geôliers par salle ; un geôlier de coin peut « mordre » au moins 5 salles du centre pour avoir
+  au moins 20 salles où rôder.
+- `Aventure` : `GEOLIERS_PAR_ETAGE` 5, `MORSURE_CENTRE` 5, `TERRITOIRE_MIN` 20, `MAX_GEOLIERS_PAR_SALLE` 2 ;
+  `territoires` (secteur + morsure en largeur depuis la salle frontière), `_poser_geoliers` (dans son secteur, loin du
+  départ ; le central près du boss), `ouverte_au` (refuges, cryptes, territoire, 2 par salle), `but_permis` (poursuite
+  arrêtée au bord). Appliqué à la ronde et à la poursuite (`prochaine_salle`), au héros suivi d'une salle à l'autre
+  (`menu_navigation`), au départ du geôlier après une capture et au Baiser du geôlier. Capture : la prison du coin du
+  geôlier (`cellule_la_plus_proche`, paramètre `prison`).
+- Mesure (8 donjons) : territoires des coins de 20 à 31 salles (morsure de 5 à 8), central de 45 à 60 ; en 10 minutes,
+  un geôlier de coin voit tout son territoire, le central 37 à 42 salles.
+- Test : nouveau `test_geoliers_secteurs.gd`.
 
 ### 2026-11-04 — Étage carré en 5 secteurs (geôliers pas encore branchés)
 

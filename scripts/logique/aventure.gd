@@ -36,10 +36,21 @@ const DISTANCE_CLE_BOSS := 8
 ## « chef » / mini-boss, porte un équipement qu'elle lâche (renommée le 2026-10-31 à la demande de l'utilisateur).
 ## Vitesse de poursuite d'un groupe de squelettes dans les salles (gobelins : 0,58 ; choix de Claude).
 const VITESSE_SQUELETTES := 0.45
-## Chevaliers de la mort (« imbattables ») et geôliers par étage (décision de l'utilisateur, 2026-10-27 : 1 et 2).
-## La colère (gobelins pacifiques tués) ajoute des chevaliers.
+## Chevaliers de la mort (« imbattables ») par étage (décision de l'utilisateur, 2026-10-27 : 1). La colère (gobelins
+## pacifiques tués) ajoute des chevaliers.
 const CHEVALIERS_PAR_ETAGE := 1
-const GEOLIERS_PAR_ETAGE := 2
+## Geôliers par étage (décision de l'utilisateur, 2026-11-04 ; 2 avant) : un par secteur de l'étage carré
+## (GenerateurEtage : 4 coins et le centre). Chacun patrouille dans son **territoire** et s'arrête à son bord, même en
+## poursuivant le héros. Territoire d'un geôlier de coin : son secteur, plus au moins MORSURE_CENTRE salles du centre
+## derrière sa salle frontière, et autant qu'il faut pour en avoir TERRITOIRE_MIN. Geôlier central : tout le centre (sauf
+## la salle du boss) et les 4 salles frontières ; il part près du boss. Jamais plus de MAX_GEOLIERS_PAR_SALLE geôliers
+## dans une salle. Un geôlier de coin enferme le héros dans **sa** prison.
+const GEOLIERS_PAR_ETAGE := 5
+const MORSURE_CENTRE := 5
+const TERRITOIRE_MIN := 20
+const MAX_GEOLIERS_PAR_SALLE := 2
+## Geôliers d'un étage sans secteurs (anciennes parties) : posés loin du départ, ils vont partout.
+const GEOLIERS_SANS_SECTEURS := 2
 ## Diablotins par étage : [min, max] (7, décision de l'utilisateur, 2026-10-27 ; 1 à 2 avant).
 const DIABLOTINS_PAR_ETAGE := [7, 7]
 ## Rencontres à choix moral par étage (gobelin blessé, prisonnier, autel).
@@ -364,8 +375,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 		milieu = ""
 	for k in CHEVALIERS_PAR_ETAGE + m["colere"]:
 		ajouter_menace(donjon, etage, "imbattable", [milieu] if k < CHEVALIERS_PAR_ETAGE and milieu != "" else loin)
-	for _k in GEOLIERS_PAR_ETAGE:
-		ajouter_menace(donjon, etage, "geolier", loin)
+	_poser_geoliers(donjon, etage, loin, dist)
 	# Personnages et choses : chacun dans une salle ordinaire différente si possible
 	var places := ordinaires.duplicate()
 	places.shuffle()
@@ -616,6 +626,115 @@ static func _fixer_elites(donjon, etage: int, m: Dictionary) -> void:
 			g.erase("membres")
 
 
+## Territoires des geôliers d'un étage carré : {secteur: [ids]} (voir GEOLIERS_PAR_ETAGE) ; {} sans secteurs.
+static func territoires(salles: Dictionary) -> Dictionary:
+	var centre := GenerateurEtage.CENTRE
+	var par_secteur := {}
+	for i in salles:
+		var s: Dictionary = salles[i]
+		if not s.has("secteur") or s.get("boss", false) or fermee_a(s, "geolier"):
+			continue
+		var k := int(s["secteur"])
+		if not par_secteur.has(k):
+			par_secteur[k] = []
+		par_secteur[k].append(i)
+	if not par_secteur.has(centre):
+		return {}
+	var resultat := {centre: par_secteur[centre].duplicate()}
+	for k in par_secteur:
+		if k == centre:
+			continue
+		var liste: Array = par_secteur[k].duplicate()
+		# Morsure sur le centre : en largeur depuis la salle frontière du coin
+		var file := []
+		var vues := {}
+		for i in liste:
+			vues[i] = true
+			if salles[i].get("frontiere", false):
+				file.append(i)
+				resultat[centre].append(i)  # la salle frontière est aussi au geôlier central
+		var prises := 0
+		while not file.is_empty() and (prises < MORSURE_CENTRE or liste.size() < TERRITOIRE_MIN):
+			var c: String = file.pop_front()
+			for v in salles[c].get("connections", []):
+				var vs := str(v)
+				if vues.has(vs) or not salles.has(vs):
+					continue
+				vues[vs] = true
+				var t: Dictionary = salles[vs]
+				if int(t.get("secteur", -1)) != centre or t.get("boss", false) or fermee_a(t, "geolier"):
+					continue
+				if prises >= MORSURE_CENTRE and liste.size() >= TERRITOIRE_MIN:
+					break
+				liste.append(vs)
+				prises += 1
+				file.append(vs)
+		resultat[k] = liste
+	return resultat
+
+
+## Pose les geôliers de l'étage : un par secteur (étage carré), loin du départ (au moins DISTANCE_MENACES salles) ;
+## le central près du boss. Sans secteurs : GEOLIERS_SANS_SECTEURS geôliers dans les salles ``loin``.
+static func _poser_geoliers(donjon, etage: int, loin: Array, dist: Dictionary) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	var terr := territoires(salles)
+	if terr.is_empty():
+		for _k in GEOLIERS_SANS_SECTEURS:
+			ajouter_menace(donjon, etage, "geolier", loin)
+		return
+	var boss := ""
+	for i in salles:
+		if salles[i].get("boss", false):
+			boss = i
+	var d_boss := distances_depuis(salles, boss) if boss != "" else {}
+	for k in terr:
+		var liste: Array = terr[k]
+		# Départ dans son propre secteur (pas dans la morsure), loin du départ du héros, hors des salles spéciales
+		var places: Array = liste.filter(func(i): return int(salles[i].get("secteur", -1)) == k \
+			and int(dist.get(i, 0)) >= DISTANCE_MENACES and not salles[i].get("depart", false) \
+			and salles[i].get("type") != "bonus" and not salles[i].get("cachot", false) and not Zones.refuge(salles[i]))
+		if places.is_empty():
+			places = liste.filter(func(i): return not salles[i].get("depart", false))
+		if k == GenerateurEtage.CENTRE and not d_boss.is_empty():
+			places.sort_custom(func(a, b): return int(d_boss.get(a, 99)) < int(d_boss.get(b, 99)))
+			places = places.slice(0, 4)
+		var p := ajouter_menace(donjon, etage, "geolier", places)
+		if not p.is_empty():
+			p["secteur"] = k
+			p["territoire"] = liste.duplicate()
+
+
+## Vrai si le chasseur ``p`` peut entrer dans la salle ``id`` : pas fermée à son genre (fermee_a) ; pour un geôlier,
+## dans son territoire (s'il en a un) et sans déjà MAX_GEOLIERS_PAR_SALLE autres geôliers.
+static func ouverte_au(salles: Dictionary, p: Dictionary, id: String) -> bool:
+	if not salles.has(id) or fermee_a(salles[id], String(p.get("genre", ""))):
+		return false
+	if p.get("genre", "") != "geolier":
+		return true
+	if p.has("territoire") and not (id in p["territoire"]):
+		return false
+	var autres := 0
+	for q in salles[id].get("presences", []):
+		if q.get("genre", "") == "geolier" and q.get("etat", "actif") == "actif" and q.get("id") != p.get("id"):
+			autres += 1
+	return autres < MAX_GEOLIERS_PAR_SALLE
+
+
+## But atteignable par le chasseur ``p`` : ``but`` s'il est dans son territoire, sinon la salle de son territoire la
+## plus proche de ``but`` (il s'arrête au bord, décision de l'utilisateur 2026-11-04).
+static func but_permis(salles: Dictionary, p: Dictionary, but: String) -> String:
+	if not p.has("territoire") or but in p["territoire"]:
+		return but
+	var d := distances_pour(salles, but, String(p["genre"]))
+	var meilleure := but
+	var d_min := 1 << 20
+	for i in p["territoire"]:
+		if int(d.get(i, 1 << 20)) < d_min:
+			d_min = int(d[i])
+			meilleure = String(i)
+	return meilleure
+
+
 ## Ajoute un imbattable ou un geôlier dans une des salles ``parmi`` (toutes les ordinaires si vide).
 static func ajouter_menace(donjon, etage: int, genre: String, parmi := []) -> Dictionary:
 	if genre in HORS_CRYPTES and Donjon.est_niveau_unique(etage):
@@ -846,14 +965,16 @@ static func duree_salle(p: Dictionary) -> float:
 ## une voisine au hasard (pas celle d'où il vient, sauf impasse ; jamais la salle du boss).
 static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 	var salles: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])]
+	if p.has("but") and salles.has(str(p["but"])):
+		p["but"] = but_permis(salles, p, str(p["but"]))  # un geôlier ne sort pas de son territoire
 	if p.has("but") and str(p["but"]) == ici:
 		p.erase("but")
 	if p.has("but") and salles.has(str(p["but"])):
 		var dist := distances_pour(salles, str(p["but"]), String(p["genre"]))
 		var pas := ""
 		for v in salles[ici].get("connections", []):
-			if salles.has(str(v)) and fermee_a(salles[str(v)], String(p["genre"])):
-				continue  # jamais dans un refuge (cuisine), ni dans les cryptes pour un geôlier : il s'arrête à la porte
+			if not ouverte_au(salles, p, str(v)):
+				continue  # jamais dans un refuge (cuisine), ni dans les cryptes ou hors de son territoire pour un geôlier
 			if pas == "" or dist.get(str(v), 1 << 20) < dist.get(pas, 1 << 20):
 				pas = str(v)
 		if pas != "" and dist.get(pas, 1 << 20) < dist.get(ici, 1 << 20):
@@ -861,7 +982,7 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 		p.erase("but")  # le but est dans un refuge (ou hors d'atteinte) : il renonce et erre
 	var voisines := []
 	for v in salles[ici].get("connections", []):
-		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and not fermee_a(salles[str(v)], String(p["genre"])):
+		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and ouverte_au(salles, p, str(v)):
 			voisines.append(str(v))
 	if voisines.size() > 1:
 		voisines.erase(str(p.get("venu_de", "")))
@@ -1061,7 +1182,8 @@ static func cadavre(donjon, p: Dictionary) -> String:
 ## Le geôlier emmène le héros au cachot : tous ses objets et son or sont confisqués (coffre des confiscations,
 ## perdus, ou portés par un porteur), il se réveille dans la **prison la plus proche** de la salle où il a été pris
 ## (règle de l'utilisateur, 2026-11-03 : ``cellule_la_plus_proche`` ; avant, toujours le cachot de l'étage). Le
-## coffre des confiscations est près de cette prison. Le geôlier repart dans une autre salle.
+## coffre des confiscations est près de cette prison. Le geôlier repart dans une autre salle (de son territoire).
+## Depuis le 2026-11-04, un geôlier de coin enferme le héros dans **sa** prison.
 ## Renvoie le message à afficher.
 static func capturer(donjon, geolier: Dictionary) -> String:
 	var etage := int(donjon.salle_actuelle[0])
@@ -1099,7 +1221,8 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 			perdus += 1
 		else:
 			portes.append(objet)
-	var cachot := cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]))
+	# Un geôlier de coin enferme le héros dans sa prison ; le central, dans la plus proche
+	var cachot := cellule_la_plus_proche(donjon, etage, str(donjon.salle_actuelle[1]), int(geolier.get("secteur", -1)))
 	var ailleurs := []
 	for i in salles_ordinaires(donjon, etage):
 		if i != cachot:
@@ -1118,7 +1241,7 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 		portes = portes.slice(OBJETS_PAR_PORTEUR)
 		salles[pour_porteurs.pick_random()]["presences"].append({"id": _nouvel_id(m), "genre": "porteur", "etat": "actif", "objets": lot})
 	# Le geôlier quitte sa salle pour une autre (jamais le cachot ni un refuge)
-	var pour_geolier := ailleurs.filter(func(i): return not fermee_a(salles[i], "geolier"))
+	var pour_geolier := ailleurs.filter(func(i): return ouverte_au(salles, geolier, i) and i != str(donjon.salle_actuelle[1]))
 	_deplacer(salles, geolier, (pour_geolier if not pour_geolier.is_empty() else ailleurs).pick_random())
 	donjon.salle_actuelle = [etage, int(cachot)]
 	salles[cachot]["visitee"] = true
@@ -1132,7 +1255,7 @@ static func capturer(donjon, geolier: Dictionary) -> String:
 ## Prison où le geôlier enferme le héros pris dans la salle ``depuis`` (2026-11-03) : la prison des coins la plus
 ## proche par le chemin (distance de ``depuis`` à sa première grande salle), et dans cette prison la 2e grande salle,
 ## au fond, à côté du couloir des cryptes. Sans prison (ancienne partie, niveau unique) : le cachot de l'étage.
-static func cellule_la_plus_proche(donjon, etage: int, depuis: String) -> String:
+static func cellule_la_plus_proche(donjon, etage: int, depuis: String, prison := -1) -> String:
 	var salles: Dictionary = donjon.plan_donjon[etage]
 	var dist := distances_depuis(salles, depuis) if salles.has(depuis) else {}
 	var entrees := {}
@@ -1145,6 +1268,8 @@ static func cellule_la_plus_proche(donjon, etage: int, depuis: String) -> String
 				fonds[int(salles[i]["prison"])] = i
 	var meilleure := ""
 	var d_min := 1 << 30
+	if fonds.has(prison):
+		return String(fonds[prison])  # la prison du geôlier de ce coin (2026-11-04)
 	for k in entrees:
 		var d := int(dist.get(entrees[k], 1 << 29))
 		if fonds.has(k) and d < d_min:
@@ -1268,7 +1393,8 @@ static func repousser_geolier(donjon, geolier: Dictionary) -> String:
 	var etage := int(donjon.salle_actuelle[0])
 	var ici := str(donjon.salle_actuelle[1])
 	var cachot := String(meta(donjon, etage).get("cachot", ""))
-	var ailleurs := salles_pour_ennemis(donjon, etage).filter(func(i): return i != ici and i != cachot)
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	var ailleurs := salles_pour_ennemis(donjon, etage).filter(func(i): return i != ici and i != cachot and ouverte_au(salles, geolier, i))
 	if not ailleurs.is_empty():
 		_deplacer(donjon.plan_donjon[etage], geolier, ailleurs.pick_random())
 	return "Sa main de fer se pose sur vous... et se retire dans un cri : le baiser de la succube l'a brûlé. Le geôlier s'enfuit."

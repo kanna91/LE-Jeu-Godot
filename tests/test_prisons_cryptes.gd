@@ -172,7 +172,7 @@ func _geoliers(donjon, k: int) -> void:
 			if p.get("genre") == "geolier":
 				dans_cryptes += 1
 	verifier(dans_cryptes == 0, "%d : aucun geôlier dans les cryptes (%d)" % [k, dans_cryptes])
-	verifier(Aventure.chasseurs(donjon, 1).filter(func(c): return c[0]["genre"] == "geolier").size() == 2, "%d : les 2 geôliers sont sur l'étage" % k)
+	verifier(Aventure.chasseurs(donjon, 1).filter(func(c): return c[0]["genre"] == "geolier").size() == Aventure.GEOLIERS_PAR_ETAGE, "%d : les %d geôliers sont sur l'étage" % [k, Aventure.GEOLIERS_PAR_ETAGE])
 	if k > 0:
 		return
 	verifier(Aventure.ajouter_menace(donjon, Donjon.NIVEAU_CRYPTES, "geolier").is_empty(), "pas de geôlier posé dans les cryptes")

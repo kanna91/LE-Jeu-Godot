@@ -191,6 +191,10 @@ func _franchir(dest: String, sortie := -1) -> void:
 		# Refuge (cuisine) : aucun ennemi ne suit le héros, pas même le chevalier ou un geôlier
 		if Zones.refuge(donjon.salle_courante()):
 			suiveurs = []
+		# Un geôlier ne sort pas de son territoire et jamais plus de 2 geôliers dans une salle (2026-11-04)
+		var etage_salles: Dictionary = donjon.plan_donjon[etage_depart]
+		var ici_id := str(donjon.salle_actuelle[1])
+		suiveurs = suiveurs.filter(func(p): return Aventure.ouverte_au(etage_salles, p, ici_id))
 		for p in suiveurs:
 			quittee["presences"].erase(p)
 			p["suit"] = true
