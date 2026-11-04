@@ -103,7 +103,7 @@ func _editeur() -> void:
 	ed._charger()
 	var depart: int = ed.salle.donnees["butins"].size()
 	ed.choisir_onglet(true)
-	verifier(ed.mode_butin and ed.onglets.current_tab == 1, "onglet Butin choisi")
+	verifier(ed.mode_butin and ed.couche_active() == "butin", "couche Butin choisie")
 	ed._categorie_choisie(Fouille.CATEGORIES_BUTIN.find("nourriture"))
 	var k_objet: int = ObjetsDivers.noms("nourriture").find("Bol de soupe") + 1
 	ed.choix_objet.select(k_objet)

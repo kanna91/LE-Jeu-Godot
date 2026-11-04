@@ -33,6 +33,12 @@ extends Control
 ## (``donnees/dialogues.json`` et ``donnees/prisonniers.json``), voir ``EditeurDialogues``.
 ## Enregistrer (Ctrl+S) écrit ``donnees/salles_peintes/<id>.json`` et ``outils/zones_manuelles/<id>.json`` ;
 ## ce second fichier est relu par les importeurs et le détourage automatique, qui ne l'écrasent plus.
+## Refonte du 2026-11-04 (demande de l'utilisateur : « plus ergonomique, avec des menus déroulants ») : une barre de
+## menus en haut (Fichier, Édition, Couche, Affichage, Données), le choix de la salle et le bouton Édition / Marche à
+## droite ; le panneau de droite change selon la couche (Butin, Ennemis). Les raccourcis clavier restent.
+## Couche « Ennemis » (touche E, 2026-11-04) : cocher les ennemis permis dans la salle ; un ennemi décoché n'y est
+## jamais posé et n'y entre pas (clé « ennemis_interdits », Aventure.interdite_a).
+## En marchant, Maj fait courir le héros (bascule, comme dans le jeu ; 2026-11-04).
 
 const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
@@ -67,6 +73,18 @@ const ONGLETS_ZONES := {
 			+ "glisser un point ou l'intérieur : déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
 			+ "dans le jeu, dans cette zone : « Point d'eau : remplir le seau (K) »   1-6 : zones   7 : butin   8 : feux   Ctrl+Z / Ctrl+S   F1 : aide"},
 }
+## Couches du menu « Couche » : zones, puis Butin et Ennemis (panneaux à droite).
+const LISTE_COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux",
+	"butin", "ennemis"]
+const RACCOURCIS_COUCHES := {"marche": "1", "obstacles": "2", "premier_plan": "3", "sorties": "4", "prisonniers": "5",
+	"cachettes": "6", "butin": "7", "feux": "8", "eaux": "9", "ennemis": "E"}
+const COULEUR_ENNEMIS := Color(1, 0.4, 0.45)
+const AIDE_ENNEMIS := "Couche Ennemis — cochez dans le panneau de droite les ennemis qui peuvent se trouver dans cette salle\n" \
+	+ "un ennemi décoché n'y est jamais posé, n'y entre pas en rôdant ni en poursuivant le héros (un groupe : si un de ses membres est décoché)\n" \
+	+ "Ctrl+S : enregistrer   Ctrl+Z : annuler   menus en haut : autres couches, salles, affichage   F1 : replier l'aide"
+## Identifiants des entrées des menus déroulants.
+enum {M_ENREGISTRER, M_SALLE_PREC, M_SALLE_SUIV, M_RECHARGER, M_ANNULER = 10, M_MODE, M_DEPART, M_VUE = 30, M_ZONES,
+	M_HEROS, M_AIDE, M_DIALOGUES = 40, M_DONNEES_ENNEMIS, M_COUCHE = 100}
 const POTIONS := ["", "pv", "mana", "mixte"]
 const NOMS_POTIONS := ["Au hasard", "Soin", "Mana", "Régénération"]
 const EQUIPEMENTS := ["", "armure", "bijou"]
@@ -101,7 +119,12 @@ var zoom := 1.0
 var aide_complete := true
 ## Onglet « Butin » actif (sinon : zones).
 var mode_butin := false
-var onglets: TabBar
+## Couche « Ennemis » active (panneau des ennemis permis).
+var mode_ennemis := false
+var menus := {}  # nom → MenuButton
+var bouton_mode: Button
+var module_ennemis: PanelContainer
+var cases_ennemis := {}  # sorte → CheckBox
 var module: PanelContainer
 var choix_categorie: OptionButton
 var choix_objet: OptionButton
@@ -118,11 +141,10 @@ var glisse_butin := -1
 var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": "", "rang": 0}
 var _maj_module := false
 var dialogues: EditeurDialogues
-const AIDE := "Tab : éditer / marcher   1-6 : couche (6 : cachettes)   clic : ajouter un point (Entrée ou clic sur le 1er point : fermer)\n" \
-	+ "glisser un point : le déplacer   Maj+clic sur un bord : nouveau point   clic droit : retirer point / zone\n" \
-	+ "sorties et prisonniers : glisser l'intérieur = déplacer la zone   D sur une sortie : changer sa direction   O : sortie potentielle\n" \
-	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer\n" \
-	+ "◀ ▶ / Page préc./suiv. : salle (enregistre la salle quittée)   H : héros visible   P : poser le héros   " 	+ "R (en marchant) : héros au départ   F2 : zones en marchant   F3 : dialogues   F1 : replier l'aide"
+const AIDE := "Tab : éditer / marcher   1-6 : zones   7 : butin   8 : feux   9 : eau   E : ennemis (ou menu Couche)
+" 	+ "clic : ajouter un point (Entrée ou 1er point : fermer)   glisser un point : le déplacer   Maj+clic sur un bord : nouveau point
+" 	+ "clic droit : retirer point / zone   sorties, prisonniers : glisser l'intérieur = déplacer   D : direction   O : sortie potentielle
+" 	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   H : héros   P : poser le héros   Ctrl+Z / Ctrl+S   F1 : replier"
 
 
 func _ready() -> void:
@@ -139,11 +161,15 @@ func _ready() -> void:
 	add_child(salle)
 	calque = Calque.new()
 	calque.editeur = self
-	texte = _etiquette(Vector2(12, 8), 15)
+	texte = _etiquette(Vector2(12, 34), 15)
 	aide = _etiquette(Vector2(12, 520), 12)
-	_barre_salles()
+	_barre_menus()
 	_creer_module()
+	_creer_module_ennemis()
 	_charger()
+	for a in demande:  # --couche=ennemis : couche choisie au départ (captures)
+		if a.begins_with("--couche="):
+			choisir_couche(a.trim_prefix("--couche="))
 	if "--capture" in demande:  # vérification hors écran
 		for _i in 20:
 			await get_tree().process_frame
@@ -162,20 +188,60 @@ func _etiquette(p: Vector2, taille: int) -> Label:
 	return l
 
 
-## Boutons ◀ ▶ et liste des salles, en haut à droite (changer de salle sans quitter l'éditeur).
-func _barre_salles() -> void:
+## Barre du haut : menus déroulants à gauche, salle (◀ liste ▶) et mode Édition / Marche à droite.
+func _barre_menus() -> void:
+	var fond := PanelContainer.new()
+	fond.position = Vector2.ZERO
+	fond.custom_minimum_size = Vector2(960, 0)
+	fond.z_index = 100
+	var style := StyleBoxFlat.new()
+	style.bg_color = Color(0.09, 0.08, 0.12, 0.95)
+	style.border_color = Color(0.35, 0.3, 0.45)
+	style.border_width_bottom = 1
+	style.content_margin_left = 4
+	style.content_margin_right = 4
+	fond.add_theme_stylebox_override("panel", style)
+	var theme_barre := Theme.new()
+	theme_barre.default_font_size = 13
+	fond.theme = theme_barre
+	add_child(fond)
 	var barre := HBoxContainer.new()
-	barre.position = Vector2(530, 6)
-	barre.z_index = 100
-	add_child(barre)
+	fond.add_child(barre)
+	var fichier := _menu(barre, "Fichier")
+	fichier.add_item("Enregistrer   (Ctrl+S)", M_ENREGISTRER)
+	fichier.add_separator()
+	fichier.add_item("Salle précédente   (Page préc.)", M_SALLE_PREC)
+	fichier.add_item("Salle suivante   (Page suiv.)", M_SALLE_SUIV)
+	fichier.add_item("Recharger la salle (oublie les modifications)", M_RECHARGER)
+	var edit := _menu(barre, "Édition")
+	edit.add_item("Annuler   (Ctrl+Z)", M_ANNULER)
+	edit.add_item("Éditer / marcher   (Tab)", M_MODE)
+	edit.add_item("Héros au départ de la salle   (R)", M_DEPART)
+	var couches := _menu(barre, "Couche")
+	for k in LISTE_COUCHES.size():
+		if LISTE_COUCHES[k] == "butin":
+			couches.add_separator()
+		couches.add_radio_check_item("%s   (%s)" % [nom_couche(LISTE_COUCHES[k]), RACCOURCIS_COUCHES[LISTE_COUCHES[k]]], M_COUCHE + k)
+	var vue := _menu(barre, "Affichage")
+	vue.add_item("Vue entière   (0)", M_VUE)
+	vue.add_check_item("Zones visibles en marchant   (F2)", M_ZONES)
+	vue.add_check_item("Héros visible pendant l'édition   (H)", M_HEROS)
+	vue.add_check_item("Aide détaillée en bas   (F1)", M_AIDE)
+	var donnees := _menu(barre, "Données")
+	donnees.add_item("Dialogues des personnages   (F3)", M_DIALOGUES)
+	var vide := Control.new()
+	vide.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	barre.add_child(vide)
 	var prec := Button.new()
 	prec.text = "◀"
 	prec.focus_mode = Control.FOCUS_NONE
+	prec.tooltip_text = "Salle précédente (Page préc.)"
 	prec.pressed.connect(func(): changer_salle(numero - 1))
 	barre.add_child(prec)
 	liste_salles = OptionButton.new()
 	liste_salles.focus_mode = Control.FOCUS_NONE
-	liste_salles.custom_minimum_size = Vector2(215, 0)
+	liste_salles.custom_minimum_size = Vector2(170, 0)
+	liste_salles.fit_to_longest_item = false
 	for id in salles:
 		liste_salles.add_item(id)
 	liste_salles.item_selected.connect(func(k): changer_salle(k))
@@ -183,13 +249,102 @@ func _barre_salles() -> void:
 	var suiv := Button.new()
 	suiv.text = "▶"
 	suiv.focus_mode = Control.FOCUS_NONE
+	suiv.tooltip_text = "Salle suivante (Page suiv.)"
 	suiv.pressed.connect(func(): changer_salle(numero + 1))
 	barre.add_child(suiv)
-	var bouton_dialogues := Button.new()
-	bouton_dialogues.text = "Dialogues"
-	bouton_dialogues.focus_mode = Control.FOCUS_NONE
-	bouton_dialogues.pressed.connect(ouvrir_dialogues)
-	barre.add_child(bouton_dialogues)
+	bouton_mode = Button.new()
+	bouton_mode.focus_mode = Control.FOCUS_NONE
+	bouton_mode.custom_minimum_size = Vector2(118, 0)
+	bouton_mode.tooltip_text = "Tab : éditer les zones ou marcher dans la salle"
+	bouton_mode.pressed.connect(basculer_mode)
+	barre.add_child(bouton_mode)
+
+
+func _menu(barre: HBoxContainer, titre: String) -> PopupMenu:
+	var m := MenuButton.new()
+	m.text = titre + " ▾"
+	m.flat = true
+	m.switch_on_hover = true
+	m.focus_mode = Control.FOCUS_NONE
+	barre.add_child(m)
+	menus[titre] = m
+	var popup := m.get_popup()
+	popup.id_pressed.connect(_menu_choisi)
+	return popup
+
+
+## Nom lisible d'une couche du menu « Couche ».
+static func nom_couche(c: String) -> String:
+	return {"butin": "Butin", "ennemis": "Ennemis permis"}.get(c, NOMS.get(c, c))
+
+
+## Entrée d'un menu déroulant choisie.
+func _menu_choisi(id: int) -> void:
+	message = ""
+	if id >= M_COUCHE:
+		choisir_couche(LISTE_COUCHES[id - M_COUCHE])
+		return
+	match id:
+		M_ENREGISTRER:
+			_enregistrer()
+		M_SALLE_PREC:
+			changer_salle(numero - 1)
+		M_SALLE_SUIV:
+			changer_salle(numero + 1)
+		M_RECHARGER:
+			modifie = false
+			_charger()
+			message = "Salle rechargée (modifications oubliées)"
+		M_ANNULER:
+			_annuler()
+		M_MODE:
+			basculer_mode()
+		M_DEPART:
+			salle.heros.position = salle.sur_le_sol(Vector2(salle.donnees["depart"][0], salle.donnees["depart"][1]))
+			heros_en_edition = true
+			salle.heros.visible = true
+			message = "Héros remis au départ"
+		M_VUE:
+			_vue(1.0, Vector2.ZERO)
+		M_ZONES:
+			voir_zones = not voir_zones
+		M_HEROS:
+			heros_en_edition = not heros_en_edition
+			salle.heros.visible = heros_en_edition or not edition
+		M_AIDE:
+			aide_complete = not aide_complete
+		M_DIALOGUES:
+			ouvrir_dialogues()
+		M_DONNEES_ENNEMIS:
+			ouvrir_donnees_ennemis()
+	_maj_menus()
+
+
+## Coches des menus et texte du bouton de mode, d'après l'état de l'éditeur.
+func _maj_menus() -> void:
+	if menus.is_empty():
+		return
+	var vue: PopupMenu = menus["Affichage"].get_popup()
+	vue.set_item_checked(vue.get_item_index(M_ZONES), voir_zones)
+	vue.set_item_checked(vue.get_item_index(M_HEROS), heros_en_edition)
+	vue.set_item_checked(vue.get_item_index(M_AIDE), aide_complete)
+	var c: PopupMenu = menus["Couche"].get_popup()
+	var active := couche_active()
+	for k in LISTE_COUCHES.size():
+		c.set_item_checked(c.get_item_index(M_COUCHE + k), LISTE_COUCHES[k] == active)
+	menus["Couche"].text = "Couche : %s ▾" % nom_couche(active).get_slice(" (", 0)
+	bouton_mode.text = "✎ Édition" if edition else "🚶 Marche"
+
+
+func basculer_mode() -> void:
+	edition = not edition
+	_appliquer_mode()
+	_maj_menus()
+
+
+## Ouvre l'éditeur des données des ennemis (compétences, altérations, IA, butin), par-dessus la salle.
+func ouvrir_donnees_ennemis() -> void:
+	message = "Données des ennemis : bientôt"
 
 
 ## Ouvre le menu des dialogues des personnages (par-dessus la salle).
@@ -256,6 +411,9 @@ func _charger() -> void:
 		if b is Dictionary:
 			butins.append(b.duplicate())
 	salle.donnees["butins"] = butins
+	var interdits = salle.donnees.get("ennemis_interdits", [])
+	salle.donnees["ennemis_interdits"] = interdits.duplicate() if interdits is Array else []
+	_remplir_ennemis()
 	butin_choisi = -1
 	glisse_butin = -1
 	_remplir_module()
@@ -272,6 +430,7 @@ func _charger() -> void:
 	modifie = false
 	if liste_salles != null:
 		liste_salles.select(numero)
+	_maj_menus()
 	message = "Salle %s chargée" % id
 	if salle.masque_piliers != null:
 		message += " — premier plan au pixel (masque) : les zones bleues ne changent pas l'affichage, seulement la vue des ennemis"
@@ -342,14 +501,21 @@ func _touche(ev: InputEventKey) -> void:
 		return
 	match ev.keycode:
 		KEY_TAB:
-			edition = not edition
-			_appliquer_mode()
+			basculer_mode()
+		KEY_SHIFT:  # en marchant : courir ou marcher (bascule, comme dans le jeu)
+			if not edition:
+				salle.course = not salle.course
+				message = "Le héros court (Maj : marcher)" if salle.course else "Le héros marche (Maj : courir)"
+		KEY_F4:
+			ouvrir_donnees_ennemis()
 		KEY_F2:
 			voir_zones = not voir_zones
+			_maj_menus()
 		KEY_F3:
 			ouvrir_dialogues()
 		KEY_F1:
 			aide_complete = not aide_complete
+			_maj_menus()
 		KEY_PAGEDOWN:
 			changer_salle(numero + 1)
 		KEY_PAGEUP:
@@ -368,15 +534,11 @@ func _touche(ev: InputEventKey) -> void:
 		KEY_1, KEY_KP_1, KEY_2, KEY_KP_2, KEY_3, KEY_KP_3, KEY_4, KEY_KP_4, KEY_5, KEY_KP_5, KEY_6, KEY_KP_6:
 			var n := {KEY_1: 0, KEY_KP_1: 0, KEY_2: 1, KEY_KP_2: 1, KEY_3: 2, KEY_KP_3: 2, KEY_4: 3, KEY_KP_4: 3,
 				KEY_5: 4, KEY_KP_5: 4, KEY_6: 5, KEY_KP_6: 5}
-			trace.clear()
-			choisir_onglet(false)
-			couche = COUCHES[n[ev.keycode]]
-			if couche == "prisonniers":
-				message = "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image"
-			elif couche == "cachettes":
-				message = "Cachettes : tracez les zones où le héros ne peut être ni vu ni entendu (Tab pour essayer)"
+			choisir_couche(COUCHES[n[ev.keycode]])
 		KEY_7, KEY_KP_7:
 			choisir_onglet(true)
+		KEY_E:
+			choisir_couche("ennemis")
 		KEY_8, KEY_KP_8:
 			choisir_feux()
 		KEY_9, KEY_KP_9:
@@ -409,6 +571,7 @@ func _touche(ev: InputEventKey) -> void:
 		KEY_H:  # montrer ou cacher le héros pendant l'édition
 			heros_en_edition = not heros_en_edition
 			salle.heros.visible = heros_en_edition
+			_maj_menus()
 		KEY_P:  # poser le héros sous la souris (et le montrer)
 			heros_en_edition = true
 			salle.heros.visible = true
@@ -425,6 +588,8 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		deplacement = ev.pressed
 	elif mode_butin:
 		_bouton_butin(ev, m)
+	elif mode_ennemis:
+		return  # la couche Ennemis se règle dans le panneau de droite
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		if not trace.is_empty():
 			if trace.size() >= 3 and m.distance_to(trace[0]) * echelle() < PRISE:
@@ -608,6 +773,7 @@ func _memoriser() -> void:
 		copie[cle] = salle.donnees[cle].duplicate()
 	copie["arrivees"] = salle.donnees["arrivees"].duplicate()
 	copie["butins"] = salle.donnees["butins"].duplicate(true)
+	copie["ennemis_interdits"] = salle.donnees["ennemis_interdits"].duplicate()
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -620,8 +786,9 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
-	for cle in INFOS_SORTIES + ["arrivees", "butins"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits"]:
 		salle.donnees[cle] = copie[cle]
+	_remplir_ennemis()
 	glisse = []
 	glisse_butin = -1
 	if butin_choisi >= salle.donnees["butins"].size():
@@ -667,7 +834,7 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
-	for cle in INFOS_SORTIES + ["arrivees", "butins"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits"]:
 		zones[cle] = salle.donnees[cle]
 	var donnees := SallePeinte.lire_salle(id)
 	for c in zones:
@@ -684,6 +851,7 @@ func _enregistrer() -> void:
 		f.store_string(JSON.stringify(_entiers(zones), "", false))
 		f.close()
 	modifie = false
+	Aventure.vider_interdits()
 	message = "Enregistré : %s (le jeu et les importeurs utiliseront ces zones)" % id
 
 
@@ -691,73 +859,135 @@ func _enregistrer() -> void:
 # Onglet « Butin »
 # ---------------------------------------------------------------------------
 
-## Passe à l'onglet Feux (zones de torche) ou Eau (zones de point d'eau).
-func choisir_feux() -> void:
-	choisir_zone("feux")
+## Couche active du menu « Couche » : une couche de zones, « butin » ou « ennemis ».
+func couche_active() -> String:
+	return "butin" if mode_butin else ("ennemis" if mode_ennemis else couche)
 
 
-func choisir_eau() -> void:
-	choisir_zone("eaux")
-
-
-func choisir_zone(cle: String) -> void:
-	choisir_onglet(false)
-	couche = cle
-	var k := int(ONGLETS_ZONES[cle]["onglet"])
-	if onglets != null and onglets.current_tab != k:
-		onglets.current_tab = k
-	message = ONGLETS_ZONES[cle]["message"]
-
-
-## Passe à l'onglet Butin (``butin`` vrai) ou Zones.
-func choisir_onglet(butin: bool) -> void:
-	mode_butin = butin
-	if couche in ONGLETS_ZONES:
-		couche = "marche"
+## Choisit la couche ``nom`` (LISTE_COUCHES) : zones, butin ou ennemis.
+func choisir_couche(nom: String) -> void:
 	trace.clear()
 	glisse = []
 	glisse_butin = -1
-	if onglets != null and onglets.current_tab != (1 if butin else 0):
-		onglets.current_tab = 1 if butin else 0
-	message = "Butin : cliquez sur le sol pour poser le butin réglé à droite" if butin else ""
+	mode_butin = nom == "butin"
+	mode_ennemis = nom == "ennemis"
+	if not mode_butin and not mode_ennemis:
+		couche = nom
+	elif couche in ONGLETS_ZONES:
+		couche = "marche"
+	if ONGLETS_ZONES.has(nom):
+		message = ONGLETS_ZONES[nom]["message"]
+	else:
+		message = {"prisonniers": "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image",
+			"cachettes": "Cachettes : tracez les zones où le héros ne peut être ni vu ni entendu (Tab pour essayer)",
+			"butin": "Butin : cliquez sur le sol pour poser le butin réglé à droite",
+			"ennemis": "Ennemis : décochez à droite ceux qui ne doivent jamais se trouver dans cette salle"}.get(nom, "")
+	if mode_ennemis:
+		_remplir_ennemis()
+	_maj_menus()
 
 
-func _onglet_change(k: int) -> void:
-	for cle in ONGLETS_ZONES:
-		if k == int(ONGLETS_ZONES[cle]["onglet"]):
-			if couche != cle or mode_butin:
-				choisir_zone(cle)
-			return
-	if (k == 1) != mode_butin or couche in ONGLETS_ZONES:
-		choisir_onglet(k == 1)
+func choisir_feux() -> void:
+	choisir_couche("feux")
 
 
-## Onglets Zones / Butin et module de réglage du butin (à droite, visible dans l'onglet Butin).
-func _creer_module() -> void:
-	onglets = TabBar.new()
-	onglets.position = Vector2(560, 40)
-	onglets.z_index = 100
-	onglets.focus_mode = Control.FOCUS_NONE
-	onglets.clip_tabs = false
-	onglets.custom_minimum_size = Vector2(320, 0)
-	onglets.add_tab("Zones")
-	onglets.add_tab("Butin")
-	onglets.add_tab("Feux")
-	onglets.add_tab("Eau")
-	onglets.tab_changed.connect(_onglet_change)
-	add_child(onglets)
-	module = PanelContainer.new()
-	module.position = Vector2(718, 76)
-	module.custom_minimum_size = Vector2(232, 0)
-	module.z_index = 100
+func choisir_eau() -> void:
+	choisir_couche("eaux")
+
+
+func choisir_zone(cle: String) -> void:
+	choisir_couche(cle)
+
+
+## Couche Butin (``butin`` vrai) ou retour aux zones (la couche de zones en cours, le sol après Feux / Eau).
+func choisir_onglet(butin: bool) -> void:
+	choisir_couche("butin" if butin else ("marche" if couche in ONGLETS_ZONES else couche))
+
+
+## Panneau à droite (bordure de couleur), caché au départ.
+func _panneau(couleur: Color) -> PanelContainer:
+	var pan := PanelContainer.new()
+	pan.position = Vector2(718, 36)
+	pan.custom_minimum_size = Vector2(232, 0)
+	pan.z_index = 100
 	var style := StyleBoxFlat.new()
 	style.bg_color = Color(0.07, 0.06, 0.09, 0.92)
-	style.border_color = COULEUR_BUTIN
+	style.border_color = couleur
 	style.set_border_width_all(1)
 	style.set_corner_radius_all(6)
 	style.set_content_margin_all(8)
-	module.add_theme_stylebox_override("panel", style)
-	add_child(module)
+	pan.add_theme_stylebox_override("panel", style)
+	pan.visible = false
+	add_child(pan)
+	return pan
+
+
+## Panneau de la couche « Ennemis » : une case par sorte d'ennemi (cochée : permis dans la salle).
+func _creer_module_ennemis() -> void:
+	module_ennemis = _panneau(COULEUR_ENNEMIS)
+	var boite := VBoxContainer.new()
+	module_ennemis.add_child(boite)
+	var titre := Label.new()
+	titre.text = "Ennemis permis dans la salle"
+	titre.add_theme_color_override("font_color", COULEUR_ENNEMIS)
+	boite.add_child(titre)
+	boite.add_child(_petite_etiquette("Décoché : jamais posé ici, n'y entre pas"))
+	for sorte in Aventure.SORTES_SALLE:
+		var case := CheckBox.new()
+		case.text = Aventure.NOMS_SORTES_SALLE[sorte]
+		case.focus_mode = Control.FOCUS_NONE
+		case.add_theme_font_size_override("font_size", 13)
+		case.toggled.connect(func(on): permettre_ennemi(sorte, on))
+		boite.add_child(case)
+		cases_ennemis[sorte] = case
+	var bas := HBoxContainer.new()
+	boite.add_child(bas)
+	for t in [["Tout permettre", true], ["Tout interdire", false]]:
+		var b := Button.new()
+		b.text = t[0]
+		b.focus_mode = Control.FOCUS_NONE
+		b.add_theme_font_size_override("font_size", 12)
+		var tous: bool = t[1]
+		b.pressed.connect(func(): permettre_tous(tous))
+		bas.add_child(b)
+
+
+## Coche ou décoche la sorte ``sorte`` (permise ou interdite dans la salle).
+func permettre_ennemi(sorte: String, permis: bool) -> void:
+	if _maj_module:
+		return
+	var interdits: Array = salle.donnees["ennemis_interdits"]
+	if permis == not (sorte in interdits):
+		return
+	_memoriser()
+	if permis:
+		interdits.erase(sorte)
+	else:
+		interdits.append(sorte)
+	_change()
+	_remplir_ennemis()
+	message = "%s %s dans cette salle" % [Aventure.NOMS_SORTES_SALLE[sorte], "permis" if permis else "interdit"]
+
+
+func permettre_tous(permis: bool) -> void:
+	_memoriser()
+	salle.donnees["ennemis_interdits"] = [] if permis else Aventure.SORTES_SALLE.duplicate()
+	_change()
+	_remplir_ennemis()
+	message = "Tous les ennemis %s dans cette salle" % ("permis" if permis else "interdits")
+
+
+func _remplir_ennemis() -> void:
+	if module_ennemis == null or salle == null:
+		return
+	var interdits: Array = salle.donnees.get("ennemis_interdits", [])
+	for sorte in cases_ennemis:
+		cases_ennemis[sorte].set_pressed_no_signal(not (sorte in interdits))
+
+
+## Panneau de réglage du butin (à droite, visible dans la couche Butin).
+func _creer_module() -> void:
+	module = _panneau(COULEUR_BUTIN)
 	var boite := VBoxContainer.new()
 	module.add_child(boite)
 	var titre := Label.new()
@@ -798,7 +1028,6 @@ func _creer_module() -> void:
 	retirer.focus_mode = Control.FOCUS_NONE
 	retirer.pressed.connect(_retirer_choisi)
 	boite.add_child(retirer)
-	module.visible = false
 
 
 func _petite_etiquette(t: String) -> Label:
@@ -983,23 +1212,27 @@ func _process(_delta: float) -> void:
 	var nom_couche: String = NOMS[couche]
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
-	var onglet_zone: String = couche if couche in ONGLETS_ZONES and not mode_butin else ""
+	var onglet_zone: String = couche if couche in ONGLETS_ZONES and not mode_butin and not mode_ennemis else ""
+	if mode_butin or mode_ennemis or onglet_zone != "":
+		nom_couche = nom_couche(couche_active())
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
-		("ÉDITION : %s" % ("onglet Butin" if mode_butin else ("onglet " + String(ONGLETS_ZONES[onglet_zone]["nom"])) if onglet_zone != "" else "couche " + nom_couche)) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
+		("ÉDITION : couche %s" % nom_couche) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
 	if edition:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f%s" % [m.x, m.y, zoom,
-			("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin
+			("   ennemis interdits : %d" % salle.donnees["ennemis_interdits"].size()) if mode_ennemis
+			else ("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin
 			else ("   zones : %d" % salle.donnees[onglet_zone].size()) if onglet_zone != "" else ""])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = ((AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir   R : héros au départ   Tab : revenir à l'édition"
+	aide.text = ((AIDE_ENNEMIS if mode_ennemis else AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir / marcher (%s)   R : héros au départ   Tab : revenir à l'édition" % ("il court" if salle.course else "il marche")
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
 	module.visible = edition and mode_butin
+	module_ennemis.visible = edition and mode_ennemis
 
 
 class Calque extends Node2D:

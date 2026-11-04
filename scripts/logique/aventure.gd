@@ -243,6 +243,77 @@ static func fermee_a(salle: Dictionary, genre: String) -> bool:
 		or (genre in CHASSEURS and Zones.sans_chasseurs(salle))
 
 
+## Ennemis qu'on peut interdire dans une salle (éditeur de zones, onglet « Ennemis », demande de l'utilisateur du
+## 2026-11-04) : clé « ennemis_interdits » du .json de l'image. Un ennemi interdit n'y est jamais posé, n'y entre pas
+## (ronde, poursuite, héros suivi d'une salle à l'autre) ; un groupe y est interdit si un de ses membres l'est.
+const SORTES_SALLE := ["combattant", "lancier", "archer", "defenseur", "sorcier", "feticheur", "chaman", "loup",
+	"squelette", "geolier", "chevalier"]
+const NOMS_SORTES_SALLE := {"combattant": "Gobelin combattant", "lancier": "Gobelin lancier", "archer": "Gobelin archer",
+	"defenseur": "Gobelin défenseur", "sorcier": "Gobelin sorcier", "feticheur": "Gobelin féticheur",
+	"chaman": "Gobelin chaman", "loup": "Loup", "squelette": "Squelette", "geolier": "Geôlier",
+	"chevalier": "Chevalier de la mort"}
+## Image → ennemis interdits (lus une fois ; vider_interdits après un enregistrement de l'éditeur).
+static var _interdits := {}
+
+
+static func vider_interdits() -> void:
+	_interdits.clear()
+
+
+## Ennemis interdits dans la salle (d'après son image).
+static func ennemis_interdits(salle: Dictionary) -> Array:
+	var image := String(salle.get("salle_peinte", {}).get("image", ""))
+	if image == "":
+		return []
+	if not _interdits.has(image):
+		var l = SallePeinte.lire_salle(image).get("ennemis_interdits", [])
+		_interdits[image] = l if l is Array else []
+	return _interdits[image]
+
+
+## Sortes (SORTES_SALLE) d'une présence : membres d'un groupe ou d'un porteur, « geolier », « chevalier ».
+static func sortes_presence(p: Dictionary) -> Array:
+	match String(p.get("genre", "")):
+		"geolier":
+			return ["geolier"]
+		"imbattable":
+			return ["chevalier"]
+		"groupe", "porteur":
+			return membres(p).map(func(mb): return String(mb.get("sous_classe", "")))
+	return []
+
+
+## Vrai si un ennemi de la présence ``p`` est interdit dans la salle.
+static func interdite_a(salle: Dictionary, p: Dictionary) -> bool:
+	var interdits := ennemis_interdits(salle)
+	if interdits.is_empty():
+		return false
+	for sorte in sortes_presence(p):
+		if sorte in interdits:
+			return true
+	return false
+
+
+## Sort les ennemis des salles où ils sont interdits (vers une salle où ils peuvent aller, de la même zone si possible).
+static func ecarter_des_salles_interdites(donjon, etage: int) -> void:
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	var accueil := salles_pour_ennemis(donjon, etage).filter(func(i): return not salle_paisible(salles[i]) \
+		and not salles[i].get("boss", false))
+	for i in salles:
+		if ennemis_interdits(salles[i]).is_empty():
+			continue
+		for p in salles[i].get("presences", []).duplicate():
+			if not (p.get("genre", "") in ENNEMIS) or p.get("etat", "actif") != "actif" or not interdite_a(salles[i], p):
+				continue
+			var possibles := accueil.filter(func(j): return j != i and ouverte_au(salles, p, j))
+			if possibles.is_empty():
+				continue
+			var zone := String(p.get("zone_ennemis", ""))
+			var meme_zone := possibles.filter(func(j): return Zones.zone_salle(salles[j]) == zone)
+			salles[i]["presences"].erase(p)
+			salles[(meme_zone if not meme_zone.is_empty() else possibles).pick_random()]["presences"].append(p)
+
+
 ## Salles ordinaires où un ennemi peut être posé ou aller (pas les refuges).
 static func salles_pour_ennemis(donjon, etage: int) -> Array:
 	var salles: Dictionary = donjon.plan_donjon[etage]
@@ -425,6 +496,7 @@ static func preparer_etage(donjon, etage: int) -> void:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
 	_fixer_elites(donjon, etage, m)
+	ecarter_des_salles_interdites(donjon, etage)
 	_poser_prisonniers(donjon, etage, m)
 	poser_commis(donjon, etage)
 	_poser_cle_boss(donjon, etage, m, salles_pour_ennemis(donjon, etage), dist)  # après : l'élite à la clé ne bouge plus
@@ -452,6 +524,7 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 				isole["zone_ennemis"] = Zones.zone_salle(salles[i])
 			salles[i]["presences"].append(isole)
 	_fixer_elites(donjon, etage, m)
+	ecarter_des_salles_interdites(donjon, etage)
 	_poser_prisonniers(donjon, etage, m)
 
 
@@ -704,10 +777,11 @@ static func _poser_geoliers(donjon, etage: int, loin: Array, dist: Dictionary) -
 			p["territoire"] = liste.duplicate()
 
 
-## Vrai si le chasseur ``p`` peut entrer dans la salle ``id`` : pas fermée à son genre (fermee_a) ; pour un geôlier,
+## Vrai si le chasseur ``p`` peut entrer dans la salle ``id`` : pas fermée à son genre (fermee_a), ni interdite à un de
+## ses ennemis (interdite_a, éditeur) ; pour un geôlier,
 ## dans son territoire (s'il en a un) et sans déjà MAX_GEOLIERS_PAR_SALLE autres geôliers.
 static func ouverte_au(salles: Dictionary, p: Dictionary, id: String) -> bool:
-	if not salles.has(id) or fermee_a(salles[id], String(p.get("genre", ""))):
+	if not salles.has(id) or fermee_a(salles[id], String(p.get("genre", ""))) or interdite_a(salles[id], p):
 		return false
 	if p.get("genre", "") != "geolier":
 		return true
@@ -760,6 +834,8 @@ static func presences(donjon, salle: Dictionary) -> Array:
 		salle["presences"] = salle.get("presences", []).filter(func(q): return not (q.get("genre", "") in HORS_CRYPTES))
 	if salle_paisible(salle) or Zones.refuge(salle):
 		ecarter_des_salles_paisibles(donjon, int(donjon.salle_actuelle[0]))
+	if not ennemis_interdits(salle).is_empty():
+		ecarter_des_salles_interdites(donjon, int(donjon.salle_actuelle[0]))
 	_poser_commis_salle(donjon, int(donjon.salle_actuelle[0]), salle)  # parties d'avant les commis
 	var liste := []
 	for p in salle.get("presences", []):

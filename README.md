@@ -65,6 +65,9 @@ stick droit pour choisir un bouton de l'interface.
   - **Les ennemis ne donnent plus rien** (ni expérience, ni or, ni butin ; code supprimé le
     2026-10-31), sauf les rares qui portent un équipement : une **élite** (gobelin plus fort en tête d'un groupe) lâche un objet, un
     **porteur** rend les objets confisqués qu'il porte.
+  - **PV des ennemis** (2026-11-04, demande de l'utilisateur) : au début de la partie, un ennemi ordinaire encaisse
+    **au moins 4 coups** du héros (3 coups de poing au maximum de leurs dés font 42, ou 57 contre un squelette) :
+    50 à 60 PV (60 à 70 pour combattant, défenseur et squelette). Élites PV × 2,5 (~140), boss × 6 (~330).
   - **Plus de montée de niveau** (supprimée le 2026-10-31, avec l'expérience du héros, les points de caractéristique
     et les points passifs ; le héros reste au niveau 1). Le bandeau du haut montre l'or, les clés, les PA et les repos (plus le niveau ni l'expérience).
   - **Plus de combat en entrant dans une salle : les ennemis y rôdent, visibles** (à la Fear & Hunger), en
@@ -563,9 +566,17 @@ stick droit pour choisir un bouton de l'interface.
     à l'ancienne place). **Changer de salle sans
     quitter** : boutons ◀ ▶ et liste en haut à droite (la salle quittée est enregistrée si elle a été modifiée).
     Une salle dont le nombre de sorties change est réattribuée dans les parties en cours (`PlanSalles.attribuer`).
+    **Menus déroulants** (refonte du 2026-11-04, demande de l'utilisateur) : barre en haut avec **Fichier**
+    (enregistrer, salle précédente / suivante, recharger), **Édition** (annuler, éditer / marcher, héros au départ),
+    **Couche** (toutes les couches de zones, Butin, Ennemis permis ; la couche active est cochée et écrite dans le
+    titre du menu), **Affichage** (vue entière, zones en marchant, héros visible, aide), **Données** (dialogues) ; à
+    droite ◀ liste des salles ▶ et le bouton Édition / Marche. Le panneau de droite change selon la couche (Butin,
+    Ennemis). Les raccourcis clavier restent (ils sont écrits dans les menus).
     | Commande | Effet |
     |---|---|
-    | Tab | passer de l'édition à la marche (essayer la salle avec le héros, sorties murées) |
+    | Tab ou bouton Édition / Marche | passer de l'édition à la marche (essayer la salle avec le héros, sorties murées) |
+    | Maj (en marchant) | courir / marcher (bascule, comme dans le jeu ; 2026-11-04) |
+    | E ou menu Couche › Ennemis permis | **couche Ennemis** (2026-11-04) : une case par sorte (gobelin combattant, lancier, archer, défenseur, sorcier, féticheur, chaman, loup, squelette, geôlier, Chevalier de la mort), cochée = permis dans la salle ; « Tout permettre » / « Tout interdire ». Un ennemi décoché n'y est **jamais posé**, n'y **entre pas** (ronde, poursuite, héros suivi d'une salle à l'autre) ; un groupe y est interdit si un de ses membres l'est (`Aventure.interdite_a`, `ecarter_des_salles_interdites`). Clé « ennemis_interdits » du .json |
     | 1 à 4 | choisir la couche |
     | 5 | couche des prisonniers (zones de dialogue, tracées comme le sol) |
     | 6 | couche des cachettes (zones où le héros est invisible) |
@@ -1073,6 +1084,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/sonde_prisons.gd      # sonde : prisons hors quartier, passages sans porte, carrefours par quartier (100 étages)
 & $godot --headless --path . -s tests/test_zones.gd        # zones : quartier des cryptes d'un seul tenant (toutes les images, une fois), squelettes + un seul féticheur élite, zones.json, 1d2 tous les 2 points (150 étages)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
+& $godot --headless --path . -s tests/mesure_coups_depart.gd  # PV des ennemis : 4 coups du héros de départ au moins (et dégâts des sorts de départ)
 & $godot --headless --path . -s tests/test_aventure.gd      # donjon d'aventure : peuplement, pas de récompense, Chevalier de la mort, fuite, capture, clés, personnages, sauvegarde, coffre du boss, objets à une option, 5 étages au départ, quartier des prisons
 & $godot --path . -s tests/capture_aventure.gd            # rôdeurs à l'écran : ombre, vue coupée, repérage, combat au contact, diablotin, capture (captures 92-100, hors écran)
 & $godot --path . -s tests/sonde_cachettes.gd             # outil : part du sol caché (ombre, premier plan) de chaque salle (hors écran)
@@ -1084,7 +1096,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_quetes_prisonniers.gd # les trois quêtes des prisonniers jouées de bout en bout (logique)
 & $godot --headless --path . -s tests/test_cartographie_salles.gd   # directions de chaque salle de la carte ↔ portes de son image ; chaque apparence une seule fois par étage
 & $godot --path . -s tests/voir_directions.gd             # captures 58 par combinaison + passages haut/bas/gauche/droite (hors écran)
-& $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état)
+& $godot --headless --path . -s tests/test_editeur_zones.gd   # éditeur de zones : tracer, annuler, enregistrer (porte2 remise en état), couche Ennemis, menus, course
+& $godot --headless --path . -s tests/test_ennemis_interdits.gd  # ennemis interdits dans des salles : jamais posés ni entrés (ronde, poursuite)
 & $godot --headless --path . -s tests/test_cuisine.gd         # cuisine : le jeu = la liste complète (14 949 mélanges), feu, eau, bouillon, recettes, intoxication (mortelle, cumulée)
 & $godot --path . -s tests/capture_cuisine.gd             # captures 170-176 : onglets Feux et Eau, écran de cuisine, feu de camp et intoxication, indications dans une zone de feu et d'eau (hors écran)
 & $godot --path . -s tests/capture_escaliers_carte.gd     # captures 180-182 : escaliers des passages prison / cryptes sur la mini-carte et la carte (hors écran)
@@ -1182,6 +1195,30 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-04 — Éditeur : menus déroulants, course, ennemis permis par salle
+
+- **Demandes de l'utilisateur** : un éditeur plus ergonomique avec des menus déroulants ; pouvoir courir dans
+  l'éditeur ; un onglet pour dire quels ennemis peuvent se trouver ou non dans une salle.
+- **Menus** : barre en haut (Fichier, Édition, Couche, Affichage, Données), salle et mode à droite ; l'ancienne
+  rangée d'onglets (Zones, Butin, Feux, Eau) est remplacée par le menu Couche. Aide du bas raccourcie.
+- **Course** : Maj en marchant (bascule, comme dans le jeu) ; seul l'écran du jeu écoutait cette touche.
+- **Couche Ennemis** (touche E) : clé « ennemis_interdits » du .json de la salle. Dans le jeu : `Aventure.SORTES_SALLE`,
+  `ennemis_interdits`, `sortes_presence`, `interdite_a` (dans `ouverte_au` : ronde, poursuite, héros suivi),
+  `ecarter_des_salles_interdites` (à la préparation de l'étage et à l'entrée dans une salle qui en a).
+- Fichiers : `editeur_zones.gd`, `aventure.gd`. Tests : `test_ennemis_interdits.gd` (nouveau : 242 salles toutes
+  interdites, aucun ennemi), `test_editeur_zones.gd`, `test_butin_pose.gd` (menus au lieu des onglets).
+
+### 2026-11-04 — Ennemis plus résistants (4 coups au moins)
+
+- **Demande de l'utilisateur** : au tout début de la partie, un ennemi ne doit pas mourir avant 4 coups du héros.
+- Mesure (`tests/mesure_coups_depart.gd`) : coup de poing 4 à 14 (6 en moyenne ; 6 à 19 contre un squelette, faible
+  au contondant), sorts de départ 3 à 23 (10-11 en moyenne). 3 coups de poing au maximum = 42 (57 contre un squelette).
+- PV : gobelins 50-60 (combattant et défenseur 60-70), loup 50-60, squelette 60 ; avant : 10-20 (20 pour combattant,
+  défenseur et squelette). `Gobelin.ENDURANCE_PAR_SOUS_CLASSE`, `Creatures.SORTES`.
+- Élites PV × 2,5 et boss × 6 (× 6 et × 14 avant) : ils ne gagnent qu'environ 1,5 fois leurs PV (~140 et ~330), au
+  lieu de 3,7 fois (choix de Claude, à confirmer). `Ennemis.MINI_BOSS`, `Ennemis.BOSS`.
+- Tests : `mesure_coups_depart.gd` (nouveau), `test_creatures.gd` mis à jour.
 
 ### 2026-11-04 — Cinq geôliers, un par secteur
 
