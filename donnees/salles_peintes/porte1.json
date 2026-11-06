@@ -1,14 +1,14 @@
 {
  "fond": "images/salles_peintes/porte1/fond.jpeg",
  "perspective": {
-  "y_horizon": 324,
-  "hauteur_par_pixel": 2,
+  "y_horizon": 287,
+  "hauteur_par_pixel": 0.914,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    366,
-    105
+    354,
+    61.5
    ],
    [
     511,
@@ -179,12 +179,12 @@
     381
    ],
    [
-    199,
-    363
+    206,
+    372
    ],
    [
-    276,
-    354
+    273,
+    365
    ],
    [
     285,
@@ -261,6 +261,24 @@
    [
     767,
     511
+   ]
+  ],
+  [
+   [
+    311,
+    395
+   ],
+   [
+    269,
+    352
+   ],
+   [
+    283,
+    344
+   ],
+   [
+    328,
+    367
    ]
   ]
  ],
@@ -477,5 +495,30 @@
   "passage"
  ],
  "source": "test_salle/porte1.json",
- "prisonniers": []
+ "prisonniers": [],
+ "perspective_origine": {
+  "y_horizon": 324,
+  "hauteur_par_pixel": 2,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    366,
+    105
+   ],
+   [
+    511,
+    205
+   ]
+  ]
+ },
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

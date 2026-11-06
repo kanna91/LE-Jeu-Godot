@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_vestibule/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_vestibule/fond_hd.png",
  "perspective": {
-  "y_horizon": 279,
-  "hauteur_par_pixel": 0.904,
+  "y_horizon": 290,
+  "hauteur_par_pixel": 0.948,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    60
+    356,
+    63
    ],
    [
     511,
@@ -36,8 +36,32 @@
     400
    ],
    [
-    700,
-    380
+    757,
+    383
+   ],
+   [
+    741,
+    384
+   ],
+   [
+    705,
+    388
+   ],
+   [
+    706,
+    393
+   ],
+   [
+    698,
+    412
+   ],
+   [
+    670,
+    415
+   ],
+   [
+    667,
+    384
    ],
    [
     660,
@@ -48,28 +72,76 @@
     350
    ],
    [
-    460,
-    345
+    622,
+    373
    ],
    [
-    330,
-    345
+    620,
+    402
    ],
    [
-    200,
-    350
+    554,
+    397
    ],
    [
-    120,
-    355
+    521,
+    390
    ],
    [
-    40,
-    355
+    524,
+    378
+   ],
+   [
+    510,
+    376
+   ],
+   [
+    486,
+    376
+   ],
+   [
+    415,
+    374
+   ],
+   [
+    405,
+    364
+   ],
+   [
+    366,
+    363
+   ],
+   [
+    362,
+    378
+   ],
+   [
+    334,
+    375
+   ],
+   [
+    317,
+    380
+   ],
+   [
+    292,
+    382
+   ],
+   [
+    215,
+    395
+   ],
+   [
+    104,
+    394
+   ],
+   [
+    44,
+    400
    ],
    [
     0,
-    360
+    407
    ]
   ]
  ],
@@ -80,8 +152,16 @@
     395
    ],
    [
-    460,
-    390
+    402,
+    399
+   ],
+   [
+    454,
+    402
+   ],
+   [
+    464,
+    440
    ],
    [
     465,
@@ -133,38 +213,20 @@
  "sorties": [
   [
    [
-    30,
+    40,
     346
    ],
    [
-    85,
-    346
+    94,
+    348
    ],
    [
-    87,
-    358
+    98,
+    405
    ],
    [
-    28,
-    358
-   ]
-  ],
-  [
-   [
-    368,
-    342
-   ],
-   [
-    420,
-    342
-   ],
-   [
-    422,
-    354
-   ],
-   [
-    366,
-    354
+    39,
+    405
    ]
   ],
   [
@@ -206,18 +268,15 @@
  ],
  "noms_sorties": [
   "porte de gauche",
-  "passage du fond",
   "porte de droite",
   "retour"
  ],
  "directions_sorties": [
   "gauche",
-  "devant",
   "droite",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "porte",
   "porte",
   "passage"
@@ -228,11 +287,6 @@
    374,
    "right"
   ],
-  "passage du fond": [
-   394,
-   370,
-   "down"
-  ],
   "porte de droite": [
    585,
    374,
@@ -241,5 +295,32 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ejzc3g9nx1v.jpeg"
+ "source": "bibliothèque/mw1ejzc3g9nx1v.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 279,
+  "hauteur_par_pixel": 0.904,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    60
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

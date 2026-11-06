@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/grande3/fond.jpeg",
  "fond_hd": "images/salles_peintes/grande3/fond_hd.png",
  "perspective": {
-  "y_horizon": 268,
-  "hauteur_par_pixel": 0.719,
+  "y_horizon": 270,
+  "hauteur_par_pixel": 0.725,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    340,
-    52
+    342,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -202,5 +202,21 @@
  },
  "grande_salle": true,
  "ips": 24,
- "source": "grande salle/3"
+ "source": "grande salle/3",
+ "perspective_origine": {
+  "y_horizon": 268,
+  "hauteur_par_pixel": 0.719,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    340,
+    52
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

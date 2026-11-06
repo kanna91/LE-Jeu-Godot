@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_distillation_verte/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_distillation_verte/fond_hd.png",
  "perspective": {
-  "y_horizon": 275,
-  "hauteur_par_pixel": 0.892,
+  "y_horizon": 332,
+  "hauteur_par_pixel": 1.17,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    62
+    388,
+    66.1
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -427,5 +427,21 @@
  "arrivees": {},
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/distillation/mw1fifptu0c0gb.jpeg"
+ "source": "laboratoire d'alchimie/distillation/mw1fifptu0c0gb.jpeg",
+ "perspective_origine": {
+  "y_horizon": 275,
+  "hauteur_par_pixel": 0.892,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

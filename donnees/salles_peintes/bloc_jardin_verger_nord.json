@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_jardin_verger_nord/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_jardin_verger_nord/fond_hd.png",
  "perspective": {
-  "y_horizon": 212,
-  "hauteur_par_pixel": 0.703,
+  "y_horizon": 172,
+  "hauteur_par_pixel": 0.62,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    282,
-    49
+    274,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -430,5 +430,21 @@
  },
  "bloc": "jardin",
  "ips": 24,
- "source": "Salle de donjon/vergé/mw1h0cvpn8rjaa.jpeg"
+ "source": "Salle de donjon/vergé/mw1h0cvpn8rjaa.jpeg",
+ "perspective_origine": {
+  "y_horizon": 212,
+  "hauteur_par_pixel": 0.703,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    282,
+    49
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

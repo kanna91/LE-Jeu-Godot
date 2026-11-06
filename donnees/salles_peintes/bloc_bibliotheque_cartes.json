@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_cartes/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_cartes/fond_hd.png",
  "perspective": {
-  "y_horizon": 236,
-  "hauteur_par_pixel": 0.763,
+  "y_horizon": 267,
+  "hauteur_par_pixel": 0.86,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    380,
-    110
+    340,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -48,12 +48,24 @@
     335
    ],
    [
-    260,
-    340
+    299,
+    344
    ],
    [
-    200,
-    345
+    261,
+    336
+   ],
+   [
+    273,
+    361
+   ],
+   [
+    195,
+    370
+   ],
+   [
+    167,
+    351
    ],
    [
     100,
@@ -68,70 +80,56 @@
  "obstacles": [
   [
    [
-    90,
-    330
+    423,
+    346
    ],
    [
-    225,
-    325
-   ],
-   [
-    235,
-    511
-   ],
-   [
-    120,
-    511
-   ],
-   [
-    95,
-    420
-   ]
-  ],
-  [
-   [
-    360,
-    330
+    495,
+    351
    ],
    [
     530,
-    330
+    355
    ],
    [
     530,
     380
    ],
    [
-    365,
-    383
+    500,
+    378
+   ],
+   [
+    427,
+    369
    ]
   ],
   [
    [
-    560,
-    325
+    577,
+    348
    ],
    [
-    720,
-    325
+    631,
+    358
    ],
    [
-    725,
-    380
+    674,
+    370
    ],
    [
-    565,
-    385
+    568,
+    393
    ]
   ],
   [
    [
-    565,
-    405
+    572,
+    464
    ],
    [
-    767,
-    400
+    763,
+    450
    ],
    [
     767,
@@ -145,24 +143,6 @@
  ],
  "premier_plan": [],
  "sorties": [
-  [
-   [
-    300,
-    332
-   ],
-   [
-    380,
-    332
-   ],
-   [
-    382,
-    344
-   ],
-   [
-    298,
-    344
-   ]
-  ],
   [
    [
     0,
@@ -183,25 +163,41 @@
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   340,
-   360,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1e6yfvzq4q69.jpeg"
+ "source": "bibliothèque/mw1e6yfvzq4q69.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 236,
+  "hauteur_par_pixel": 0.763,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    380,
+    110
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

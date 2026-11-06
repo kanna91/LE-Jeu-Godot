@@ -192,8 +192,9 @@ def main():
         sources[n].save(os.path.join(dossier, "fond.jpeg"), quality=95)
         donnees[n] = donnees_salle(n, z)
         # Sol détouré automatiquement (outils/detourer_sols.py) : remplace le sol relevé à la main
-        from detourer_sols import detourage
+        from detourer_sols import detourage, avec_perspective
         donnees[n].update(detourage("grande%d" % n))
+        avec_perspective("grande%d" % n, donnees[n])  # perspective mesurée (outils/mesurer_perspective.py)
         with open(os.path.join(DONNEES, "grande%d.json" % n), "w", encoding="utf8") as f:
             json.dump(donnees[n], f, ensure_ascii=False, indent=1)
     if "--sans-ia" not in sys.argv:

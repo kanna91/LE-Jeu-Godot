@@ -216,6 +216,9 @@ def appliquer(ident, resultat):
     manuelles = os.path.join(ICI, "outils", "zones_manuelles", ident + ".json")
     if os.path.exists(manuelles):  # retouches faites dans l'éditeur du jeu : elles passent devant la maquette
         info.update(json.load(open(manuelles, encoding="utf8")))
+    sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+    from detourer_sols import avec_perspective  # la perspective mesurée passe devant celle de la maquette
+    avec_perspective(ident, info)
     with open(chemin, "w", encoding="utf8") as f:
         json.dump(info, f, ensure_ascii=False, indent=1)
 

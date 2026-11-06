@@ -88,7 +88,8 @@ def main():
             print(ident, ": zones retouchées dans l'éditeur, .json gardé")
             continue
         with open(chemin, "w", encoding="utf8") as f:
-            json.dump(donnees_salle(n, z), f, ensure_ascii=False, indent=1)
+            from detourer_sols import avec_perspective  # perspective mesurée (outils/mesurer_perspective.py)
+            json.dump(avec_perspective(ident, donnees_salle(n, z)), f, ensure_ascii=False, indent=1)
     if "--sans-ia" not in sys.argv:
         sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
         from importer_grandes_salles import agrandir

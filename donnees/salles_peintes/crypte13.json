@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/crypte13/fond.jpeg",
  "fond_hd": "images/salles_peintes/crypte13/fond_hd.png",
  "perspective": {
-  "y_horizon": 284,
-  "hauteur_par_pixel": 0.771,
+  "y_horizon": 235,
+  "hauteur_par_pixel": 0.635,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    336,
-    40
+    318,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -806,5 +806,21 @@
  "ips": 24,
  "source": "crypte/13",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 284,
+  "hauteur_par_pixel": 0.771,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    336,
+    40
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

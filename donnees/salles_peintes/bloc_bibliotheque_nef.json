@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_nef/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_nef/fond_hd.png",
  "perspective": {
-  "y_horizon": 325,
-  "hauteur_par_pixel": 1.127,
+  "y_horizon": 335,
+  "hauteur_par_pixel": 1.195,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    440,
-    130
+    388,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -33,23 +33,27 @@
    ],
    [
     767,
-    440
+    487
    ],
    [
-    700,
-    430
+    709,
+    462
    ],
    [
-    640,
-    390
+    486,
+    387
    ],
    [
-    560,
-    375
+    435,
+    388
    ],
    [
-    470,
-    365
+    435,
+    394
+   ],
+   [
+    422,
+    392
    ],
    [
     420,
@@ -60,24 +64,20 @@
     358
    ],
    [
-    300,
-    365
+    343,
+    391
    ],
    [
-    230,
-    375
+    264,
+    390
    ],
    [
-    130,
-    395
+    134,
+    459
    ],
    [
-    60,
-    430
-   ],
-   [
-    0,
-    440
+    45,
+    485
    ]
   ]
  ],
@@ -249,5 +249,33 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1duol2zx22rv.jpeg"
+ "source": "bibliothèque/mw1duol2zx22rv.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 325,
+  "hauteur_par_pixel": 1.127,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    440,
+    130
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

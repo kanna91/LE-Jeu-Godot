@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/couloir_livre27/fond.jpeg",
  "fond_hd": "images/salles_peintes/couloir_livre27/fond_hd.png",
  "perspective": {
-  "y_horizon": 270,
-  "hauteur_par_pixel": 0.871,
+  "y_horizon": 255,
+  "hauteur_par_pixel": 0.821,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    340,
-    61
+    332,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -368,5 +368,21 @@
   ]
  },
  "ips": 24,
- "source": "couloir livre/mvwhdrz7qtn79k(1).jpeg"
+ "source": "couloir livre/mvwhdrz7qtn79k(1).jpeg",
+ "perspective_origine": {
+  "y_horizon": 270,
+  "hauteur_par_pixel": 0.871,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    340,
+    61
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

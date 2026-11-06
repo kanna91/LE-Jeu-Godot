@@ -1,30 +1,18 @@
 {
  "fond": "images/salles_peintes/salle2/fond.jpeg",
  "perspective": {
-  "y_horizon": 278,
-  "hauteur_par_pixel": 1,
+  "y_horizon": 155,
+  "hauteur_par_pixel": 0.604,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
     262,
-    105
+    64.5
    ],
    [
-    300,
-    125
-   ],
-   [
-    388,
-    165
-   ],
-   [
-    470,
-    205
-   ],
-   [
-    512,
-    225
+    511,
+    215.0
    ]
   ]
  },
@@ -232,5 +220,33 @@
  "source": "test_salle/salle2.json",
  "prisonniers": [],
  "arrivees": {},
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 278,
+  "hauteur_par_pixel": 1,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    262,
+    105
+   ],
+   [
+    300,
+    125
+   ],
+   [
+    388,
+    165
+   ],
+   [
+    470,
+    205
+   ],
+   [
+    512,
+    225
+   ]
+  ]
+ }
 }

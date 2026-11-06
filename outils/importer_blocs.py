@@ -482,7 +482,7 @@ def planche(bloc, donnees, sources):
 
 
 def main():
-    from detourer_sols import detourage
+    from detourer_sols import detourage, avec_perspective
     choisis = [x for x in sys.argv[1:] if not x.startswith("--")]
     for bloc, b in BLOCS.items():
         if choisis and bloc not in choisis:
@@ -498,6 +498,7 @@ def main():
             sources[nom].save(os.path.join(dossier, "fond.jpeg"), quality=95)
             donnees[nom] = donnees_salle(bloc, nom, z)
             donnees[nom].update(detourage(i))  # sol détouré (laboratoire), puis retouches de l'éditeur de zones
+            avec_perspective(i, donnees[nom])  # perspective mesurée (outils/mesurer_perspective.py)
             with open(os.path.join(DONNEES, i + ".json"), "w", encoding="utf8") as f:
                 json.dump(donnees[nom], f, ensure_ascii=False, indent=1)
         if "--sans-ia" not in sys.argv:

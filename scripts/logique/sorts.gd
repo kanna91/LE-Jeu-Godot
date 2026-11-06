@@ -16,8 +16,7 @@ const NOMS_ATTRIBUTS := {"intelligence": "Intelligence", "sagesse": "Sagesse", "
 	"intelligence_ou_sagesse": "Intelligence ou sagesse"}
 ## Palier -> [niveau du héros, valeur de l'attribut, sorts du même élément déjà connus]
 const PALIERS := {0: [1, 0, 0], 1: [3, 4, 0], 2: [6, 7, 0], 3: [10, 10, 1], 4: [15, 14, 2], 5: [20, 18, 3]}
-const SORTS_DE_DEPART := ["Boule_de_feu", "Givre", "Eclair", "Trait_arcanique", "Souffle_du_chaos", "Murmure_des_ombres",
-	"Estafilade", "Dard_empoisonne", "Bourrade"]
+const SORTS_DE_DEPART := ["Boule_de_feu", "Givre", "Eclair", "Trait_arcanique", "Souffle_du_chaos", "Murmure_des_ombres"]
 
 
 ## Élément d'un sort (ELEMENT, sinon son premier type de dégâts).

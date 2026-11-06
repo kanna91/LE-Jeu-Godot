@@ -1,14 +1,14 @@
 {
  "fond": "images/salles_peintes/porte6/fond.jpeg",
  "perspective": {
-  "y_horizon": 302,
-  "hauteur_par_pixel": 1.6,
+  "y_horizon": 278,
+  "hauteur_par_pixel": 0.88,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    358,
-    100
+    348,
+    61.5
    ],
    [
     511,
@@ -554,24 +554,6 @@
   ],
   [
    [
-    214,
-    362
-   ],
-   [
-    244,
-    362
-   ],
-   [
-    248,
-    386
-   ],
-   [
-    212,
-    386
-   ]
-  ],
-  [
-   [
     25,
     499
    ],
@@ -609,7 +591,6 @@
  ],
  "noms_sorties": [
   "grande porte",
-  "passage de gauche",
   "retour : salle porte 5",
   "porte de gauche"
  ],
@@ -624,11 +605,6 @@
    100,
    426,
    "down_right"
-  ],
-  "passage de gauche": [
-   231,
-   382,
-   "down"
   ]
  },
  "masque_piliers": "images/salles_peintes/porte6/masque.png",
@@ -636,16 +612,40 @@
  "decor_video": "images/salles_peintes/porte6/decor.ogv",
  "directions_sorties": [
   "devant",
-  "gauche",
   "bas",
   "gauche"
  ],
  "types_sorties": [
   "porte",
   "passage",
-  "passage",
   "porte"
  ],
  "source": "test_salle/porte6.json",
- "prisonniers": []
+ "prisonniers": [],
+ "perspective_origine": {
+  "y_horizon": 302,
+  "hauteur_par_pixel": 1.6,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    358,
+    100
+   ],
+   [
+    511,
+    205
+   ]
+  ]
+ },
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

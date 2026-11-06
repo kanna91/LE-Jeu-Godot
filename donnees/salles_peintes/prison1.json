@@ -8,12 +8,12 @@
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    372,
-    45
+    380,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -420,5 +420,21 @@
  "ips": 24,
  "source": "prison/grande salle/1",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 324,
+  "hauteur_par_pixel": 0.935,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    372,
+    45
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

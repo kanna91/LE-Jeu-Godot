@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_salle_vitraux/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_salle_vitraux/fond_hd.png",
  "perspective": {
-  "y_horizon": 275,
-  "hauteur_par_pixel": 0.892,
+  "y_horizon": 287,
+  "hauteur_par_pixel": 0.936,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    62
+    354,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -804,5 +804,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/salle principale/mw1fcs6j93w39q.jpeg"
+ "source": "laboratoire d'alchimie/salle principale/mw1fcs6j93w39q.jpeg",
+ "perspective_origine": {
+  "y_horizon": 275,
+  "hauteur_par_pixel": 0.892,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

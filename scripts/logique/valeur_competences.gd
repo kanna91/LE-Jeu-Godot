@@ -9,14 +9,14 @@ const POINTS_PAR_MANA := 1
 const POINTS_PAR_PA := 12
 const PALIERS_COMPETENCES := {
 	"Coup_d_epee": 0, "Coup_de_lance": 0, "Coup_de_marteau": 0, "Coup_de_poing": 0, "Boule_de_feu": 0, "Eclair": 0,
-	"Fracasser": 1, "Frenesie": 2, "Enchainement": 2, "Balayage": 3, "Tempete_de_feu": 4, "Soin": 5,
-	"Attaque_rapide": 0, "Attaque_lourde": 0, "Coup_de_baton": 0, "Coup_de_dague": 0, "Tir": 0, "Tir_precis": 0,
+	"Fracasser": 1, "Frenesie": 2, "Enchainement": 2, "Balayage": 3, "Soin": 5,
+	"Coup_de_baton": 0, "Tir": 0, "Tir_precis": 0,
 	"Cri_de_guerre": 0, "Protection": 0, "Caresse_des_ombres": 0, "Silence": 0, "Précision": 0,
 	"Coup_de_gourdin": 1, "Soin_mineur": 1, "Recupe": 1,
-	"Rafale_de_lance": 2, "Tir_rapide": 2,
+	"Rafale_de_lance": 2,
 	"Grand_coup_de_gourdin": 3, "Trait_des_Ombres": 3,
-	"Feu": 4, "Botte_secrete": 4, "Projectile_des_ombres": 4, "Soin_majeur": 4,
-	"Laceration": 5, "Perforation": 5, "Tir_empoisonne": 5, "Blizzard": 5, "Enflammer": 5,
+	"Botte_secrete": 4, "Projectile_des_ombres": 4,
+	"Perforation": 5, "Tir_empoisonne": 5, "Enflammer": 5,
 }
 const FACTEUR_MIN := 0.3
 const FACTEUR_MAX := 2.5

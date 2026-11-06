@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_grande_salle/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_grande_salle/fond_hd.png",
  "perspective": {
-  "y_horizon": 262,
-  "hauteur_par_pixel": 0.844,
+  "y_horizon": 265,
+  "hauteur_par_pixel": 0.853,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    332,
-    59
+    324,
+    50.4
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -530,5 +530,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/salle principale/mw1fdnle5hanaq.jpeg"
+ "source": "laboratoire d'alchimie/salle principale/mw1fdnle5hanaq.jpeg",
+ "perspective_origine": {
+  "y_horizon": 262,
+  "hauteur_par_pixel": 0.844,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    332,
+    59
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

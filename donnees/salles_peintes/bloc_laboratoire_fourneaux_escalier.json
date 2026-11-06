@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_fourneaux_escalier/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_fourneaux_escalier/fond_hd.png",
  "perspective": {
-  "y_horizon": 256,
-  "hauteur_par_pixel": 0.823,
+  "y_horizon": 281,
+  "hauteur_par_pixel": 0.913,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    325,
-    57
+    350,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -558,5 +558,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/fourneaux/mw1fjstrvhrloz.jpeg"
+ "source": "laboratoire d'alchimie/fourneaux/mw1fjstrvhrloz.jpeg",
+ "perspective_origine": {
+  "y_horizon": 256,
+  "hauteur_par_pixel": 0.823,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    325,
+    57
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

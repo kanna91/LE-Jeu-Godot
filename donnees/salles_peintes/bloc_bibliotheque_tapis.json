@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_tapis/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_tapis/fond_hd.png",
  "perspective": {
-  "y_horizon": 310,
-  "hauteur_par_pixel": 1.046,
+  "y_horizon": 351,
+  "hauteur_par_pixel": 1.31,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    360,
-    52
+    402,
+    67.2
    ],
    [
     511,
@@ -36,32 +36,92 @@
     470
    ],
    [
-    700,
-    420
+    689,
+    424
    ],
    [
-    640,
-    390
+    703,
+    407
    ],
    [
-    560,
-    380
+    563,
+    407
    ],
    [
-    460,
-    378
+    548,
+    412
    ],
    [
-    330,
-    380
+    482,
+    407
    ],
    [
-    200,
+    519,
     385
    ],
    [
-    100,
-    400
+    490,
+    383
+   ],
+   [
+    462,
+    402
+   ],
+   [
+    374,
+    398
+   ],
+   [
+    309,
+    406
+   ],
+   [
+    278,
+    411
+   ],
+   [
+    285,
+    420
+   ],
+   [
+    266,
+    420
+   ],
+   [
+    206,
+    424
+   ],
+   [
+    211,
+    434
+   ],
+   [
+    188,
+    443
+   ],
+   [
+    169,
+    428
+   ],
+   [
+    134,
+    384
+   ],
+   [
+    94,
+    388
+   ],
+   [
+    63,
+    392
+   ],
+   [
+    83,
+    448
+   ],
+   [
+    63,
+    462
    ],
    [
     0,
@@ -176,5 +236,30 @@
  "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ej5wr82tej2.jpeg"
+ "source": "bibliothèque/mw1ej5wr82tej2.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 310,
+  "hauteur_par_pixel": 1.046,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    360,
+    52
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/couloir_prison3/fond.jpeg",
  "fond_hd": "images/salles_peintes/couloir_prison3/fond_hd.png",
  "perspective": {
-  "y_horizon": 247,
-  "hauteur_par_pixel": 0.664,
+  "y_horizon": 204,
+  "hauteur_par_pixel": 0.57,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    300,
-    35
+    296,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -465,5 +465,21 @@
  "ips": 24,
  "source": "prison/couloir de prison menant au crypte/3",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 247,
+  "hauteur_par_pixel": 0.664,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    300,
+    35
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

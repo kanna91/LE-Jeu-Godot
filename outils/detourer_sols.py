@@ -328,5 +328,17 @@ def detourage(ident):
     return zones
 
 
+def avec_perspective(ident, d):
+    """Applique à ``d`` (données de salle) la perspective mesurée par ``outils/mesurer_perspective.py``
+    (``outils/perspective/<id>.json``), si elle existe ; l'ancienne reste dans ``perspective_origine``."""
+    chemin = os.path.join(ICI, "outils", "perspective", ident + ".json")
+    if os.path.exists(chemin):
+        m = json.load(open(chemin, encoding="utf8"))
+        d.setdefault("perspective_origine", dict(d["perspective"]))
+        d["perspective"] = dict(d["perspective"], y_horizon=m["y_horizon"], table_hauteur=m["table"],
+                                hauteur_par_pixel=round(m["table"][1][1] / (511 - m["y_horizon"]), 3))
+    return d
+
+
 if __name__ == "__main__":
     main()

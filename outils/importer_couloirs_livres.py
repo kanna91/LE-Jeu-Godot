@@ -117,7 +117,7 @@ def donnees(ident, portes, fichier):
 
 
 def main():
-    from detourer_sols import detourage
+    from detourer_sols import detourage, avec_perspective
     fichiers = sorted(glob.glob(os.path.join(SOURCE, "*.jpeg")))
     assert len(fichiers) == len(PORTES), (len(fichiers), len(PORTES))
     sources = []
@@ -130,6 +130,7 @@ def main():
         im.save(os.path.join(dossier, "fond.jpeg"), quality=95)
         d = donnees(ident, PORTES[k], f)
         d.update(detourage(ident))  # sol détouré, puis retouches de l'éditeur de zones
+        avec_perspective(ident, d)  # perspective mesurée (outils/mesurer_perspective.py)
         with open(os.path.join(DONNEES, ident + ".json"), "w", encoding="utf8") as fj:
             json.dump(d, fj, ensure_ascii=False, indent=1)
         sources.append((ident, im))

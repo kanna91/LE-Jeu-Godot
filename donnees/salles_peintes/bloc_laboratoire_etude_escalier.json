@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_etude_escalier/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_etude_escalier/fond_hd.png",
  "perspective": {
-  "y_horizon": 252,
-  "hauteur_par_pixel": 0.81,
+  "y_horizon": 230,
+  "hauteur_par_pixel": 0.746,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    322,
-    57
+    314,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -580,5 +580,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/étude/mw1fr818r0x30u.jpeg"
+ "source": "laboratoire d'alchimie/étude/mw1fr818r0x30u.jpeg",
+ "perspective_origine": {
+  "y_horizon": 252,
+  "hauteur_par_pixel": 0.81,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    322,
+    57
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

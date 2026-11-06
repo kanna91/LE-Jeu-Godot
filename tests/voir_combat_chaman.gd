@@ -1,7 +1,7 @@
 extends Control
 ## Banc d'essai à jouer soi-même : combats à la suite, en alternant combattant + archer + chaman et
 ## sorcier + combattant + féticheur (animations de combat, CombatAnime). Le héros a une épée, 999 PV et 999 mana et connaît
-## Étincelle ardente. Un nouveau combat commence quand le précédent est gagné ; fermer la fenêtre
+## Givre. Un nouveau combat commence quand le précédent est gagné ; fermer la fenêtre
 ## pour quitter. Lancer :
 ##   Godot_v4.7.2-stable_win64.exe --path . res://tests/voir_combat_chaman.tscn
 
@@ -19,7 +19,7 @@ func lancer() -> void:
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
 	joueur.equiper_item(Arme.nouvelle("Epée", "arme", "Epée"))
-	joueur.magies_apprises.append(Competences.creer("Etincelle_ardente"))
+	joueur.magies_apprises.append(Competences.creer("Givre"))
 	Ecrans.menu_navigation(joueur, donjon)
 	await get_tree().process_frame
 	var groupes := [[["guerrier", "combattant"], ["guerrier", "archer"], ["soutien", "chaman"]],

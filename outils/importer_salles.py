@@ -192,8 +192,9 @@ def importer_salle(fichier, ident, directions):
     salle.pop("destinations", None)
     salle["source"] = "test_salle/" + fichier
     # Sol détouré automatiquement (outils/detourer_sols.py, 2026-10-27) : remplace les zones tracées à la main
-    from detourer_sols import detourage
+    from detourer_sols import detourage, avec_perspective
     salle.update(detourage(ident))
+    avec_perspective(ident, salle)  # perspective mesurée (outils/mesurer_perspective.py)
     os.makedirs(DONNEES, exist_ok=True)
     with open(os.path.join(DONNEES, ident + ".json"), "w", encoding="utf-8") as f:
         json.dump(salle, f, ensure_ascii=False, indent=1)

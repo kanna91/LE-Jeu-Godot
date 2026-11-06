@@ -1,6 +1,6 @@
 extends SceneTree
 ## Combat animé (CombatAnime) : le héros de dos, un gobelin combattant, un archer et un sorcier.
-## Pour chaque arme (épée, lance, marteau), puis une magie (Étincelle ardente : lancer de sort) : le héros et les gobelins bougent dès l'ouverture du
+## Pour chaque arme (épée, lance, marteau), puis une magie (Givre : lancer de sort) : le héros et les gobelins bougent dès l'ouverture du
 ## combat (attente du guerrier à 250 ms par image), attaque du héros (clic sur le premier bouton, puis sur
 ## la cible si besoin), vérifie que l'animation d'attaque démarre et que son image d'impact tombe sur
 ## le premier coup, que la cible réagit (touché, sauf coup raté), puis que les gobelins jouent leur
@@ -58,7 +58,7 @@ func coup_anime(sources: Array):
 	return null
 
 
-## Menu Magies puis Étincelle ardente (cible choisie automatiquement s'il ne reste qu'un ennemi).
+## Menu Magies puis Givre (cible choisie automatiquement s'il ne reste qu'un ennemi).
 func lancer_etincelle(ecran, etincelle) -> void:
 	ecran._traiter([{"type": "clic", "pos": ecran.boutons_actions[3][0].get_center(), "bouton": 1}])
 	await attendre(3)
@@ -78,7 +78,7 @@ func lancer() -> void:
 	Ecrans.menu_navigation(joueur, donjon)
 	await attendre(5)
 	var n := 31
-	var etincelle := Competences.creer("Etincelle_ardente")
+	var etincelle := Competences.creer("Givre")
 	joueur.magies_apprises.append(etincelle)
 	for cas in [["Epée", "attaque"], ["Lance", "attaque"], ["Marteau", "attaque"], ["Epée", "sort"]]:
 		var arme: String = cas[0]
@@ -199,7 +199,7 @@ func lancer() -> void:
 		combat_seul.mener_combat()
 		await attendre(30)
 		var ecran = ecran_combat()
-		verifier(etincelle.type_ciblage == "choix" and int(etincelle.nombre_cible) == 1, "Étincelle ardente n'est pas à cible unique")
+		verifier(etincelle.type_ciblage == "choix" and int(etincelle.nombre_cible) == 1, "Givre n'est pas à cible unique")
 		await lancer_etincelle(ecran, etincelle)
 		verifier(ecran.competence_en_cours == null, "%s seul : le sort attend encore une cible" % cs[1])
 		var coup = coup_anime([joueur])

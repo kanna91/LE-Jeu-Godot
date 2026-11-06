@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/prison2/fond.jpeg",
  "fond_hd": "images/salles_peintes/prison2/fond_hd.png",
  "perspective": {
-  "y_horizon": 321,
-  "hauteur_par_pixel": 0.922,
+  "y_horizon": 310,
+  "hauteur_par_pixel": 0.869,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
     370,
-    45
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -438,5 +438,21 @@
     338
    ]
   ]
- ]
+ ],
+ "perspective_origine": {
+  "y_horizon": 321,
+  "hauteur_par_pixel": 0.922,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    370,
+    45
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

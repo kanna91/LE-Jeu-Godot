@@ -3,17 +3,17 @@
  "fond_hd": "images/salles_peintes/bloc_laboratoire_fourneaux_forge/fond_hd.png",
  "perspective": {
   "y_horizon": 275,
-  "hauteur_par_pixel": 0.892,
+  "hauteur_par_pixel": 0.891,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    62
+    346,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -468,5 +468,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/fourneaux/mw1fkuavtkvfq4.jpeg"
+ "source": "laboratoire d'alchimie/fourneaux/mw1fkuavtkvfq4.jpeg",
+ "perspective_origine": {
+  "y_horizon": 275,
+  "hauteur_par_pixel": 0.892,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

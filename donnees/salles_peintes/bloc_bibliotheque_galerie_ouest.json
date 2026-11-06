@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_galerie_ouest/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_galerie_ouest/fond_hd.png",
  "perspective": {
-  "y_horizon": 277,
-  "hauteur_par_pixel": 0.898,
+  "y_horizon": 255,
+  "hauteur_par_pixel": 0.821,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    335,
-    52
+    332,
+    63
    ],
    [
     511,
@@ -52,8 +52,28 @@
     335
    ],
    [
-    380,
-    330
+    457,
+    338
+   ],
+   [
+    415,
+    340
+   ],
+   [
+    404,
+    348
+   ],
+   [
+    378,
+    351
+   ],
+   [
+    350,
+    336
+   ],
+   [
+    325,
+    336
    ],
    [
     260,
@@ -145,32 +165,6 @@
     455,
     372
    ]
-  ],
-  [
-   [
-    560,
-    365
-   ],
-   [
-    640,
-    355
-   ],
-   [
-    767,
-    375
-   ],
-   [
-    767,
-    511
-   ],
-   [
-    650,
-    511
-   ],
-   [
-    570,
-    420
-   ]
   ]
  ],
  "premier_plan": [],
@@ -233,5 +227,31 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ejy6ztjoyk6.jpeg"
+ "source": "bibliothèque/mw1ejy6ztjoyk6.jpeg",
+ "perspective_origine": {
+  "y_horizon": 277,
+  "hauteur_par_pixel": 0.898,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    335,
+    52
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

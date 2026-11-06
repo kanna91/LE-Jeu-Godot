@@ -102,7 +102,7 @@ func _caracteristiques() -> int:
 		if absf(obtenu - attendu) > 0.001:
 			print("ÉCHEC : %s : %.2f au lieu de %.2f." % [t, obtenu, attendu])
 			echecs += 1
-	for nom in ["Coup_de_lance", "Etincelle_ardente", "Jugement_du_tonnerre", "Lumiere_apaisante"]:
+	for nom in ["Coup_de_lance", "Givre", "Trait_arcanique", "Murmure_des_ombres"]:
 		var comp := Competences.creer(nom)
 		var est := Formules.estimer_degats(lanceur, comp, {"points_de_vie_max": 20})
 		print("%s (%s) : %s" % [comp.nom, comp.type_degats, est])
@@ -265,33 +265,34 @@ func _coups_multiples() -> int:
 
 
 ## Le dé bonus de l'arme ne sert qu'aux attaques de l'arme (Coup de marteau, Fracasser...) :
-## un sort qui fait le même type (Marteau de givre : froid + contondant) garde ses propres dés.
+## un sort qui fait le même type (Givre : froid) garde ses propres dés.
 func _attaques_arme() -> int:
 	var echecs := 0
 	var marteau := Arme.nouvelle("Marteau", "arme", "Marteau")
 	var porteur := {"arme_equipee": marteau, "force": 0, "sagesse": 0}
 	var coup := Competences.creer("Coup_de_marteau")
-	var sort := Competences.creer("Marteau_de_givre")
+	var sort := Competences.creer("Givre")
+	var des_sort := Formules.moyenne(Formules.des_type(porteur, "froid", sort))
 	marteau.set("de_bonus", {"faces": 6, "type": "contondant"})
 	if Formules.moyenne(Formules.des_type(porteur, "contondant", coup)) != 12.5:  # 6d2 (2026-11-01) + 1d6
 		print("ÉCHEC : Coup de marteau sans le dé bonus contondant.")
 		echecs += 1
-	if Formules.moyenne(Formules.des_type(porteur, "contondant", sort)) != 7.0:
-		print("ÉCHEC : Marteau de givre profite du dé bonus de l'arme.")
-		echecs += 1
 	marteau.set("de_bonus", {"faces": 6, "type": "froid"})
+	if Formules.moyenne(Formules.des_type(porteur, "froid", sort)) != des_sort:
+		print("ÉCHEC : Givre profite du dé bonus de froid de l'arme.")
+		echecs += 1
 	if Formules.de_bonus_autre_type(porteur, coup.type_degats, coup) != ["froid", 6]:
 		print("ÉCHEC : Coup de marteau sans le dé bonus de froid.")
 		echecs += 1
 	if not Formules.de_bonus_autre_type(porteur, sort.type_degats, sort).is_empty():
-		print("ÉCHEC : Marteau de givre déclenche le dé bonus de froid.")
+		print("ÉCHEC : Givre déclenche le dé bonus de froid.")
 		echecs += 1
 	var froid := 0
 	for r in Formules.estimer_degats(porteur, sort, {}, false):
 		if r[0] == "froid":
 			froid += 1
 	if froid != 1:
-		print("ÉCHEC : estimation de Marteau de givre : froid compté %d fois." % froid)
+		print("ÉCHEC : estimation de Givre : froid compté %d fois." % froid)
 		echecs += 1
 	return echecs
 
@@ -301,11 +302,11 @@ func _attaques_arme() -> int:
 func _pourcentage_element() -> int:
 	var echecs := 0
 	var lanceur := {"force": 0, "sagesse": 0}
-	var transpercer := Competences.creer("Transpercer")
-	var avant := Formules.degats_bruts(lanceur, transpercer, "perforant")
-	transpercer.pourcentage_types["foudre"] = 0.05
-	if "foudre" in transpercer.type_degats or Formules.degats_bruts(lanceur, transpercer, "perforant") != avant:
-		print("ÉCHEC : +5 %% de foudre change Transpercer (%s)." % [transpercer.type_degats])
+	var givre := Competences.creer("Givre")
+	var avant := Formules.degats_bruts(lanceur, givre, "froid")
+	givre.pourcentage_types["foudre"] = 0.05
+	if "foudre" in givre.type_degats or Formules.degats_bruts(lanceur, givre, "froid") != avant:
+		print("ÉCHEC : +5 %% de foudre change Givre (%s)." % [givre.type_degats])
 		echecs += 1
 	var eclair := Competences.creer("Eclair")
 	var avant_eclair := Formules.degats_bruts(lanceur, eclair, "foudre")

@@ -514,23 +514,19 @@
  "obstacles": [],
  "perspective": {
   "compression_profondeur": 0.6,
-  "hauteur_par_pixel": 2,
+  "hauteur_par_pixel": 0.972,
   "table_hauteur": [
    [
-    340,
-    85
-   ],
-   [
-    380,
-    105
+    364,
+    62.1
    ],
    [
     511,
-    205
+    205.0
    ]
   ],
   "vitesse": 1.8,
-  "y_horizon": 328
+  "y_horizon": 300
  },
  "premier_plan": [
   [
@@ -737,5 +733,25 @@
  ],
  "source": "test_salle/porte4.json",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "compression_profondeur": 0.6,
+  "hauteur_par_pixel": 2,
+  "table_hauteur": [
+   [
+    340,
+    85
+   ],
+   [
+    380,
+    105
+   ],
+   [
+    511,
+    205
+   ]
+  ],
+  "vitesse": 1.8,
+  "y_horizon": 328
+ }
 }

@@ -325,9 +325,9 @@ func haut_ecran(p: Dictionary) -> Vector2:
 # Géométrie
 # ---------------------------------------------------------------------------
 
-## Distance en hauteurs du héros (la profondeur compte moins, comme la marche : compression_profondeur).
+## Distance en hauteurs du héros (la profondeur compte moins, comme la marche : SallePeinte.compression).
 func _distance(a: Vector2, b: Vector2) -> float:
-	var c := float(salle.donnees["perspective"]["compression_profondeur"])
+	var c := salle.compression((a.y + b.y) / 2.0)
 	var d := b - a
 	d.y /= c
 	return d.length() / maxf(1.0, salle.hauteur((a.y + b.y) / 2.0))
@@ -406,14 +406,14 @@ func _avancer(e: Dictionary, but: Vector2, vitesse: float, delta: float, course 
 			pas = (COURSE_GOBELINS if course else float(e["v_marche"])) * salle.hauteur(p.y) * delta
 	for angle in [0.0, 0.6, -0.6, 1.2, -1.2]:
 		var v := dir.rotated(angle) * pas
-		v.y *= float(persp["compression_profondeur"])
+		v.y *= salle.compression(p.y)
 		for essai in [v, Vector2(v.x, 0), Vector2(0, v.y)]:
 			if essai != Vector2.ZERO and salle.libre(p + essai) and salle._sortie_sous(p + essai) < 0 \
 					and (e.get("vu_entrer", false) or not salle.dans_cachette(p + essai) or salle.dans_cachette(p)):
 				e["pos"] = p + essai
 				e["t_bouge"] = temps
 				# Distance au sol (profondeur décompressée), en hauteurs de la forme : fait défiler la marche animée
-				var sol := Vector2(essai.x, essai.y / float(persp["compression_profondeur"])).length()
+				var sol := Vector2(essai.x, essai.y / salle.compression(p.y)).length()
 				e["parcouru"] = float(e.get("parcouru", 0.0)) + sol / (salle.hauteur(p.y) * _hauteur_forme(e["p"]))
 				return true
 	return false

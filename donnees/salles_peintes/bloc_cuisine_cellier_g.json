@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_cuisine_cellier_g/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_cuisine_cellier_g/fond_hd.png",
  "perspective": {
-  "y_horizon": 242,
-  "hauteur_par_pixel": 0.78,
+  "y_horizon": 282,
+  "hauteur_par_pixel": 0.917,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    370,
-    100
+    374,
+    84.4
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -84,28 +84,6 @@
  "obstacles": [
   [
    [
-    60,
-    410
-   ],
-   [
-    210,
-    398
-   ],
-   [
-    215,
-    432
-   ],
-   [
-    120,
-    447
-   ],
-   [
-    60,
-    444
-   ]
-  ],
-  [
-   [
     612,
     375
    ],
@@ -174,5 +152,30 @@
  "arrivees": {},
  "bloc": "cuisine",
  "ips": 24,
- "source": "cuisine et salle a manger/cellier gauche.jpeg"
+ "source": "cuisine et salle a manger/cellier gauche.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 242,
+  "hauteur_par_pixel": 0.78,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    370,
+    100
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

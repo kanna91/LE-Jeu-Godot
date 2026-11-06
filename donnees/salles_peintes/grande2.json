@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/grande2/fond.jpeg",
  "fond_hd": "images/salles_peintes/grande2/fond_hd.png",
  "perspective": {
-  "y_horizon": 264,
-  "hauteur_par_pixel": 0.728,
+  "y_horizon": 215,
+  "hauteur_par_pixel": 0.609,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    360,
-    70
+    304,
+    54.0
    ],
    [
     511,
-    180
+    180.0
    ]
   ]
  },
@@ -527,5 +527,21 @@
  ],
  "butins": [],
  "feux": [],
- "eaux": []
+ "eaux": [],
+ "perspective_origine": {
+  "y_horizon": 264,
+  "hauteur_par_pixel": 0.728,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    360,
+    70
+   ],
+   [
+    511,
+    180
+   ]
+  ]
+ }
 }

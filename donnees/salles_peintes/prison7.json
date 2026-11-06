@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/prison7/fond.jpeg",
  "fond_hd": "images/salles_peintes/prison7/fond_hd.png",
  "perspective": {
-  "y_horizon": 309,
-  "hauteur_par_pixel": 0.865,
+  "y_horizon": 270,
+  "hauteur_par_pixel": 0.725,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    355,
-    40
+    342,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -516,5 +516,21 @@
  "grande_salle": true,
  "ips": 24,
  "source": "prison/grande salle/7",
- "prisonniers": []
+ "prisonniers": [],
+ "perspective_origine": {
+  "y_horizon": 309,
+  "hauteur_par_pixel": 0.865,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    355,
+    40
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

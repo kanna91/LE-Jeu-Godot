@@ -1,18 +1,18 @@
 {
  "fond": "images/salles_peintes/porte5/fond.jpeg",
  "perspective": {
-  "y_horizon": 352,
-  "hauteur_par_pixel": 2,
+  "y_horizon": 335,
+  "hauteur_par_pixel": 1.167,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    400,
-    110
+    388,
+    61.5
    ],
    [
     511,
-    205
+    205.0
    ]
   ]
  },
@@ -435,5 +435,21 @@
   "passage"
  ],
  "source": "test_salle/porte5.json",
- "prisonniers": []
+ "prisonniers": [],
+ "perspective_origine": {
+  "y_horizon": 352,
+  "hauteur_par_pixel": 2,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    400,
+    110
+   ],
+   [
+    511,
+    205
+   ]
+  ]
+ }
 }

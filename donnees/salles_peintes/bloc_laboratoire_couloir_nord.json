@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_couloir_nord/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_couloir_nord/fond_hd.png",
  "perspective": {
-  "y_horizon": 265,
-  "hauteur_par_pixel": 0.852,
+  "y_horizon": 264,
+  "hauteur_par_pixel": 0.85,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    335,
-    60
+    338,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -574,5 +574,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/couloir/mw1fo8fgcx50k3.jpeg"
+ "source": "laboratoire d'alchimie/couloir/mw1fo8fgcx50k3.jpeg",
+ "perspective_origine": {
+  "y_horizon": 265,
+  "hauteur_par_pixel": 0.852,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    335,
+    60
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

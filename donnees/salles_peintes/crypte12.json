@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/crypte12/fond.jpeg",
  "fond_hd": "images/salles_peintes/crypte12/fond_hd.png",
  "perspective": {
-  "y_horizon": 276,
-  "hauteur_par_pixel": 0.743,
+  "y_horizon": 215,
+  "hauteur_par_pixel": 0.592,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    328,
-    39
+    304,
+    52.5
    ],
    [
     511,
@@ -190,6 +190,22 @@
     0
    ],
    [
+    326,
+    293
+   ],
+   [
+    329,
+    296
+   ],
+   [
+    333,
+    314
+   ],
+   [
+    328,
+    318
+   ],
+   [
     322,
     325
    ],
@@ -224,8 +240,16 @@
     0
    ],
    [
-    90,
-    310
+    71,
+    300
+   ],
+   [
+    80,
+    303
+   ],
+   [
+    84,
+    317
    ],
    [
     94,
@@ -361,5 +385,32 @@
  "grande_salle": true,
  "ips": 24,
  "source": "crypte/12",
- "prisonniers": []
+ "prisonniers": [],
+ "perspective_origine": {
+  "y_horizon": 276,
+  "hauteur_par_pixel": 0.743,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    328,
+    39
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ },
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

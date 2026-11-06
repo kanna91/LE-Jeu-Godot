@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_lecture/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_lecture/fond_hd.png",
  "perspective": {
-  "y_horizon": 229,
-  "hauteur_par_pixel": 0.745,
+  "y_horizon": 264,
+  "hauteur_par_pixel": 0.85,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    350,
-    90
+    338,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -40,32 +40,32 @@
     395
    ],
    [
-    660,
-    340
+    647,
+    372
    ],
    [
-    560,
-    335
+    608,
+    347
    ],
    [
-    450,
-    330
+    485,
+    336
    ],
    [
-    300,
-    330
+    220,
+    343
    ],
    [
-    230,
-    335
+    178,
+    370
    ],
    [
-    150,
-    345
+    158,
+    376
    ],
    [
-    110,
-    390
+    69,
+    402
    ],
    [
     0,
@@ -189,5 +189,31 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1dru3cijqhd1.jpeg"
+ "source": "bibliothèque/mw1dru3cijqhd1.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 229,
+  "hauteur_par_pixel": 0.745,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    350,
+    90
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

@@ -2,62 +2,14 @@
  "fond": "images/salles_peintes/grande5/fond.jpeg",
  "fond_hd": "images/salles_peintes/grande5/fond_hd.png",
  "perspective": {
-  "y_horizon": 282,
-  "hauteur_par_pixel": 0.785,
+  "y_horizon": 175,
+  "hauteur_par_pixel": 0.549,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    322,
-    17.6
-   ],
-   [
-    337,
-    30.8
-   ],
-   [
-    352,
-    44
-   ],
-   [
-    367,
-    57.2
-   ],
-   [
-    382,
-    70.4
-   ],
-   [
-    397,
-    83.6
-   ],
-   [
-    412,
-    96.8
-   ],
-   [
-    427,
-    110.1
-   ],
-   [
-    442,
-    123.3
-   ],
-   [
-    457,
-    136.5
-   ],
-   [
-    472,
-    149.8
-   ],
-   [
-    487,
-    163
-   ],
-   [
-    502,
-    176.3
+    276,
+    55.3
    ],
    [
     511,
@@ -2157,5 +2109,69 @@
   ]
  },
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 282,
+  "hauteur_par_pixel": 0.785,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    322,
+    17.6
+   ],
+   [
+    337,
+    30.8
+   ],
+   [
+    352,
+    44
+   ],
+   [
+    367,
+    57.2
+   ],
+   [
+    382,
+    70.4
+   ],
+   [
+    397,
+    83.6
+   ],
+   [
+    412,
+    96.8
+   ],
+   [
+    427,
+    110.1
+   ],
+   [
+    442,
+    123.3
+   ],
+   [
+    457,
+    136.5
+   ],
+   [
+    472,
+    149.8
+   ],
+   [
+    487,
+    163
+   ],
+   [
+    502,
+    176.3
+   ],
+   [
+    511,
+    184.3
+   ]
+  ]
+ }
 }

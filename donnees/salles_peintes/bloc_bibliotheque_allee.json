@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_allee/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_allee/fond_hd.png",
  "perspective": {
-  "y_horizon": 318,
-  "hauteur_par_pixel": 1.089,
+  "y_horizon": 275,
+  "hauteur_par_pixel": 0.891,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    410,
-    100
+    346,
+    63
    ],
    [
     511,
@@ -32,20 +32,64 @@
     511
    ],
    [
-    767,
-    420
+    768,
+    433
    ],
    [
-    700,
-    400
+    680,
+    449
    ],
    [
-    600,
-    370
+    599,
+    407
+   ],
+   [
+    648,
+    375
+   ],
+   [
+    614,
+    366
+   ],
+   [
+    602,
+    381
+   ],
+   [
+    547,
+    390
+   ],
+   [
+    513,
+    372
+   ],
+   [
+    541,
+    350
+   ],
+   [
+    531,
+    345
+   ],
+   [
+    499,
+    356
    ],
    [
     470,
     350
+   ],
+   [
+    450,
+    357
+   ],
+   [
+    445,
+    343
+   ],
+   [
+    431,
+    344
    ],
    [
     410,
@@ -60,36 +104,64 @@
     350
    ],
    [
-    180,
-    362
+    187,
+    377
    ],
    [
-    80,
-    390
+    75,
+    412
    ],
    [
     0,
-    410
+    444
    ]
   ]
  ],
  "obstacles": [
   [
    [
-    185,
-    375
+    210,
+    415
    ],
    [
-    330,
-    372
+    301,
+    410
    ],
    [
-    325,
-    425
+    310,
+    415
+   ],
+   [
+    317,
+    422
+   ],
+   [
+    311,
+    428
+   ],
+   [
+    305,
+    432
+   ],
+   [
+    293,
+    442
+   ],
+   [
+    210,
+    438
+   ],
+   [
+    201,
+    436
    ],
    [
     195,
     430
+   ],
+   [
+    198,
+    423
    ]
   ],
   [
@@ -108,24 +180,6 @@
    [
     605,
     395
-   ]
-  ],
-  [
-   [
-    135,
-    345
-   ],
-   [
-    185,
-    345
-   ],
-   [
-    185,
-    370
-   ],
-   [
-    135,
-    370
    ]
   ],
   [
@@ -207,5 +261,31 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1dv2exfay7o5.jpeg"
+ "source": "bibliothèque/mw1dv2exfay7o5.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 318,
+  "hauteur_par_pixel": 1.089,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    410,
+    100
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

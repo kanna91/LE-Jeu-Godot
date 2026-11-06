@@ -77,8 +77,7 @@ const DES_HEROS := {
 	"Soin": {"lumière": [[20, 2]]},
 	"Boule_de_feu": {"feu": [[8, 2]]}, "Givre": {"froid": [[8, 2]]}, "Eclair": {"foudre": [[6, 3]]},
 	"Trait_arcanique": {"arcane": [[8, 2]]}, "Souffle_du_chaos": {"chaos": [[4, 2]], "feu": [[4, 2]]},
-	"Murmure_des_ombres": {"ombre": [[8, 2]]}, "Estafilade": {"tranchant": [[8, 2]]},
-	"Dard_empoisonne": {"perforant": [[6, 2]], "poison": [[2, 2]]}, "Bourrade": {"contondant": [[8, 2]]},
+	"Murmure_des_ombres": {"ombre": [[8, 2]]},
 }
 const DES_ENNEMIS := {
 	"Tir": {"perforant": [[4, 2]]}, "Tir_precis": {"perforant": [[3, 2]]}, "Tir_empoisonne": {"perforant": [[3, 2]]},

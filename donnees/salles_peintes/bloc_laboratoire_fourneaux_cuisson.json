@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_fourneaux_cuisson/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_fourneaux_cuisson/fond_hd.png",
  "perspective": {
-  "y_horizon": 271,
-  "hauteur_par_pixel": 0.876,
+  "y_horizon": 277,
+  "hauteur_par_pixel": 0.897,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    342,
-    62
+    350,
+    65.5
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -398,5 +398,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/fourneaux/mw1fk0zr0khby5.jpeg"
+ "source": "laboratoire d'alchimie/fourneaux/mw1fk0zr0khby5.jpeg",
+ "perspective_origine": {
+  "y_horizon": 271,
+  "hauteur_par_pixel": 0.876,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    342,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

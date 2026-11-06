@@ -36,6 +36,8 @@ const VITESSE_MARCHE := 0.45
 ## Mesures du héros dans ses images de 448 px : hauteur du corps et ligne des pieds.
 const HAUTEUR_PERSO := 428.0
 const PIEDS_PERSO := 442.0
+## Écrasement minimal de la profondeur, en fraction de celui de près (voir ``compression``).
+const COMPRESSION_MIN := 0.25
 const RESPIRATION_CALME := 3.6
 const RESPIRATION_ESSOUFFLE := 1.1
 const MONTEE_ESSOUFFLEMENT := 0.25
@@ -814,6 +816,15 @@ func hauteur(y: float) -> float:
 	return maxf(8.0, (y - float(persp["y_horizon"])) * float(persp["hauteur_par_pixel"]))
 
 
+## Écrasement des déplacements en profondeur à la hauteur ``y`` : fraction de la vitesse gardée verticalement.
+## Proportionnelle à la taille du héros (2026-11-05) : de près ``compression_profondeur``, et de moins en moins vers le
+## fond, comme sur un vrai sol vu en perspective. Avant, elle était fixe : le héros avançait d'autant plus vite vers
+## le fond qu'il était loin et rétrécissait de moitié à intervalles réguliers (« minuscule » en quelques pas).
+func compression(y: float) -> float:
+	var c := float(donnees["perspective"]["compression_profondeur"])
+	return c * clampf(hauteur(y) / maxf(1.0, hauteur(511.0)), COMPRESSION_MIN, 1.0)
+
+
 func _dans(p: Vector2, couche: String) -> bool:
 	for poly in donnees[couche]:
 		if Geometry2D.is_point_in_polygon(p, poly):
@@ -1043,7 +1054,7 @@ func _process(delta: float) -> void:
 		direction = DIRECTIONS[posmod(roundi(dir.angle() / (PI / 4)), 8)]
 		var persp: Dictionary = donnees["perspective"]
 		var v := dir * float(persp["vitesse"]) * (1.0 if courir else VITESSE_MARCHE) * hauteur(heros.position.y) * delta
-		v.y *= float(persp["compression_profondeur"])
+		v.y *= compression(heros.position.y)
 		var p := heros.position
 		if actif:
 			_pousser_porte(p, v)

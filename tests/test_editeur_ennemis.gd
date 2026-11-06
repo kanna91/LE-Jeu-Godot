@@ -92,7 +92,7 @@ func _initialize() -> void:
 	root.add_child(ed)
 	await process_frame
 	verifier(ed.onglets.get_tab_count() == 5, "5 onglets")
-	verifier(ed.liste_competences.item_count > 50, "liste des compétences (%d)" % ed.liste_competences.item_count)
+	verifier(ed.liste_competences.item_count >= 34, "liste des compétences (%d)" % ed.liste_competences.item_count)
 	ed.choisir_competence("Perforation")
 	verifier(ed.fiche_competence.get_child_count() > 8, "fiche de Perforation")
 	var nouvelle := ed.nouvelle_competence()

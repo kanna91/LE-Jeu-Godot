@@ -181,7 +181,7 @@ static func definir_competence_gobelin(classe: String, sous_classe: String) -> A
 	elif classe == "mage":
 		noms = ["Coup_de_baton", "Boule_de_feu"]
 		if sous_classe == "sorcier":
-			noms += ["Trait_des_Ombres", "Projectile_des_ombres"]  # sans Éclair, Enflammer ni Blizzard (2026-11-01)
+			noms += ["Trait_des_Ombres", "Projectile_des_ombres"]  # sans Éclair ni Enflammer (2026-11-01)
 		elif sous_classe == "feticheur":
 			noms += ["Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur"]
 	elif classe == "soutien":

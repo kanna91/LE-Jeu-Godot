@@ -385,7 +385,8 @@ stick droit pour choisir un bouton de l'interface.
     ni loup). Mesure : ≈ 9 ennemis isolés et ≈ 30 ennemis hostiles par étage (≈ 19 avant) ;
   - **Sorts et équipement viennent de l'exploration** : le joueur ne choisit un sort **qu'au tout début** de la
     partie ; ensuite, chaque **grimoire** (pupitre, cachettes, gobelin soigné) lui apprend un **sort tiré au hasard**
-    (palier 0 jusqu'à l'étage, 5 au plus, sans prérequis ; `Aventure.lire_livre`) ; s'il connaît déjà tout, le
+    parmi les sorts de départ qu'il n'a pas pris (depuis l'épuration du 2026-11-06, il n'existe plus que les
+    6 sorts de départ depuis le 2026-11-06 ; `Aventure.lire_livre`) ; s'il connaît déjà tout, le
     grimoire ne lui apprend rien (il n'est plus « déjà amélioré » depuis le 2026-11-03 : amélioration supprimée) ;
     équipement des coffres, du râtelier, des cachettes, des élites et des squelettes. Les **compétences** (attaques
     d'arme) ne s'apprennent pas encore ainsi : à décider.
@@ -402,7 +403,7 @@ stick droit pour choisir un bouton de l'interface.
   | Chevaliers / geôliers / diablotins / choix moraux par étage | 1 (+ karma) / 5, un par secteur (utilisateur) / 7 (utilisateur) / 2 |
   | Pupitre, râtelier | pupitre un étage sur deux (50 %), râtelier 1 par étage |
   | Cachettes | 2 à 3 par étage, au moins une clé par salle verrouillée ; le reste : or 45, objet 40, grimoire 15 (poids) |
-  | Grimoire | sort de palier 0 à l'étage (5 au plus) ; gobelin soigné : grimoire 25 %, clé 75 % |
+  | Grimoire | un des 6 sorts de départ pas encore connu ; gobelin soigné : grimoire 25 %, clé 75 % |
   | Salles bonus verrouillées | la moitié (au moins une) des coffres et choix de bonus |
   | Fuite | 45 % + 3 % par point de dextérité − 10 % par ennemi au-delà du premier, entre 15 et 90 % ; boss 15 % |
   | Confiscation | 50 % coffre, 25 % perdu, 25 % porteur (3 objets par porteur) |
@@ -421,6 +422,11 @@ stick droit pour choisir un bouton de l'interface.
   les salles du banc d'essai `C:\ia image\Salle de donjon\test_salle` (salle 1, salle 2, salles
   porte 1 à 6), avec leur moteur (sol, obstacles, perspective, premier plan, décor animé — la vidéo de la salle en pleine résolution depuis le 2026-10-19 (le son a été retiré le 2026-10-18), héros
   qui marche, court et respire en 8 directions) et leur chargement rapide.
+  - **Perspective** (2026-11-05, `outils/mesurer_perspective.py`) : la taille du héros est proportionnelle à la
+    distance de ses pieds à l'horizon de l'image ; au haut du sol il garde 30 % de sa taille de près (toutes les
+    salles, sauf réglage à la main), et sur les escaliers et balcons étroits au-dessus la taille du haut du sol.
+    Ses pas vers le fond sont d'autant plus courts à l'écran qu'il est loin (`SallePeinte.compression`), comme
+    sur un vrai sol vu en perspective : il ne rétrécit plus de moitié toutes les secondes.
   - **Salles orientées comme la mini-carte** (`PlanSalles.attribuer`, une fois par étage, enregistrée
     dans chaque salle du plan sous `"salle_peinte"`). Orientation **fixe** depuis le 2026-10-18 : le haut
     de l'image est toujours le haut de la mini-carte. Aller vers le fond de l'image = monter sur la
@@ -672,11 +678,10 @@ stick droit pour choisir un bouton de l'interface.
     |---|---|---|---|
     | Coup d'épée, Coup de marteau, Coup de lance | 6d2 | Tir à l'arc ; Coup d'épée, Coup de lance (gobelins) ; morsure du loup, épée rouillée du squelette | 4d2 |
     | Frénésie (2 coups) ; Coup de poing (sans étourdissement) | 4d2 | Tir précis, Tir empoisonné, Coup de gourdin, Perforation | 3d2 |
-    | Fracasser, Boule de feu, Givre, Trait arcanique, Trait de l'ombre, Estafilade, Bourrade | 8d2 | Boule de feu, Grand coup de gourdin, Projectile de l'ombre, Enflammer, Trait de l'ombre | 5d2 |
+    | Fracasser, Boule de feu, Givre, Trait arcanique, Murmure des ombres | 8d2 | Boule de feu, Grand coup de gourdin, Projectile de l'ombre, Enflammer, Trait de l'ombre | 5d2 |
     | Balayage (chaque cible) | 3d2 | Rafale de lance (3 coups), Caresse des ombres, Silence, Coup de bâton | 2d2 |
     | Éclair | 6d3 | Soin mineur | 7d2 + 15 % des PV max de la cible (`PV_CIBLE_ENNEMIS`) |
     | Souffle du chaos (chaos + feu) ; Enchaînement (2 coups, sans étourdissement) | 4d2 + 4d2 ; 3d2 | Botte secrète | 3d2 |
-    | Dard empoisonné | 6d2 perforant + 2d2 poison | | |
     | Soin | 20d2 | | |
 
     Coup de poing et Enchaînement : leurs options d'amélioration « étourdissement » sont devenues « trauma »
@@ -807,8 +812,7 @@ stick droit pour choisir un bouton de l'interface.
   **8 à 12 points de Mana** (`Ennemis.MANA_ENNEMIS` ; 2 ou 3 avant le 2026-11-02, doublés quand un point est passé à
   5 mana, validé par l'utilisateur, puis redoublés le 2026-11-03 quand il faut 2 points pour 5 mana : ils gardent
   leurs 20 à 30 mana), le reste à 0, à reforger.
-- **Coût des sorts** : au moins 2 mana. Estafilade, Dard empoisonné et Bourrade (sorts d'arme de départ) passent de 1
-  à 2 mana (2026-11-02, `donnees/sorts.json`). Les compétences physiques (Enchaînement, Fracasser, Frénésie,
+- **Coût des sorts** : au moins 2 mana (2026-11-02, `donnees/sorts.json`). Les compétences physiques (Enchaînement, Fracasser, Frénésie,
   Balayage...) restent à 1 mana (décision de l'utilisateur).
 - **Dégâts des ennemis** : en entier depuis le 2026-10-27 (`Ennemis.MULTIPLICATEUR_DEGATS_ENNEMIS` = 1 ; ×0,68 avant).
   Leurs dés restent lancés un cran plus bas que ceux du héros (`Formules.des_reduits`).
@@ -872,10 +876,21 @@ stick droit pour choisir un bouton de l'interface.
 - **Faiblesse et force du boss** : toujours tirées au hasard (feu, froid, foudre, tranchant, perforant,
   contondant), désormais en pourcentage : **+50 %** de dégâts reçus et **60 %** de résistance (`Aventure.FAIBLESSE_BOSS`,
   `FORCE_BOSS`), en attendant la refonte des ennemis.
-- **Points d'action** : le héros n'a plus qu'**1 PA** (`Personnage`, `points_d_action_max`).
-  Les sorts à 2 PA (Météore, Embrasement, Zéro absolu, Jugement du tonnerre, Singularité,
-  Apocalypse, Anathème, Miracle, Mille entailles, Perce-cœur, Séisme, Colère du titan)
-  ne peuvent donc plus être lancés par le héros (à revoir avec les paliers).
+- **Points d'action** : le héros n'a plus qu'**1 PA** (`Personnage`, `points_d_action_max`) (les sorts à 2 PA
+  ont disparu avec l'épuration des compétences du 2026-11-06).
+- **Compétences et sorts du jeu (épuration du 2026-11-06, demande de l'utilisateur)** : il ne reste que ceux
+  qu'utilisent le héros ou les ennemis, et les 6 sorts proposés au tout début de la partie :
+  - héros : Coup d'épée, Frénésie, Coup de lance, Balayage, Coup de marteau, Fracasser, Coup de poing,
+    Enchaînement (attaques d'arme) et Soin (connu dès le départ) ;
+  - 6 sorts de départ (`Sorts.SORTS_DE_DEPART`) : Boule de feu, Givre, Éclair, Trait arcanique, Souffle du chaos,
+    Murmure des ombres (Estafilade, Dard empoisonné et Bourrade supprimés le 2026-11-06) ;
+  - ennemis (`donnees/ennemis.json`) : Botte secrète, Cri de guerre, Rafale de lance, Perforation, Tir, Tir précis,
+    Tir empoisonné, Précision, Coup de gourdin, Grand coup de gourdin, Protection, Coup de bâton, Trait de l'ombre,
+    Projectile de l'ombre, Caresse des ombres, Enflammer, Silence, Soin mineur, Récupe (plus Coup d'épée,
+    Coup de lance et Boule de feu, partagés avec le héros).
+  Soit 30 compétences (`donnees/competences.json`) et 4 sorts (`donnees/sorts.json`). Une nouvelle compétence
+  d'ennemi se crée dans l'éditeur des ennemis (copie d'une compétence existante). Les anciennes parties perdent
+  les sorts supprimés (`Sauvegarde.charger`, `Competences.existe`).
 - **Soins des ennemis** : un ennemi n'est soigné qu'une fois par combat, par une
   compétence de soin ou une potion (`Ennemis.peut_etre_soigne`, marque `deja_soigne` ;
   vérifiée par l'IA et par `Combat.lancer`).
@@ -1073,6 +1088,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/compiler_tout.gd    # compile tous les scripts
 & $godot --headless --path . -s tests/test_logique.gd     # partie complète jouée sans interface
 & $godot --headless --path . -s tests/test_descente.gd    # monter puis redescendre : pas de boss rejoué
+& $godot --path . -s tests/capture_perspective.gd         # perspective des salles (taille du héros au fond), captures ; fenêtre hors écran
 & $godot --headless --path . -s tests/test_des_armes.gd   # dés par type, caractéristiques, dés bonus (attaques de l'arme), défense (2 points = 1, sans cumul, pourcentages), options des armes, brûlure, % d'élément
 & $godot --headless --path . -s tests/test_magie_ecran.gd # écran de combat : un sort sur soi = une action
 & $godot --headless --path . -s tests/test_butin.gd       # gobelins sans équipement
@@ -1204,6 +1220,67 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-06 — Estafilade, Dard empoisonné et Bourrade supprimés
+
+- **Demande de l'utilisateur** : « supprime également Bourrade, Estafilade et Dard empoisonné ».
+- **Pour le joueur** : au début de la partie, il choisit son sort parmi **6** (Boule de feu, Givre, Éclair, Trait
+  arcanique, Souffle du chaos, Murmure des ombres) ; les grimoires n'apprennent plus que ces sorts. Le texte de
+  l'écran de choix ne parle plus de « sorts plus puissants du même élément » (il n'y en a plus) : « l'attribut
+  indiqué augmente ses dégâts ».
+- **Fichiers** : `donnees/sorts.json` (4 sorts), `valeurs_competences.json`, `Sorts.SORTS_DE_DEPART`,
+  `Formules.DES_HEROS` ; les anciennes parties perdent ces sorts au chargement (`Sauvegarde.charger`).
+- **Tests adaptés** : test_des_armes (Givre au lieu de Bourrade et de Dard empoisonné, Murmure des ombres dans
+  l'estimation), test_editeur_ennemis (34 compétences). Passent : compiler_tout, test_des_armes, test_soins,
+  test_editeur_ennemis, test_magie_ecran, test_aventure, test_logique, test_creatures.
+
+### 2026-11-06 — Épuration des compétences : 37 au lieu de 96
+
+- **Demande de l'utilisateur** : « il y a trop de compétences différentes ; supprime toutes celles qui ne sont pas
+  équipées par des ennemis ou le joueur, ou qui ne font pas partie des 9 compétences proposées au tout début ».
+- **Pour le joueur** : le grimoire ne contient plus que les 9 sorts de départ (plus de paliers 1 à 5, plus aucun
+  sort de lumière) ; un grimoire trouvé apprend un de ces sorts pas encore connu. Le héros et les ennemis gardent
+  toutes leurs compétences. Liste complète dans les règles (« Compétences et sorts du jeu »).
+- **Supprimés** : 9 compétences jamais équipées (Feu, Attaque rapide, Attaque lourde, Tempête de feu, Coup de
+  dague, Lacération, Tir rapide, Blizzard, Soin majeur) et 50 sorts de palier 1 à 5 (Étincelle ardente, Mur de
+  flammes... Colère du titan), dans `donnees/competences.json`, `sorts.json` et `valeurs_competences.json`, ainsi
+  que leurs lignes dans `BasesCompetences.BASES` et `ValeurCompetences.PALIERS_COMPETENCES`.
+- **Code** : `Competences.existe(nom_classe)` ; `Sauvegarde.charger` retire des anciennes parties les sorts qui
+  n'existent plus.
+- **Tests adaptés** : test_des_armes (Bourrade au lieu de Marteau de givre, Dard empoisonné au lieu de
+  Transpercer), capture_combat_anime et voir_combat_chaman (Givre au lieu d'Étincelle ardente),
+  test_editeur_ennemis (37 compétences dans la liste au lieu de plus de 50). Passent : compiler_tout,
+  test_des_armes, test_soins, test_creatures, test_editeur_ennemis, test_cri_de_guerre, test_magie_ecran,
+  test_aventure, test_logique. (L'erreur `blocs_salles.gd:272` affichée par ces tests vient des retouches de
+  sorties en cours dans l'éditeur, pas de ce changement.)
+
+### 2026-11-05 — Perspective des salles : le héros ne devient plus minuscule en quelques pas
+
+- **Demande de l'utilisateur** : « retravailler les perspectives quand le joueur se déplace dans les salles ;
+  parfois elles sont complètement ratées, le personnage devient minuscule alors qu'il n'est pas censé être si loin ».
+- **Causes trouvées** : (1) la vitesse vers le fond était proportionnelle à la taille du héros avec un écrasement
+  de la profondeur fixe (0,6) : plus il était loin, plus il avançait vite au sol, et il rétrécissait de moitié à
+  intervalles réguliers (grande5 : de 180 px à 37 px en 3 s de marche, puis 18 px) ; (2) les tables de taille
+  étaient posées à l'œil, souvent copiées d'une salle à l'autre : au haut du sol, le héros faisait 10 % de sa
+  taille de près dans certaines salles (grande5, couloirs) et 50 % dans d'autres (culs-de-sac, portes : géant au fond).
+- **Pour le joueur** : le héros rétrécit progressivement en allant vers le fond, comme sur un vrai sol en
+  perspective ; au fond du sol il garde **30 % de sa taille de près** dans toutes les salles (22 et 24 % dans deux
+  salles à passage étroit) ; sur les escaliers et balcons étroits au-dessus du sol, il garde la taille du haut du
+  sol. Traverser une salle en profondeur prend un peu plus de temps qu'avant (environ 1,5 à 2 fois), le héros ne
+  « file » plus vers l'horizon. La taille de près ne change pas.
+- **Jeu** : `SallePeinte.compression(y)` (nouveau, `COMPRESSION_MIN` 0,25) : l'écrasement des pas en profondeur
+  suit la taille du héros (``compression_profondeur`` de près, jusqu'à un quart de cette valeur au fond) ; utilisé
+  par le héros et par les ennemis (`PresencesSalle._distance`, `_avancer`, marche animée).
+- **Outil** : `outils/mesurer_perspective.py` (nouveau) : profondeur métrique de chaque image (Depth Anything V2
+  Metric Indoor), plan du sol, horizon ; la mesure montre que presque toutes les salles sont très profondes (le
+  héros y ferait 0 à 20 % de sa taille au fond), d'où la borne de 30 % choisie pour le jeu. Écrit la `perspective`
+  des 161 salles (l'ancienne reste dans `perspective_origine`) et `outils/perspective/<id>.json`, relu par tous les
+  importeurs (`detourer_sols.avec_perspective`) et par `carte3d.py`, pour qu'un réimport ne revienne pas aux
+  anciennes valeurs. Réglages à la main : `REGLAGES` (`r_haut`, `h_bas`). Planches avant/après :
+  `C:\IA\pont-blender\perspective_salles\planche_NN.png`.
+- Tests : `capture_perspective.gd` (nouveau : 161 salles vérifiées + captures `perspective_<salle>_N`) ;
+  `test_collisions_salles` 0 échec, `test_aventure` 0 échec ; `test_emplacements` 178 échecs **identiques avant et
+  après** (salles sans emplacements et sorties bloquées déjà présentes).
 
 ### 2026-11-04 — Données des ennemis : compétences, altérations, IA, butin
 

@@ -1,18 +1,18 @@
 {
  "fond": "images/salles_peintes/porte2/fond.jpeg",
  "perspective": {
-  "y_horizon": 340,
-  "hauteur_par_pixel": 2,
+  "y_horizon": 292,
+  "hauteur_par_pixel": 0.915,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    370,
-    95
+    358,
+    60.0
    ],
    [
     511,
-    200
+    200.0
    ]
   ]
  },
@@ -388,5 +388,21 @@
  ],
  "source": "test_salle/porte2.json",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 340,
+  "hauteur_par_pixel": 2,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    370,
+    95
+   ],
+   [
+    511,
+    200
+   ]
+  ]
+ }
 }

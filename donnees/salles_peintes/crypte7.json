@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/crypte7/fond.jpeg",
  "fond_hd": "images/salles_peintes/crypte7/fond_hd.png",
  "perspective": {
-  "y_horizon": 278,
-  "hauteur_par_pixel": 0.75,
+  "y_horizon": 230,
+  "hauteur_par_pixel": 0.622,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    331,
-    40
+    314,
+    52.5
    ],
    [
     511,
-    175
+    175.0
    ]
   ]
  },
@@ -601,5 +601,21 @@
  ],
  "butins": [],
  "feux": [],
- "eaux": []
+ "eaux": [],
+ "perspective_origine": {
+  "y_horizon": 278,
+  "hauteur_par_pixel": 0.75,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    331,
+    40
+   ],
+   [
+    511,
+    175
+   ]
+  ]
+ }
 }

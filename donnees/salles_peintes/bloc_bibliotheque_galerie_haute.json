@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_galerie_haute/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_galerie_haute/fond_hd.png",
  "perspective": {
-  "y_horizon": 342,
-  "hauteur_par_pixel": 1.241,
+  "y_horizon": 355,
+  "hauteur_par_pixel": 1.349,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    395,
-    66
+    402,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -32,44 +32,76 @@
     511
    ],
    [
-    767,
-    470
+    768,
+    492
    ],
    [
-    720,
-    440
+    695,
+    469
    ],
    [
-    700,
-    420
+    511,
+    425
    ],
    [
-    560,
-    400
+    442,
+    418
    ],
    [
-    450,
-    392
+    452,
+    372
    ],
    [
-    300,
-    395
+    415,
+    370
    ],
    [
-    200,
-    400
+    373,
+    397
    ],
    [
-    130,
-    400
+    346,
+    417
    ],
    [
-    60,
-    410
+    326,
+    415
+   ],
+   [
+    268,
+    346
+   ],
+   [
+    165,
+    334
+   ],
+   [
+    161,
+    377
+   ],
+   [
+    193,
+    421
+   ],
+   [
+    171,
+    432
+   ],
+   [
+    143,
+    428
+   ],
+   [
+    85,
+    434
+   ],
+   [
+    56,
+    452
    ],
    [
     0,
-    420
+    466
    ]
   ]
  ],
@@ -133,20 +165,20 @@
  "sorties": [
   [
    [
-    408,
-    388
+    414,
+    367
    ],
    [
-    458,
-    388
+    464,
+    367
    ],
    [
-    460,
-    400
+    466,
+    379
    ],
    [
-    406,
-    400
+    412,
+    379
    ]
   ],
   [
@@ -189,5 +221,31 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ej4oaigb5f4.jpeg"
+ "source": "bibliothèque/mw1ej4oaigb5f4.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 342,
+  "hauteur_par_pixel": 1.241,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    395,
+    66
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

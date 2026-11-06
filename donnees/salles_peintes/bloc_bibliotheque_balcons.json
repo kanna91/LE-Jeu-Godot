@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_balcons/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_balcons/fond_hd.png",
  "perspective": {
-  "y_horizon": 232,
-  "hauteur_par_pixel": 0.753,
+  "y_horizon": 284,
+  "hauteur_par_pixel": 0.925,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    85
+    352,
+    63
    ],
    [
     511,
@@ -48,8 +48,56 @@
     358
    ],
    [
+    469,
+    365
+   ],
+   [
+    460,
+    365
+   ],
+   [
+    457,
+    361
+   ],
+   [
+    456,
+    355
+   ],
+   [
+    459,
+    350
+   ],
+   [
+    521,
+    322
+   ],
+   [
+    471,
+    324
+   ],
+   [
+    412,
+    353
+   ],
+   [
     380,
     352
+   ],
+   [
+    408,
+    325
+   ],
+   [
+    375,
+    325
+   ],
+   [
+    357,
+    330
+   ],
+   [
+    328,
+    355
    ],
    [
     250,
@@ -86,42 +134,6 @@
    [
     30,
     455
-   ]
-  ],
-  [
-   [
-    395,
-    365
-   ],
-   [
-    470,
-    365
-   ],
-   [
-    470,
-    400
-   ],
-   [
-    395,
-    402
-   ]
-  ],
-  [
-   [
-    265,
-    465
-   ],
-   [
-    385,
-    460
-   ],
-   [
-    390,
-    511
-   ],
-   [
-    270,
-    511
    ]
   ],
   [
@@ -183,20 +195,20 @@
   ],
   [
    [
-    322,
-    352
+    468,
+    316
    ],
    [
-    372,
-    352
+    518,
+    316
    ],
    [
-    374,
-    364
+    520,
+    328
    ],
    [
-    320,
-    364
+    466,
+    328
    ]
   ],
   [
@@ -247,5 +259,32 @@
  },
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ejmqrh9b1qy.jpeg"
+ "source": "bibliothèque/mw1ejmqrh9b1qy.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 232,
+  "hauteur_par_pixel": 0.753,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    85
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

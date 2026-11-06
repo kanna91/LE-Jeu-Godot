@@ -1,18 +1,18 @@
 {
  "fond": "images/salles_peintes/culdesac7/fond.jpeg",
  "perspective": {
-  "y_horizon": 315,
-  "hauteur_par_pixel": 1.6,
+  "y_horizon": 295,
+  "hauteur_par_pixel": 0.95,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    365,
-    105
+    360,
+    61.5
    ],
    [
     511,
-    205
+    205.0
    ]
   ]
  },
@@ -519,5 +519,21 @@
  "types_sorties": [
   "passage"
  ],
- "source": "test_salle/culdesac7.json"
+ "source": "test_salle/culdesac7.json",
+ "perspective_origine": {
+  "y_horizon": 315,
+  "hauteur_par_pixel": 1.6,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    365,
+    105
+   ],
+   [
+    511,
+    205
+   ]
+  ]
+ }
 }

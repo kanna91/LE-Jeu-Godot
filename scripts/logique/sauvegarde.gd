@@ -174,6 +174,10 @@ static func charger(nom: String, fenetre = null) -> Array:
 				if p is Dictionary and p.has("chef"):
 					p["elite"] = p["chef"]
 					p.erase("chef")
+	# Anciennes parties : les sorts supprimés lors de l'épuration des compétences (2026-11-06) disparaissent
+	for liste in ["magies_apprises", "magies_disponibles"]:
+		joueur._d[liste] = Array(U.ga(joueur, liste, [])).filter(
+			func(m): return m != null and Competences.existe(String(U.ga(m, "nom_classe", ""))))
 	for cle in Objets.EMPLACEMENTS_EQUIPEMENT:
 		if not joueur.equipements.has(cle):
 			joueur.equipements[cle] = null

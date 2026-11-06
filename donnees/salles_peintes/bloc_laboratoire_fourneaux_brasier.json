@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_fourneaux_brasier/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_fourneaux_brasier/fond_hd.png",
  "perspective": {
-  "y_horizon": 262,
-  "hauteur_par_pixel": 0.844,
+  "y_horizon": 284,
+  "hauteur_par_pixel": 0.923,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    332,
-    59
+    364,
+    74.3
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -538,5 +538,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/fourneaux/mw1fkhfju0hhae.jpeg"
+ "source": "laboratoire d'alchimie/fourneaux/mw1fkhfju0hhae.jpeg",
+ "perspective_origine": {
+  "y_horizon": 262,
+  "hauteur_par_pixel": 0.844,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    332,
+    59
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

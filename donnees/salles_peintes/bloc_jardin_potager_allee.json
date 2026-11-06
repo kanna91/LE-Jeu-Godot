@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/bloc_jardin_potager_allee/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_jardin_potager_allee/fond_hd.png",
  "perspective": {
-  "y_horizon": 181,
-  "hauteur_par_pixel": 0.636,
+  "y_horizon": 123,
+  "hauteur_par_pixel": 0.541,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    250,
-    44
+    254,
+    70.9
    ],
    [
     511,
@@ -36,32 +36,44 @@
     450
    ],
    [
-    600,
-    330
+    768,
+    308
    ],
    [
-    420,
-    262
+    768,
+    233
    ],
    [
-    380,
-    252
+    646,
+    199
    ],
    [
-    300,
-    252
+    563,
+    205
    ],
    [
-    260,
-    264
+    348,
+    208
    ],
    [
-    150,
-    320
+    337,
+    190
+   ],
+   [
+    309,
+    189
+   ],
+   [
+    307,
+    210
+   ],
+   [
+    175,
+    212
    ],
    [
     0,
-    400
+    312
    ]
   ]
  ],
@@ -70,20 +82,20 @@
  "sorties": [
   [
    [
-    310,
-    244
+    290,
+    180
    ],
    [
-    370,
-    244
+    350,
+    180
    ],
    [
-    372,
-    256
+    352,
+    192
    ],
    [
-    308,
-    256
+    288,
+    192
    ]
   ],
   [
@@ -126,5 +138,31 @@
  },
  "bloc": "jardin",
  "ips": 24,
- "source": "Salle de donjon/potager/mw1havpk56f2ze.jpeg"
+ "source": "Salle de donjon/potager/mw1havpk56f2ze.jpeg",
+ "perspective_origine": {
+  "y_horizon": 181,
+  "hauteur_par_pixel": 0.636,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    250,
+    44
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

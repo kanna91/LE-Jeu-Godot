@@ -36,6 +36,12 @@ static func classes_de_competences() -> Array:
 	return noms
 
 
+## Vrai si la compétence ou le sort existe encore (35 compétences et sorts gardés depuis l'épuration du 2026-11-06).
+static func existe(nom_classe: String) -> bool:
+	_charger()
+	return _sorts.has(nom_classe) or _competences.has(nom_classe) or DonneesEnnemis.base_de(nom_classe) != ""
+
+
 static func _valeur(v):
 	if v is Dictionary and v.has("alea"):
 		return randi_range(int(v["alea"][0]), int(v["alea"][1]))

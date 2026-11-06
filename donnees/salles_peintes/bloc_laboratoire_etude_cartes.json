@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_etude_cartes/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_etude_cartes/fond_hd.png",
  "perspective": {
-  "y_horizon": 262,
-  "hauteur_par_pixel": 0.844,
+  "y_horizon": 211,
+  "hauteur_par_pixel": 0.7,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    332,
-    59
+    310,
+    69.3
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -546,5 +546,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/étude/mw1fq8klnkk6dj.jpeg"
+ "source": "laboratoire d'alchimie/étude/mw1fq8klnkk6dj.jpeg",
+ "perspective_origine": {
+  "y_horizon": 262,
+  "hauteur_par_pixel": 0.844,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    332,
+    59
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

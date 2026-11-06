@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_globe/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_globe/fond_hd.png",
  "perspective": {
-  "y_horizon": 236,
-  "hauteur_par_pixel": 0.763,
+  "y_horizon": 272,
+  "hauteur_par_pixel": 0.88,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    380,
-    110
+    344,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -32,36 +32,44 @@
     511
    ],
    [
-    767,
-    400
+    768,
+    420
    ],
    [
     690,
-    385
+    392
    ],
    [
-    640,
-    345
+    656,
+    397
    ],
    [
-    560,
-    330
+    607,
+    383
    ],
    [
-    380,
-    325
+    610,
+    365
    ],
    [
-    250,
-    330
+    564,
+    351
    ],
    [
-    150,
-    340
+    341,
+    341
    ],
    [
-    100,
-    360
+    252,
+    351
+   ],
+   [
+    127,
+    375
+   ],
+   [
+    72,
+    371
    ],
    [
     0,
@@ -129,61 +137,59 @@
  "sorties": [
   [
    [
-    380,
-    322
-   ],
-   [
-    440,
-    322
-   ],
-   [
-    442,
-    334
-   ],
-   [
-    378,
-    334
-   ]
-  ],
-  [
-   [
     0,
-    499
+    494
    ],
    [
-    767,
-    499
+    768,
+    495
    ],
    [
-    767,
-    517
+    768,
+    510
    ],
    [
-    0,
-    517
+    3,
+    510
    ]
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   410,
-   350,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1ds6i1fsydis.jpeg"
+ "source": "bibliothèque/mw1ds6i1fsydis.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 236,
+  "hauteur_par_pixel": 0.763,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    380,
+    110
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

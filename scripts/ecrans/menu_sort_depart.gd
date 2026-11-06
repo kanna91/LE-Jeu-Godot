@@ -45,7 +45,7 @@ func _dessiner(ci: Control) -> void:
 	var x0: float = cartes[0].position.x
 	Ui.panneau(ci, Rect2(x0 - 16, 20, Ui.LARGEUR - 2 * (x0 - 16), btn_apprendre.end.y - 4 - 20))
 	Ui.texte(ci, "Choisissez votre sort de départ", Vector2(Ui.LARGEUR / 2, 32), Ui.OR, 22, true, null, "midtop")
-	Ui.texte(ci, "Vous connaissez déjà Soin. Ce sort offensif s'ajoute à vos magies ; l'attribut indiqué servira aux sorts plus puissants du même élément.",
+	Ui.texte(ci, "Vous connaissez déjà Soin. Ce sort offensif s'ajoute à vos magies ; l'attribut indiqué augmente ses dégâts.",
 		Vector2(Ui.LARGEUR / 2, 64), Ui.DETAIL, 13, false, Ui.LARGEUR - 120, "midtop")
 	for i in choix.size():
 		var r: Rect2 = cartes[i]

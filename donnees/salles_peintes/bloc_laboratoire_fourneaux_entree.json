@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_fourneaux_entree/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_fourneaux_entree/fond_hd.png",
  "perspective": {
-  "y_horizon": 271,
-  "hauteur_par_pixel": 0.876,
+  "y_horizon": 258,
+  "hauteur_par_pixel": 0.831,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    342,
-    62
+    334,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -715,5 +715,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/fourneaux/mw1fjx5z0gnln0.jpeg"
+ "source": "laboratoire d'alchimie/fourneaux/mw1fjx5z0gnln0.jpeg",
+ "perspective_origine": {
+  "y_horizon": 271,
+  "hauteur_par_pixel": 0.876,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    342,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

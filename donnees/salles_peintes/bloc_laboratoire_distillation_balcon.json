@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_laboratoire_distillation_balcon/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_laboratoire_distillation_balcon/fond_hd.png",
  "perspective": {
-  "y_horizon": 275,
-  "hauteur_par_pixel": 0.892,
+  "y_horizon": 310,
+  "hauteur_par_pixel": 1.043,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    345,
-    62
+    370,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -458,5 +458,21 @@
  },
  "bloc": "laboratoire",
  "ips": 24,
- "source": "laboratoire d'alchimie/distillation/mw1fi2yfopnqm1.jpeg"
+ "source": "laboratoire d'alchimie/distillation/mw1fi2yfopnqm1.jpeg",
+ "perspective_origine": {
+  "y_horizon": 275,
+  "hauteur_par_pixel": 0.892,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    345,
+    62
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }

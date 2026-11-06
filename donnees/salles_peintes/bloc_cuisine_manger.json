@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_cuisine_manger/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_cuisine_manger/fond_hd.png",
  "perspective": {
-  "y_horizon": 195,
-  "hauteur_par_pixel": 0.68,
+  "y_horizon": 218,
+  "hauteur_par_pixel": 0.734,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    305,
-    75
+    306,
+    64.5
    ],
    [
     511,
-    215
+    215.0
    ]
   ]
  },
@@ -710,5 +710,21 @@
    321
   ]
  ],
- "eaux": []
+ "eaux": [],
+ "perspective_origine": {
+  "y_horizon": 195,
+  "hauteur_par_pixel": 0.68,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    305,
+    75
+   ],
+   [
+    511,
+    215
+   ]
+  ]
+ }
 }

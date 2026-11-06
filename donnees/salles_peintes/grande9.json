@@ -2,14 +2,14 @@
  "fond": "images/salles_peintes/grande9/fond.jpeg",
  "fond_hd": "images/salles_peintes/grande9/fond_hd.png",
  "perspective": {
-  "y_horizon": 321,
-  "hauteur_par_pixel": 0.894,
+  "y_horizon": 241,
+  "hauteur_par_pixel": 0.63,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    388,
-    60
+    322,
+    51
    ],
    [
     511,
@@ -432,56 +432,56 @@
  "sorties": [
   [
    [
-    302,
-    368
+    320,
+    321
    ],
    [
-    502,
-    368
+    520,
+    321
    ],
    [
-    506,
-    380
+    524,
+    333
    ],
    [
-    296,
-    380
+    314,
+    333
    ]
   ],
   [
    [
-    112,
-    378
+    44,
+    312
    ],
    [
-    186,
-    378
+    118,
+    312
    ],
    [
-    190,
-    390
+    122,
+    324
    ],
    [
-    106,
-    390
+    38,
+    324
    ]
   ],
   [
    [
     640,
-    390
+    312
    ],
    [
     730,
-    390
+    312
    ],
    [
     736,
-    402
+    324
    ],
    [
     634,
-    402
+    324
    ]
   ],
   [
@@ -542,5 +542,31 @@
  "ips": 24,
  "source": "grande salle/9",
  "prisonniers": [],
- "cachettes": []
+ "cachettes": [],
+ "perspective_origine": {
+  "y_horizon": 321,
+  "hauteur_par_pixel": 0.894,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    388,
+    60
+   ],
+   [
+    511,
+    170
+   ]
+  ]
+ },
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

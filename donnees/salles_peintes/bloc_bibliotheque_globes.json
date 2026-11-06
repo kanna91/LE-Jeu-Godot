@@ -2,18 +2,18 @@
  "fond": "images/salles_peintes/bloc_bibliotheque_globes/fond.jpeg",
  "fond_hd": "images/salles_peintes/bloc_bibliotheque_globes/fond_hd.png",
  "perspective": {
-  "y_horizon": 290,
-  "hauteur_par_pixel": 0.948,
+  "y_horizon": 292,
+  "hauteur_par_pixel": 0.961,
   "vitesse": 1.8,
   "compression_profondeur": 0.6,
   "table_hauteur": [
    [
-    395,
-    100
+    358,
+    63.0
    ],
    [
     511,
-    210
+    210.0
    ]
   ]
  },
@@ -32,19 +32,19 @@
     511
    ],
    [
-    767,
-    420
+    768,
+    415
    ],
    [
-    700,
-    380
+    738,
+    410
    ],
    [
-    620,
-    365
+    624,
+    383
    ],
    [
-    520,
+    513,
     358
    ],
    [
@@ -56,34 +56,16 @@
     358
    ],
    [
-    200,
-    365
+    181,
+    371
    ],
    [
-    60,
-    380
+    55,
+    406
    ],
    [
     0,
-    400
-   ]
-  ],
-  [
-   [
-    268,
-    326
-   ],
-   [
-    332,
-    326
-   ],
-   [
-    420,
-    470
-   ],
-   [
-    268,
-    470
+    430
    ]
   ]
  ],
@@ -147,24 +129,6 @@
  "sorties": [
   [
    [
-    270,
-    326
-   ],
-   [
-    330,
-    326
-   ],
-   [
-    332,
-    338
-   ],
-   [
-    268,
-    338
-   ]
-  ],
-  [
-   [
     0,
     499
    ],
@@ -183,25 +147,41 @@
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   300,
-   354,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
- "source": "bibliothèque/mw1duxzcisvl4r.jpeg"
+ "source": "bibliothèque/mw1duxzcisvl4r.jpeg",
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [],
+ "perspective_origine": {
+  "y_horizon": 290,
+  "hauteur_par_pixel": 0.948,
+  "vitesse": 1.8,
+  "compression_profondeur": 0.6,
+  "table_hauteur": [
+   [
+    395,
+    100
+   ],
+   [
+    511,
+    210
+   ]
+  ]
+ }
 }
