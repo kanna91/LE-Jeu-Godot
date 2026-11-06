@@ -1467,5 +1467,48 @@
     "usure magique": 0
    }
   }
+ },
+ {
+  "classe": "Invocation_squelette",
+  "args": {
+   "nom": "Invocation",
+   "description": "Fait se relever un squelette qui combat à ses côtés (2 au plus ; il tombe en poussière si son invocateur meurt).",
+   "niveau": 1,
+   "cout_mana": 6,
+   "cout_action": 1,
+   "type_competence": "invocation",
+   "type_attaque": "magique",
+   "nombre_attaque": 0,
+   "nombre_cible": 1,
+   "type_ciblage": "self",
+   "type_degats": [],
+   "degats_tranchant": 0,
+   "degats_perforant": 0,
+   "degats_contondant": 0,
+   "degats_feu": 0,
+   "degats_froid": 0,
+   "degats_foudre": 0,
+   "degats_arcane": 0,
+   "degats_chaos": 0,
+   "degats_ombre": 0,
+   "degats_lumière": 0,
+   "penetration_armure": 0,
+   "penetration_resistance": 0,
+   "type_alteration": {
+    "stun": 0,
+    "brulure": 0,
+    "poison": 0,
+    "saignement": 0,
+    "aveugler": 0,
+    "recupe": 0,
+    "silence": 0,
+    "pétrification": 0,
+    "précis": 0,
+    "usure": 0,
+    "destruction armure": 0,
+    "destruction résistance": 0,
+    "usure magique": 0
+   }
+  }
  }
 ]

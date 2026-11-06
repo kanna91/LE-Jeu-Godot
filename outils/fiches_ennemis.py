@@ -548,11 +548,11 @@ def fiche_a_venir(d, dossier, titre, connu, fichier):
     doc.enregistrer(os.path.join(ENNEMIS, dossier, fichier))
 
 
-def fiche_creature(d, sorte, dossier, titre, sous_titre, rencontre, salles):
+def fiche_creature(d, sorte, dossier, titre, sous_titre, rencontre, salles, origine=None, combat=None):
     c = d["communs"]
     k = d["creatures"][sorte]
     doc = Doc(titre, sous_titre)
-    doc.note("Dans le jeu depuis le 27/10/2026. Faiblesses, résistances, type et dé d'attaque, compagnons : décidés par "
+    doc.note(origine or "Dans le jeu depuis le 27/10/2026. Faiblesses, résistances, type et dé d'attaque, compagnons : décidés par "
              "toi. Caractéristiques, dé du loup, fréquences et vitesse : proposés par Claude, validés par toi le 27/10/2026.")
     doc.h1("Caractéristiques (300 tirages)")
     tableau_stats(doc, k["stats"])
@@ -563,7 +563,7 @@ def fiche_creature(d, sorte, dossier, titre, sous_titre, rencontre, salles):
     tableau_competences(doc, k["competences"])
     doc.note("Dégâts moyens contre le héros de départ (%d PV, armure %s). Ses dés comptent tels quels (pas un cran "
              "plus bas comme ceux des gobelins)." % (c["heros_pv"], nombre(c["heros_armure"])))
-    doc.p("Il frappe avec cette attaque à chaque tour (1 point d'action). Comme les gobelins, il peut boire une potion "
+    doc.p(combat or "Il frappe avec cette attaque à chaque tour (1 point d'action). Comme les gobelins, il peut boire une potion "
           "s'il en a une (30 %) quand il tombe à la moitié de ses PV.")
     doc.h1("Où on le rencontre")
     doc.liste(rencontre)
@@ -603,6 +603,32 @@ def main():
         ["Groupe plus lent que les gobelins : poursuite %s × la course du héros (gobelins %s)."
          % (nombre(c["vitesse_squelettes"]), nombre(c["vitesse_poursuite"]["groupe"])),
          "Vue, ouïe et perte de la trace : comme les gobelins."])
+    # Squelettes refaits (2026-11-06) : une fiche dans chaque sous-dossier
+    cr = c["zones"]["zones"].get("crypte", {})
+    lent = ["Plus lent que les gobelins : poursuite %s × la course du héros." % nombre(c["vitesse_squelettes"]),
+            "Vue, ouïe et perte de la trace : comme les gobelins."]
+    origine = ("Dans le jeu depuis le 06/11/2026. Image, sorte en plus, cryptes seulement, invocation liée au mage : "
+               "décidés par toi. PV, dés, compétences et IA : proposés par Claude, réglables dans l'éditeur des ennemis (F4).")
+    fiche_creature(d, "guerrier_squelette", os.path.join("squelette", "guerrier squelette"), "Guerrier squelette",
+        "Mort-vivant à l'épée longue rouillée.", [
+        "Seulement dans les cryptes, à égalité avec les squelettes (zones.json, « crypte »)."], lent, origine,
+        "Mêmes règles que le squelette pour l'instant : il frappe avec son épée à chaque tour (1 point d'action).")
+    fiche_creature(d, "mage_squelette", os.path.join("squelette", "mage squelette"), "Mage squelette",
+        "Mort-vivant qui manie l'ombre et relève les morts.", [
+        "Seulement dans les cryptes : il prend la place d'un squelette dans %d %% des groupes de 2 squelettes ou plus."
+        % round(float(cr.get("chance_mage_squelette", 0)) * 100)], lent, origine,
+        "IA : Invocation (60 %, s'il a moins de 2 squelettes invoqués et 6 mana), Trait de l'ombre (50 %, 8 mana), sinon "
+        "Projectile de l'ombre. Ses squelettes invoqués (30 PV, 3d2 tranchant) tombent en poussière à sa mort.")
+    fiche_creature(d, "elementaliste_squelette", os.path.join("squelette", "élémentaliste squelette"),
+        "Élémentaliste squelette", "Mort-vivant qui lance le feu, le froid et la foudre.", [
+        "Seulement dans les cryptes : il prend la place d'un squelette dans %d %% des groupes de 2 squelettes ou plus."
+        % round(float(cr.get("chance_elementaliste_squelette", 0)) * 100)], lent, origine,
+        "IA : Éclair (33 %), Givre (50 %, si le héros n'est pas ralenti), sinon Boule de feu ; coup de bâton sans mana.")
+    fiche_creature(d, "squelette_invoque", os.path.join("squelette", "squeltte invoqué"), "Squelette invoqué",
+        "Squelette relevé en combat par un mage squelette.", [
+        "Jamais posé dans les salles : seul un mage squelette l'appelle en combat (compétence Invocation, 6 mana), "
+        "2 au plus en même temps par mage.", "Il tombe en poussière si son invocateur meurt (ni compté comme tué, ni butin)."],
+        ["N'existe qu'en combat."], origine, "Il frappe avec sa lame ébréchée à chaque tour, à partir du tour qui suit son invocation.")
 
 
 if __name__ == "__main__":

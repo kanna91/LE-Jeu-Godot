@@ -201,15 +201,16 @@ static func benefice_alteration(nom: String, porteur, adversaire, puissance = nu
 		tour += _gain_resistances_hors_reference(porteur, modifie, adversaire)
 		tour += maxf(0.0, porteur.points_de_vie_max - modifie.points_de_vie_max) * 0.5 / duree
 		var source = lanceur if lanceur != null else adversaire
-		if d.has("dot"):
+		if d.has("dots"):
 			var dot := 0.0
 			for t in range(1, duree + 1):
-				dot += _reduction(d["dot"].call(porteur, data, t), porteur, source)
+				for un_dot in d["dots"]:
+					dot += _reduction(un_dot.call(porteur, data, t), porteur, source)
 			dot /= duree
 			dot *= 1 + d.get("draine", 0) * EFFICACITE_VOL + d.get("contagion", 0) * PART_CONTAGION
 			tour += dot
-		if d.has("fin"):
-			tour += _reduction(d["fin"].call(porteur, data), porteur, source) / duree * (1.0 if duree == d["duree"] + duree_bonus else 0.0)
+		for fin_tour in d.get("fins", []):
+			tour += _reduction(fin_tour.call(porteur, data), porteur, source) / duree * (1.0 if duree == d["duree"] + duree_bonus else 0.0)
 		if d.get("reveil"):
 			tour += d.get("perte_tour", 0) * sortie / duree
 		else:

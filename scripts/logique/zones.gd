@@ -17,7 +17,7 @@ const CLASSES_GOBELINS := {"archer": "guerrier", "combattant": "guerrier", "lanc
 ## Valeurs de secours si zones.json manque (= le jeu d'avant le 2026-11-02).
 const DEFAUT := {"nom": "Reste de l'étage", "ennemis": {"gobelin": 75, "squelette": 25}, "elites": {"gobelin": 1},
 	"suite_elite": {"gobelin": 1}, "nombre_elites": null, "chance_elite": 0.12, "chance_pacifique": 0.15, "chance_loup": 0.5, "chance_feticheur": 0.2,
-	"sans_ennemis": false}
+	"chance_mage_squelette": 0.0, "chance_elementaliste_squelette": 0.0, "sans_ennemis": false}
 
 static var _donnees := {}
 

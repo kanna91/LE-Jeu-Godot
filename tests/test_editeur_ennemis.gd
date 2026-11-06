@@ -93,6 +93,51 @@ func _initialize() -> void:
 	await process_frame
 	verifier(ed.onglets.get_tab_count() == 5, "5 onglets")
 	verifier(ed.liste_competences.item_count >= 34, "liste des compétences (%d)" % ed.liste_competences.item_count)
+	# Altérations classées par type (2026-11-06)
+	verifier(Alterations.categorie("brulure") == "dégâts" and Alterations.categorie("rage") == "amélioration"
+		and Alterations.categorie("stun") == "malus" and Alterations.categorie("condamnation") == "dégâts", "catégories des altérations")
+	# Une vulnérabilité par élément et un bonus par caractéristique (2026-11-06) ; anciens noms convertis
+	for nom_alt in ["vulnérabilité au feu", "vulnérabilité au froid", "vulnérabilité à la foudre", "vulnérabilité à l'arcane",
+			"vulnérabilité au chaos", "vulnérabilité à l'ombre", "bonus de force", "bonus de dextérité", "bonus d'endurance",
+			"bonus d'intelligence", "bonus de sagesse", "bonus de mana", "vulnérabilité physique", "vulnérabilité élémentaire",
+			"vulnérabilité magique", "vulnérabilité totale"]:
+		verifier(not Alterations.definition(nom_alt).is_empty(), "altération %s" % nom_alt)
+	for ancien in ["inflammabilité", "conductivité", "morsure du givre", "vigueur", "agilité", "robustesse", "intellect",
+			"sérénité", "puissance du titan", "illumination", "transcendance", "vulnérabilité"]:
+		verifier(not Alterations.defs().has(ancien), "ancienne altération %s retirée" % ancien)
+	verifier(Alterations.nom_canonique("inflammabilité") == "vulnérabilité au feu" and Alterations.libelle("vigueur") == "Bonus de force",
+		"anciens noms convertis")
+	# Réductions de caractéristique (2026-11-06) : 16, anciennes supprimées ou converties
+	for reduc in Alterations.REDUCTIONS_CARACTERISTIQUES:
+		verifier(Alterations.definition(reduc[0]).get("nature") == "malus", "réduction %s" % reduc[0])
+	for ancien in ["sape", "engourdissement", "épuisement vital", "torpeur", "trouble", "déchéance", "dissonance",
+			"entropie", "faiblesse", "maladresse", "débilité"]:
+		verifier(not Alterations.defs().has(ancien), "ancienne réduction %s retirée" % ancien)
+	verifier(Alterations.nom_canonique("sape") == "réduction de force" and Alterations.nom_canonique("entropie")
+		== "réduction de toutes les caractéristiques", "anciens noms des réductions convertis")
+	var cible_r := Gobelin.nouveau(donjon)._completer("guerrier", "combattant")
+	cible_r.set("intelligence", 10)
+	cible_r.set("sagesse", 10)
+	cible_r.set("force", 10)
+	Alterations.appliquer_alterations(cible_r, "réduction d'intelligence et de sagesse", null, 100)
+	verifier(float(U.num(cible_r, "intelligence")) < 10 and float(U.num(cible_r, "sagesse")) < 10 and float(U.num(cible_r, "force")) == 10,
+		"réduction d'intelligence et de sagesse : seules ces deux baissent")
+	var cible_v := Gobelin.nouveau(donjon)._completer("guerrier", "combattant")
+	Alterations.appliquer_alterations(cible_v, "vulnérabilité à l'ombre", null, 100)
+	verifier(is_equal_approx(float(U.ga(cible_v, "vulnerabilite_ombre", 0)), 0.25), "vulnérabilité à l'ombre : +25 %% (%s)" % U.ga(cible_v, "vulnerabilite_ombre", 0))
+	Alterations.appliquer_alterations(cible_v, "vulnérabilité magique", null, 100)
+	verifier(is_equal_approx(Degats.vulnerabilite(cible_v, "ombre"), 0.45) and is_equal_approx(Degats.vulnerabilite(cible_v, "arcane"), 0.20)
+		and is_equal_approx(Degats.vulnerabilite(cible_v, "feu"), 0.0), "vulnérabilité magique : arcane, chaos, ombre +20 %%")
+	var force_avant := float(U.num(heros, "force"))
+	Alterations.appliquer_alterations(heros, "bonus de force", null, 100)
+	verifier(float(U.num(heros, "force")) > force_avant, "bonus de force : force augmentée")
+	var nb_alterations := ed.liste_alterations.item_count
+	ed.classer_par_type = true
+	ed._remplir_liste_alterations()
+	verifier(ed.liste_alterations.item_count == nb_alterations + 3 and not ed.liste_alterations.is_item_selectable(0),
+		"altérations par type : 3 titres (%d / %d)" % [ed.liste_alterations.item_count, nb_alterations])
+	ed.classer_par_type = false
+	ed._remplir_liste_alterations()
 	ed.choisir_competence("Perforation")
 	verifier(ed.fiche_competence.get_child_count() > 8, "fiche de Perforation")
 	var nouvelle := ed.nouvelle_competence()

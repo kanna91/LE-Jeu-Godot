@@ -13,7 +13,7 @@
   "multiplicateur_degats": 0.48,
   "type_alteration": {
    "électrocution": 7,
-   "conductivité": 10,
+   "vulnérabilité à la foudre": 10,
    "paralysie": 5
   },
   "alterations_lanceur": {},
@@ -230,11 +230,11 @@
  },
  "Protection": {
   "type_alteration": {
-   "protection": 100
+   "résistance physique": 100
   },
   "alterations_lanceur": {},
   "puissance_alterations": {
-   "protection": 60.0
+   "résistance physique": 60.0
   },
   "facteur": 1.5,
   "valeur_avant": 3.21,
@@ -271,7 +271,7 @@
   "multiplicateur_degats": 0.62,
   "type_alteration": {
    "brulure": 47,
-   "inflammabilité": 25
+   "vulnérabilité au feu": 25
   },
   "alterations_lanceur": {},
   "puissance_alterations": {},
@@ -342,8 +342,8 @@
  },
  "Précision": {
   "type_alteration": {
-   "précis": 100,
-   "concentration": 100
+   "bonus de chance de toucher": 100,
+   "bonus de chance de coup critique": 100
   },
   "alterations_lanceur": {},
   "puissance_alterations": {},
@@ -356,7 +356,7 @@
   "multiplicateur_degats": 1.02,
   "type_alteration": {
    "lenteur": 15,
-   "engourdissement": 20
+   "réduction de dextérité": 20
   },
   "alterations_lanceur": {},
   "puissance_alterations": {},
@@ -369,7 +369,7 @@
   "multiplicateur_degats": 1.02,
   "type_alteration": {
    "usure magique": 15,
-   "torpeur": 15
+   "réduction d'intelligence": 15
   },
   "alterations_lanceur": {},
   "puissance_alterations": {},
@@ -394,7 +394,7 @@
  "Murmure_des_ombres": {
   "multiplicateur_degats": 1.29,
   "type_alteration": {
-   "sape": 45,
+   "réduction de force": 45,
    "affaiblissement": 26
   },
   "alterations_lanceur": {},

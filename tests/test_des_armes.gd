@@ -226,7 +226,7 @@ func _brulure() -> int:
 		var mini := 99
 		var maxi := 0
 		for i in 2000:
-			var r: Array = Alterations._dot_brulure(null, {"cumul": cumul}, 1)
+			var r: Array = Alterations.definition("brulure")["dots"][0].call({"points_de_vie_max": 0, "points_de_vie": 0}, {"cumul": cumul}, 1)
 			mini = mini if mini < r[1] else r[1]
 			maxi = maxi if maxi > r[1] else r[1]
 			if r[0] != "feu":

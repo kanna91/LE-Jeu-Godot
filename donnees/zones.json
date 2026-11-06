@@ -12,11 +12,12 @@
     "  'chance_pacifique' : chance qu'un groupe de gobelins ne veuille pas se battre (jamais pour les autres sortes) ;",
     "  'chance_loup' : chance qu'un loup accompagne un groupe de gobelins qui compte un archer ou un chaman ;",
     "  'chance_feticheur' : chance qu'un féticheur gobelin mène un groupe de 2 squelettes ou plus (il n'est pas une élite) ;",
+    "  'chance_mage_squelette' / 'chance_elementaliste_squelette' : chance qu'un mage / un élémentaliste squelette prenne la place d'un squelette dans un groupe qui en compte au moins 2 (2026-11-06 : 25 % dans les cryptes, 0 ailleurs) ;",
     "  'sans_chasseurs' : vrai = ni le geôlier ni le Chevalier de la mort n'y sont posés ni n'y entrent ; les autres ennemis oui (le jardin) ;",
     "  'sans_ennemis' : vrai = refuge : aucun ennemi n'y est posé ni n'y entre (gobelins, squelettes, geôliers, Chevalier de la mort...),",
     "    seuls les personnages neutres y vont ; les chasseurs s'arrêtent à la porte.",
     "Sortes : 'gobelin' (classe au hasard, chaque membre la sienne), une classe de gobelin ('combattant', 'archer', 'lancier',",
-    "  'defenseur', 'sorcier', 'feticheur', 'chaman'), ou une créature ('squelette', 'loup').",
+    "  'defenseur', 'sorcier', 'feticheur', 'chaman'), ou une créature ('squelette', 'guerrier_squelette', 'mage_squelette', 'elementaliste_squelette', 'loup').",
     "Ce fichier est lu à la création des étages : il vaut pour les nouvelles parties."
   ],
   "defaut": {
@@ -55,13 +56,15 @@
     "crypte": {
       "nom": "Cryptes",
       "images": "crypte",
-      "ennemis": {"squelette": 1},
+      "ennemis": {"squelette": 1, "guerrier_squelette": 1},
       "elites": {"feticheur": 1},
-      "suite_elite": {"squelette": 1},
+      "suite_elite": {"squelette": 1, "guerrier_squelette": 1},
       "nombre_elites": 1,
       "chance_pacifique": 0,
       "chance_loup": 0,
-      "chance_feticheur": 0
+      "chance_feticheur": 0,
+      "chance_mage_squelette": 0.25,
+      "chance_elementaliste_squelette": 0.25
     }
   }
 }

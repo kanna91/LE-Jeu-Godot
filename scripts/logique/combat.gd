@@ -10,7 +10,26 @@ extends Dyn
 ## Le silence bloque les sorts offensifs et les soins magiques.
 static func est_bloquee_par_silence(competence, lanceur) -> bool:
 	return (not U.ga(lanceur, "magie", true) and competence.type_attaque == "magique"
-		and competence.type_competence in ["offensif", "heal"])
+		and competence.type_competence in ["offensif", "heal", "invocation"])
+
+
+## Invocations (2026-11-06, demande de l'utilisateur) : compétence -> sorte appelée (Creatures). Au plus
+## INVOCATIONS_MAX en vie par invocateur ; elles tombent en poussière quand leur invocateur meurt.
+const INVOCATIONS := {"Invocation_squelette": "squelette_invoque"}
+const INVOCATIONS_MAX := 2
+
+
+## Sorte qu'appelle une compétence (« » : ce n'est pas une invocation). Une copie faite dans l'éditeur compte aussi.
+static func invocation_de(competence) -> String:
+	var classe := String(U.ga(competence, "nom_classe", ""))
+	if not INVOCATIONS.has(classe):
+		classe = DonneesEnnemis.base_de(classe)
+	return String(INVOCATIONS.get(classe, ""))
+
+
+## Nombre d'invocations encore en vie d'un invocateur.
+static func invocations_de(invocateur, ennemis: Array) -> int:
+	return ennemis.filter(func(e): return e.est_vivant() and U.ga(e, "invocateur", null) == invocateur).size()
 
 
 static func nouveau(personnage, fenetre, ennemis: Array, donjon) -> Combat:
@@ -65,8 +84,41 @@ func condition_defaite() -> void:
 		Statistiques.lever_mort("combat")
 
 
+## Appelle une invocation (Creatures) aux côtés du lanceur : coût payé, PA dépensé. Au plus INVOCATIONS_MAX en vie.
+## L'écran de combat la place avec les autres (MenuCombat : positions refaites quand un ennemi n'en a pas).
+func invoquer(competence, lanceur) -> void:
+	var sorte := invocation_de(competence)
+	if invocations_de(lanceur, _d["ennemis"]) >= INVOCATIONS_MAX:
+		print("%s ne peut pas invoquer plus de %d squelettes." % [lanceur.nom, INVOCATIONS_MAX])
+		return
+	var e := Creatures.creer(_d["donjon"], sorte)
+	e._d["invocateur"] = lanceur
+	e._d["nom"] = String(e.nom)
+	if e.has_method("preparer_competences"):
+		e.preparer_competences()
+	e.points_d_action = 0  # il agit au tour suivant
+	_d["ennemis"].append(e)
+	print("%s lance %s : %s rejoint le combat." % [lanceur.nom, competence.nom, e.nom])
+	EffetsCombat.signaler_texte(e, "Invoqué !")
+	Statistiques.noter(lanceur, "competences_utilisees")
+	Talents.payer(lanceur, competence)
+	lanceur.points_d_action -= competence.cout_action
+
+
+## Les invocations dont l'invocateur est mort tombent en poussière.
+func _poussiere_des_invocations() -> void:
+	for e in _d["ennemis"]:
+		var invocateur = U.ga(e, "invocateur", null)
+		if e.est_vivant() and invocateur != null and not invocateur.est_vivant():
+			e.points_de_vie = 0
+			e._d["est_deja_mort"] = true  # pas compté comme un ennemi tué, pas de butin
+			print("%s tombe en poussière." % e.nom)
+			EffetsCombat.signaler_texte(e, "Poussière")
+
+
 ## Retire les ennemis morts (la liste est modifiée sur place, partagée avec le donjon).
 func maj_liste_ennemis() -> void:
+	_poussiere_des_invocations()
 	var ennemis: Array = _d["ennemis"]
 	var vivants := []
 	for e in ennemis:
@@ -152,6 +204,8 @@ func ciblage_pour_ennemis(competence, lanceur, donjon, personnage) -> Array:
 		elif ciblage == "all":
 			cibles.append(personnage)
 			cibles.append_array(ennemis)
+	elif genre == "invocation":
+		cibles.append(lanceur)
 	elif genre == "heal":
 		if ciblage == "self":
 			cibles.append(lanceur)
@@ -364,6 +418,9 @@ func lancer(competence, lanceur, donjon, personnage, cibles_gui = null) -> void:
 		return
 	if est_bloquee_par_silence(competence, lanceur):
 		print("%s est réduit au silence et ne peut pas lancer %s." % [lanceur.nom, competence.nom])
+		return
+	if invocation_de(competence) != "":
+		invoquer(competence, lanceur)
 		return
 	var cibles: Array
 	if lanceur is Ennemis:

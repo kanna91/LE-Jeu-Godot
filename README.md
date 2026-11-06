@@ -157,7 +157,10 @@ stick droit pour choisir un bouton de l'interface.
     nombre d'élites fixe ou chance par groupe, chances de pacifiques, de loup, de féticheur menant des squelettes.
     Hors zone : « defaut » (75 % gobelins, 25 % squelettes, élite 12 %, pacifique 15 %, loup 50 %, féticheur 20 % :
     les anciennes constantes `Aventure.CHANCE_*`). **Cryptes** (décision de l'utilisateur) : **seulement des
-    squelettes**, et **une seule élite, un féticheur**, dans tout le quartier. Un groupe retient sa zone
+    squelettes**, et **une seule élite, un féticheur**, dans tout le quartier. Depuis le 2026-11-06, les groupes des
+    cryptes sont des squelettes ou des **guerriers squelettes** (moitié-moitié), et dans un groupe de 2 squelettes ou
+    plus, un **mage squelette** (25 %) et un **élémentaliste squelette** (25 %) peuvent prendre la place d'un squelette
+    (`chance_mage_squelette`, `chance_elementaliste_squelette` ; 0 hors des cryptes). Un groupe retient sa zone
     (`zone_ennemis`) ; il en tire ses ennemis même s'il en sort pour poursuivre le héros. Pas d'élite de plus dans
     les cryptes : ni la clé du boss ni l'amulette de Mariane n'en créent (s'il le faut, un squelette porte
     l'amulette). Chevaliers de la mort et geôliers ne partent jamais d'une zone, mais ils y passent ;
@@ -610,7 +613,7 @@ stick droit pour choisir un bouton de l'interface.
     | Ctrl+Z / Ctrl+S | annuler (100 pas) / enregistrer |
     | Page préc. / Page suiv. | salle précédente / suivante (deux appuis si rien n'est enregistré) |
     | F2 | zones visibles ou non en marchant |
-    | F4 ou menu Données › Ennemis | **données des ennemis** (2026-11-04, `scripts/outils/editeur_ennemis.gd`, données `DonneesEnnemis`) : 5 onglets. **Compétences** : façonner une compétence ou un sort (nom, description, coût en mana et en PA, cibles, coups, types de dégâts, multiplicateur de dégâts, altérations infligées et leur chance, tours en plus) ; « Nouvelle (copie) » en crée une à partir de celle choisie ; « D'origine » efface les réglages (et supprime une nouvelle compétence). **Altérations** : durée et cumul maximal de chacune. **Ennemis** : PV (par 10) et compétences de chaque sorte (« Donner cette compétence », « Retirer », « Façonner »). **IA** : règles jouées dans l'ordre (compétence, chance, jusqu'à 2 conditions, cible), ↑ ↓ ✕, « Ajouter une règle ». **Butin** : objets lâchés à la mort (catégorie, objet du catalogue ou au hasard, nombre, rang, chance). Enregistrer : Ctrl+S ; Fermer (Échap) enregistre aussi. Fichiers `donnees/ennemis.json` et `donnees/competences_editees.json` |
+    | F4 ou menu Données › Ennemis | **données des ennemis** (2026-11-04, `scripts/outils/editeur_ennemis.gd`, données `DonneesEnnemis`) : 5 onglets. **Compétences** : façonner une compétence ou un sort (nom, description, coût en mana et en PA, cibles, coups, types de dégâts et, pour chacun, dés, dégâts fixes et % des PV max de la cible, multiplicateur des dégâts, altérations infligées et leur chance, tours en plus), avec un aperçu des dégâts (gobelin → héros de départ, héros → gobelin) et des bulles d'aide ; « Nouvelle (copie) » en crée une à partir de celle choisie ; « D'origine » efface les réglages (et supprime une nouvelle compétence). **Altérations** (refaites le 2026-11-06) : trois vues — **briques primaires** (les 29 effets de base), **altérations composées** (celles du jeu, réglables brique par brique, « Remettre d'origine ») et **altérations personnalisées** — classées par nom ou par type ; **« Créer une altération »** ouvre le créateur (nom, nature, durée, cumul, morceaux : briques avec leurs valeurs, ou altérations existantes avec une puissance en %), « Copier en altération personnalisée », description toujours tirée des briques. **Ennemis** : PV (par 10) et compétences de chaque sorte (« Donner cette compétence », « Retirer », « Façonner »). **IA** : règles jouées dans l'ordre (compétence, chance, jusqu'à 2 conditions, cible), ↑ ↓ ✕, « Ajouter une règle ». **Butin** : objets lâchés à la mort (catégorie, objet du catalogue ou au hasard, nombre, rang, chance). Enregistrer : Ctrl+S ; Fermer (Échap) enregistre aussi. Fichiers `donnees/ennemis.json` et `donnees/competences_editees.json` |
     | F3 ou menu Données › Dialogues | **menu Dialogues** (2026-11-04) : à gauche les personnages (ceux de `donnees/dialogues.json` et, de `donnees/prisonniers.json`, les prisonniers ordinaires, chaque quête et les objets des quêtes), au milieu leurs textes, à droite le texte choisi, modifiable. Dans une liste (bulles d'un commis, répliques d'une étape, lore...) : « Ajouter une ligne » / « Supprimer la ligne ». Les mots entre accolades ({direction}, {pv}...) sont remplacés dans le jeu. Ctrl+S ou « Enregistrer » ; « Fermer » (Échap) enregistre aussi |
     Sorties : on peut seulement déplacer ou ajouter des points (leur nombre et leur ordre servent au plan du
     donjon). Salles avec un masque de premier plan au pixel (portes, salles, culs-de-sac) : la couche bleue ne
@@ -1105,9 +1108,14 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_karma.gd                        # captures 130-132 : corps dans une salle, dialogue du corps, points à répartir (hors écran)
 & $godot --headless --path . -s tests/test_grands_etages.gd        # étage carré : taille, 5 secteurs, une frontière par coin, tout accessible, carrefours, boucles, plan en texte
 & $godot --path . -s tests/capture_portes.gd               # portes : fermées tant qu'on ne marche pas vers elles, ouverture, passage, miroir, porte condamnée (hors écran)
+& $godot --path . -s tests/capture_alterations_type.gd   # éditeur des ennemis : onglet Altérations classé par type (hors écran)
 & $godot --headless --path . -s tests/sonde_prisons.gd      # sonde : prisons hors quartier, passages sans porte, carrefours par quartier (100 étages)
 & $godot --headless --path . -s tests/test_zones.gd        # zones : quartier des cryptes d'un seul tenant (toutes les images, une fois), squelettes + un seul féticheur élite, zones.json, 1d2 tous les 2 points (150 étages)
 & $godot --headless --path . -s tests/test_creatures.gd     # loups et squelettes : caractéristiques, dés, faiblesses, groupes (3000 tirages)
+& $godot --headless --path . -s tests/test_squelettes.gd    # squelettes refaits : guerrier, mage, élémentaliste, invoqué ; groupes des cryptes ; invocation (2 au plus, poussière)
+& $godot --headless --path . -s tests/test_briques_alterations.gd  # altérations en briques : composées, personnalisée (Brûlure à 50 %), renommages, créateur
+& $godot --headless --path . -s tests/test_degats_editeur.gd  # dégâts réglés dans l'éditeur : dés, fixes, % PV max de la cible, multiplicateur, aperçu
+& $godot --path . -s tests/capture_squelettes.gd           # combat contre guerrier, mage, élémentaliste, puis 2 invocations : chacun a sa place (hors écran)
 & $godot --headless --path . -s tests/mesure_coups_depart.gd  # PV des ennemis : 4 coups du héros de départ au moins (et dégâts des sorts de départ)
 & $godot --headless --path . -s tests/test_aventure.gd      # donjon d'aventure : peuplement, pas de récompense, Chevalier de la mort, fuite, capture, clés, personnages, sauvegarde, coffre du boss, objets à une option, 5 étages au départ, quartier des prisons
 & $godot --path . -s tests/capture_aventure.gd            # rôdeurs à l'écran : ombre, vue coupée, repérage, combat au contact, diablotin, capture (captures 92-100, hors écran)
@@ -1220,6 +1228,161 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-06 — Éditeur des compétences : dés, dégâts fixes, % des PV max ; multiplicateur réparé ; ergonomie
+
+- **Demande de l'utilisateur** : « explique comment fonctionne le multiplicateur de dégâts de l'éditeur ; ajoute des
+  dés de dégâts et des dégâts fixes (1d2, 1d3, 1d4, 1d6, 1d8, 1d10) et un pourcentage des PV max de la cible ;
+  améliore l'ergonomie des éditeurs de compétences et d'altérations ».
+- **Le multiplicateur ne faisait rien** : `multiplicateur_degats` vient de l'ancienne formule (dégâts = statistique ×
+  multiplicateur). Depuis les dés (2026-11-01), le combat ne le lit plus ; il ne sert qu'au calcul de la « valeur »
+  des compétences (`ValeurCompetences`, normalisation). Le régler dans l'éditeur ne changeait donc pas les dégâts,
+  et les fiches du jeu affichaient ce faux « dégâts ×0,47 ». Remplacé par **`facteur_degats`** (« Multiplicateur des
+  dégâts », 1 par défaut), appliqué pour de bon à tous les types (`Formules.facteur_degats`, `degats_competence`) et
+  affiché dans les fiches.
+- **Dégâts d'un coup**, type par type : dés (ceux du jeu, ou **réglés** : nombre × d2, d3, d4, d6, d8, d10, d12, d20,
+  pour le héros comme pour les ennemis, sans la réduction d'un cran des ennemis) + **dégâts fixes** + bonus de
+  caractéristique (1d2 tous les 2 points), × pourcentages du lanceur (objets) × multiplicateur ; + **part des PV max
+  de la cible** ; puis les défenses de la cible. Champs `des_degats` {type : [nombre, faces]}, `degats_fixes`
+  {type : valeur}, `pv_max_cible` {type : part} (`Formules.des_competence`, `valeur_jet`, `part_pv_cible`).
+- **Ergonomie** : fiche de compétence en sections (Identité, Coûts et ciblage, Dégâts, Altérations infligées,
+  Utilisation), bulles d'aide sur chaque réglage, **aperçu des dégâts** mis à jour en direct, une ligne de dégâts
+  par type coché (avec les dés par défaut du héros et des ennemis), description de l'altération au survol.
+  Onglet Altérations : recherche, sections (Réglages, Morceaux, Ajouter, Utilisation), chaque morceau dans un cadre
+  avec ↑ ↓ pour le déplacer, aide de la brique au survol.
+- **Tests** : nouveau `test_degats_editeur.gd` (2d6 réglés, +5 fixes, ×2, 10 % des PV max, réglages appliqués,
+  aperçu) ; `capture_alterations_type.gd` capture aussi la fiche de compétence (`editeur_competence*.png`).
+
+### 2026-11-06 — Altérations en briques : briques primaires, composées, personnalisées et créateur
+
+- **Demande de l'utilisateur** : « un meilleur classement des altérations, en plusieurs catégories : 1 les briques
+  primaires (décomposer toutes les altérations pour avoir toutes les briques séparées), 2 les altérations composées
+  (celles qu'on a faites ensemble), 3 les altérations personnalisées, 4 un créateur d'altération (altération,
+  pourcentage, nombre de tours, puissance des effets, chance de toucher, dégâts en pourcentage, PV max, dés...) » ;
+  puis renommer Évasion, Précision, Concentration, Barrière et Protection, et ajouter un bonus de parade.
+- **Décisions de l'utilisateur** : le « pourcentage » d'un morceau est sa **puissance** (une altération citée à 70 % =
+  ses effets à 70 %) ; les composées sont **modifiables** dans le créateur (avec « Remettre d'origine »).
+  Choix de Claude : les descriptions sont **fabriquées à partir des briques** (toujours justes après un réglage) ;
+  Résistance magique et élémentaire à 30 % (feu, froid, foudre compris désormais) ; Bonus de parade +15 %, 3 tours.
+- **29 briques primaires** (`scripts/logique/briques_alterations.gd`, `BriquesAlterations.BRIQUES`), en 3 familles :
+  - statistiques : chance de toucher, esquive, critique, critique magique, dégâts critiques, chance de parer,
+    vulnérabilité (un type ou un groupe), résistance en % (selon la puissance possible), baisse d'une statistique
+    (armure, résistances, PV max, dégâts infligés...), caractéristique (part % + fixe) ;
+  - effets de chaque tour : dégâts (type, fixe, % PV max, % PV actuels, dés, cumul, croissant), soin, mana, fuite de
+    mana, perte de tour, perte de PA, gain de PA ;
+  - effets en combat : dégâts infligés, dégâts reçus, soins reçus, bouclier, épines, vol de vie, marque, silence,
+    réveil au premier coup, dégâts à la fin, drain, contagion.
+- **Composées** : toutes les altérations du jeu sont maintenant des listes de briques (`BriquesAlterations.composees`),
+  **mêmes valeurs et mêmes effets** qu'avant ; `BriquesAlterations.construire` en fait la définition jouée
+  (`Alterations.defs`). Le moteur joue plusieurs dégâts par tour et plusieurs dégâts de fin dans une même altération
+  (`dots`, `fins`). Seul écart : Trauma, Siphon de vie et Engelure ne comptaient plus les bonus de dégâts en % du
+  lanceur (toujours 1 pour les ennemis qui les infligent).
+- **Personnalisées** : `donnees/competences_editees.json`, clé `alterations_personnalisees` (réglages des composées :
+  clé `alterations`, avec leurs `briques`). Une personnalisée peut citer une autre altération (boucles ignorées),
+  se donne aux compétences comme les autres.
+- **Renommées** (anciens noms compris : `Alterations.ALIAS`) : Évasion → **Bonus d'esquive**, Précision → **Bonus de
+  chance de toucher**, Concentration → **Bonus de chance de coup critique**, Barrière → **Résistance magique et
+  élémentaire**, Protection → **Résistance physique** (la compétence Protection garde son nom). **Nouveau** : Bonus de
+  parade. Mis à jour : `BasesCompetences`, IA des ennemis (`donnees/ennemis.json`, `DonneesEnnemis.IA_DEFAUT`),
+  `valeurs_competences.json`, `coefficients_equilibrage.json`, libellés de `talents.json`.
+- **Tests** : nouveau `test_briques_alterations.gd` (renommages, gel, protection selon la puissance, parade,
+  résistance magique et élémentaire, personnalisée avec Brûlure à 50 %, composée réglée, boucle, créateur) ;
+  `capture_alterations_type.gd` capture aussi les briques et le créateur ; test_des_armes et test_editeur_ennemis
+  adaptés.
+
+### 2026-11-06 — Squelettes refaits : guerrier, mage, élémentaliste et squelette invoqué
+
+- **Demande de l'utilisateur** : « ajoute les squelettes qui ont été refaits, les mages squelettes, élémentalistes
+  squelettes et les squelettes invoqués » (images dans `C:\ia image\ennemis\squelette\<sous-dossier>`).
+- **Décisions de l'utilisateur** : le guerrier squelette est une **sorte en plus** (le squelette reste) ; mage et
+  élémentaliste **seulement dans les cryptes** ; le guerrier aussi ; le squelette invoqué est **faible et lié au
+  mage** (il tombe en poussière si son invocateur meurt).
+- **Les quatre** (`Creatures.SORTES`, morts-vivants, mêmes défenses que le squelette : perforant -20 %, contondant
+  +40 %, lents comme lui) — valeurs **proposées par Claude**, réglables dans l'éditeur des ennemis (F4) :
+  - **Guerrier squelette** : comme le squelette pour l'instant (60 PV, Épée longue rouillée 4d2 tranchant) ;
+  - **Mage squelette** : 50-60 PV, coup de bâton 2d2 ; IA : **Invocation** (60 %, s'il a moins de 2 invoqués et
+    6 mana), Trait de l'ombre (50 %, 8 mana), sinon Projectile de l'ombre ;
+  - **Élémentaliste squelette** : 50-60 PV, coup de bâton 2d2 ; IA : Éclair (33 %), Givre (50 %, si le héros n'est
+    pas déjà ralenti), sinon Boule de feu. Dés d'ennemi ajoutés : Givre 5d2, Éclair 4d3 (`Formules.DES_ENNEMIS`) ;
+  - **Squelette invoqué** : 30 PV, Lame ébréchée 3d2 tranchant, jamais posé dans les salles.
+- **Invocation** (nouvelle compétence `Invocation_squelette`, type « invocation », 1 PA, 6 mana, bloquée par le
+  Silence) : un squelette invoqué rejoint le combat (`Combat.invoquer`), **2 au plus en vie par invocateur**
+  (`Combat.INVOCATIONS_MAX`), il agit au tour suivant ; quand l'invocateur meurt, ses invocations tombent en
+  poussière (ni comptées comme tuées, ni butin). L'écran de combat replace le groupe quand un ennemi arrive
+  (`MenuCombat._mise_a_jour`). Nouvelle condition d'IA : « Il a moins de … squelettes invoqués en vie ».
+- **Images** : détourées par `outils/importer_loup_squelette.py` (qui accepte maintenant les noms des créatures à
+  refaire) → `images/gobelins/guerrier_squelette01.png`, `mage_squelette01.png`, `elementaliste_squelette01.png`,
+  `squelette_invoque01.png` ; image fixe qui respire, pas encore d'animations.
+- **Éditeur** : les 4 sortes sont dans l'onglet Ennemis (PV, compétences, IA, butin) et dans la couche « Ennemis
+  permis » des salles (sauf l'invoqué). **Fiches techniques** générées dans chaque sous-dossier
+  (`outils/fiches_ennemis.py`).
+- **Tests** : nouveau `test_squelettes.gd` (0 échec) et capture `capture_squelettes.gd` ; `test_zones.gd` accepte les
+  nouveaux squelettes dans les cryptes (ses 12 échecs « jardin sans chasseurs / refuges » existaient déjà dans la
+  v0.42, liés à l'erreur `blocs_salles.gd:272`). Passent aussi : compiler_tout, test_creatures,
+  test_editeur_ennemis, test_cri_de_guerre, test_soins, test_des_armes, test_magie_ecran, test_aventure, test_logique.
+
+### 2026-11-06 — Altérations : réductions de caractéristique (une, deux, trois ou toutes)
+
+- **Demande de l'utilisateur** : « même chose avec réduction de force, de dextérité... puis la réduction de 2
+  caractéristiques, de 3, puis de toutes ; bien nettoyer pour qu'il n'y ait pas de doublon ».
+- **16 réductions** (malus, 5 cumuls, 4 tours ; `Alterations.REDUCTIONS_CARACTERISTIQUES`), valeurs gardées par
+  l'utilisateur :
+  - **-7 % +1 par cumul** : réduction de force, de dextérité, d'endurance, d'intelligence, de sagesse, de mana ;
+  - **-5 % +1 par cumul** : force et dextérité, intelligence et sagesse, endurance et force, dextérité et endurance,
+    endurance et mana, sagesse et mana, intelligence et mana ; force, dextérité et endurance ; intelligence, sagesse
+    et mana ;
+  - **-4 % +1 par cumul** : réduction de toutes les caractéristiques (mana compris).
+- **Supprimées** : Sape de force, Engourdissement, Épuisement vital, Torpeur, Trouble de l'esprit, Déchéance,
+  Dissonance et Entropie (renommées, anciens noms compris par `Alterations.ALIAS`) ; Faiblesse, Maladresse et
+  Débilité (doublons, rien ne les infligeait ; décision de l'utilisateur).
+- Murmure des ombres inflige la réduction de force (35 %), Givre celle de dextérité (20 %), Trait arcanique celle
+  d'intelligence (15 %) (`donnees/sorts.json`). Mis à jour aussi : `valeurs_competences.json`,
+  `coefficients_equilibrage.json`, libellés de `talents.json`. 77 altérations : 19 améliorations, 47 malus,
+  11 dégâts.
+- **Tests** : test_editeur_ennemis (les 16 réductions, anciennes retirées, anciens noms convertis, réduction
+  d'intelligence et de sagesse sans toucher la force). Passent : compiler_tout, test_editeur_ennemis, test_soins,
+  test_cri_de_guerre, test_des_armes, test_magie_ecran, test_creatures, test_aventure, test_logique.
+
+### 2026-11-06 — Altérations : une vulnérabilité par élément et par groupe, un bonus par caractéristique
+
+- **Demande de l'utilisateur** : « retirer les vulnérabilités à un seul élément et ajouter la vulnérabilité à chaque
+  élément (vulnérabilité au feu, à l'ombre...) ; même chose pour les bonus de stats : bonus de force, bonus de
+  sagesse... ; ajouter aussi vulnérabilité élémentaire, magique, physique et totale ; retirer tous les « + magie /
+  force du lanceur ».
+- **Vulnérabilités** (malus, 4 tours ; `Alterations.VULNERABILITES_ELEMENTS`, `VULNERABILITES_GROUPES`) :
+  - une par élément, **+25 %** de dégâts reçus de cet élément : au feu, au froid, à la foudre, à l'arcane, au chaos,
+    à l'ombre. Elles remplacent Inflammabilité (→ au feu), Morsure du givre (→ au froid) et Conductivité (→ à la
+    foudre). Enflammer inflige la vulnérabilité au feu (40 %), Éclair celle à la foudre (20 %) ;
+  - une par groupe, **+20 %** (choix de Claude, à confirmer) : **physique** (tranchant, perforant, contondant),
+    **élémentaire** (feu, froid, foudre), **magique** (arcane, chaos, ombre) ;
+  - **vulnérabilité totale** : l'ancienne « Vulnérabilité » renommée (tous les dégâts reçus +25 %, 3 tours).
+- **Bonus de caractéristique** (améliorations ; `Alterations.BONUS_CARACTERISTIQUES`) : bonus de force, de
+  dextérité, d'endurance, d'intelligence, de sagesse et de mana (+7 % +1 par cumul, 5 cumuls, 4 tours, comme avant).
+  Ils remplacent Vigueur, Agilité, Robustesse, Intellect, Sérénité ; les bonus combinés (Puissance du titan,
+  Illumination, Transcendance) sont supprimés. Rien ne les inflige encore.
+- **Plus de « + magie / force du lanceur »** dans les dégâts des altérations : Électrocution, Engelure, Peste, Siphon
+  de vie, Condamnation (la puissance magique valait toujours 0 : dégâts inchangés) et Trauma (perd « + 5 + 3 × force
+  du lanceur » : 1 + 2 % des PV max par tour). Les descriptions sont corrigées.
+- Les anciens noms restent compris (`Alterations.ALIAS` : réglages de l'éditeur, anciennes parties). Mis à jour :
+  `BasesCompetences`, `Talents.ALTERATIONS_ATTAQUE`, `donnees/valeurs_competences.json`,
+  `coefficients_equilibrage.json`, libellés de `talents.json`. 72 altérations : 19 améliorations, 42 malus, 11 dégâts.
+- **Tests** : test_editeur_ennemis (les 16 nouvelles altérations existent, les anciennes ont disparu, anciens noms
+  convertis, vulnérabilité à l'ombre +25 %, vulnérabilité magique sur arcane/chaos/ombre seulement, bonus de force).
+  Passent : compiler_tout, test_editeur_ennemis, test_soins, test_cri_de_guerre, test_des_armes, test_magie_ecran,
+  test_creatures, test_aventure, test_logique.
+
+### 2026-11-06 — Éditeur : altérations classées par type ; proposition de refonte des altérations
+
+- **Demande de l'utilisateur** : « une option pour classer les altérations par type : amélioration, malus, dégâts »,
+  puis « une refonte des altérations, certaines ne sont plus à jour et les noms peuvent prêter à confusion ».
+- **Éditeur des ennemis, onglet Altérations** : liste déroulante « Classer par nom / Classer par type ». Par type, la
+  liste est rangée sous trois titres : **Améliorations** (bonus), **Malus**, **Dégâts** (altérations qui blessent à
+  chaque tour ou à la fin, comme Brûlure ou Condamnation). La fiche indique aussi le type.
+  (`Alterations.categorie`, `CATEGORIES`, `NOMS_CATEGORIES` ; `EditeurEnnemis.classer_par_type`).
+- **Refonte** : proposition chiffrée dans `REFONTE_ALTERATIONS.md` (29 altérations inutilisées à supprimer,
+  15 noms à clarifier, 7 règles à mettre à jour), **en attente de validation : rien n'est encore changé**.
+- **Tests** : test_editeur_ennemis (catégories, 3 titres dans la liste par type) ; nouvelle capture
+  `tests/capture_alterations_type.gd` → `tests/captures/editeur_alterations_type.png` (hors écran).
 
 ### 2026-11-06 — Estafilade, Dard empoisonné et Bourrade supprimés
 

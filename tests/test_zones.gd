@@ -2,7 +2,8 @@ extends SceneTree
 ## Zones et quartier des cryptes (2026-11-02, demandes de l'utilisateur) :
 ## - sur 30 donjons, toutes les images « crypte » servent une fois dans le niveau des cryptes (d'un seul tenant), et
 ##   nulle part ailleurs (depuis le 2026-11-03 ; avant : un quartier des cryptes dans chaque étage) ;
-## - dans les cryptes, les groupes ne sont que des squelettes, avec exactement une élite : un féticheur ;
+## - dans les cryptes, les groupes ne sont que des squelettes (squelettes, guerriers, mages et élémentalistes depuis le
+##   2026-11-06), avec exactement une élite : un féticheur ;
 ## - zones.json est lu (réglages fusionnés avec « defaut ») ;
 ## - force, intelligence et sagesse : 1d2 de dégâts tous les 2 points ;
 ## - cuisine (refuge) : aucun ennemi posé, aucun chasseur n'y entre (2000 pas d'errance par étage), un ennemi posé
@@ -48,7 +49,7 @@ func _initialize() -> void:
 
 func _reglages() -> void:
 	var c := Zones.reglages("crypte")
-	verifier(c["ennemis"] == {"squelette": 1.0} or c["ennemis"] == {"squelette": 1}, "cryptes : squelettes seulement")
+	verifier(c["ennemis"].keys().all(func(s): return s in Creatures.SQUELETTES_DE_GROUPE), "cryptes : squelettes seulement (et guerriers squelettes, 2026-11-06)")
 	verifier(Zones.elites_fixes("crypte") and int(c["nombre_elites"]) == 1, "cryptes : une seule élite")
 	verifier(not Zones.elites_fixes(""), "hors zone : élites au hasard")
 	verifier(float(Zones.reglages("")["chance_elite"]) > 0, "hors zone : chance d'élite lue dans « defaut »")
@@ -105,7 +106,7 @@ func _etage(salles: Dictionary, nom: String) -> int:
 					elites += 1
 					verifier(mb[0]["sous_classe"] == "feticheur", "%s : élite des cryptes = %s" % [nom, mb[0]["sous_classe"]])
 				else:
-					verifier(mb[k]["sous_classe"] == "squelette", "%s : %s dans les cryptes" % [nom, mb[k]["sous_classe"]])
+					verifier(mb[k]["sous_classe"] in Creatures.SQUELETTES, "%s : %s dans les cryptes" % [nom, mb[k]["sous_classe"]])
 	# Les groupes de la zone restent dans la zone
 	for id in salles:
 		if not id in cryptes:

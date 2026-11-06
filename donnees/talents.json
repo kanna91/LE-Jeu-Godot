@@ -596,8 +596,20 @@
       "+{v} % d'effet de vos « Affaiblissement »",
       100
     ],
-    "talent_intensite__vulnérabilité": [
-      "+{v} % d'effet de vos « Vulnérabilité »",
+    "talent_intensite__vulnérabilité_totale": [
+      "+{v} % d'effet de vos « Vulnérabilité totale »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_physique": [
+      "+{v} % d'effet de vos « Vulnérabilité physique »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_élémentaire": [
+      "+{v} % d'effet de vos « Vulnérabilité élémentaire »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_magique": [
+      "+{v} % d'effet de vos « Vulnérabilité magique »",
       100
     ],
     "talent_intensite__destruction_armure": [
@@ -672,16 +684,28 @@
       "+{v} % d'effet de vos « Esprit embrumé »",
       100
     ],
-    "talent_intensite__inflammabilité": [
-      "+{v} % d'effet de vos « Inflammabilité »",
+    "talent_intensite__vulnérabilité_au_feu": [
+      "+{v} % d'effet de vos « Vulnérabilité au feu »",
       100
     ],
-    "talent_intensite__morsure_du_givre": [
-      "+{v} % d'effet de vos « Morsure du givre »",
+    "talent_intensite__vulnérabilité_au_froid": [
+      "+{v} % d'effet de vos « Vulnérabilité au froid »",
       100
     ],
-    "talent_intensite__conductivité": [
-      "+{v} % d'effet de vos « Conductivité »",
+    "talent_intensite__vulnérabilité_à_la_foudre": [
+      "+{v} % d'effet de vos « Vulnérabilité à la foudre »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_à_l'arcane": [
+      "+{v} % d'effet de vos « Vulnérabilité à l'arcane »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_au_chaos": [
+      "+{v} % d'effet de vos « Vulnérabilité au chaos »",
+      100
+    ],
+    "talent_intensite__vulnérabilité_à_l'ombre": [
+      "+{v} % d'effet de vos « Vulnérabilité à l'ombre »",
       100
     ],
     "talent_intensite__décrépitude": [
@@ -692,60 +716,80 @@
       "+{v} % d'effet de vos « Flétrissement »",
       100
     ],
-    "talent_intensite__faiblesse": [
-      "+{v} % d'effet de vos « Faiblesse »",
+    "talent_intensite__réduction_de_force": [
+      "+{v} % d'effet de vos « Réduction de force »",
       100
     ],
-    "talent_intensite__maladresse": [
-      "+{v} % d'effet de vos « Maladresse »",
+    "talent_intensite__réduction_de_dextérité": [
+      "+{v} % d'effet de vos « Réduction de dextérité »",
       100
     ],
-    "talent_intensite__débilité": [
-      "+{v} % d'effet de vos « Débilité »",
+    "talent_intensite__réduction_d'endurance": [
+      "+{v} % d'effet de vos « Réduction d'endurance »",
       100
     ],
-    "talent_intensite__sape": [
-      "+{v} % d'effet de vos « Sape de force »",
+    "talent_intensite__réduction_d'intelligence": [
+      "+{v} % d'effet de vos « Réduction d'intelligence »",
       100
     ],
-    "talent_intensite__engourdissement": [
-      "+{v} % d'effet de vos « Engourdissement »",
+    "talent_intensite__réduction_de_sagesse": [
+      "+{v} % d'effet de vos « Réduction de sagesse »",
       100
     ],
-    "talent_intensite__épuisement_vital": [
-      "+{v} % d'effet de vos « Épuisement vital »",
+    "talent_intensite__réduction_de_mana": [
+      "+{v} % d'effet de vos « Réduction de mana »",
       100
     ],
-    "talent_intensite__torpeur": [
-      "+{v} % d'effet de vos « Torpeur »",
+    "talent_intensite__réduction_de_force_et_de_dextérité": [
+      "+{v} % d'effet de vos « Réduction de force et de dextérité »",
       100
     ],
-    "talent_intensite__trouble": [
-      "+{v} % d'effet de vos « Trouble de l'esprit »",
+    "talent_intensite__réduction_d'intelligence_et_de_sagesse": [
+      "+{v} % d'effet de vos « Réduction d'intelligence et de sagesse »",
       100
     ],
-    "talent_intensite__déchéance": [
-      "+{v} % d'effet de vos « Déchéance »",
+    "talent_intensite__réduction_d'endurance_et_de_force": [
+      "+{v} % d'effet de vos « Réduction d'endurance et de force »",
       100
     ],
-    "talent_intensite__dissonance": [
-      "+{v} % d'effet de vos « Dissonance »",
+    "talent_intensite__réduction_de_dextérité_et_d'endurance": [
+      "+{v} % d'effet de vos « Réduction de dextérité et d'endurance »",
       100
     ],
-    "talent_intensite__entropie": [
-      "+{v} % d'effet de vos « Entropie »",
+    "talent_intensite__réduction_d'endurance_et_de_mana": [
+      "+{v} % d'effet de vos « Réduction d'endurance et de mana »",
       100
     ],
-    "talent_intensite__précis": [
-      "+{v} % d'effet de vos « Précision »",
+    "talent_intensite__réduction_de_sagesse_et_de_mana": [
+      "+{v} % d'effet de vos « Réduction de sagesse et de mana »",
       100
     ],
-    "talent_intensite__protection": [
-      "+{v} % d'effet de vos « Protection »",
+    "talent_intensite__réduction_d'intelligence_et_de_mana": [
+      "+{v} % d'effet de vos « Réduction d'intelligence et de mana »",
       100
     ],
-    "talent_intensite__barrière": [
-      "+{v} % d'effet de vos « Barrière »",
+    "talent_intensite__réduction_de_force,_de_dextérité_et_d'endurance": [
+      "+{v} % d'effet de vos « Réduction de force, de dextérité et d'endurance »",
+      100
+    ],
+    "talent_intensite__réduction_d'intelligence,_de_sagesse_et_de_mana": [
+      "+{v} % d'effet de vos « Réduction d'intelligence, de sagesse et de mana »",
+      100
+    ],
+    "talent_intensite__réduction_de_toutes_les_caractéristiques": [
+      "+{v} % d'effet de vos « Réduction de toutes les caractéristiques »",
+      100
+    ],
+    "talent_intensite__bonus_de_chance_de_toucher": [
+      "+{v} % d'effet de vos « Bonus de chance de toucher »",
+      100
+    ],
+    "talent_intensite__résistance_physique": [
+      "+{v} % d'effet de vos « Résistance physique »",
+      100
+    ],
+    "talent_intensite__résistance_magique_et_élémentaire": [
+      "+{v} % d'effet de vos « Résistance magique et élémentaire »",
       100
     ],
     "talent_intensite__rage": [
@@ -764,12 +808,16 @@
       "+{v} % d'effet de vos « Bouclier »",
       100
     ],
-    "talent_intensite__concentration": [
-      "+{v} % d'effet de vos « Concentration »",
+    "talent_intensite__bonus_de_chance_de_coup_critique": [
+      "+{v} % d'effet de vos « Bonus de chance de coup critique »",
       100
     ],
-    "talent_intensite__évasion": [
-      "+{v} % d'effet de vos « Évasion »",
+    "talent_intensite__bonus_d'esquive": [
+      "+{v} % d'effet de vos « Bonus d'esquive »",
+      100
+    ],
+    "talent_intensite__bonus_de_parade": [
+      "+{v} % d'effet de vos « Bonus de parade »",
       100
     ],
     "talent_intensite__épines": [
@@ -788,48 +836,40 @@
       "+{v} % d'effet de vos « Clarté »",
       100
     ],
-    "talent_intensite__vigueur": [
-      "+{v} % d'effet de vos « Vigueur »",
+    "talent_intensite__bonus_de_force": [
+      "+{v} % d'effet de vos « Bonus de force »",
       100
     ],
-    "talent_intensite__agilité": [
-      "+{v} % d'effet de vos « Agilité »",
+    "talent_intensite__bonus_de_dextérité": [
+      "+{v} % d'effet de vos « Bonus de dextérité »",
       100
     ],
-    "talent_intensite__robustesse": [
-      "+{v} % d'effet de vos « Robustesse »",
+    "talent_intensite__bonus_d'endurance": [
+      "+{v} % d'effet de vos « Bonus d'endurance »",
       100
     ],
-    "talent_intensite__intellect": [
-      "+{v} % d'effet de vos « Intellect »",
+    "talent_intensite__bonus_d'intelligence": [
+      "+{v} % d'effet de vos « Bonus d'intelligence »",
       100
     ],
-    "talent_intensite__sérénité": [
-      "+{v} % d'effet de vos « Sérénité »",
+    "talent_intensite__bonus_de_sagesse": [
+      "+{v} % d'effet de vos « Bonus de sagesse »",
       100
     ],
-    "talent_intensite__puissance_du_titan": [
-      "+{v} % d'effet de vos « Puissance du titan »",
-      100
-    ],
-    "talent_intensite__illumination": [
-      "+{v} % d'effet de vos « Illumination »",
-      100
-    ],
-    "talent_intensite__transcendance": [
-      "+{v} % d'effet de vos « Transcendance »",
+    "talent_intensite__bonus_de_mana": [
+      "+{v} % d'effet de vos « Bonus de mana »",
       100
     ],
     "talent_intensite__feu": [
-      "+{v} % d'effet de vos altérations de feu (brûlure, inflammabilité...)",
+      "+{v} % d'effet de vos altérations de feu (brûlure, vulnérabilité au feu...)",
       100
     ],
     "talent_intensite__froid": [
-      "+{v} % d'effet de vos altérations de froid (gel, engelure, morsure du givre...)",
+      "+{v} % d'effet de vos altérations de froid (gel, engelure, vulnérabilité au froid...)",
       100
     ],
     "talent_intensite__foudre": [
-      "+{v} % d'effet de vos altérations de foudre (électrocution, paralysie, conductivité...)",
+      "+{v} % d'effet de vos altérations de foudre (électrocution, paralysie, vulnérabilité à la foudre...)",
       100
     ],
     "talent_intensite__arcane": [

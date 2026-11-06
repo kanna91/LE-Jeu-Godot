@@ -247,10 +247,11 @@ static func fermee_a(salle: Dictionary, genre: String) -> bool:
 ## 2026-11-04) : clé « ennemis_interdits » du .json de l'image. Un ennemi interdit n'y est jamais posé, n'y entre pas
 ## (ronde, poursuite, héros suivi d'une salle à l'autre) ; un groupe y est interdit si un de ses membres l'est.
 const SORTES_SALLE := ["combattant", "lancier", "archer", "defenseur", "sorcier", "feticheur", "chaman", "loup",
-	"squelette", "geolier", "chevalier"]
+	"squelette", "guerrier_squelette", "mage_squelette", "elementaliste_squelette", "geolier", "chevalier"]
 const NOMS_SORTES_SALLE := {"combattant": "Gobelin combattant", "lancier": "Gobelin lancier", "archer": "Gobelin archer",
 	"defenseur": "Gobelin défenseur", "sorcier": "Gobelin sorcier", "feticheur": "Gobelin féticheur",
-	"chaman": "Gobelin chaman", "loup": "Loup", "squelette": "Squelette", "geolier": "Geôlier",
+	"chaman": "Gobelin chaman", "loup": "Loup", "squelette": "Squelette", "guerrier_squelette": "Guerrier squelette",
+	"mage_squelette": "Mage squelette", "elementaliste_squelette": "Élémentaliste squelette", "geolier": "Geôlier",
 	"chevalier": "Chevalier de la mort"}
 ## Image → ennemis interdits (lus une fois ; vider_interdits après un enregistrement de l'éditeur).
 static var _interdits := {}
@@ -873,9 +874,20 @@ static func membres(p: Dictionary) -> Array:
 			for k in range(1, nombre):
 				liste[k] = Zones.membre(sorte)
 			liste[0] = Zones.membre(Zones.tirer(r["elites"]))
-		elif sorte == "squelette" and nombre >= 2 and randf() < float(r["chance_feticheur"]):
+		elif sorte in Creatures.SQUELETTES_DE_GROUPE and nombre >= 2 and randf() < float(r["chance_feticheur"]):
 			liste[0] = Zones.membre("feticheur")  # squelettes menés par un féticheur gobelin (pas une élite)
-		if sorte == "squelette":
+		# Mage et élémentaliste squelettes (2026-11-06 : cryptes seulement, zones.json) : chacun prend la place d'un
+		# squelette dans un groupe qui en compte au moins 2
+		var places := []
+		for k in liste.size():
+			if liste[k]["sous_classe"] in Creatures.SQUELETTES_DE_GROUPE:
+				places.append(k)
+		if places.size() >= 2:
+			places.shuffle()
+			for mage in [["mage_squelette", "chance_mage_squelette"], ["elementaliste_squelette", "chance_elementaliste_squelette"]]:
+				if not places.is_empty() and randf() < float(r.get(mage[1], 0.0)):
+					liste[places.pop_back()] = Zones.membre(mage[0])
+		if sorte in Creatures.SQUELETTES:
 			p["vitesse_poursuite"] = VITESSE_SQUELETTES
 		# Un loup n'est jamais seul : il accompagne un archer ou un chaman
 		var dresseur := liste.any(func(mb): return mb["sous_classe"] in ["archer", "chaman"])

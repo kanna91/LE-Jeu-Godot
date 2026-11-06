@@ -11,7 +11,7 @@ const PALIERS_COMPETENCES := {
 	"Coup_d_epee": 0, "Coup_de_lance": 0, "Coup_de_marteau": 0, "Coup_de_poing": 0, "Boule_de_feu": 0, "Eclair": 0,
 	"Fracasser": 1, "Frenesie": 2, "Enchainement": 2, "Balayage": 3, "Soin": 5,
 	"Coup_de_baton": 0, "Tir": 0, "Tir_precis": 0,
-	"Cri_de_guerre": 0, "Protection": 0, "Caresse_des_ombres": 0, "Silence": 0, "Précision": 0,
+	"Cri_de_guerre": 0, "Protection": 0, "Invocation_squelette": 0, "Caresse_des_ombres": 0, "Silence": 0, "Précision": 0,
 	"Coup_de_gourdin": 1, "Soin_mineur": 1, "Recupe": 1,
 	"Rafale_de_lance": 2,
 	"Grand_coup_de_gourdin": 3, "Trait_des_Ombres": 3,

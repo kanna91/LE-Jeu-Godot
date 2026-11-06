@@ -32,7 +32,33 @@ const SORTES := {
 		"endurance": [6, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
 		"attaque": "Épée rouillée", "description": "Un coup d'épée rouillée, lent mais lourd.",
 		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+	# Squelettes refaits par l'utilisateur (2026-11-06, sous-dossiers de « C:/ia image/ennemis/squelette ») : mêmes
+	# défenses que le squelette. Guerrier : une sorte de plus (décision de l'utilisateur), mêmes règles que le squelette
+	# en attendant ses réglages. Mage (ombre, invoque) et élémentaliste (feu, froid, foudre) : seulement dans les
+	# cryptes. Squelette invoqué : appelé en combat par le mage (Invocation_squelette, Combat.invoquer), faible, tombe
+	# en poussière si son invocateur meurt. PV, compétences et IA réglables dans l'éditeur des ennemis.
+	"guerrier_squelette": {"nom": "Guerrier squelette", "type_ennemi": "mort-vivant", "image": "guerrier_squelette01.png",
+		"endurance": [6, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"attaque": "Épée longue rouillée", "description": "Un coup d'épée longue rouillée.",
+		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+	"mage_squelette": {"nom": "Mage squelette", "type_ennemi": "mort-vivant", "image": "mage_squelette01.png",
+		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"attaque": "Coup de bâton", "description": "Un coup de son bâton noueux.",
+		"des": {"contondant": [[2, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+	"elementaliste_squelette": {"nom": "Élémentaliste squelette", "type_ennemi": "mort-vivant",
+		"image": "elementaliste_squelette01.png",
+		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"attaque": "Coup de bâton", "description": "Un coup de son bâton gravé.",
+		"des": {"contondant": [[2, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+	"squelette_invoque": {"nom": "Squelette invoqué", "type_ennemi": "mort-vivant", "image": "squelette_invoque01.png",
+		"endurance": [3, 3], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
+		"attaque": "Lame ébréchée", "description": "Un coup de lame ébréchée.",
+		"des": {"tranchant": [[3, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 }
+## Squelettes qui forment des groupes (le féticheur, le mage et l'élémentaliste peuvent s'y joindre).
+const SQUELETTES_DE_GROUPE := ["squelette", "guerrier_squelette"]
+## Squelettes lents (vitesse de poursuite Aventure.VITESSE_SQUELETTES).
+const SQUELETTES := ["squelette", "guerrier_squelette", "mage_squelette", "elementaliste_squelette", "squelette_invoque"]
 
 
 static func est_creature(sous_classe) -> bool:

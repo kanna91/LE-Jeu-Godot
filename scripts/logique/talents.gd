@@ -20,7 +20,7 @@ const MANA_PAR_PV := 5
 const MANA_PAR_PV_MIN := 1
 const PLAFOND_IGNORE_ARMURE := 0.75
 const ALTERATIONS_ATTAQUE := {"poison": "talent_chance_poison", "brulure": "talent_attaque_brulure",
-	"saignement": "talent_attaque_saignement", "vulnérabilité": "talent_attaque_vulnerabilite",
+	"saignement": "talent_attaque_saignement", "vulnérabilité totale": "talent_attaque_vulnerabilite",
 	"affaiblissement": "talent_attaque_affaiblissement", "marque": "talent_attaque_marque",
 	"terreur": "talent_attaque_terreur", "malédiction": "talent_attaque_malediction",
 	"aveugler": "talent_attaque_aveuglement", "stun": "talent_attaque_stun"}

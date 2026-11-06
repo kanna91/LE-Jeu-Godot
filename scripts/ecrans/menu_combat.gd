@@ -232,6 +232,10 @@ func _mise_a_jour(_delta: float) -> void:
 		position = Vector2.ZERO
 		fermer()
 		return
+	# Invocation (2026-11-06) : un ennemi arrivé en cours de combat n'a pas de place ; on replace tout le groupe
+	var vivants: Array = combat.ennemis.filter(func(e): return e.est_vivant())
+	if vivants.any(func(e): return not combat.positions_ennemis_fixes.has(e)):
+		combat.positions_ennemis_fixes = placer_ennemis(vivants)
 	image_effets = EffetsDessin.calculer(rect_ennemi)
 	CombatAnime.mettre_a_jour(joueur)
 	couche_silhouettes.queue_redraw()

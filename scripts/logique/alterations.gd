@@ -17,29 +17,84 @@ const CONTROLES := ["stun", "gel", "pétrification", "terreur", "sommeil", "para
 
 const CARACTERISTIQUES := ["force", "dextérité", "endurance", "intelligence", "sagesse"]
 const NOMS_CARACTERISTIQUES := {"force": "force", "dextérité": "dextérité", "endurance": "endurance",
-	"intelligence": "intelligence", "sagesse": "sagesse"}
+	"intelligence": "intelligence", "sagesse": "sagesse", Caracteristiques.MANA: "mana"}
+## Une vulnérabilité par élément (2026-11-06, demande de l'utilisateur : plus clair que Inflammabilité, Conductivité...).
+const VULNERABILITES_ELEMENTS := {"feu": ["vulnérabilité au feu", "de feu"], "froid": ["vulnérabilité au froid", "de froid"],
+	"foudre": ["vulnérabilité à la foudre", "de foudre"], "arcane": ["vulnérabilité à l'arcane", "d'arcane"],
+	"chaos": ["vulnérabilité au chaos", "de chaos"], "ombre": ["vulnérabilité à l'ombre", "d'ombre"]}
+const VULNERABILITE_ELEMENT := 0.25
+## Vulnérabilités par groupe de types (2026-11-06) : physique (tranchant, perforant, contondant), élémentaire (feu,
+## froid, foudre), magique (arcane, chaos, ombre) ; « vulnérabilité totale » (ancienne « vulnérabilité ») : tout.
+const VULNERABILITES_GROUPES := {"physique": ["vulnérabilité physique", "physiques", ["tranchant", "perforant", "contondant"]],
+	"élémentaire": ["vulnérabilité élémentaire", "élémentaires (feu, froid, foudre)", ["feu", "froid", "foudre"]],
+	"magique": ["vulnérabilité magique", "magiques (arcane, chaos, ombre)", ["arcane", "chaos", "ombre"]]}
+const VULNERABILITE_GROUPE := 0.20
+## Réductions de caractéristique (2026-11-06, demande de l'utilisateur) : [nom, caractéristiques, part par cumul].
+## Valeurs gardées par l'utilisateur : -7 % +1 par cumul pour une caractéristique, -5 % pour deux ou trois, -4 % pour
+## toutes (5 cumuls, 4 tours). Remplacent Sape de force, Engourdissement, Épuisement vital, Torpeur, Trouble de
+## l'esprit, Déchéance, Dissonance et Entropie ; Faiblesse, Maladresse et Débilité (doublons) sont supprimées.
+const REDUCTIONS_CARACTERISTIQUES := [
+	["réduction de force", ["force"], 0.07],
+	["réduction de dextérité", ["dextérité"], 0.07],
+	["réduction d'endurance", ["endurance"], 0.07],
+	["réduction d'intelligence", ["intelligence"], 0.07],
+	["réduction de sagesse", ["sagesse"], 0.07],
+	["réduction de mana", [Caracteristiques.MANA], 0.07],
+	["réduction de force et de dextérité", ["force", "dextérité"], 0.05],
+	["réduction d'intelligence et de sagesse", ["intelligence", "sagesse"], 0.05],
+	["réduction d'endurance et de force", ["endurance", "force"], 0.05],
+	["réduction de dextérité et d'endurance", ["dextérité", "endurance"], 0.05],
+	["réduction d'endurance et de mana", ["endurance", Caracteristiques.MANA], 0.05],
+	["réduction de sagesse et de mana", ["sagesse", Caracteristiques.MANA], 0.05],
+	["réduction d'intelligence et de mana", ["intelligence", Caracteristiques.MANA], 0.05],
+	["réduction de force, de dextérité et d'endurance", ["force", "dextérité", "endurance"], 0.05],
+	["réduction d'intelligence, de sagesse et de mana", ["intelligence", "sagesse", Caracteristiques.MANA], 0.05],
+	["réduction de toutes les caractéristiques", ["endurance", "force", "dextérité", "intelligence", "sagesse",
+		Caracteristiques.MANA], 0.04],
+]
+## Un bonus par caractéristique (2026-11-06 : remplace Vigueur, Agilité, Robustesse, Intellect, Sérénité et les bonus
+## combinés).
+const BONUS_CARACTERISTIQUES := {"force": "bonus de force", "dextérité": "bonus de dextérité",
+	"endurance": "bonus d'endurance", "intelligence": "bonus d'intelligence", "sagesse": "bonus de sagesse",
+	Caracteristiques.MANA: "bonus de mana"}
 
 const ALIAS := {
 	"destruction_résistance": "destruction résistance", "recupe": "régénération", "recupeé": "régénération",
-	"aveuglement": "aveugler", "étourdissement": "stun", "brûlure": "brulure", "vulnerabilite": "vulnérabilité",
+	"aveuglement": "aveugler", "étourdissement": "stun", "brûlure": "brulure", "vulnerabilite": "vulnérabilité totale",
 	"trauma interne": "trauma", "brulure de mana": "brûlure de mana",
+	# Anciens noms (2026-11-06)
+	"inflammabilité": "vulnérabilité au feu", "morsure du givre": "vulnérabilité au froid",
+	"conductivité": "vulnérabilité à la foudre", "vulnérabilité": "vulnérabilité totale", "vigueur": "bonus de force", "agilité": "bonus de dextérité",
+	"robustesse": "bonus d'endurance", "intellect": "bonus d'intelligence", "sérénité": "bonus de sagesse",
+	"précis": "bonus de chance de toucher", "concentration": "bonus de chance de coup critique", "évasion": "bonus d'esquive",
+	"barrière": "résistance magique et élémentaire", "protection": "résistance physique",
+	"sape": "réduction de force", "engourdissement": "réduction de dextérité", "épuisement vital": "réduction d'endurance",
+	"torpeur": "réduction d'intelligence", "trouble": "réduction de sagesse",
+	"déchéance": "réduction d'endurance et de force", "dissonance": "réduction d'intelligence et de sagesse",
+	"entropie": "réduction de toutes les caractéristiques",
 }
 
 const TYPES_ALTERATIONS := {
-	"feu": ["brulure", "inflammabilité"],
-	"froid": ["gel", "engelure", "morsure du givre", "lenteur", "engourdissement", "pétrification"],
-	"foudre": ["électrocution", "paralysie", "conductivité"],
-	"arcane": ["usure magique", "silence", "brûlure de mana", "esprit embrumé", "destruction résistance", "torpeur",
-		"trouble", "dissonance"],
-	"chaos": ["corruption", "peste", "vulnérabilité"],
-	"ombre": ["terreur", "malédiction", "siphon de vie", "condamnation", "flétrissement", "faiblesse", "maladresse",
-		"débilité", "affaiblissement", "décrépitude", "aveugler", "sape", "épuisement vital", "entropie", "épuisement"],
+	"feu": ["brulure", "vulnérabilité au feu"],
+	"froid": ["gel", "engelure", "vulnérabilité au froid", "lenteur", "réduction de dextérité", "pétrification"],
+	"foudre": ["électrocution", "paralysie", "vulnérabilité à la foudre", "vulnérabilité élémentaire"],
+	"arcane": ["usure magique", "silence", "brûlure de mana", "esprit embrumé", "destruction résistance",
+		"vulnérabilité à l'arcane", "réduction d'intelligence", "réduction de sagesse", "réduction de mana",
+		"réduction d'intelligence et de sagesse", "réduction d'endurance et de mana", "réduction de sagesse et de mana",
+		"réduction d'intelligence et de mana", "réduction d'intelligence, de sagesse et de mana"],
+	"chaos": ["corruption", "peste", "vulnérabilité totale", "vulnérabilité au chaos", "vulnérabilité magique"],
+	"ombre": ["terreur", "malédiction", "siphon de vie", "condamnation", "flétrissement", "affaiblissement",
+		"décrépitude", "aveugler", "réduction de force", "réduction d'endurance", "réduction de force et de dextérité",
+		"réduction de dextérité et d'endurance", "réduction de force, de dextérité et d'endurance",
+		"réduction de toutes les caractéristiques", "épuisement",
+		"vulnérabilité à l'ombre"],
 	"poison": ["poison"],
 	"tranchant": ["saignement", "désarmement", "usure"],
-	"perforant": ["destruction armure", "marque"],
-	"contondant": ["stun", "trauma", "déchéance", "sommeil"],
-	"lumière": ["régénération", "bouclier", "barrière", "bénédiction", "clarté", "protection", "sérénité",
-		"illumination", "transcendance", "robustesse"],
+	"perforant": ["destruction armure", "marque", "vulnérabilité physique"],
+	"contondant": ["stun", "trauma", "réduction d'endurance et de force", "sommeil"],
+	"lumière": ["régénération", "bouclier", "résistance magique et élémentaire", "bénédiction", "clarté",
+		"résistance physique", "bonus de parade", "bonus de force",
+		"bonus de dextérité", "bonus d'endurance", "bonus d'intelligence", "bonus de sagesse", "bonus de mana"],
 }
 
 ## Effets d'un point de caractéristique quand une altération change une caractéristique (null : calculé d'après le
@@ -66,85 +121,6 @@ static var _type_alteration := {}
 
 static func _stat(combattant, nom: String, defaut = 0):
 	return U.ga(combattant, nom, defaut) if combattant != null else defaut
-
-
-## Brûlure : 1d2 dégâts de feu par tour et par cumul (réduits par la résistance élémentaire).
-static func _dot_brulure(_porteur, data: Dictionary, _index) -> Array:
-	return ["feu", Formules.jet([[int(data.get("cumul", 1)), 2]])]
-
-
-static func _dot_poison(porteur, data: Dictionary, _index) -> Array:
-	return ["poison", 1 + porteur.points_de_vie_max * 0.04 * data.get("cumul", 1) + data.get("puissance", 0)]
-
-
-static func _dot_saignement(porteur, data: Dictionary, _index) -> Array:
-	var lanceur = data.get("lanceur")
-	var bonus_pct := 0.0
-	if lanceur != null and U.ha(lanceur, "arbre_de_talents"):
-		for t in U.ga(lanceur.arbre_de_talents, "talents", []):
-			bonus_pct += U.ga(t, "bonus_degats_saignement", 0.0)
-	return ["saignement", (1 + porteur.points_de_vie * 0.25 + data.get("puissance", 0)) * (1.0 + bonus_pct)]
-
-
-static func _dot_electrocution(porteur, data: Dictionary, _index) -> Array:
-	return ["foudre", 1 + porteur.points_de_vie_max * 0.03 + data.get("puissance", 0) + _stat(data.get("lanceur"), "puissance_magique")]
-
-
-static func _dot_corruption(porteur, data: Dictionary, index) -> Array:
-	return ["chaos", (2 + porteur.points_de_vie_max * 0.03 + data.get("puissance", 0)) * index]
-
-
-static func _soin_regeneration(porteur, data: Dictionary, _index) -> float:
-	return porteur.points_de_vie_max * 0.06 + data.get("puissance", 0)
-
-
-static func _mana_clarte(porteur, _data, _index) -> int:
-	return maxi(1, int(porteur.mana_max * 0.10))
-
-
-static func _mana_epuisement(porteur, _data, _index) -> int:
-	return -maxi(1, int(porteur.mana_max * 0.10))
-
-
-static func _dot_engelure(porteur, data: Dictionary, _index) -> Array:
-	var lanceur = data.get("lanceur")
-	var base = 1 + porteur.points_de_vie_max * 0.025 + data.get("puissance", 0)
-	base += _stat(lanceur, "puissance_magique") + _stat(lanceur, "degats_froid")
-	base *= _stat(lanceur, "pourcentage_degats_elementaire", 1) * _stat(lanceur, "pourcentage_degats_froid", 1)
-	return ["froid", base * (1 + 0.5 * (data.get("cumul", 1) - 1))]
-
-
-static func _dot_peste(porteur, data: Dictionary, _index) -> Array:
-	return ["chaos", 1 + porteur.points_de_vie_max * 0.03 + data.get("puissance", 0) + 0.5 * _stat(data.get("lanceur"), "puissance_magique")]
-
-
-static func _dot_trauma(porteur, data: Dictionary, _index) -> Array:
-	var lanceur = data.get("lanceur")
-	var base = 1 + porteur.points_de_vie_max * 0.02 + data.get("puissance", 0)
-	base += _stat(lanceur, "degats_base") + 3 * _stat(lanceur, "force")
-	return ["contondant", base * _stat(lanceur, "pourcentage_degats_physique", 1) * _stat(lanceur, "pourcentage_degats_contondant", 1)]
-
-
-static func _dot_siphon(porteur, data: Dictionary, _index) -> Array:
-	var lanceur = data.get("lanceur")
-	var base = 1 + porteur.points_de_vie_max * 0.02 + data.get("puissance", 0) + _stat(lanceur, "puissance_magique")
-	return ["ombre", base * _stat(lanceur, "pourcentage_degats_magique", 1) * _stat(lanceur, "pourcentage_degats_ombre", 1)]
-
-
-static func _mana_brule(porteur) -> int:
-	return maxi(0, mini(int(porteur.mana), maxi(1, int(porteur.mana_max * 0.12))))
-
-
-static func _dot_brulure_mana(porteur, data: Dictionary, _index) -> Array:
-	return ["arcane", 1 + 2 * _mana_brule(porteur) + data.get("puissance", 0)]
-
-
-static func _mana_brulure_mana(porteur, _data, _index) -> int:
-	return -_mana_brule(porteur)
-
-
-static func _fin_condamnation(porteur, data: Dictionary) -> Array:
-	return ["ombre", porteur.points_de_vie_max * 0.30 + data.get("puissance", 0) + _stat(data.get("lanceur"), "puissance_magique")]
 
 
 static func _conversion(combattant, statistique: String, coefficient) -> float:
@@ -174,219 +150,37 @@ static func _caracteristiques(cible, attributs: Array, part: float, fixe: float,
 	return modifs
 
 
-static func _alteration_caracteristiques(libelle_alt: String, nature: String, attributs: Array, part: float, fixe: float,
-		cumul_max := 5, duree := 4) -> Dictionary:
-	var signe := -1 if nature == "malus" else 1
-	var noms: String
-	if attributs.size() < 5:
-		var liste := []
-		for a in attributs:
-			liste.append(NOMS_CARACTERISTIQUES[a])
-		noms = ", ".join(liste)
-	else:
-		noms = "toutes les caractéristiques"
-	var sens := "-" if signe < 0 else "+"
-	var texte := "%s %s%s %% %s%s par cumul, avec leurs effets (cumulable %d fois)." % [
-		U.majuscule(noms), sens, U.g(part * 100), sens, U.g(fixe), cumul_max]
-	return {"libelle": libelle_alt, "nature": nature, "duree": duree, "cumul_max": cumul_max, "description": texte,
-		"caracteristiques": attributs,
-		"modifs": func(c, _p, n, i): return _caracteristiques(c, attributs, part * i, fixe * i, n, signe)}
+## Altérations brutes (BriquesAlterations) : composées du jeu, réglages de l'éditeur (durée, cumul, briques), puis
+## altérations personnalisées de l'éditeur (2026-11-06).
+static func brutes() -> Dictionary:
+	var b := {}
+	var composees := BriquesAlterations.composees()
+	for nom in composees:
+		b[nom] = composees[nom].duplicate(true)
+	DonneesEnnemis.appliquer_alterations(b)
+	return b
 
 
-static func _part_positive(cible, attributs: Array, part: float) -> Dictionary:
-	var modifs := {}
-	for a in attributs:
-		modifs[a] = -maxf(0, U.num(cible, a)) * part
-	return modifs
-
-
-## Vulnérabilités en pourcentage (0,10 = +10 % de dégâts subis de ces types, Degats.multiplicateur).
-static func _vulnerabilites(types: Array, valeur: float) -> Dictionary:
-	var modifs := {}
-	for t in types:
-		modifs["vulnerabilite_" + t] = valeur
-	return modifs
-
-
-## Table DEFINITIONS (construite une fois).
+## Définitions jouées (construites une fois depuis les briques : BriquesAlterations.construire).
 static func defs() -> Dictionary:
 	if not _definitions.is_empty():
 		return _definitions
-	var res_phys := []
-	var res_elem := []
-	for t in PHYSIQUES:
-		res_phys.append("resistance_" + t)
-	for t in ELEMENTAIRES:
-		res_elem.append("resistance_" + t)
-	var d := {
-		# ---------------------------- Malus ----------------------------
-		"stun": {"libelle": "Étourdissement", "nature": "malus", "duree": 1,
-			"description": "Perd son prochain tour.", "perte_tour": 1.0},
-		"pétrification": {"libelle": "Pétrification", "nature": "malus", "duree": 2,
-			"description": "Changé en pierre : perd ses tours, mais dégâts physiques reçus -20 %.",
-			"perte_tour": 1.0, "modifs": func(_c, _p, _n): return {"resistance_pct_physique": 0.20}},
-		"gel": {"libelle": "Gel", "nature": "malus", "duree": 2,
-			"description": "Perd 1 PA par tour et 10 % d'esquive.", "perte_pa": 1.0,
-			"modifs": func(_c, _p, _n): return {"chance_esquive": -0.10}},
-		"brulure": {"libelle": "Brûlure", "nature": "malus", "duree": 3, "cumul_max": 3,
-			"description": "Dégâts de feu à chaque tour : 1d2 par cumul (cumulable 3 fois).",
-			"dot": _dot_brulure},
-		"poison": {"libelle": "Poison", "nature": "malus", "duree": 4, "cumul_max": 3,
-			"description": "Perd 4 % de ses PV max par cumul à chaque tour, sans réduction (cumulable 3 fois).",
-			"dot": _dot_poison},
-		"saignement": {"libelle": "Saignement", "nature": "malus", "duree": 3,
-			"description": "Perd 25 % de ses PV actuels à chaque tour.", "dot": _dot_saignement},
-		"électrocution": {"libelle": "Électrocution", "nature": "malus", "duree": 3,
-			"description": "Dégâts de foudre chaque tour, 25 % de chance de perdre 1 PA, dégâts de foudre reçus +20 %.",
-			"dot": _dot_electrocution, "perte_pa": 0.25, "modifs": func(_c, _p, _n): return {"vulnerabilite_foudre": 0.20}},
-		"corruption": {"libelle": "Corruption", "nature": "malus", "duree": 4,
-			"description": "Dégâts de chaos qui augmentent à chaque tour ; dégâts physiques, magiques et élémentaires reçus +10 %.",
-			"dot": _dot_corruption,
-			"modifs": func(_c, _p, _n): return _vulnerabilites(PHYSIQUES + ELEMENTAIRES, 0.10)},
-		"aveugler": {"libelle": "Aveuglement", "nature": "malus", "duree": 3,
-			"description": "Chance de toucher -40 %.", "modifs": func(_c, _p, _n): return {"chance_de_toucher": -0.40}},
-		"silence": {"libelle": "Silence", "nature": "malus", "duree": 3,
-			"description": "Ne peut plus lancer de sort offensif ni de soin.", "silence": true},
-		"terreur": {"libelle": "Terreur", "nature": "malus", "duree": 3,
-			"description": "35 % de chance de perdre son tour ; dégâts infligés -15 %.",
-			"perte_tour": 0.35, "sortant": 0.85},
-		"affaiblissement": {"libelle": "Affaiblissement", "nature": "malus", "duree": 3,
-			"description": "Dégâts infligés -25 %.", "sortant": 0.75},
-		"vulnérabilité": {"libelle": "Vulnérabilité", "nature": "malus", "duree": 3,
-			"description": "Dégâts reçus +25 %.", "entrant": 1.25},
-		"destruction armure": {"libelle": "Armure brisée", "nature": "malus", "duree": 4,
-			"description": "Armure et résistances physiques -40 %.",
-			"modifs": func(c, _p, _n): return _part_positive(c, ["armure"] + res_phys, 0.4)},
-		"destruction résistance": {"libelle": "Résistances brisées", "nature": "malus", "duree": 4,
-			"description": "Résistance magique et résistances élémentaires -40 %.",
-			"modifs": func(c, _p, _n): return _part_positive(c, ["resistance_magique"] + res_elem, 0.4)},
-		"usure": {"libelle": "Usure", "nature": "malus", "duree": 6, "cumul_max": 5,
-			"description": "Dégâts physiques reçus +8 % par cumul (cumulable 5 fois).",
-			"modifs": func(_c, _p, n): return _vulnerabilites(PHYSIQUES, 0.08 * n)},
-		"usure magique": {"libelle": "Usure magique", "nature": "malus", "duree": 6, "cumul_max": 5,
-			"description": "Dégâts magiques et élémentaires reçus +6 % par cumul (cumulable 5 fois).",
-			"modifs": func(_c, _p, n): return _vulnerabilites(ELEMENTAIRES, 0.06 * n)},
-		"malédiction": {"libelle": "Malédiction", "nature": "malus", "duree": 4,
-			"description": "Soins reçus -50 %.", "soins_recus": 0.5},
-		"épuisement": {"libelle": "Épuisement", "nature": "malus", "duree": 3,
-			"description": "Perd 10 % de son mana max à chaque tour.", "mana_tour": _mana_epuisement},
-		"marque": {"libelle": "Marque du chasseur", "nature": "malus", "duree": 3,
-			"description": "Les coups qu'il reçoit ont +20 % de chance d'être critiques.", "marque": 0.20},
-		"lenteur": {"libelle": "Lenteur", "nature": "malus", "duree": 4,
-			"description": "50 % de chance de perdre 1 PA à chaque tour ; esquive -5 %.",
-			"perte_pa": 0.5, "modifs": func(_c, _p, _n): return {"chance_esquive": -0.05}},
-		"paralysie": {"libelle": "Paralysie", "nature": "malus", "duree": 3,
-			"description": "25 % de chance de perdre son tour ; esquive -10 %.",
-			"perte_tour": 0.25, "modifs": func(_c, _p, _n): return {"chance_esquive": -0.10}},
-		"sommeil": {"libelle": "Sommeil", "nature": "malus", "duree": 3,
-			"description": "Endormi : perd ses tours, mais le premier coup qui le blesse le réveille.",
-			"perte_tour": 1.0, "reveil": true},
-		"condamnation": {"libelle": "Condamnation", "nature": "malus", "duree": 4,
-			"description": "Compte à rebours : s'il dure jusqu'au bout, subit 30 % de ses PV max en dégâts d'ombre.",
-			"fin": _fin_condamnation},
-		"peste": {"libelle": "Peste", "nature": "malus", "duree": 4,
-			"description": "Dégâts de chaos à chaque tour (3 % des PV max) ; 35 % de chance par tour de contaminer un allié.",
-			"dot": _dot_peste, "contagion": 0.35},
-		"engelure": {"libelle": "Engelure", "nature": "malus", "duree": 3, "cumul_max": 3,
-			"description": "Dégâts de froid à chaque tour (2,5 % des PV max + magie du lanceur), +50 % par cumul ; esquive -5 % (cumulable 3 fois).",
-			"dot": _dot_engelure, "modifs": func(_c, _p, _n): return {"chance_esquive": -0.05}},
-		"trauma": {"libelle": "Trauma interne", "nature": "malus", "duree": 3,
-			"description": "Dégâts contondants à chaque tour (2 % des PV max + force du lanceur), réduits par l'armure.",
-			"dot": _dot_trauma},
-		"siphon de vie": {"libelle": "Siphon de vie", "nature": "malus", "duree": 3,
-			"description": "Dégâts d'ombre à chaque tour (2 % des PV max + magie du lanceur) ; le lanceur récupère la moitié des PV retirés.",
-			"dot": _dot_siphon, "draine": 0.5},
-		"brûlure de mana": {"libelle": "Brûlure de mana", "nature": "malus", "duree": 3,
-			"description": "Perd 12 % de son mana max à chaque tour et subit 2 dégâts d'arcane par point de mana brûlé.",
-			"dot": _dot_brulure_mana, "mana_tour": _mana_brulure_mana},
-		"désarmement": {"libelle": "Désarmement", "nature": "malus", "duree": 2,
-			"description": "Dégâts physiques infligés -40 %.",
-			"modifs": func(c, _p, _n): return _part_positive(c, ["pourcentage_degats_physique"], 0.4)},
-		"esprit embrumé": {"libelle": "Esprit embrumé", "nature": "malus", "duree": 3,
-			"description": "Dégâts magiques et élémentaires infligés -40 % ; chance de critique magique -5 %.",
-			"modifs": func(c, _p, _n):
-				var m := _part_positive(c, ["pourcentage_degats_magique", "pourcentage_degats_elementaire"], 0.4)
-				m["chance_de_coup_critique_magique"] = -0.05
-				return m},
-		"inflammabilité": {"libelle": "Inflammabilité", "nature": "malus", "duree": 4,
-			"description": "Dégâts de feu reçus +25 %.", "modifs": func(_c, _p, _n): return {"vulnerabilite_feu": 0.25}},
-		"morsure du givre": {"libelle": "Morsure du givre", "nature": "malus", "duree": 4,
-			"description": "Dégâts de froid reçus +25 %.", "modifs": func(_c, _p, _n): return {"vulnerabilite_froid": 0.25}},
-		"conductivité": {"libelle": "Conductivité", "nature": "malus", "duree": 4,
-			"description": "Dégâts de foudre reçus +25 %.", "modifs": func(_c, _p, _n): return {"vulnerabilite_foudre": 0.25}},
-		"décrépitude": {"libelle": "Décrépitude", "nature": "malus", "duree": 3,
-			"description": "Dégâts infligés -15 %, dégâts reçus +15 %, 25 % de chance de perdre 1 PA par tour.",
-			"sortant": 0.85, "entrant": 1.15, "perte_pa": 0.25},
-		"flétrissement": {"libelle": "Flétrissement", "nature": "malus", "duree": 4,
-			"description": "PV max -15 % (les PV en trop sont perdus).",
-			"modifs": func(c, _p, _n): return _part_positive(c, ["points_de_vie_max"], 0.15)},
-		"faiblesse": {"libelle": "Faiblesse", "nature": "malus", "duree": 4,
-			"description": "Force -40 % (dégâts physiques réduits d'autant).",
-			"modifs": func(c, _p, _n): return _part_positive(c, ["force"], 0.4)},
-		"maladresse": {"libelle": "Maladresse", "nature": "malus", "duree": 4,
-			"description": "Dextérité amoindrie : toucher -15 %, esquive -10 %, critique -5 %.",
-			"modifs": func(_c, _p, _n): return {"chance_de_toucher": -0.15, "chance_esquive": -0.10,
-				"chance_de_coup_critique": -0.05}},
-		"débilité": {"libelle": "Débilité", "nature": "malus", "duree": 4,
-			"description": "Intelligence amoindrie : puissance magique -40 %, critique magique -5 %.",
-			"modifs": func(c, _p, _n):
-				var m := _part_positive(c, ["puissance_magique"], 0.4)
-				m["chance_de_coup_critique_magique"] = -0.05
-				return m},
-		"sape": _alteration_caracteristiques("Sape de force", "malus", ["force"], 0.07, 1),
-		"engourdissement": _alteration_caracteristiques("Engourdissement", "malus", ["dextérité"], 0.07, 1),
-		"épuisement vital": _alteration_caracteristiques("Épuisement vital", "malus", ["endurance"], 0.07, 1),
-		"torpeur": _alteration_caracteristiques("Torpeur", "malus", ["intelligence"], 0.07, 1),
-		"trouble": _alteration_caracteristiques("Trouble de l'esprit", "malus", ["sagesse"], 0.07, 1),
-		"déchéance": _alteration_caracteristiques("Déchéance", "malus", ["force", "endurance"], 0.05, 1),
-		"dissonance": _alteration_caracteristiques("Dissonance", "malus", ["intelligence", "sagesse"], 0.05, 1),
-		"entropie": _alteration_caracteristiques("Entropie", "malus", CARACTERISTIQUES, 0.04, 1),
-		# ---------------------------- Bonus ----------------------------
-		"précis": {"libelle": "Précision", "nature": "bonus", "duree": 3,
-			"description": "Chance de toucher +35 %.", "modifs": func(_c, _p, _n): return {"chance_de_toucher": 0.35}},
-		"protection": {"libelle": "Protection", "nature": "bonus", "duree": 3, "puissance": 40,
-			"description": "Dégâts physiques reçus -{p} %.", "modifs": func(_c, p, _n): return {"resistance_pct_physique": p / 100.0}},
-		"barrière": {"libelle": "Barrière", "nature": "bonus", "duree": 3, "puissance": 30,
-			"description": "Dégâts magiques (arcane, ombre, chaos) reçus -{p} %.",
-			"modifs": func(_c, p, _n): return {"resistance_pct_magique": p / 100.0}},
-		"rage": {"libelle": "Rage", "nature": "bonus", "duree": 3,
-			"description": "Dégâts infligés +25 % et dégâts critiques +25 %.", "sortant": 1.25,
-			"modifs": func(_c, _p, _n): return {"degats_critique": 0.25}},
-		"hâte": {"libelle": "Hâte", "nature": "bonus", "duree": 2,
-			"description": "+1 PA à chaque tour.", "gain_pa": 1},
-		"régénération": {"libelle": "Régénération", "nature": "bonus", "duree": 3,
-			"description": "Rend 6 % des PV max à chaque tour.", "soin_tour": _soin_regeneration},
-		"bouclier": {"libelle": "Bouclier", "nature": "bonus", "duree": 3, "puissance": 30,
-			"description": "Absorbe {p} dégâts avant de se briser.", "bouclier": true},
-		"concentration": {"libelle": "Concentration", "nature": "bonus", "duree": 3,
-			"description": "Chance de coup critique +15 %.",
-			"modifs": func(_c, _p, _n): return {"chance_de_coup_critique": 0.15}},
-		"évasion": {"libelle": "Évasion", "nature": "bonus", "duree": 2,
-			"description": "Esquive +20 %.", "modifs": func(_c, _p, _n): return {"chance_esquive": 0.20}},
-		"épines": {"libelle": "Épines", "nature": "bonus", "duree": 3,
-			"description": "Renvoie 25 % des dégâts physiques reçus à l'attaquant.", "epines": 0.25},
-		"bénédiction": {"libelle": "Bénédiction", "nature": "bonus", "duree": 3,
-			"description": "Toucher +10 %, dégâts infligés +10 %, dégâts magiques reçus -10 %.", "sortant": 1.10,
-			"modifs": func(_c, _p, _n): return {"chance_de_toucher": 0.10, "resistance_pct_magique": 0.10}},
-		"soif de sang": {"libelle": "Soif de sang", "nature": "bonus", "duree": 3,
-			"description": "Rend 20 % des dégâts infligés en PV.", "vol_de_vie": 0.20},
-		"clarté": {"libelle": "Clarté", "nature": "bonus", "duree": 3,
-			"description": "Rend 10 % du mana max à chaque tour.", "mana_tour": _mana_clarte},
-		"vigueur": _alteration_caracteristiques("Vigueur", "bonus", ["force"], 0.07, 1),
-		"agilité": _alteration_caracteristiques("Agilité", "bonus", ["dextérité"], 0.07, 1),
-		"robustesse": _alteration_caracteristiques("Robustesse", "bonus", ["endurance"], 0.07, 1),
-		"intellect": _alteration_caracteristiques("Intellect", "bonus", ["intelligence"], 0.07, 1),
-		"sérénité": _alteration_caracteristiques("Sérénité", "bonus", ["sagesse"], 0.07, 1),
-		"puissance du titan": _alteration_caracteristiques("Puissance du titan", "bonus", ["force", "endurance"], 0.05, 1),
-		"illumination": _alteration_caracteristiques("Illumination", "bonus", ["intelligence", "sagesse"], 0.05, 1),
-		"transcendance": _alteration_caracteristiques("Transcendance", "bonus", CARACTERISTIQUES, 0.04, 1),
-	}
-	DonneesEnnemis.appliquer_alterations(d)  # durées et cumuls réglés dans l'éditeur (2026-11-04)
+	var b := brutes()
+	var d := {}
+	for nom in b:
+		d[nom] = BriquesAlterations.construire(b[nom], b, nom)
+		d[nom]["personnalisee"] = not BriquesAlterations.composees().has(nom)
 	_definitions = d
+	_type_alteration.clear()
 	for element in TYPES_ALTERATIONS:
 		for nom in TYPES_ALTERATIONS[element]:
 			_type_alteration[nom] = element
 	return _definitions
+
+
+## Oublie les définitions (après un enregistrement de l'éditeur).
+static func recharger() -> void:
+	_definitions = {}
 
 
 ## Type (élément) de chaque altération (TYPE_ALTERATION).
@@ -409,8 +203,23 @@ static func libelle(nom: String) -> String:
 
 static func description(nom: String, puissance = null) -> String:
 	var d := definition(nom_canonique(nom))
-	var p = d.get("puissance", 0) if puissance == null else puissance
-	return String(d.get("description", "")).replace("{p}", U.g(p))
+	if d.is_empty():
+		return ""
+	return BriquesAlterations.decrire(d, d.get("puissance", null) if puissance == null else puissance)
+
+
+## Catégories de l'éditeur (2026-11-06) : améliorations (bonus), dégâts (blessent à chaque tour ou à la fin), malus.
+const CATEGORIES := ["amélioration", "malus", "dégâts"]
+const NOMS_CATEGORIES := {"amélioration": "Améliorations", "malus": "Malus", "dégâts": "Dégâts"}
+
+
+static func categorie(nom: String) -> String:
+	var d := definition(nom_canonique(nom))
+	if d.get("nature") == "bonus":
+		return "amélioration"
+	if d.has("dots") or d.has("fins"):
+		return "dégâts"
+	return "malus"
 
 
 static func est_bonus(nom: String) -> bool:
@@ -428,9 +237,7 @@ static func _appliquer_modifs(cible, data: Dictionary, nouvelles: Dictionary) ->
 
 ## Modifications d'une définition (``definition["modifs"](cible, p, n[, i])``).
 static func appeler_modifs(d: Dictionary, cible, puissance, cumul, intensite = 1.0) -> Dictionary:
-	if d.get("caracteristiques"):
-		return d["modifs"].call(cible, puissance, cumul, intensite)
-	return d["modifs"].call(cible, puissance, cumul)
+	return d["modifs"].call(cible, puissance, cumul, intensite)
 
 
 static func _combat_actif(combat) -> bool:
@@ -476,8 +283,10 @@ static func _allies(cible, combat) -> Array:
 static func _effet_de_tour(cible, data: Dictionary, d: Dictionary, combat, nom = null) -> bool:
 	data["tours"] = data.get("tours", 0) + 1
 	var passe := false
-	if d.has("dot"):
-		var resultat: Array = d["dot"].call(cible, data, data["tours"])
+	for dot in d.get("dots", []):
+		if not cible.est_vivant():
+			break
+		var resultat: Array = dot.call(cible, data, data["tours"])
 		var type_degats: String = resultat[0]
 		var montant = resultat[1] * Talents.multiplicateur_dot(data.get("lanceur"), nom, type_degats) * data.get("intensite", 1.0)
 		var perdus := _infliger_dot(cible, type_degats, montant, data, combat)
@@ -671,15 +480,7 @@ static func _appliquer_alterations(cible, type_alteration_nom: String, lanceur, 
 		data["lanceur"] = lanceur
 	if d.has("modifs"):
 		_appliquer_modifs(cible, data, {})
-		var modifs: Dictionary
-		if d.get("caracteristiques"):
-			modifs = appeler_modifs(d, cible, data["puissance"], data["cumul"], data["intensite"])
-		else:
-			modifs = {}
-			var brutes: Dictionary = appeler_modifs(d, cible, data["puissance"], data["cumul"])
-			for a in brutes:
-				modifs[a] = brutes[a] * data["intensite"]
-		_appliquer_modifs(cible, data, modifs)
+		_appliquer_modifs(cible, data, appeler_modifs(d, cible, data["puissance"], data["cumul"], data["intensite"]))
 		if cible.points_de_vie > cible.points_de_vie_max:
 			cible.points_de_vie = cible.points_de_vie_max
 		if U.ga(cible, "mana", 0) > U.ga(cible, "mana_max", 0):
@@ -765,10 +566,11 @@ static func mise_a_jour(cible, combat) -> bool:
 			data["duree"] -= 1
 			if data["duree"] <= 0:
 				retirer(cible, nom)
-				if d.has("fin") and cible.est_vivant():
+				if d.has("fins") and cible.est_vivant():
 					print("%s : le compte à rebours de %s est écoulé !" % [d["libelle"], cible.nom])
-					var fin: Array = d["fin"].call(cible, data)
-					_infliger_dot(cible, fin[0], fin[1] * data.get("intensite", 1.0), data, combat)
+					for fin_tour in d["fins"]:
+						var fin: Array = fin_tour.call(cible, data)
+						_infliger_dot(cible, fin[0], fin[1] * data.get("intensite", 1.0), data, combat)
 	return passe_son_tour
 
 

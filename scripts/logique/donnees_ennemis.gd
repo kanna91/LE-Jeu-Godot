@@ -24,10 +24,13 @@ extends RefCounted
 const FICHIER := "res://donnees/ennemis.json"
 const FICHIER_COMPETENCES := "res://donnees/competences_editees.json"
 ## Sortes réglables : les 7 classes de gobelins, le loup et le squelette.
-const SORTES := ["combattant", "lancier", "archer", "defenseur", "sorcier", "feticheur", "chaman", "loup", "squelette"]
+const SORTES := ["combattant", "lancier", "archer", "defenseur", "sorcier", "feticheur", "chaman", "loup", "squelette",
+	"guerrier_squelette", "mage_squelette", "elementaliste_squelette", "squelette_invoque"]
 const NOMS := {"combattant": "Gobelin combattant", "lancier": "Gobelin lancier", "archer": "Gobelin archer",
 	"defenseur": "Gobelin défenseur", "sorcier": "Gobelin sorcier", "feticheur": "Gobelin féticheur",
-	"chaman": "Gobelin chaman", "loup": "Loup", "squelette": "Squelette"}
+	"chaman": "Gobelin chaman", "loup": "Loup", "squelette": "Squelette", "guerrier_squelette": "Guerrier squelette",
+	"mage_squelette": "Mage squelette", "elementaliste_squelette": "Élémentaliste squelette",
+	"squelette_invoque": "Squelette invoqué"}
 ## Conditions des règles d'IA : nom → texte (… : une valeur à choisir).
 const CONDITIONS := {
 	"toujours": "Toujours",
@@ -41,13 +44,15 @@ const CONDITIONS := {
 	"groupe_avec": "Un ennemi a l'altération…",
 	"heros_sans_ses_alterations": "Le héros n'a pas déjà toutes les altérations de la compétence",
 	"mana_au_moins": "Il a au moins … mana",
+	"invocations_moins_de": "Il a moins de … squelettes invoqués en vie",
 }
 const CONDITIONS_A_ALTERATION := ["heros_sans", "heros_avec", "soi_sans", "groupe_sans", "groupe_avec"]
-const CONDITIONS_A_NOMBRE := ["mana_au_moins"]
+const CONDITIONS_A_NOMBRE := ["mana_au_moins", "invocations_moins_de"]
 const CIBLES := {"auto": "Cible automatique", "allie_blesse": "L'allié le plus blessé"}
 ## Réglages d'une compétence modifiables dans l'éditeur.
 const CHAMPS_COMPETENCE := ["nom", "description", "cout_mana", "cout_action", "nombre_cible", "nombre_attaque",
-	"type_degats", "multiplicateur_degats", "type_alteration", "duree_bonus"]
+	"type_degats", "multiplicateur_degats", "type_alteration", "duree_bonus", "facteur_degats", "des_degats", "degats_fixes",
+	"pv_max_cible"]
 
 ## Compétences par défaut de chaque sorte (ancien Gobelin.definir_competence_gobelin ; loup et squelette : leur attaque,
 ## une copie renommée de Coup_d_epee faite par Creatures).
@@ -61,6 +66,10 @@ const COMPETENCES_DEFAUT := {
 	"chaman": ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"],
 	"loup": ["Coup_d_epee"],
 	"squelette": ["Coup_d_epee"],
+	"guerrier_squelette": ["Coup_d_epee"],
+	"mage_squelette": ["Coup_d_epee", "Invocation_squelette", "Trait_des_Ombres", "Projectile_des_ombres"],
+	"elementaliste_squelette": ["Coup_d_epee", "Boule_de_feu", "Givre", "Eclair"],
+	"squelette_invoque": ["Coup_d_epee"],
 }
 ## IA par défaut : l'ancienne IA codée en dur, traduite en règles (mêmes chances).
 const IA_DEFAUT := {
@@ -73,13 +82,13 @@ const IA_DEFAUT := {
 		{"competence": "Perforation", "chance": 100, "si": [["heros_sans", "saignement"]]},
 		{"competence": "Rafale_de_lance", "chance": 100}],
 	"archer": [
-		{"competence": "Précision", "chance": 100, "si": [["soi_sans", "précis"]]},
+		{"competence": "Précision", "chance": 100, "si": [["soi_sans", "bonus de chance de toucher"]]},
 		{"competence": "Tir", "chance": 67},
 		{"competence": "Tir_precis", "chance": 50},
 		{"competence": "Tir_empoisonne", "chance": 100}],
 	"defenseur": [
 		{"competence": "Coup_de_gourdin", "chance": 67},
-		{"competence": "Grand_coup_de_gourdin", "chance": 100, "si": [["groupe_avec", "protection"]]},
+		{"competence": "Grand_coup_de_gourdin", "chance": 100, "si": [["groupe_avec", "résistance physique"]]},
 		{"competence": "Protection", "chance": 100}],
 	"sorcier": [
 		{"competence": "Boule_de_feu", "chance": 33, "si": [["mana_au_moins", "6"]]},
@@ -100,6 +109,18 @@ const IA_DEFAUT := {
 		{"competence": "Boule_de_feu", "chance": 100}],
 	"loup": [{"competence": "Coup_d_epee", "chance": 100}],
 	"squelette": [{"competence": "Coup_d_epee", "chance": 100}],
+	"guerrier_squelette": [{"competence": "Coup_d_epee", "chance": 100}],
+	# Proposé par Claude (2026-11-06), à régler dans l'éditeur
+	"mage_squelette": [
+		{"competence": "Invocation_squelette", "chance": 60, "si": [["invocations_moins_de", "2"], ["mana_au_moins", "6"]]},
+		{"competence": "Trait_des_Ombres", "chance": 50, "si": [["mana_au_moins", "8"]]},
+		{"competence": "Projectile_des_ombres", "chance": 100}],
+	"elementaliste_squelette": [
+		{"competence": "Eclair", "chance": 33, "si": [["mana_au_moins", "2"]]},
+		{"competence": "Givre", "chance": 50, "si": [["mana_au_moins", "2"], ["heros_sans", "lenteur"]]},
+		{"competence": "Boule_de_feu", "chance": 100, "si": [["mana_au_moins", "2"]]},
+		{"competence": "Coup_d_epee", "chance": 100}],
+	"squelette_invoque": [{"competence": "Coup_d_epee", "chance": 100}],
 }
 
 static var _donnees := {}
@@ -137,7 +158,7 @@ static func editions() -> Dictionary:
 	if _editions.is_empty():
 		var lu = U.charger_json("competences_editees.json")
 		_editions = lu if lu is Dictionary else {}
-		for cle in ["competences", "alterations"]:
+		for cle in ["competences", "alterations", "alterations_personnalisees"]:
 			if not (_editions.get(cle) is Dictionary):
 				_editions[cle] = {}
 	return _editions
@@ -183,8 +204,8 @@ static func toutes_les_competences() -> Array:
 
 
 ## Applique les réglages de l'éditeur à une compétence qui vient d'être créée (Competences.creer).
-static func appliquer_competence(comp, nom_classe: String) -> void:
-	var e = editions()["competences"].get(nom_classe)
+static func appliquer_competence(comp, nom_classe: String, editions_d = null) -> void:
+	var e = (editions() if editions_d == null else editions_d)["competences"].get(nom_classe)
 	if not (e is Dictionary):
 		return
 	comp.nom_classe = nom_classe
@@ -194,7 +215,7 @@ static func appliquer_competence(comp, nom_classe: String) -> void:
 		var v = e[champ]
 		if champ in ["cout_mana", "cout_action", "nombre_cible", "nombre_attaque", "duree_bonus"]:
 			v = int(v)
-		elif champ == "multiplicateur_degats":
+		elif champ in ["multiplicateur_degats", "facteur_degats"]:
 			v = float(v)
 		elif v is Array or v is Dictionary:
 			v = v.duplicate(true)
@@ -213,16 +234,25 @@ static func base_de(nom_classe: String) -> String:
 	return String(e.get("base", "")) if e is Dictionary else ""
 
 
-## Applique les durées et cumuls réglés dans l'éditeur aux définitions des altérations (Alterations.defs).
-static func appliquer_alterations(defs: Dictionary) -> void:
-	var e: Dictionary = editions()["alterations"]
-	for nom in e:
-		if not defs.has(nom) or not (e[nom] is Dictionary):
+## Applique les réglages de l'éditeur aux altérations brutes (Alterations.brutes) : durée, cumul et briques des
+## composées (« alterations »), puis ajoute les altérations personnalisées (« alterations_personnalisees », 2026-11-06).
+## Les noms d'avant les renommages sont convertis (Alterations.ALIAS).
+static func appliquer_alterations(brutes: Dictionary, editions_d = null) -> void:
+	var ed: Dictionary = editions() if editions_d == null else editions_d
+	var e: Dictionary = ed.get("alterations", {})
+	for nom_lu in e:
+		var nom := Alterations.nom_canonique(String(nom_lu))
+		if not brutes.has(nom) or not (e[nom_lu] is Dictionary):
 			continue
-		if e[nom].has("duree"):
-			defs[nom]["duree"] = int(e[nom]["duree"])
-		if e[nom].has("cumul_max"):
-			defs[nom]["cumul_max"] = int(e[nom]["cumul_max"])
+		for cle in ["duree", "cumul_max"]:
+			if e[nom_lu].has(cle):
+				brutes[nom][cle] = int(e[nom_lu][cle])
+		if e[nom_lu].get("briques") is Array:
+			brutes[nom]["briques"] = e[nom_lu]["briques"].duplicate(true)
+	var p: Dictionary = ed.get("alterations_personnalisees", {})
+	for nom in p:
+		if p[nom] is Dictionary and not brutes.has(nom):
+			brutes[nom] = p[nom].duplicate(true)
 
 
 ## Écrit les deux fichiers ; renvoie "" ou un message d'erreur.

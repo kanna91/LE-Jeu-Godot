@@ -30,8 +30,8 @@ static func _decrire_competence(ennemi, competence, joueur) -> Array:
 	if U.vrai(competence.description):
 		lignes.append([competence.description, "detail"])
 	var bonus := []
-	if U.ga(competence, "multiplicateur_degats", 1) != 1:
-		bonus.append("dégâts ×%s" % U.f(competence.multiplicateur_degats, 2))
+	if Formules.facteur_degats(competence) != 1:  # le multiplicateur qui agit (éditeur, 2026-11-06)
+		bonus.append("dégâts ×%s" % U.f(Formules.facteur_degats(competence), 2))
 	if U.num(competence, "bonus_toucher"):
 		bonus.append("toucher +%s %%" % U.f(competence.bonus_toucher * 100))
 	if U.num(competence, "bonus_critique"):

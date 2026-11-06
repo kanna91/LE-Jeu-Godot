@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     390,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -493,5 +493,11 @@
     210
    ]
   ]
- }
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "butins": [],
+ "ennemis_interdits": []
 }

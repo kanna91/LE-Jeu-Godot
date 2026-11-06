@@ -15,7 +15,7 @@
    },
    "alterations": {
     "lenteur": 15,
-    "engourdissement": 20
+    "réduction de dextérité": 20
    }
   }
  },
@@ -35,7 +35,7 @@
    },
    "alterations": {
     "usure magique": 15,
-    "torpeur": 15
+    "réduction d'intelligence": 15
    }
   }
  },
@@ -79,7 +79,7 @@
     "ombre": 5
    },
    "alterations": {
-    "sape": 35,
+    "réduction de force": 35,
     "affaiblissement": 20
    }
   }

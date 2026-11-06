@@ -89,6 +89,8 @@ const DES_ENNEMIS := {
 	"Coup_de_lance": {"perforant": [[4, 2]]}, "Rafale_de_lance": {"perforant": [[2, 2]]},
 	"Perforation": {"perforant": [[3, 2]]},
 	"Coup_de_baton": {"contondant": [[2, 2]]}, "Trait_des_Ombres": {"ombre": [[5, 2]]},
+	# Élémentaliste squelette (2026-11-06) : sorts du héros, dés d'ennemi (Givre 8d2 -> 5d2, Éclair 6d3 -> 4d3)
+	"Givre": {"froid": [[5, 2]]}, "Eclair": {"foudre": [[4, 3]]},
 }
 ## Part des PV max de la cible ajoutée aux dégâts (ou aux soins) d'une compétence d'ennemi : nom -> {type: part}.
 ## Soin mineur des gobelins : 7d2 + 15 % des PV max de la cible (2026-11-01). Un lanceur peut aussi avoir sa
@@ -100,6 +102,10 @@ const PV_CIBLE_ENNEMIS := {"Soin_mineur": {"lumière": 0.15}}
 static func des_competence(lanceur, competence, type_degats: String) -> Array:
 	if competence == null:
 		return []
+	# Dés réglés dans l'éditeur des compétences (2026-11-06) : {type : [nombre, faces]}, pour le héros comme les ennemis
+	var regles = U.ga(competence, "des_degats", null)
+	if regles is Dictionary and regles.get(type_degats) is Array and regles[type_degats].size() == 2:
+		return [[int(regles[type_degats][0]), maxi(1, int(regles[type_degats][1]))]]
 	var table: Dictionary = DES_ENNEMIS if lanceur is Ennemis else DES_HEROS
 	var par_type = table.get(U.ga(competence, "nom_classe", ""), null)
 	if par_type is Dictionary and par_type.has(type_degats):
@@ -115,6 +121,10 @@ static func part_pv_cible(lanceur, competence, type_degats: String) -> float:
 		part += float(propre.get(type_degats, 0.0))
 	if lanceur is Ennemis and competence != null:
 		part += float(PV_CIBLE_ENNEMIS.get(U.ga(competence, "nom_classe", ""), {}).get(type_degats, 0.0))
+	# Part des PV max de la cible réglée dans l'éditeur des compétences (2026-11-06)
+	var regle = U.ga(competence, "pv_max_cible", null) if competence != null else null
+	if regle is Dictionary:
+		part += float(regle.get(type_degats, 0.0))
 	return part
 
 
@@ -276,7 +286,19 @@ static func valeur_jet(lanceur, competence, type_degats: String, en_moyenne := f
 	var des := des_type(lanceur, type_degats, competence) + des_caracteristique(lanceur, type_degats)
 	var valeur: float = moyenne(des) if en_moyenne else float(jet(des))
 	var malus := est_coup_multiple(competence) and des_competence(lanceur, competence, type_degats).is_empty()
-	return valeur - (MALUS_COUP_MULTIPLE if malus else 0)
+	return valeur - (MALUS_COUP_MULTIPLE if malus else 0) + degats_fixes(competence, type_degats)
+
+
+## Dégâts fixes d'un type ajoutés au jet (éditeur des compétences, 2026-11-06).
+static func degats_fixes(competence, type_degats: String) -> float:
+	var regle = U.ga(competence, "degats_fixes", null) if competence != null else null
+	return float(regle.get(type_degats, 0.0)) if regle is Dictionary else 0.0
+
+
+## Multiplicateur final des dégâts d'une compétence (éditeur des compétences, 2026-11-06 ; 1 par défaut). L'ancien
+## « multiplicateur_degats » n'est plus lu par le combat depuis les dés (2026-11-01) : il ne sert qu'à la valeur.
+static func facteur_degats(competence) -> float:
+	return float(U.ga(competence, "facteur_degats", 1.0)) if competence != null else 1.0
 
 
 ## Dégâts d'un dé bonus d'un autre type : le jet × pourcentages du type.
@@ -331,7 +353,7 @@ static func pourcentage_competence(competence, type_degats: String) -> float:
 
 ## Dégâts d'un type de la compétence pour un jet donné (bonus en pourcentage de la compétence compris).
 static func degats_competence(lanceur, competence, type_degats: String, valeur_jet: float) -> float:
-	return base_degats(lanceur, type_degats, valeur_jet) * pourcentage_competence(competence, type_degats)
+	return base_degats(lanceur, type_degats, valeur_jet) * pourcentage_competence(competence, type_degats) * facteur_degats(competence)
 
 
 ## Dégâts moyens d'un type de la compétence, avant réduction.

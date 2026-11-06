@@ -347,8 +347,8 @@ static func lignes_competence(comp, lanceur = null) -> Array:
 			var part := U.num(comp, "soin_pourcentage_pv") + Formules.part_pv_cible(lanceur, comp, "lumière")
 			lignes.append(["≈ %s PV rendus (lumière)%s" % [U.f(soin), (" + %s %% des PV max de la cible" % U.f(part * 100)) if part else ""], COULEUR_PLUS])
 	var bonus := []
-	if U.ga(comp, "multiplicateur_degats", 1) != 1:
-		bonus.append("%s ×%s" % ["soins" if comp.type_competence == "heal" else "dégâts", U.f(comp.multiplicateur_degats, 2)])
+	if Formules.facteur_degats(comp) != 1:  # le multiplicateur qui agit (éditeur, 2026-11-06), pas l'ancien multiplicateur_degats
+		bonus.append("%s ×%s" % ["soins" if comp.type_competence == "heal" else "dégâts", U.f(Formules.facteur_degats(comp), 2)])
 	if U.num(comp, "bonus_toucher"):
 		bonus.append("toucher +%s %%" % U.f(comp.bonus_toucher * 100))
 	if U.num(comp, "bonus_critique"):

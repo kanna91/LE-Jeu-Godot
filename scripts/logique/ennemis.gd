@@ -393,6 +393,8 @@ func condition_ia(condition: String, valeur: String, competence, personnage, don
 			return noms.is_empty() or noms.any(func(n): return not personnage.a_l_alteration(Alterations.nom_canonique(n)))
 		"mana_au_moins":
 			return float(_d["mana"]) >= float(valeur) if valeur.is_valid_float() else true
+		"invocations_moins_de":
+			return Combat.invocations_de(self, donjon.ennemis) < (int(valeur) if valeur.is_valid_int() else Combat.INVOCATIONS_MAX)
 	return true
 
 

@@ -100,7 +100,7 @@ func _initialize() -> void:
 				bornes[st] = [minf(bornes[st][0], v), maxf(bornes[st][1], v)]
 		var e := Creatures.creer(donjon, sorte)
 		var res := _pourcentages(e)
-		sortie["creatures"][sorte] = {"stats": bornes, "resistances": res, "competences": [_competence(e, e.competences[0], heros)],
+		sortie["creatures"][sorte] = {"stats": bornes, "resistances": res, "competences": e.competences.map(func(c): return _competence(e, c, heros)),
 			"type_ennemi": e.type_ennemi, "image": e.image}
 	sortie["communs"]["chance_groupe_squelettes"] = _part(Zones.reglages("")["ennemis"], "squelette")
 	sortie["communs"]["chance_feticheur_squelettes"] = Zones.reglages("")["chance_feticheur"]

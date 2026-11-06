@@ -9,7 +9,7 @@ extends RefCounted
 const BASES := {
 	"Perforation": {"alterations": {"saignement": 60}},
 	"Tir_empoisonne": {"alterations": {"poison": 70, "peste": 20}},
-	"Enflammer": {"alterations": {"brulure": 75, "inflammabilité": 40}},
+	"Enflammer": {"alterations": {"brulure": 75, "vulnérabilité au feu": 40}},
 	"Caresse_des_ombres": {"alterations": {"destruction armure": 50, "destruction résistance": 50,
 		"décrépitude": 25, "esprit embrumé": 25}},
 	"Silence": {"alterations": {"silence": 60, "brûlure de mana": 30}},
@@ -24,15 +24,15 @@ const BASES := {
 	"Botte_secrete": {"alterations": {"saignement": 20, "désarmement": 15}},
 	"Tir_precis": {"alterations": {"marque": 30, "lenteur": 20}},
 	"Rafale_de_lance": {"alterations": {"lenteur": 15}},
-	"Eclair": {"alterations": {"électrocution": 15, "conductivité": 20, "paralysie": 10}},
+	"Eclair": {"alterations": {"électrocution": 15, "vulnérabilité à la foudre": 20, "paralysie": 10}},
 	"Trait_des_Ombres": {"alterations": {"terreur": 15, "siphon de vie": 20}},
 	"Projectile_des_ombres": {"alterations": {"corruption": 15, "condamnation": 10}},
 	"Coup_de_baton": {"alterations": {"aveugler": 20, "sommeil": 10}},
 	"Cri_de_guerre": {"alterations": {"rage": 100}, "nombre_attaque": 1, "nombre_cible": 6,
 		"description": "Pousse un cri qui met tous les alliés en rage (+25 % de dégâts, +25 % de dégâts critiques)."},
-	"Protection": {"alterations": {"protection": 100}, "nombre_attaque": 1,
+	"Protection": {"alterations": {"résistance physique": 100}, "nombre_attaque": 1,
 		"description": "Protège un allié : dégâts physiques reçus -40 % pendant 3 tours."},
-	"Précision": {"alterations": {"précis": 100, "concentration": 100}, "nombre_attaque": 1, "type_degats": [], "degats_lumière": 0,
+	"Précision": {"alterations": {"bonus de chance de toucher": 100, "bonus de chance de coup critique": 100}, "nombre_attaque": 1, "type_degats": [], "degats_lumière": 0,
 		"description": "Aiguise la visée d'un allié : chance de toucher +35 % et de critique +15 % pendant 3 tours."},
 }
 ## Plafonds des chances d'altération utilisés par ValeurCompetences (palier des compétences).
