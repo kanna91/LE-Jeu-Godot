@@ -31,9 +31,11 @@ static var _emplacements := {}
 ## categorie : or, potion, arme, equipement, divers, nourriture, ingredient. objet : nom du catalogue (« » : au
 ## hasard ; equipement : « armure », « bijou » ou « »). quantite : or (0 : au hasard, comme un squelette) ou nombre
 ## d'objets. potion : pv, mana, mixte (« » : au hasard). rang : rang de l'arme ou de l'équipement (0 : selon l'étage).
-const CATEGORIES_BUTIN := ["or", "potion", "arme", "equipement", "divers", "nourriture", "ingredient"]
+## recette (2026-11-09) : recette d'amélioration d'arme (AmeliorationsArmes), apprise en la ramassant ; objet : son
+## nom (« Recette d'alchimie (feu 1d3) »), « » : une que le héros ne connaît pas, au hasard.
+const CATEGORIES_BUTIN := ["or", "potion", "arme", "equipement", "divers", "nourriture", "ingredient", "recette"]
 const NOMS_BUTIN := {"or": "Or", "potion": "Potion", "arme": "Arme", "equipement": "Équipement", "divers": "Objet divers",
-	"nourriture": "Nourriture", "ingredient": "Ingrédient"}
+	"nourriture": "Nourriture", "ingredient": "Ingrédient", "recette": "Recette"}
 ## Image du butin au sol (images/objets_salles/butin_<image>.png) selon sa catégorie.
 const IMAGES_BUTIN := {"or": "or", "potion": "potion"}
 
@@ -238,6 +240,8 @@ static func ramasser(b: Dictionary, joueur, etage: int) -> String:
 			gain = Karma.or_gagne(joueur, randi_range(OR["squelette"][0], OR["squelette"][1]) * maxi(1, etage))
 		joueur.piece_or += gain
 		return "Vous ramassez %d pièces d'or." % gain
+	if categorie == "recette":
+		return AmeliorationsArmes.apprendre(joueur, nom_objet)
 	var trouves := []
 	for _i in maxi(1, quantite):
 		var o = null

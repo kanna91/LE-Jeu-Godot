@@ -30,6 +30,8 @@ func _initialize() -> void:
 		Sauvegarde.reinitialiser_monde()
 		var donjon := Donjon.nouveau(Personnage.nouveau())
 		for etage in donjon.plan_donjon:
+			if Donjon.est_niveau_unique(etage) and int(etage) != Donjon.NIVEAU_CRYPTES:
+				continue  # bibliothèque, laboratoire : niveaux à part (2026-11-10, test_niveaux_blocs.gd)
 			etages += 1
 			var r := _etage(donjon.plan_donjon[etage], "%d/%d" % [k, etage])
 			if Donjon.est_niveau_unique(etage):
@@ -129,7 +131,7 @@ func _cuisine(donjon, etage: int, nom: String) -> void:
 	# Refuges : le bloc cuisine et le bloc bibliothèque (2026-11-04)
 	var attendus := 0
 	var jardin := []
-	for b in BlocsSalles.BLOCS:
+	for b in BlocsSalles.blocs_de_l_etage():  # bibliothèque et laboratoire : niveaux à part depuis le 2026-11-10
 		for cle in BlocsSalles.BLOCS[b]["salles"]:
 			if not String(BlocsSalles.BLOCS[b]["salles"][cle]["image"]).begins_with("bloc_jardin"):
 				attendus += 1  # le jardin n'est pas un refuge (2026-11-04)

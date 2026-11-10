@@ -67,7 +67,12 @@ static var _images_diablotin := {}
 ## ``images/pnj/commis_<role>_anim/repos_000.png``...), hauteur en hauteurs du héros (un jeune homme, un peu plus petit).
 ## Cuisinière (2026-11-04) : image fixe détourée (``outils/importer_cuisiniere.py`` → ``images/pnj/cuisiniere.png``),
 ## qui respire doucement ; petite et trapue.
-const TAILLE_COMMIS := {"cuisine": 0.95, "cellier": 0.95, "cuisiniere": 0.88}
+const TAILLE_COMMIS := {"cuisine": 0.95, "cellier": 0.95, "cuisiniere": 0.88, "armurier": 1.0, "alchimiste": 0.95,
+	"enchanteur": 1.0}
+## Armurier, alchimiste, enchanteur (2026-11-09) : formes provisoires (silhouette de couleur) tant qu'ils n'ont pas
+## d'animation dans images/pnj/commis_<role>_anim.
+const COULEURS_ARTISANS := {"armurier": Color8(120, 120, 130), "alchimiste": Color8(70, 130, 80),
+	"enchanteur": Color8(110, 70, 160)}
 const IMAGE_CUISINIERE := preload("res://images/pnj/cuisiniere.png")
 const FPS_COMMIS := 24.0
 static var _images_commis := {}
@@ -79,7 +84,7 @@ static func images_commis(role: String) -> Array:
 	if not _images_commis.has(role):
 		var liste := []
 		var dossier := "res://images/pnj/commis_%s_anim" % role
-		var info = JSON.parse_string(FileAccess.get_file_as_string(dossier + "/animations.json"))
+		var info = JSON.parse_string(FileAccess.get_file_as_string(dossier + "/animations.json")) 			if FileAccess.file_exists(dossier + "/animations.json") else null
 		if info is Dictionary:
 			for k in int(info.get("images", 0)):
 				liste.append(load("%s/repos_%03d.png" % [dossier, k]))
@@ -696,6 +701,14 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 						var tex: Texture2D = images[k]
 						var taille := Vector2(hf * tex.get_width() / float(tex.get_height()), hf)
 						n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)
+					elif COULEURS_ARTISANS.has(p.get("role", "")):
+						# Forme provisoire : silhouette de la couleur du métier, tête claire
+						var c: Color = COULEURS_ARTISANS[p["role"]]
+						_capsule(n, Vector2.ZERO, hf * 0.22, hf * 0.82, c)
+						n.draw_circle(Vector2(0, -hf * 0.9), hf * 0.11, Color8(225, 195, 165))
+						if p["role"] == "enchanteur":
+							n.draw_colored_polygon(PackedVector2Array([Vector2(-hf * 0.14, -hf * 0.97),
+								Vector2(hf * 0.14, -hf * 0.97), Vector2(0, -hf * 1.25)]), c.darkened(0.2))
 				"succube":
 					# Image détourée (une des trois variantes selon l'id), qui respire doucement
 					var tex: Texture2D = IMAGES_SUCCUBE[int(p.get("id", 0)) % IMAGES_SUCCUBE.size()]

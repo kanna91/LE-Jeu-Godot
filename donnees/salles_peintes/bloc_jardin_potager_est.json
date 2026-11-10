@@ -55,19 +55,19 @@
   [
    [
     0,
-    265
+    262
    ],
    [
-    58,
-    265
+    43,
+    262
    ],
    [
-    60,
-    277
+    45,
+    274
    ],
    [
     0,
-    277
+    274
    ]
   ],
   [
@@ -87,18 +87,39 @@
     0,
     517
    ]
+  ],
+  [
+   [
+    764,
+    243
+   ],
+   [
+    723,
+    238
+   ],
+   [
+    722,
+    285
+   ],
+   [
+    766,
+    285
+   ]
   ]
  ],
  "noms_sorties": [
   "porte de gauche",
-  "retour"
+  "retour",
+  "passage 3"
  ],
  "directions_sorties": [
   "gauche",
-  "bas"
+  "bas",
+  "droite"
  ],
  "types_sorties": [
   "porte",
+  "passage",
   "passage"
  ],
  "arrivees": {
@@ -132,6 +153,7 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
+  false,
   false,
   false
  ],

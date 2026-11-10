@@ -78,7 +78,7 @@ func _initialize() -> void:
 	# Étage carré (2026-11-04) : blocs, prisons, SALLES_COIN salles par coin et SALLES_CENTRE au centre au moins, plus
 	# les chemins qui relient tout ; les salles en trop prennent un miroir : au plus 2 × le nombre d'images.
 	var blocs := 0
-	for nom in BlocsSalles.BLOCS:
+	for nom in BlocsSalles.blocs_de_l_etage():  # bibliothèque et laboratoire : niveaux à part (2026-11-10)
 		blocs += BlocsSalles.BLOCS[nom]["salles"].size()
 	var images := GenerateurEtage.salles_visees()
 	var visee := blocs + GenerateurEtage.SALLES_PRISONS + 4 * GenerateurEtage.SALLES_COIN + GenerateurEtage.SALLES_CENTRE

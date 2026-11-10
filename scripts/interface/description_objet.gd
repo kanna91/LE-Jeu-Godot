@@ -167,6 +167,9 @@ static func statistiques(objet) -> Array:
 	var des := ligne_des(objet)
 	if des != "":
 		lignes.append(["des", "Dégâts", 0, des])
+	# Améliorations (armurier, alchimiste, enchanteur, 2026-11-09), une ligne par PNJ
+	for morceau in AmeliorationsArmes.resume(objet).split(" · ", false):
+		lignes.append(["ameliorations", "Améliorations", 0, morceau])
 	for s in STATISTIQUES:
 		var valeur = U.ga(objet, s[0], 0)
 		if (valeur is int or valeur is float) and valeur != 0:

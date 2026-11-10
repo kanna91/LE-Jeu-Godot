@@ -664,6 +664,97 @@ static func pacifiques(_donjon, p: Dictionary) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Armurier, alchimiste, enchanteur (2026-11-09) : améliorations des armes (AmeliorationsArmes)
+# ---------------------------------------------------------------------------
+
+const COULEUR_ARTISAN := Color8(200, 160, 90)
+
+
+## Parle à l'armurier, l'alchimiste ou l'enchanteur (``pnj``) : choisir une arme, puis une recette connue ; on paie
+## (or + ingrédients) et l'arme est améliorée. Textes : ``<pnj>`` de dialogues.json. Renvoie le message de fin.
+static func artisan(donjon, pnj: String) -> String:
+	var joueur = donjon.personnage
+	var nom := Dialogues.texte(pnj + "/nom")
+	var texte := Dialogues.texte(pnj + "/presentation")
+	while true:
+		var choix := await Ecrans.dialogue(nom, texte, ["Améliorer une arme", "Comment ça marche ?", "Partir"], COULEUR_ARTISAN)
+		if choix == 2 or Ecrans.auto:
+			break
+		if choix == 1:
+			for ligne in Dialogues.liste(pnj + "/explications"):
+				if await Ecrans.dialogue(nom, String(ligne), ["…", "Assez"], COULEUR_ARTISAN) != 0:
+					break
+			continue
+		var armes := armes_du_heros(joueur)
+		if armes.is_empty():
+			texte = Dialogues.texte(pnj + "/sans_arme")
+			continue
+		var lignes_armes := []
+		for a in armes:
+			var detail := AmeliorationsArmes.resume(a)
+			lignes_armes.append({"texte": "%s%s — armurier %d/%d · alchimie et enchantement %d/%d" % [a.nom,
+				" (équipée)" if a == U.ga(joueur, "arme_equipee", null) else "",
+				AmeliorationsArmes.armurier_de(a).size(), AmeliorationsArmes.MAX_ARMURIER,
+				AmeliorationsArmes.magiques_de(a).size(), AmeliorationsArmes.MAX_MAGIE],
+				"detail": detail if detail != "" else "Aucune amélioration", "actif": true})
+		var k := await Ecrans.choisir_liste(nom + " — quelle arme ?", "Vos armes et leurs améliorations.", lignes_armes, COULEUR_ARTISAN)
+		if k < 0:
+			continue
+		var arme = armes[k]
+		var recettes := recettes_artisan(joueur, pnj)
+		if recettes.is_empty():
+			texte = Dialogues.texte(pnj + "/sans_recette")
+			continue
+		var lignes := []
+		for r in recettes:
+			var t: String = r[1] if pnj != "armurier" else AmeliorationsArmes.type_armurier(arme)
+			var raison := AmeliorationsArmes.refus(arme, pnj, t, r[2])
+			if raison == "":
+				var m := AmeliorationsArmes.manque(joueur, pnj, r[2])
+				raison = ("Il vous manque : " + m) if m != "" else ""
+			lignes.append({"texte": "+1d%d %s%s" % [r[2], t, " (sorts)" if pnj == "enchanteur" else ""],
+				"detail": raison if raison != "" else "Prix : " + prix_texte(pnj, r[2]), "actif": raison == ""})
+		var j := await Ecrans.choisir_liste(nom + " — " + arme.nom, "Or : %d. Recettes que vous connaissez." % int(joueur.piece_or),
+			lignes, COULEUR_ARTISAN)
+		if j < 0:
+			continue
+		var r: Array = recettes[j]
+		var t: String = r[1] if pnj != "armurier" else AmeliorationsArmes.type_armurier(arme)
+		var erreur := AmeliorationsArmes.acheter(joueur, arme, pnj, t, r[2])
+		texte = erreur if erreur != "" else Dialogues.texte(pnj + "/fait", {"arme": arme.nom, "de": "1d%d %s" % [r[2], t]})
+	return Dialogues.texte(pnj + "/fin")
+
+
+## Armes du héros : l'arme équipée puis celles de l'inventaire.
+static func armes_du_heros(joueur) -> Array:
+	var liste := []
+	var equipee = U.ga(joueur, "arme_equipee", null)
+	if equipee is Arme:
+		liste.append(equipee)
+	for o in U.ga(joueur, "inventaire", []):
+		if o is Arme and not (o in liste):
+			liste.append(o)
+	return liste
+
+
+## Recettes connues de ce PNJ : [[id, type, faces], ...], dans l'ordre des types puis des dés.
+static func recettes_artisan(joueur, pnj: String) -> Array:
+	var liste := []
+	for id in AmeliorationsArmes.toutes_les_recettes():
+		var r := AmeliorationsArmes.lire_recette(id)
+		if r[0] == pnj and AmeliorationsArmes.connait(joueur, id):
+			liste.append([id, r[1], r[2]])
+	return liste
+
+
+static func prix_texte(pnj: String, faces: int) -> String:
+	var morceaux := ["%d or" % AmeliorationsArmes.prix(pnj, faces)]
+	for ing in AmeliorationsArmes.ingredients(pnj, faces):
+		morceaux.append("%d × %s" % [int(ing.get("nombre", 1)), ing.get("nom", "")])
+	return ", ".join(morceaux)
+
+
+# ---------------------------------------------------------------------------
 # Commis (2026-11-04, animations de l'utilisateur)
 # ---------------------------------------------------------------------------
 
@@ -673,7 +764,9 @@ const COULEUR_COMMIS := Color8(205, 170, 120)
 ## Commis de la cuisine (comment on cuisine) ou du cellier (où trouver des ingrédients) : sa présentation, puis
 ## « Comment on cuisine ? » / « Où trouver des ingrédients ? » : ses explications, une bulle par ligne
 ## (``commis_<role>`` de dialogues.json ; la cuisinière : ``cuisiniere``). On peut lui reparler autant qu'on veut. Renvoie le message de fin.
-static func commis(_donjon, p: Dictionary) -> String:
+static func commis(donjon, p: Dictionary) -> String:
+	if String(p.get("role", "")) in AmeliorationsArmes.PNJ:
+		return await artisan(donjon, String(p["role"]))
 	var role := "cuisiniere" if p.get("role", "") == "cuisiniere" else "commis_" + String(p.get("role", "cuisine"))
 	var nom := Dialogues.texte(role + "/nom")
 	var boutons := Dialogues.liste(role + "/boutons")

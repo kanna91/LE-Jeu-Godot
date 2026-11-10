@@ -66,38 +66,20 @@
  "sorties": [
   [
    [
-    380,
-    389
+    216,
+    380
    ],
    [
-    460,
-    389
+    296,
+    380
    ],
    [
-    462,
-    401
+    298,
+    392
    ],
    [
-    378,
-    401
-   ]
-  ],
-  [
-   [
-    120,
-    399
-   ],
-   [
-    200,
-    399
-   ],
-   [
-    202,
-    411
-   ],
-   [
-    118,
-    411
+    214,
+    392
    ]
   ],
   [
@@ -121,21 +103,17 @@
  ],
  "noms_sorties": [
   "passage du fond",
-  "passage de gauche",
   "retour"
  ],
  "directions_sorties": [
   "devant",
-  "gauche",
   "bas"
  ],
  "types_sorties": [
   "passage",
-  "passage",
   "passage"
  ],
  "sorties_potentielles": [
-  true,
   true,
   false
  ],
@@ -144,11 +122,6 @@
    420,
    417,
    "down"
-  ],
-  "passage de gauche": [
-   220,
-   427,
-   "right"
   ]
  },
  "ips": 24,

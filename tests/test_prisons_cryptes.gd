@@ -32,9 +32,30 @@ func _initialize() -> void:
 		_etage(donjon, k)
 		sans_porte += _cryptes(donjon, k)
 		_geoliers(donjon, k)
+		_chevalier_cryptes(donjon, k)
 	print("Passages sans porte peinte dans les cryptes : %d sur 20 donjons" % sans_porte)
 	print("BILAN prisons et cryptes : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
+
+
+## Le Chevalier de la mort commence chaque partie au milieu des cryptes (2026-11-10), plus sur l'étage.
+func _chevalier_cryptes(donjon, k: int) -> void:
+	var cryptes: Dictionary = donjon.plan_donjon[Donjon.NIVEAU_CRYPTES]
+	var ou := []
+	for c in Aventure.chasseurs(donjon, Donjon.NIVEAU_CRYPTES):
+		if c[0]["genre"] == "imbattable":
+			ou.append(c[1])
+	verifier(ou.size() == Aventure.CHEVALIERS_PAR_ETAGE, "%d : un Chevalier de la mort dans les cryptes" % k)
+	if not ou.is_empty():
+		var ecart: int = Aventure.distances_depuis(cryptes, ou[0]).values().max()
+		var ecart_min := 1 << 20
+		for i in Aventure.salles_pour_ennemis(donjon, Donjon.NIVEAU_CRYPTES):
+			if not Aventure.fermee_a(cryptes[i], "imbattable"):
+				ecart_min = mini(ecart_min, Aventure.distances_depuis(cryptes, i).values().max())
+		verifier(ecart == ecart_min, "%d : il part du milieu des cryptes (%d/%d)" % [k, ecart, ecart_min])
+	Aventure.preparer_etage(donjon, 1)
+	var sur_etage := Aventure.chasseurs(donjon, 1).filter(func(c): return c[0]["genre"] == "imbattable").size()
+	verifier(sur_etage == int(Aventure.meta(donjon, 1).get("colere", 0)), "%d : pas de chevalier de départ sur l'étage" % k)
 
 
 func _etage(donjon, k: int) -> void:
@@ -109,10 +130,10 @@ func _cryptes(donjon, k: int) -> int:
 			if p.get("genre") == "groupe":
 				verifier(String(p.get("zone_ennemis", "")) == "crypte", "%d : groupe hors zone crypte" % k)
 				for m in Aventure.membres(p):
-					verifier(m.get("sous_classe") in ["squelette", "feticheur"], "%d : %s dans les cryptes" % [k, m.get("sous_classe")])
+					verifier(String(m.get("sous_classe")).ends_with("squelette") or m.get("sous_classe") == "feticheur", "%d : %s dans les cryptes" % [k, m.get("sous_classe")])
 				if p.get("elite", false):
 					elites += 1
-			verifier(p.get("genre") in ["groupe", "pnj"], "%d : %s dans les cryptes" % [k, p.get("genre")])
+			verifier(p.get("genre") in ["groupe", "pnj", "imbattable"], "%d : %s dans les cryptes" % [k, p.get("genre")])
 		if s.has("passage_niveau"):
 			entrees += 1
 			var lien: Dictionary = s["passage_niveau"]

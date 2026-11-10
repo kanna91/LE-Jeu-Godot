@@ -13,7 +13,7 @@
    ],
    [
     511,
-    175.0
+    175
    ]
   ]
  },
@@ -296,20 +296,20 @@
  "sorties": [
   [
    [
-    555,
-    312
+    600,
+    307
    ],
    [
-    665,
-    312
+    710,
+    307
    ],
    [
-    665,
-    327
+    710,
+    322
    ],
    [
-    555,
-    327
+    600,
+    322
    ]
   ],
   [
@@ -328,24 +328,6 @@
    [
     41,
     350
-   ]
-  ],
-  [
-   [
-    737,
-    415
-   ],
-   [
-    768,
-    415
-   ],
-   [
-    768,
-    498
-   ],
-   [
-    737,
-    498
    ]
   ],
   [
@@ -370,18 +352,15 @@
  "noms_sorties": [
   "estrade du fond",
   "passage de gauche",
-  "passage de droite",
   "retour"
  ],
  "directions_sorties": [
   "devant",
   "gauche",
-  "droite",
   "bas"
  ],
  "types_sorties": [
   "passage",
-  "bord",
   "bord",
   "passage"
  ],
@@ -395,11 +374,6 @@
    48,
    466,
    "right"
-  ],
-  "passage de droite": [
-   719,
-   456,
-   "left"
   ]
  },
  "grande_salle": true,
@@ -408,7 +382,6 @@
  "prisonniers": [],
  "cachettes": [],
  "sorties_potentielles": [
-  false,
   false,
   false,
   false
@@ -431,5 +404,6 @@
     175
    ]
   ]
- }
+ },
+ "ennemis_interdits": []
 }

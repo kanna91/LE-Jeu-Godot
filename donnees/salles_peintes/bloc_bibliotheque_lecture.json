@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     338,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -133,24 +133,6 @@
  "sorties": [
   [
    [
-    300,
-    329
-   ],
-   [
-    380,
-    329
-   ],
-   [
-    382,
-    341
-   ],
-   [
-    298,
-    341
-   ]
-  ],
-  [
-   [
     0,
     499
    ],
@@ -169,24 +151,15 @@
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   340,
-   357,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
  "source": "bibliothèque/mw1dru3cijqhd1.jpeg",
@@ -195,7 +168,6 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
-  false,
   false
  ],
  "butins": [],

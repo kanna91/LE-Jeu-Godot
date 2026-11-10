@@ -46,7 +46,7 @@ func _dessiner(ci: Control) -> void:
 	for s in salles.values():
 		if s.get("visitee", false):
 			explorees += 1
-	Ui.texte(ci, "Carte des cryptes" if Donjon.est_niveau_unique(etage) else "Carte de " + Donjon.nom_niveau(etage), Vector2(Ui.LARGEUR / 2, 26), Ui.OR, 22, true, null, "center")
+	Ui.texte(ci, Donjon.titre_carte(etage), Vector2(Ui.LARGEUR / 2, 26), Ui.OR, 22, true, null, "center")
 	Ui.texte(ci, "%d salles explorées sur %d" % [explorees, salles.size()], zone.position + Vector2(6, 4), Ui.DETAIL, 13)
 	var x := 16.0
 	for l in Carte.LEGENDE:

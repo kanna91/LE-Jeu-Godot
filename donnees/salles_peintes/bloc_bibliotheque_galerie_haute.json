@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     402,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -198,18 +198,39 @@
     0,
     517
    ]
+  ],
+  [
+   [
+    68,
+    366
+   ],
+   [
+    150,
+    371
+   ],
+   [
+    144,
+    443
+   ],
+   [
+    60,
+    442
+   ]
   ]
  ],
  "noms_sorties": [
   "passage du fond",
-  "retour"
+  "retour",
+  "passage 3"
  ],
  "directions_sorties": [
   "devant",
-  "bas"
+  "bas",
+  "gauche"
  ],
  "types_sorties": [
   "porte",
+  "passage",
   "passage"
  ],
  "arrivees": {
@@ -227,6 +248,7 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
+  false,
   false,
   false
  ],

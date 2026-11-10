@@ -1118,7 +1118,7 @@ func _remplir_module() -> void:
 		else "Réglage du prochain butin posé"
 	choix_categorie.select(maxi(0, Fouille.CATEGORIES_BUTIN.find(c)))
 	choix_objet.clear()
-	var a_objet := c in ["potion", "equipement", "divers", "nourriture", "ingredient"]
+	var a_objet := c in ["potion", "equipement", "divers", "nourriture", "ingredient", "recette"]
 	if c == "potion":
 		for n in NOMS_POTIONS:
 			choix_objet.add_item(n)
@@ -1129,7 +1129,7 @@ func _remplir_module() -> void:
 		choix_objet.select(maxi(0, EQUIPEMENTS.find(String(b.get("objet", "")))))
 	elif a_objet:
 		choix_objet.add_item("Au hasard")
-		var noms := ObjetsDivers.noms(c)
+		var noms := AmeliorationsArmes.noms_recettes() if c == "recette" else ObjetsDivers.noms(c)
 		for n in noms:
 			choix_objet.add_item(n)
 		choix_objet.select(noms.find(String(b.get("objet", ""))) + 1)

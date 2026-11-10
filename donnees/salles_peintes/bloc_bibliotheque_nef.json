@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     388,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -159,42 +159,6 @@
   ],
   [
    [
-    225,
-    370
-   ],
-   [
-    280,
-    370
-   ],
-   [
-    282,
-    382
-   ],
-   [
-    223,
-    382
-   ]
-  ],
-  [
-   [
-    490,
-    370
-   ],
-   [
-    545,
-    370
-   ],
-   [
-    547,
-    382
-   ],
-   [
-    488,
-    382
-   ]
-  ],
-  [
-   [
     0,
     499
    ],
@@ -214,19 +178,13 @@
  ],
  "noms_sorties": [
   "passage du fond",
-  "porte de gauche",
-  "porte de droite",
   "retour"
  ],
  "directions_sorties": [
   "devant",
-  "gauche",
-  "droite",
   "bas"
  ],
  "types_sorties": [
-  "porte",
-  "porte",
   "porte",
   "passage"
  ],
@@ -235,16 +193,6 @@
    385,
    384,
    "down"
-  ],
-  "porte de gauche": [
-   300,
-   398,
-   "right"
-  ],
-  "porte de droite": [
-   470,
-   398,
-   "left"
   ]
  },
  "bloc": "bibliotheque",
@@ -255,8 +203,6 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
-  false,
-  false,
   false,
   false
  ],

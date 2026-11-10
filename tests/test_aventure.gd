@@ -106,7 +106,9 @@ func _peuplement() -> void:
 			verifier(m.get("prepare", false), "étage préparé")
 			verifier(c.get("boss", 0) == 1, "un boss par étage")
 			verifier(c.get("geolier", 0) == Aventure.GEOLIERS_PAR_ETAGE, "geôliers par étage")
-			verifier(c.get("imbattable", 0) == Aventure.CHEVALIERS_PAR_ETAGE, "un Chevalier de la mort à l'étage %d" % etage)
+			# Depuis le 2026-11-10, le chevalier de l'étage 1 part du milieu des cryptes (étages créés après : inchangés)
+			var attendus := 0 if etage == 1 and donjon.plan_donjon.has(Donjon.NIVEAU_CRYPTES) else Aventure.CHEVALIERS_PAR_ETAGE
+			verifier(c.get("imbattable", 0) == attendus, "Chevalier de la mort à l'étage %d : %d" % [etage, attendus])
 			verifier(salles.has(String(m.get("cachot", ""))) and salles[m["cachot"]].get("cachot", false), "salle du cachot")
 			# Cachot loin du boss : au moins aussi loin que la moitié des salles de l'étage
 			var boss_id := ""
@@ -223,6 +225,9 @@ func _imbattable_et_fuite() -> void:
 	donjon.salle_actuelle = [etage, 1]
 	Aventure.preparer_etage(donjon, etage)
 	var salles: Dictionary = donjon.plan_donjon[etage]
+	# Le chevalier part des cryptes (2026-11-10) : pour tester la poursuite, on en pose un au milieu de l'étage
+	if not Aventure.chasseurs(donjon, etage).any(func(c): return c[0]["genre"] == "imbattable"):
+		Aventure.ajouter_menace(donjon, etage, "imbattable", [Aventure.centre_etage(donjon, etage)])
 	# Coffre du boss (2026-10-30) : classe du boss tirée avec l'étage, coffre ancien avec l'armure anti-boss
 	var m_gardien := Aventure.meta(donjon, etage)
 	var coffres := []

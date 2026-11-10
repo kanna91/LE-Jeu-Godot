@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     338,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -441,60 +441,54 @@
  "sorties": [
   [
    [
-    300,
-    342
+    0,
+    499
    ],
    [
-    380,
-    342
+    767,
+    499
    ],
    [
-    382,
-    354
+    767,
+    517
    ],
    [
-    298,
-    354
+    0,
+    517
    ]
   ],
   [
    [
-    0,
-    499
+    52,
+    336
    ],
    [
-    767,
-    499
+    113,
+    328
    ],
    [
-    767,
-    517
+    123,
+    476
    ],
    [
-    0,
-    517
+    47,
+    500
    ]
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
-  "retour"
+  "retour",
+  "passage 3"
  ],
  "directions_sorties": [
-  "devant",
-  "bas"
+  "bas",
+  "gauche"
  ],
  "types_sorties": [
-  "porte",
+  "passage",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   340,
-   370,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "laboratoire",
  "ips": 24,
  "source": "laboratoire d'alchimie/couloir/mw1fosrrn52a2m.jpeg",
@@ -513,5 +507,15 @@
     210
    ]
   ]
- }
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

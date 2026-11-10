@@ -110,6 +110,10 @@ static func texte_attaques(j, t: String) -> String:
 			morceaux.append("%s 1d%d, dé de l'arme (%s)" % [c.nom, int(bonus[1]),
 				U.f(Formules.base_de_bonus(j, t, Formules.moyenne(des_bonus)), 1)])
 			continue
+		for ep in AmeliorationsArmes.types_en_plus(j, c):  # type ajouté par une amélioration de l'arme (2026-11-09)
+			if ep[0] == t:
+				morceaux.append("%s %s, amélioration (%s)" % [c.nom, Formules.texte(ep[1]),
+					U.f(Formules.base_de_bonus(j, t, Formules.moyenne(ep[1])), 1)])
 		if not (t in U.ga(c, "type_degats", [])):
 			continue
 		var des := Formules.des_type(j, t, c)

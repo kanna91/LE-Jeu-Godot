@@ -205,24 +205,6 @@
  "sorties": [
   [
    [
-    358,
-    339
-   ],
-   [
-    410,
-    339
-   ],
-   [
-    412,
-    351
-   ],
-   [
-    356,
-    351
-   ]
-  ],
-  [
-   [
     0,
     499
    ],
@@ -241,24 +223,15 @@
   ]
  ],
  "noms_sorties": [
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "passage"
  ],
- "arrivees": {
-  "passage du fond": [
-   384,
-   367,
-   "down"
-  ]
- },
+ "arrivees": {},
  "bloc": "bibliotheque",
  "ips": 24,
  "source": "bibliothèque/mw1dv2exfay7o5.jpeg",
@@ -267,7 +240,6 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
-  false,
   false
  ],
  "butins": [],

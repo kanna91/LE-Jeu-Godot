@@ -128,6 +128,14 @@ static func dialogue(titre: String, texte: String, choix: Array = [], teinte := 
 	return int(resultat) if resultat != null else 0
 
 
+## Liste de choix (armurier, alchimiste, enchanteur) : lignes {texte, detail, actif} ; indice choisi, ou -1.
+static func choisir_liste(titre: String, sous_titre: String, lignes: Array, teinte := Ui.OR) -> int:
+	if auto:
+		return -1
+	var resultat = await ouvrir(_ecran("choix_liste").preparer(titre, sous_titre, lignes, capture(), teinte))
+	return int(resultat) if resultat != null else -1
+
+
 ## Liste des potions en combat : objet choisi, ou null.
 static func choisir_objet_combat(joueur):
 	return await ouvrir(_ecran("choix_objet_combat").preparer(joueur, capture()))

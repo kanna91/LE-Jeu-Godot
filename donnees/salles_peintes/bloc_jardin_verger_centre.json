@@ -276,56 +276,38 @@
  "sorties": [
   [
    [
-    320,
-    300
+    325,
+    299
    ],
    [
-    400,
-    300
+    405,
+    299
    ],
    [
-    402,
-    312
+    407,
+    311
    ],
    [
-    318,
-    312
+    323,
+    311
    ]
   ],
   [
    [
-    40,
-    359
+    739,
+    317
    ],
    [
-    160,
-    359
+    768,
+    314
    ],
    [
-    162,
-    371
+    768,
+    376
    ],
    [
-    38,
-    371
-   ]
-  ],
-  [
-   [
-    620,
-    374
-   ],
-   [
-    720,
-    374
-   ],
-   [
-    722,
-    386
-   ],
-   [
-    618,
-    386
+    742,
+    377
    ]
   ],
   [
@@ -344,25 +326,43 @@
    [
     0,
     517
+   ]
+  ],
+  [
+   [
+    207,
+    309
+   ],
+   [
+    209,
+    328
+   ],
+   [
+    268,
+    331
+   ],
+   [
+    265,
+    309
    ]
   ]
  ],
  "noms_sorties": [
   "passage du fond",
-  "porte de gauche",
   "porte de droite",
-  "retour"
+  "retour",
+  "passage 4"
  ],
  "directions_sorties": [
   "devant",
-  "gauche",
   "droite",
-  "bas"
+  "bas",
+  "devant"
  ],
  "types_sorties": [
   "porte",
   "porte",
-  "porte",
+  "passage",
   "passage"
  ],
  "arrivees": {
@@ -370,11 +370,6 @@
    320,
    352,
    "down"
-  ],
-  "porte de gauche": [
-   180,
-   387,
-   "right"
   ],
   "porte de droite": [
    600,

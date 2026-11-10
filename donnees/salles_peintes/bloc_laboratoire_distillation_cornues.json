@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     338,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -399,6 +399,32 @@
     0,
     511
    ]
+  ],
+  [
+   [
+    299,
+    363
+   ],
+   [
+    422,
+    338
+   ],
+   [
+    545,
+    360
+   ],
+   [
+    549,
+    386
+   ],
+   [
+    422,
+    363
+   ],
+   [
+    323,
+    407
+   ]
   ]
  ],
  "obstacles": [],
@@ -424,24 +450,6 @@
   ],
   [
    [
-    560,
-    342
-   ],
-   [
-    640,
-    342
-   ],
-   [
-    642,
-    354
-   ],
-   [
-    558,
-    354
-   ]
-  ],
-  [
-   [
     0,
     499
    ],
@@ -461,16 +469,13 @@
  ],
  "noms_sorties": [
   "porte de gauche",
-  "passage du fond",
   "retour"
  ],
  "directions_sorties": [
   "gauche",
-  "devant",
   "bas"
  ],
  "types_sorties": [
-  "porte",
   "porte",
   "passage"
  ],
@@ -479,11 +484,6 @@
    140,
    380,
    "right"
-  ],
-  "passage du fond": [
-   600,
-   370,
-   "down"
   ]
  },
  "bloc": "laboratoire",
@@ -504,5 +504,15 @@
     210
    ]
   ]
- }
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

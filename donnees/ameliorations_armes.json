@@ -1,0 +1,13 @@
+{
+ "_aide": "Prix des améliorations d'armes (armurier, alchimiste, enchanteur ; règles dans scripts/logique/ameliorations_armes.gd et le README). prix : or demandé selon le dé (clé = faces : 2 pour 1d2, 3, 4, 6), par PNJ. ingredients : objets du catalogue (donnees/objets_divers.json) pris dans l'inventaire, par PNJ et par dé, ex. \"4\": [{\"nom\": \"Poivre\", \"nombre\": 1}] — vides pour l'instant (à choisir par l'utilisateur). Valeurs d'or : proposition de Claude (2026-11-09), à ajuster.",
+ "prix": {
+  "armurier": {"2": 30, "3": 60, "4": 100, "6": 180},
+  "alchimiste": {"2": 30, "3": 60, "4": 100, "6": 180},
+  "enchanteur": {"2": 30, "3": 60, "4": 100, "6": 180}
+ },
+ "ingredients": {
+  "armurier": {"2": [], "3": [], "4": [], "6": []},
+  "alchimiste": {"2": [], "3": [], "4": [], "6": []},
+  "enchanteur": {"2": [], "3": [], "4": [], "6": []}
+ }
+}

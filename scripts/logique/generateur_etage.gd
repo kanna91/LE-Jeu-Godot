@@ -157,7 +157,7 @@ static func relie_sans_blocs(plan: Dictionary) -> bool:
 ## Vrai si chaque bloc de BlocsSalles est posé autant de fois que voulu, en entier, dans le plan.
 static func blocs_complets(plan: Dictionary) -> bool:
 	var attendu := 0
-	for nom in BlocsSalles.BLOCS:
+	for nom in BlocsSalles.blocs_de_l_etage():
 		attendu += BlocsSalles.BLOCS[nom]["salles"].size() * int(BlocsSalles.BLOCS[nom].get("par_etage", 1))
 	return plan.values().filter(func(s): return s["role"] == "bloc").size() == attendu
 
@@ -279,7 +279,7 @@ static func _generer_plan() -> Dictionary:
 	var libre := func(c: Vector2i, marge: int) -> bool:
 		return not par_case.has(c) and not (c in interdites) and dans_carre(c, marge)
 	# 1. Complexes sur les côtés gauche, droit et haut (les plus grands d'abord), collés au bord
-	var noms_blocs := BlocsSalles.BLOCS.keys()
+	var noms_blocs := BlocsSalles.blocs_de_l_etage()  # bibliothèque et laboratoire : niveaux à part (2026-11-10)
 	noms_blocs.sort_custom(func(a, b): return BlocsSalles.BLOCS[a]["salles"].size() > BlocsSalles.BLOCS[b]["salles"].size())
 	var cotes := [GAUCHE, DROITE, HAUT]
 	cotes.shuffle()

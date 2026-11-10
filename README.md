@@ -58,6 +58,36 @@ stick droit pour choisir un bouton de l'interface.
 > neutre, prêts pour le nouveau système, et l'image `images/menu_améliorer_compétence.png`. Les corrections de base des
 > compétences sont dans `scripts/logique/bases_competences.gd` (`BasesCompetences`).
 
+- **Améliorations des armes : armurier, alchimiste, enchanteur** (2026-11-09, règles de l'utilisateur ;
+  `scripts/logique/ameliorations_armes.gd`, `AmeliorationsArmes`) :
+  - **Armurier** : ajoute des dés du type de l'arme (contondant au marteau, perforant à la lance, tranchant à
+    l'épée), lancés **seulement par les attaques de l'arme** (Coup d'épée/Frénésie, Coup de lance/Balayage, Coup de
+    marteau/Fracasser).
+  - **Alchimiste** : dés de poison, feu, froid, foudre, arcane, chaos ou ombre, lancés **par les attaques de l'arme**
+    (jamais par les sorts). Poison limité à 1d4.
+  - **Enchanteur** : dés de feu, froid, foudre, arcane, chaos ou ombre, lancés **par les sorts offensifs** du héros
+    (Boule de feu, Souffle du chaos...), jamais par les coups d'arme.
+  - Dés : 1d2, 1d3, 1d4 ou 1d6. Une arme reçoit **au plus 3 améliorations de l'armurier** et **au plus 3 en tout
+    chez l'alchimiste et l'enchanteur** (2 + 1, 1 + 2, 3 + 0... au choix). Les dés identiques s'additionnent
+    (exemple de l'utilisateur : marteau 1d2 ×2 + 1d4, poison 1d3, feu des sorts 2d3).
+  - Calcul : un type que la compétence fait déjà s'ajoute à ses dés (`Formules.des_type` : caractéristique,
+    dégâts plats et % comptés une fois) ; un autre type devient un coup à part (`AmeliorationsArmes.types_en_plus`,
+    jet × % du type, comme le dé bonus d'arme). La fiche de l'arme, l'onglet Dégâts et l'estimation des dégâts les
+    montrent.
+  - **Recettes** : une par dé chez l'armurier (4), une par élément et par dé chez l'alchimiste (27) et
+    l'enchanteur (24). Elles se trouvent dans le donjon : butin « Recette » de l'éditeur de zones (ou butin d'un
+    ennemi dans l'éditeur des ennemis ; objet « Au hasard » = une recette que le héros ne connaît pas). Lue en la
+    ramassant, elle est connue pour toute la partie (`joueur.recettes`) et sert autant de fois qu'on veut.
+  - **Prix** : or + ingrédients, dans `donnees/ameliorations_armes.json`. **À valider** : or proposé par Claude
+    (1d2 = 30, 1d3 = 60, 1d4 = 100, 1d6 = 180, pour les trois) ; ingrédients vides en attendant le choix de
+    l'utilisateur.
+  - **Où** : l'armurier est au laboratoire, devant la forge (`bloc_laboratoire_fourneaux_forge`) **en attendant
+    l'armurerie : il changera de place** ; l'alchimiste près des alambics (`bloc_laboratoire_distillation_cornues`),
+    l'enchanteur dans la salle de lecture de la bibliothèque (`bloc_bibliotheque_lecture`). Places dans
+    `Aventure.COMMIS` (comme les commis, E pour parler) ; silhouettes de couleur en attendant leurs images
+    (`images/pnj/commis_<role>_anim`). Textes dans `donnees/dialogues.json` (armurier, alchimiste, enchanteur),
+    modifiables dans le menu Dialogues de l'éditeur de zones.
+
 - **Donjon d'aventure** (2026-10-26, liste de l'utilisateur `..\liste des cohse a ajouter.odt`, feuille de route
   `FEUILLE_DE_ROUTE_AVENTURE.md`) : le jeu est centré sur l'exploration plutôt que sur le combat (l'ancien mode,
   un combat en entrant dans chaque salle, et son interrupteur `Aventure.ACTIF` ont été supprimés le 2026-10-31).
@@ -96,14 +126,20 @@ stick droit pour choisir un bouton de l'interface.
     par secteur, voir « Étage carré » ; le karma négatif en
     ajoute un tous les 5 points, voir « Karma »).
   - **L'étage vit** (règles de l'utilisateur, 2026-10-27 ; `Aventure` « chasseurs », `menu_navigation._faire_vivre_l_etage`) :
-    le chevalier part du **milieu de l'étage** (`Aventure.centre_etage` : la salle d'où la plus lointaine est la plus
-    proche), les geôliers loin du départ. Ensuite tous vont de salle en salle **au hasard** (jamais dans la salle du
+    le chevalier part du **milieu des cryptes** depuis le 2026-11-10 (avant : du milieu de l'étage ;
+    `Aventure.centre_etage` : la salle d'où la plus lointaine est la plus proche), les geôliers loin du départ. Le
+    chevalier **change de niveau** (2026-11-10, `Aventure.PASSE_NIVEAUX`) : les escaliers entre les cryptes et l'étage
+    sont pour lui des sorties de plus (pas ceux de la bibliothèque ni du laboratoire), il marche même quand le héros est
+    sur l'autre niveau, et peut suivre le héros dans l'escalier s'il le poursuit. Ensuite tous vont de salle en salle **au hasard** (jamais dans la salle du
     boss, sans revenir sur leurs pas sauf impasse) à leur vitesse, **même dans les salles où le héros n'est pas** :
     seul l'affichage est réservé à sa salle. Traverser une salle prend 6 hauteurs de héros à leur vitesse de
     poursuite (`Aventure.duree_salle` : chevalier ≈ 9 s ; geôlier 6 s, fixé par l'utilisateur dans `DUREE_SALLE`). Un chasseur qui entre dans la salle du
     héros apparaît devant la porte de la salle d'où il vient ; dans la salle du héros, il fait sa ronde puis repart
     par une porte. **Un combat** les attire tous : ils apprennent dans quelle salle est le héros et y vont (à leur
-    vitesse ; en entrant, ils savent où il est). **Une action bruyante** (chaînes du prisonnier brisées) : le
+    vitesse ; en entrant, ils savent où il est). Le chevalier l'entend aussi **depuis l'autre niveau** (2026-11-10) :
+    il va à l'escalier du **chemin le plus court au total** (jusqu'à l'escalier, puis de sa sortie au combat ; à
+    égalité, celui qui débouche le plus près du combat), le prend, puis marche jusqu'à la salle du combat
+    (`but_niveau`). **Une action bruyante** (chaînes du prisonnier brisées) : le
     chevalier, s'il est à plus de 3 salles, **se téléporte à 3 salles** du héros, et il se dirige vers lui ; les
     geôliers ne se téléportent pas, ils se dirigent vers la salle du bruit. **Courir n'alerte que les ennemis de la
     salle** (ils l'entendent de plus loin), pas le reste de l'étage (décision de l'utilisateur). **Toute défaite est
@@ -253,6 +289,23 @@ stick droit pour choisir un bouton de l'interface.
   - **Bibliothèque refaite** (2026-11-04, demande de l'utilisateur) avec la même cohérence : les salles de côté
     s'ouvrent par une porte en face (galerie ouest, archives, galerie des balcons, salle aux vitraux), et plus par le
     bas ; nouvelles portes du fond relevées (salle des globes, de lecture, cabinet des cartes) ;
+  - **Blocs réassemblés** (2026-11-10, portes retracées par l'utilisateur dans toutes les salles) : les plans décrits
+    ci-dessus (ordre des salles, entrées) sont remplacés par ceux de `blocs_salles.gd`, trouvés par
+    `outils/assembler_blocs.py`. La règle gauche ↔ droite, fond ↔ bas tient partout, sauf les liens marqués
+    **« par le bas »** (on entre dans la salle par sa porte du bas) : les 2 celliers, 3 liens de la bibliothèque, 7 du
+    laboratoire (le minimum avec leurs portes actuelles). Après une retouche de portes : `tests/test_liens_blocs.gd` ;
+  - **Bibliothèque et laboratoire en niveaux à part** (2026-11-10, demande de l'utilisateur : « on va tricher un
+    peu ») : ils ne sont plus posés sur l'étage. Chacun est un **niveau unique**, séparé du reste du donjon comme les
+    cryptes, et séparé de l'autre : bibliothèque = niveau 102 (`Donjon.NIVEAU_BIBLIOTHEQUE`), laboratoire d'alchimie
+    = niveau 103 (`Donjon.NIVEAU_LABORATOIRE`) ; clé `"niveau"` du bloc (`BlocsSalles.niveau_a_part`). Le niveau
+    contient seulement les salles du bloc, avec leurs liens (`Donjon.generer_niveaux_blocs`). **Chaque entrée du bloc
+    est un passage**, marqué comme celui des cryptes (sortie « passage » de l'image, escalier sur la carte, changement
+    de niveau en la franchissant) : il mène à une **salle ordinaire de l'étage** dont une porte, du côté d'une case
+    vide (fond de préférence, sinon un côté), ramène à cette entrée (`Donjon._poser_passages_blocs`). Ces salles sont
+    tirées au hasard à `Donjon.ECART_PASSAGES` (5) cases au moins du départ et des autres passages (choix de Claude) :
+    2 passages pour la bibliothèque, 3 pour le laboratoire. Refuges : aucun ennemi ; l'enchanteur, l'armurier et
+    l'alchimiste y sont posés. Bandeau « Bibliothèque — Salle … », « Laboratoire d'alchimie — Salle … », cartes
+    « Carte de la bibliothèque », « Carte du laboratoire d'alchimie ». La cuisine et le jardin restent sur l'étage.
   - **Couloirs aux livres** (2026-11-04, 37 images de l'utilisateur, `outils/importer_couloirs_livres.py` →
     `couloir_livre01` … `couloir_livre37`) : salles ordinaires du reste de l'étage, jamais dans les cryptes, les prisons
     ni les blocs (`PlanSalles` : les salles réservées ont leurs images). Toutes leurs portes sont des **sorties
@@ -629,6 +682,22 @@ stick droit pour choisir un bouton de l'interface.
     annuler dans `outils/zones_manuelles/historique/`. Garde-fous : pas de création ni de retrait de sortie, au
     moins 3 points, points dans l'image. Notice à donner à l'assistant : `GROK_ZONES.md`. Ne pas laisser l'éditeur
     ouvert pendant ce temps (un Ctrl+S y réécrirait la salle avec son état à lui).
+  - **Détourer « comme à la main »** (2026-11-06, demande de l'utilisateur, `outils/detourer_comme_main.py`) : la
+    méthode que l'utilisateur a suivie à la main sur les couloirs aux livres 5 à 27, en outil. (1) **Sol** : un seul
+    grand contour simple (10 à 30 points) qui couvre tout le sol visible, pieds des piliers et coins sombres compris,
+    sans trous, jusqu'au bas de l'image : le sol détouré automatiquement est rempli rangée par rangée, ses creux
+    bouchés (fermeture 61 px), le bas de l'image (y ≥ 450) rempli d'un bord à l'autre, puis le contour simplifié.
+    Ressemblance avec les sols tracés par l'utilisateur : 0,82 en moyenne (0,79 sans ces règles), commande `regler`.
+    (2) **Sorties** posées sur le passage peint (haut d'un escalier, arche du fond, ouverture de côté) et (3) **sol
+    prolongé jusqu'à elles** (marches, allée). (2) et (3) demandent de regarder l'image : on les écrit dans
+    `outils/reglages_detourage_main/<salle>.json` (`sorties` : n° → polygone ; `chemins` : le tracé des marches,
+    sinon une enveloppe automatique entre la sortie et le sol ; `ajouts_sol`, `retraits_sol`, `sans_chemin`).
+    Une salle sans passage peint visible garde ses sorties (comme couloir_livre05). Commandes :
+    `python outils/detourer_comme_main.py voir <salle> [réglage.json]` (avant / après dans
+    `C:\IA\pont-blender\zones\<salle>_main.png`), `appliquer <salle> [réglage.json]` (mêmes fichiers et même
+    historique que `zones.py` : `python outils/zones.py annuler <salle>` revient en arrière), puis
+    `python outils/zones.py verifier <salle>`. La sortie « retour » dépasse volontairement sous l'image (y = 517) :
+    `appliquer` ne la refuse pas (le garde-fou de `zones.py` la refuse, lui, dans ces salles).
   - **Passage** : marcher dans une sortie → fondu au noir (0,35 s), `donjon.avancer` (combat, coffre,
     piège... comme avant), puis la nouvelle salle, le héros **devant la porte par laquelle il est
     entré** (ou en bas de l'image, de dos, pour une entrée par le bas). **Retour dans une salle déjà quittée**
@@ -780,7 +849,8 @@ stick droit pour choisir un bouton de l'interface.
   - Plus de place pour les autres salles : sans les cryptes ni les prisons, l'étage a plus de salles que d'apparences
     (image × miroir) libres ; chaque apparence peut alors resservir (`PlanSalles.attribuer_salles`).
   - Tests : `test_prisons_cryptes.gd` (prisons, cryptes, sorties potentielles), `test_passage_cryptes.gd` (passage
-    dans l'écran d'exploration, aller et retour pour les 4 prisons). Outil : `tests/sonde_plan_prisons.gd` écrit les
+    dans l'écran d'exploration, aller et retour pour les 4 prisons), `test_chevalier_niveaux.gd` (le chevalier sort des
+    cryptes et y revient). Outil : `tests/sonde_plan_prisons.gd` écrit les
     plans de 4 donjons dans `user://sonde_plans.json`.
 - **Caractéristiques** (règles de l'utilisateur, 2026-10-29 ; `scripts/logique/caracteristiques.gd`, les mêmes pour
   le héros et les ennemis) :
@@ -1090,8 +1160,10 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . --import
 & $godot --headless --path . -s tests/compiler_tout.gd    # compile tous les scripts
 & $godot --headless --path . -s tests/test_logique.gd     # partie complète jouée sans interface
+& $godot --headless --path . -s tests/test_chevalier_niveaux.gd # Chevalier de la mort : part des cryptes, en sort par les escaliers, y revient
 & $godot --headless --path . -s tests/test_descente.gd    # monter puis redescendre : pas de boss rejoué
 & $godot --path . -s tests/capture_perspective.gd         # perspective des salles (taille du héros au fond), captures ; fenêtre hors écran
+& $godot --headless --path . -s tests/test_ameliorations_armes.gd # armurier, alchimiste, enchanteur : recettes, limites 3 + 3, bons dés pour la bonne compétence, achat, butin, placement
 & $godot --headless --path . -s tests/test_des_armes.gd   # dés par type, caractéristiques, dés bonus (attaques de l'arme), défense (2 points = 1, sans cumul, pourcentages), options des armes, brûlure, % d'élément
 & $godot --headless --path . -s tests/test_magie_ecran.gd # écran de combat : un sort sur soi = une action
 & $godot --headless --path . -s tests/test_butin.gd       # gobelins sans équipement
@@ -1099,6 +1171,8 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --headless --path . -s tests/test_pv.gd          # PV = 70 (héros) + endurance × 2, caractéristiques du héros, ennemis par étage
 & $godot --path . -s tests/robot.gd -- 2 36000            # partie jouée par l'interface (graine, images)
 & $godot --path . -s tests/capture_salles_peintes.gd      # salles peintes : attribution, marche, portes, grandes salles (arrivées, sorties atteignables, captures 57_grandeN) (hors écran)
+& $godot --headless --path . -s tests/test_niveaux_blocs.gd # bibliothèque et laboratoire en niveaux à part : salles du bloc, passages vers l'étage dans les deux sens, aucun ennemi, artisans posés
+& $godot --headless --path . -s tests/test_liens_blocs.gd # chaque lien de bloc vise une porte qui existe encore sur l'image, aucune porte en double, bloc d'un seul tenant (à relancer après une retouche de portes)
 & $godot --headless --path . -s tests/test_blocs.gd               # blocs de salles : un bloc cuisine et un bloc bibliothèque par étage, liens porte à porte, deux entrées, images réservées, bibliothèque fermée et refuge
 & $godot --path . -s tests/capture_bloc_cuisine.gd                 # captures 120-129 : chaque salle du bloc, arrivée par chaque porte (hors écran)
 & $godot --headless --path . -s tests/test_cachettes.gd           # cachettes : héros invisible, ennemis qui n'y entrent pas, sauf celui qui l'a vu entrer
@@ -1228,6 +1302,158 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-10 — Le chevalier prend l'escalier du chemin le plus court
+
+- **Demande de l'utilisateur** : remplacer « l'escalier le plus proche du combat » par le chemin le plus court au total.
+- **Effet** : il compte les salles jusqu'à chaque escalier plus les salles de sa sortie jusqu'au combat, et prend le
+  plus court (à égalité, celui qui débouche le plus près du combat). Il ne traverse plus tout l'étage pour gagner deux
+  salles de cryptes. Exemples du test : 49 s dans les deux sens (combat sur l'étage, chevalier au milieu des cryptes ;
+  combat au milieu des cryptes, chevalier sur l'étage près d'un escalier), au lieu de 49 s et 7 min 9 s.
+- **Code** : `Aventure.prochaine_salle` (branche « but_niveau »). Tests : `test_chevalier_niveaux`, `test_aventure`,
+  `test_chasseurs_libres` : 0 échec.
+
+### 2026-11-10 — Le chevalier vise l'escalier le plus proche du combat
+
+- **Demande de l'utilisateur** : qu'il vise l'escalier le plus proche du combat (avant : le plus proche de lui).
+- **Effet** : il choisit l'escalier dont la sortie est la plus près de la salle du combat, de l'autre côté ; à
+  égalité, le plus proche de lui. Exemples du test : combat sur l'étage, chevalier au milieu des cryptes → 49 s
+  (avant : 7 min 9 s) ; combat au milieu des cryptes, chevalier sur l'étage → 7 min 9 s (avant : 49 s), car
+  l'escalier qui débouche à 1 salle du combat est à l'autre coin de l'étage, et il le préfère à celui d'à côté qui
+  débouche à 3 salles.
+- **Code** : `Aventure.prochaine_salle` (branche « but_niveau »). Test : `test_chevalier_niveaux.gd`, 0 échec ;
+  `test_aventure`, `test_chasseurs_libres` : 0 échec.
+
+### 2026-11-10 — Le Chevalier de la mort entend les combats depuis l'autre niveau
+
+- **Demande de l'utilisateur** : qu'un combat appelle le chevalier même s'il est sur l'autre niveau (cryptes ↔ étage).
+- **Effet** : au début d'un combat, le chevalier qui est sur l'autre niveau va à l'escalier le plus proche qui mène
+  au niveau du héros, le prend, puis marche jusqu'à la salle du combat (à sa vitesse normale, sans saut). Exemples
+  du test : combat au milieu des cryptes, chevalier sur l'étage près d'un escalier → arrivé en 49 s ; combat sur
+  l'étage, chevalier au milieu des cryptes → 7 min 9 s (l'escalier le plus proche de lui ne mène pas forcément près
+  du combat). Rien ne change pour un combat dans la bibliothèque ou le laboratoire (il n'y va pas).
+- **Code** : `Aventure.attirer` donne « but_niveau » [niveau, salle] au chevalier des autres niveaux ;
+  `Aventure.prochaine_salle` le mène à l'escalier, puis vers la salle une fois de l'autre côté.
+- **Tests** : `test_chevalier_niveaux.gd` complété (6 donjons, combat sur l'étage puis dans les cryptes : il arrive
+  dans la salle du combat et sait où est le héros) ; `test_aventure`, `test_chasseurs_libres`,
+  `test_prisons_cryptes` : 0 échec.
+
+### 2026-11-10 — Le Chevalier de la mort peut sortir des cryptes
+
+- **Demande de l'utilisateur** : « fais en sorte qu'il puisse sortir des cryptes ».
+- **Effet** : pour le chevalier, chaque escalier entre les cryptes et l'étage est une sortie comme une autre ; il le
+  prend au hasard en errant (sur 24 h simulées : 42 sorties des cryptes, 36 retours, environ une sortie toutes les
+  35 min). Il marche maintenant **même quand le héros est sur l'autre niveau**, et il entre dans la salle du héros par
+  l'escalier s'il arrive de l'autre niveau. S'il poursuit le héros, il peut le suivre dans l'escalier (même chance que
+  par une porte, `CHANCE_SUIVRE`). Il ne va ni dans la bibliothèque ni dans le laboratoire (choix de Claude, à
+  valider). Les geôliers et les autres ennemis ne changent toujours pas de niveau.
+- **Code** : `Aventure.PASSE_NIVEAUX`, `niveau_du_chevalier`, `lien_niveau`, `autre_niveau` ; une salle d'un autre
+  niveau s'écrit « niveau/salle » ; `prochaine_salle`, `changer_de_salle` prennent le niveau ; `avancer_chasseurs`
+  fait aussi marcher le chevalier des autres niveaux ; `PlanSalles.sortie_vers` renvoie la sortie du passage ;
+  `menu_navigation._changer_de_niveau` (le chevalier qui poursuit peut suivre).
+- **Tests** : nouveau `test_chevalier_niveaux.gd` (6 parties de 4 h simulées : il part des cryptes, en sort, y
+  revient, entre chez le héros par l'escalier ; jamais bibliothèque ni laboratoire ; geôliers sur l'étage).
+  `test_aventure`, `test_prisons_cryptes`, `test_passage_cryptes`, `test_zones`, `test_chasseurs_libres`,
+  `test_grands_etages` : 0 échec. `test_geoliers_secteurs` : échecs déjà là sans ce changement (« le geôlier 4
+  parcourt au moins 10 salles », selon le tirage ; le test place encore le héros dans la bibliothèque, qui n'est plus
+  sur l'étage).
+
+### 2026-11-10 — Le Chevalier de la mort commence au milieu des cryptes
+
+- **Demande de l'utilisateur** : le Chevalier de la mort commence toutes les parties au milieu des cryptes.
+- **Effet** : à chaque nouvelle partie, il part de la salle centrale du niveau des cryptes (même calcul que pour
+  l'étage, `Aventure.centre_etage`). L'étage 1 n'a plus de chevalier au départ ; ceux ajoutés par la colère (karma)
+  restent sur l'étage. Les parties déjà commencées ne changent pas. (Il ne pouvait pas encore sortir des cryptes :
+  voir l'entrée suivante.)
+- **Code** : `Aventure.preparer_etage` marque le chevalier de départ (« depart ») ; `_preparer_niveau_unique` le
+  déplace au milieu des cryptes quand elles sont créées (l'étage 1 est peuplé avant elles).
+- **Tests** : `test_prisons_cryptes` vérifie le chevalier au milieu des cryptes et absent de l'étage ; il accepte
+  aussi tous les squelettes (guerrier, mage, élémentaliste) de `zones.json`, qui le faisaient échouer ;
+  `test_aventure` adapté (l'étage 1 n'a plus de chevalier, la poursuite se teste sur l'étage 2).
+
+### 2026-11-10 — Bibliothèque et laboratoire d'alchimie en niveaux à part
+
+- **Demande de l'utilisateur** : « on va tricher un peu » : la bibliothèque et le laboratoire d'alchimie sont séparés
+  du reste du donjon comme les cryptes, chacun dans son propre niveau (102 et 103), et chaque porte qui y mène est
+  marquée comme celle des cryptes.
+- **Étage** : les deux blocs n'y sont plus posés (`BlocsSalles.blocs_de_l_etage`, seule la cuisine-jardin reste). À
+  la place, 5 salles ordinaires de l'étage reçoivent un passage (2 vers la bibliothèque, 3 vers le laboratoire, une
+  par entrée du bloc), écartées d'au moins 5 cases du départ et entre elles (choix de Claude, à valider).
+- **Niveaux** : `Donjon.generer_niveaux_blocs` crée le niveau de chaque bloc (salles, liens, images du bloc) ;
+  chaque entrée est un passage vers sa salle de l'étage, et inversement. Préparation comme les cryptes
+  (`Aventure._preparer_niveau_unique`), qui pose maintenant aussi les commis (enchanteur, armurier, alchimiste).
+- **Textes** : « Vous entrez dans la bibliothèque. », « Vous revenez dans le donjon. » ; bandeau et titres des
+  cartes selon le niveau (`Donjon.titre_niveau`, `Donjon.titre_carte`).
+- **Anciennes sauvegardes** : leurs blocs restent sur l'étage tels quels ; une nouvelle partie a les niveaux à part.
+- Tests : nouveau `tests/test_niveaux_blocs.gd` (10 donjons : niveaux complets, passages dans les deux sens, salles
+  ordinaires, aucun ennemi, 3 artisans posés) ; `test_blocs.gd` vérifie les deux blocs dans leur niveau.
+- Fichiers : `blocs_salles.gd`, `donjon.gd`, `generateur_etage.gd`, `aventure.gd`, `menu_navigation.gd`,
+  `carte_complete.gd`, `tests/test_blocs.gd`, `test_zones.gd`, `test_grands_etages.gd`,
+  `tests/test_niveaux_blocs.gd` (nouveau). Un étage passe d'environ 170 à environ 121 salles (115 à 128).
+- **Non lié** : `test_prisons_cryptes.gd` refusait encore les guerriers squelettes dans les cryptes (corrigé le jour
+  même, voir « Le Chevalier de la mort commence au milieu des cryptes »).
+
+### 2026-11-10 — Blocs refaits d'après les portes retracées par l'utilisateur
+
+- **Cause** : l'utilisateur a retracé les portes de toutes les salles (portes aberrantes retirées, portes ajoutées là
+  où il peut y en avoir). Les liens de `BlocsSalles.BLOCS` désignant les portes par leur numéro, ils visaient des
+  portes disparues ou décalées : la bibliothèque et le bloc cuisine-jardin ne se construisaient plus (erreurs
+  `blocs_salles.gd:272`), d'où l'absence de l'enchanteur, des commis de cuisine et de ces deux blocs.
+- **Les trois blocs sont réassemblés** (cuisine et jardin, bibliothèque, laboratoire) par un programme de Claude qui
+  essaie des milliers d'assemblages porte à porte et garde celui qui a le moins d'exceptions, les ailes groupées
+  et une emprise de 7 × 9 cases au plus (place d'un bloc contre un côté de l'étage). Le début reste fixe : salle à
+  manger → cuisine → réserve → celliers et entrée du potager ; vestibule de la bibliothèque et couloir des fioles du
+  laboratoire en entrée au sud. Positions, miroirs, liens et entrées ont changé (plans dans `blocs_salles.gd`).
+- **Exceptions « par le bas »** (5e élément du lien, vérifiées par `test_blocs.gd`) : on entre dans la salle par sa
+  porte du bas. Le jardin n'en a aucune (en dehors des deux celliers, déjà acceptés). La bibliothèque en a **3** et le
+  laboratoire **7** : c'est le minimum possible avec leurs portes, car il n'y a pas assez de portes du fond et de côté
+  pour tout relier autrement (bibliothèque : 13 liens nécessaires, 10 cohérents au plus ; laboratoire : 35 pour 28).
+  Pour en enlever, il faut ajouter des portes du fond ou de côté dans ces salles, puis relancer l'assemblage.
+- **Entrées** : cuisine (bas de la salle à manger, fond du verger de l'est, bas du cœur du verger), bibliothèque (bas
+  du vestibule et de la galerie ouest), laboratoire (bas du couloir des fioles, de l'étude haute et de la salle de
+  cuisson).
+- **Les noms ne suivent plus forcément la carte** (la « galerie ouest » peut être à l'est...) : noms à revoir si besoin.
+- **Après chaque retouche de portes** : `tests/test_liens_blocs.gd` (nouveau) signale tout lien vers une porte qui
+  n'existe plus ; l'assemblage se refait avec `outils/exporter_portes_blocs.gd`, `outils/assembler_blocs.py` et
+  `outils/ecrire_plans_blocs.py` (mode d'emploi en tête de `assembler_blocs.py`).
+- Fichiers : `scripts/logique/blocs_salles.gd`, `tests/test_blocs.gd` (exceptions marquées), `tests/test_liens_blocs.gd`,
+  `outils/exporter_portes_blocs.gd`, `outils/assembler_blocs.py`, `outils/ecrire_plans_blocs.py` (nouveaux).
+
+### 2026-11-09 — Améliorations des armes : armurier, alchimiste, enchanteur
+
+- **Trois nouveaux PNJ** qui améliorent les armes (règles dans « Règles du jeu ») : l'armurier (dés du type de
+  l'arme, attaques de l'arme), l'alchimiste (poison et éléments, attaques de l'arme ; poison 1d4 au plus),
+  l'enchanteur (éléments, sorts seulement). Dés 1d2, 1d3, 1d4, 1d6 ; 3 améliorations d'armurier + 3 en tout chez
+  l'alchimiste et l'enchanteur. On leur parle avec E : choisir une arme, puis une recette connue, payer.
+- **Recettes à trouver** : nouvelle catégorie de butin « Recette » (éditeur de zones et éditeur des ennemis) ; lue
+  au ramassage, connue pour toute la partie.
+- **Dégâts** : les dés s'ajoutent seulement à la bonne compétence (Coup d'épée prend l'armurier et l'alchimie, un
+  sort prend l'enchantement) : `Formules.des_type`, `Formules.estimer_degats`, `Combat._infliger_degats`.
+- **Correction** : Frénésie n'était pas reconnue comme attaque d'épée (`Formules.ATTAQUES_ARMES` disait
+  « Frénésie » au lieu du nom de classe « Frenesie ») : elle ne prenait pas le dé bonus de l'arme. Corrigé.
+- **À valider par l'utilisateur** : prix en or (proposition 30 / 60 / 100 / 180) et ingrédients
+  (`donnees/ameliorations_armes.json`) ; places des PNJ dans les images.
+- **Bug existant relevé (corrigé le 2026-11-10, voir plus haut)** : des liens de `BlocsSalles.BLOCS` visent une porte qui n'existe pas sur
+  l'image (bibliothèque : salle au globe, salle des globes, cabinet des cartes ; bloc cuisine : entrée du potager) ;
+  ces blocs ne se construisent pas (erreurs `blocs_salles.gd:272` dans les tests), donc l'enchanteur et les commis
+  n'apparaissent pas tant que ce n'est pas réparé.
+- Fichiers : `scripts/logique/ameliorations_armes.gd` (nouveau), `scripts/ecrans/choix_liste.gd` (nouveau, liste à
+  choisir), `donnees/ameliorations_armes.json` (nouveau), `formules.gd`, `combat.gd`, `aventure.gd`,
+  `rencontres.gd`, `fouille.gd`, `ecrans.gd`, `presences_salle.gd`, `description_objet.gd`,
+  `menu_caracteristique.gd`, `editeur_zones.gd`, `editeur_ennemis.gd`, `donnees/dialogues.json`. Test :
+  `tests/test_ameliorations_armes.gd`.
+
+### 2026-11-06 — Détourage « comme à la main » ; couloirs aux livres terminés (sol et sorties)
+
+- Nouvel outil `outils/detourer_comme_main.py` (voir « Détourer comme à la main ») tiré des couloirs aux livres
+  retouchés par l'utilisateur (5, 7 à 19, 21 à 27), et réglé sur eux.
+- Appliqué aux 16 couloirs restants : 01 à 04, 06, 20, 28 à 37. Sol simplifié partout ; sorties posées sur
+  l'escalier ou l'arche peinte et sol prolongé jusqu'à elles dans 20, 28 à 37 (réglages dans
+  `outils/reglages_detourage_main/`). Sorties gardées dans 01 à 04 et 06 (pas de passage peint net). Dans 30, la
+  sortie de droite est au bord droit de l'image, derrière le pilier (le sol y a été prolongé). Points d'arrivée non
+  touchés : ceux restés loin d'une sortie déplacée ne servent plus (le héros arrive devant la sortie).
+- À faire par l'utilisateur, comme pour les autres : obstacles, premier plan et le reste (seuls sol et sorties
+  sont posés).
 
 ### 2026-11-06 — Éditeur des compétences : dés, dégâts fixes, % des PV max ; multiplicateur réparé ; ergonomie
 

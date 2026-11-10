@@ -13,7 +13,7 @@
    ],
    [
     511,
-    215.0
+    215
    ]
   ]
  },
@@ -276,5 +276,16 @@
     215
    ]
   ]
- }
+ },
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

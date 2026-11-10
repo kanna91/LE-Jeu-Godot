@@ -516,6 +516,8 @@ static func formes_couvertes(image: String, miroir: bool) -> Array:
 ## gauche plutôt que passage de gauche), sinon la première.
 static func sortie_vers(salle: Dictionary, vers: String) -> int:
 	var info: Dictionary = salle.get("salle_peinte", {})
+	if "/" in vers:  # salle d'un autre niveau (« niveau/salle », Aventure.autre_niveau) : la sortie du passage
+		return int(info.get("passage", -1)) if salle.has("passage_niveau") else -1
 	var sorties: Array = info.get("sorties", [])
 	var candidates := []
 	for i in sorties.size():

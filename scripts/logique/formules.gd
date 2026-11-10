@@ -34,7 +34,7 @@ static func _arme(lanceur):
 ## Attaques liées à chaque type d'arme : seules elles profitent du dé bonus de l'arme
 ## (les sorts et les autres compétences gardent leurs propres dés).
 const ATTAQUES_ARMES := {
-	"Epée": ["Coup_d_epee", "Frénésie"],
+	"Epée": ["Coup_d_epee", "Frenesie", "Frénésie"],  # nom de classe « Frenesie » (corrigé le 2026-11-09)
 	"Lance": ["Coup_de_lance", "Balayage"],
 	"Marteau": ["Coup_de_marteau", "Fracasser"],
 }
@@ -177,6 +177,8 @@ static func des_type(lanceur, type_degats: String, competence = null) -> Array:
 	if (not bonus.is_empty() and bonus["type"] == type_degats and type_degats_arme(lanceur) == type_degats
 			and est_attaque_arme(lanceur, competence)):
 		des = des + [[1, bonus["faces"]]]
+	# Améliorations de l'arme (armurier, alchimiste, enchanteur, 2026-11-09) : seulement pour la bonne compétence
+	des = des + AmeliorationsArmes.des(lanceur, competence, type_degats)
 	if lanceur is Ennemis and type_degats != "lumière" and propres.is_empty():
 		return des_reduits(des)
 	return des
@@ -374,7 +376,10 @@ static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array
 		types = []
 	var bonus := de_bonus_autre_type(lanceur, types, competence)
 	var a_estimer := []
-	for t in types + ([bonus[0]] if not bonus.is_empty() else []):
+	var en_plus := {}  # types ajoutés par les améliorations de l'arme (AmeliorationsArmes.types_en_plus)
+	for ep in AmeliorationsArmes.types_en_plus(lanceur, competence):
+		en_plus[ep[0]] = ep[1]
+	for t in types + ([bonus[0]] if not bonus.is_empty() else []) + en_plus.keys():
 		if not (t in a_estimer):
 			a_estimer.append(t)  # chaque type une seule fois (le dé bonus s'ajoute au même type)
 	for type_degats in a_estimer:
@@ -385,6 +390,8 @@ static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array
 			brut += bonus_pv_cible(lanceur, competence, cible, type_degats)
 		if not bonus.is_empty() and type_degats == bonus[0]:
 			brut += base_de_bonus(lanceur, type_degats, (bonus[1] + 1) / 2.0)
+		if en_plus.has(type_degats):
+			brut += base_de_bonus(lanceur, type_degats, moyenne(en_plus[type_degats]))
 		if type_degats == "lumière":
 			brut *= Alterations.multiplicateur_soins(cible)
 			var soin = brut + brut * pen_res * 0.02

@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     342,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -196,15 +196,57 @@
     0,
     517
    ]
+  ],
+  [
+   [
+    0,
+    282
+   ],
+   [
+    78,
+    286
+   ],
+   [
+    73,
+    361
+   ],
+   [
+    0,
+    363
+   ]
+  ],
+  [
+   [
+    574,
+    299
+   ],
+   [
+    572,
+    346
+   ],
+   [
+    632,
+    339
+   ],
+   [
+    629,
+    290
+   ]
   ]
  ],
  "noms_sorties": [
-  "retour"
+  "retour",
+  "passage 2",
+  "passage 3"
  ],
  "directions_sorties": [
-  "bas"
+  "bas",
+  "gauche",
+  "devant"
  ],
  "types_sorties": [
+  "passage",
+  "passage",
   "passage"
  ],
  "arrivees": {},
@@ -216,6 +258,8 @@
  "feux": [],
  "eaux": [],
  "sorties_potentielles": [
+  false,
+  false,
   false
  ],
  "butins": [],

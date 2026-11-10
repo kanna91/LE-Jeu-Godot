@@ -9,11 +9,11 @@
   "table_hauteur": [
    [
     304,
-    63.0
+    63
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -446,12 +446,12 @@
   ],
   [
    [
-    378,
-    294
+    380,
+    285
    ],
    [
-    462,
-    294
+    469,
+    288
    ],
    [
     522,
@@ -468,38 +468,38 @@
  "sorties": [
   [
    [
-    380,
-    294
+    432,
+    279
    ],
    [
-    460,
-    294
+    512,
+    279
    ],
    [
-    462,
-    306
+    514,
+    291
    ],
    [
-    378,
-    306
+    430,
+    291
    ]
   ],
   [
    [
-    470,
-    324
+    695,
+    264
    ],
    [
-    560,
-    324
+    768,
+    264
    ],
    [
-    562,
-    336
+    768,
+    276
    ],
    [
-    468,
-    336
+    693,
+    276
    ]
   ],
   [
@@ -518,22 +518,43 @@
    [
     0,
     517
+   ]
+  ],
+  [
+   [
+    34,
+    293
+   ],
+   [
+    33,
+    352
+   ],
+   [
+    0,
+    349
+   ],
+   [
+    0,
+    289
    ]
   ]
  ],
  "noms_sorties": [
   "passage du fond",
   "porte de droite",
-  "retour"
+  "retour",
+  "passage 4"
  ],
  "directions_sorties": [
   "devant",
   "droite",
-  "bas"
+  "bas",
+  "gauche"
  ],
  "types_sorties": [
   "porte",
   "porte",
+  "passage",
   "passage"
  ],
  "arrivees": {
@@ -566,5 +587,17 @@
     210
    ]
   ]
- }
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

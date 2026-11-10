@@ -5,6 +5,8 @@ extends SceneTree
 ## faut, et revenir par la même porte ramène dans la salle d'où l'on vient ; tout l'étage reste accessible.
 ## Bloc bibliothèque (2026-11-04) : mêmes vérifications, plus : complexe fermé (aucun passage vers l'étage hors de ses
 ## deux entrées) et refuge (Zones.refuge : ni ennemis, ni geôlier, ni Chevalier de la mort).
+## Depuis le 2026-11-10, la bibliothèque et le laboratoire sont des niveaux à part (BlocsSalles.niveau_a_part) : mêmes
+## vérifications dans leur niveau, leurs entrées étant des passages (voir aussi test_niveaux_blocs.gd).
 ## godot --headless --path . -s tests/test_blocs.gd
 
 var echecs := 0
@@ -27,9 +29,13 @@ func _initialize() -> void:
 			if Donjon.est_niveau_unique(etage):
 				continue  # cryptes : pas de bloc cuisine (2026-11-03)
 			etages += 1
-			for bloc in BlocsSalles.BLOCS:
+			for bloc in BlocsSalles.blocs_de_l_etage():
 				if _etage(donjon.plan_donjon[etage], "%d/%d %s" % [k, etage, bloc], bloc):
 					deux_entrees[bloc] = deux_entrees.get(bloc, 0) + 1
+		for bloc in BlocsSalles.BLOCS:
+			var niveau := BlocsSalles.niveau_a_part(bloc)
+			if niveau != 0 and _etage(donjon.plan_donjon.get(niveau, {}), "%d/niveau %d %s" % [k, niveau, bloc], bloc):
+				deux_entrees[bloc] = deux_entrees.get(bloc, 0) + 1
 	for bloc in BlocsSalles.BLOCS:
 		print("Étages : %d, bloc %s : toutes ses entrées raccordées sur %d étages" % [etages, bloc, deux_entrees.get(bloc, 0)])
 		verifier(deux_entrees.get(bloc, 0) == etages, "bloc %s : toujours toutes ses entrées raccordées (%d / %d)" % [bloc, deux_entrees.get(bloc, 0), etages])
@@ -71,16 +77,20 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 		verifier(ids[l[2]] in a["connections"] and ids[l[0]] in c["connections"], "%s : %s et %s reliés au plan" % [nom, l[0], l[2]])
 	# Laboratoire (2026-11-04, structure cohérente) : chaque porte mène du côté où elle est (miroir compris) et arrive
 	# par la porte d'en face (fond → bas, gauche → droite)
-	# Depuis le 2026-11-04 : tous les blocs (bibliothèque refaite, jardin), sauf les liens vers les celliers de la cuisine
-	# (on y entre par le bas de leur image : exception acceptée par l'utilisateur le 2026-10-31)
+	# Depuis le 2026-11-04 : tous les blocs, sauf les liens marqués « par le bas » (les celliers de la cuisine,
+	# exception acceptée par l'utilisateur le 2026-10-31 ; 10 liens de la bibliothèque et du laboratoire le 2026-11-10)
 	if true:
 		for l in b["liens"]:
-			if String(l[2]).begins_with("cellier"):
-				continue
 			var sa: Dictionary = salles[ids[l[0]]]
 			var sb: Dictionary = salles[ids[l[2]]]
 			var da := PlanSalles.absolue(PlanSalles.directions(sa["salle_peinte"]["image"], sa["salle_peinte"]["miroir"])[l[1]], PlanSalles.FACE)
 			var db := PlanSalles.absolue(PlanSalles.directions(sb["salle_peinte"]["image"], sb["salle_peinte"]["miroir"])[l[3]], PlanSalles.FACE)
+			if l.size() > 4 and l[4] == "par le bas":
+				# Exception marquée (celliers 2026-10-31 ; liens refaits le 2026-11-10 avec trop peu de portes du fond) :
+				# la porte de la première salle mène bien vers la seconde, où l'on entre par sa porte du bas
+				verifier(da == sb["position"] - sa["position"] and PlanSalles.directions(sb["salle_peinte"]["image"],
+					sb["salle_peinte"]["miroir"])[l[3]] == "bas", "%s : %s → %s par le bas" % [nom, l[0], l[2]])
+				continue
 			verifier(da == sb["position"] - sa["position"] and db == sa["position"] - sb["position"],
 				"%s : porte de %s vers %s du bon côté" % [nom, l[0], l[2]])
 	# Chaque connexion d'une salle du bloc a sa porte (aucun passage sans porte peinte)
@@ -116,6 +126,11 @@ func _etage(salles: Dictionary, nom: String, bloc: String) -> bool:
 	var raccordees := 0
 	for e in b["entrees"]:
 		var s: Dictionary = salles[ids[e[0]]]
+		if BlocsSalles.niveau_a_part(bloc) != 0:
+			# Niveau à part : l'entrée est un passage vers l'étage
+			if int(s["salle_peinte"].get("passage", -1)) == e[1] and s.has("passage_niveau"):
+				raccordees += 1
+			continue
 		var dehors = s["salle_peinte"]["sorties"][e[1]]
 		if dehors != null and salles.has(str(dehors)) and not salles[str(dehors)].has("bloc"):
 			raccordees += 1

@@ -441,12 +441,15 @@ static func preparer_etage(donjon, etage: int) -> void:
 			loin.append(i)
 	if loin.is_empty():
 		loin = pour_ennemis.duplicate()
-	# Le chevalier part du milieu de l'étage ; ceux de la colère, loin du départ
+	# Le chevalier part du milieu de l'étage (« depart » : il est déplacé au milieu des cryptes quand elles sont créées,
+	# _preparer_niveau_unique, 2026-11-10) ; ceux de la colère, loin du départ
 	var milieu := centre_etage(donjon, etage)
 	if milieu != "" and Zones.zone_salle(salles[milieu]) != "":
 		milieu = ""
 	for k in CHEVALIERS_PAR_ETAGE + m["colere"]:
-		ajouter_menace(donjon, etage, "imbattable", [milieu] if k < CHEVALIERS_PAR_ETAGE and milieu != "" else loin)
+		var c := ajouter_menace(donjon, etage, "imbattable", [milieu] if k < CHEVALIERS_PAR_ETAGE and milieu != "" else loin)
+		if k < CHEVALIERS_PAR_ETAGE and not c.is_empty():
+			c["depart"] = true
 	_poser_geoliers(donjon, etage, loin, dist)
 	# Personnages et choses : chacun dans une salle ordinaire différente si possible
 	var places := ordinaires.duplicate()
@@ -497,6 +500,20 @@ static func preparer_etage(donjon, etage: int) -> void:
 		poser.call({"id": _nouvel_id(m), "genre": "objet", "sous": "cachette", "contenu": c, "etat": "actif"})
 	ecarter_des_salles_paisibles(donjon, etage)
 	_fixer_elites(donjon, etage, m)
+	# Le Chevalier de la mort commence chaque partie au milieu des cryptes (demande de l'utilisateur 2026-11-10) : le
+	# chevalier de départ de l'étage 1 (« depart ») y est déplacé ; ceux de la colère restent sur l'étage
+	if etage == Donjon.NIVEAU_CRYPTES:
+		var centre := centre_etage(donjon, etage)
+		for e in donjon.plan_donjon:
+			if Donjon.est_niveau_unique(e):
+				continue
+			for i in donjon.plan_donjon[e]:
+				for p in donjon.plan_donjon[e][i].get("presences", []).duplicate():
+					if p.get("genre") == "imbattable" and p.get("depart", false) and centre != "":
+						donjon.plan_donjon[e][i]["presences"].erase(p)
+						p.erase("depart")
+						p["id"] = _nouvel_id(m)
+						salles[centre]["presences"].append(p)
 	ecarter_des_salles_interdites(donjon, etage)
 	_poser_prisonniers(donjon, etage, m)
 	poser_commis(donjon, etage)
@@ -525,8 +542,23 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 				isole["zone_ennemis"] = Zones.zone_salle(salles[i])
 			salles[i]["presences"].append(isole)
 	_fixer_elites(donjon, etage, m)
+	# Le Chevalier de la mort commence chaque partie au milieu des cryptes (demande de l'utilisateur 2026-11-10) : le
+	# chevalier de départ de l'étage 1 (« depart ») y est déplacé ; ceux de la colère restent sur l'étage
+	if etage == Donjon.NIVEAU_CRYPTES:
+		var centre := centre_etage(donjon, etage)
+		for e in donjon.plan_donjon:
+			if Donjon.est_niveau_unique(e):
+				continue
+			for i in donjon.plan_donjon[e]:
+				for p in donjon.plan_donjon[e][i].get("presences", []).duplicate():
+					if p.get("genre") == "imbattable" and p.get("depart", false) and centre != "":
+						donjon.plan_donjon[e][i]["presences"].erase(p)
+						p.erase("depart")
+						p["id"] = _nouvel_id(m)
+						salles[centre]["presences"].append(p)
 	ecarter_des_salles_interdites(donjon, etage)
 	_poser_prisonniers(donjon, etage, m)
+	poser_commis(donjon, etage)  # bibliothèque, laboratoire : niveaux à part depuis le 2026-11-10
 
 
 ## Commis (2026-11-04, demande de l'utilisateur) : un dans la cuisine du bloc cuisine (il explique la cuisine), un
@@ -535,7 +567,12 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 ## La **cuisinière** (2026-11-04, image fixe de l'utilisateur) est aussi dans la cuisine, devant la table de droite,
 ## près des fours ; on lui parle comme aux commis (rôle « cuisiniere »).
 const COMMIS := {"bloc_cuisine_cuisine": [{"role": "cuisine", "pos": [455, 352]}, {"role": "cuisiniere", "pos": [640, 452]}],
-	"bloc_cuisine_cellier_d": [{"role": "cellier", "pos": [520, 374]}]}
+	"bloc_cuisine_cellier_d": [{"role": "cellier", "pos": [520, 374]}],
+	# Améliorations d'armes (2026-11-09, AmeliorationsArmes) : l'armurier est au laboratoire, devant la forge, en
+	# attendant l'armurerie (il changera de place) ; l'alchimiste près des alambics, l'enchanteur dans la salle de lecture.
+	"bloc_laboratoire_fourneaux_forge": [{"role": "armurier", "pos": [476, 396]}],
+	"bloc_laboratoire_distillation_cornues": [{"role": "alchimiste", "pos": [504, 395]}],
+	"bloc_bibliotheque_lecture": [{"role": "enchanteur", "pos": [446, 402]}]}
 
 
 ## Pose les commis dans les salles de l'étage dont l'image en a un (aussi à la lecture d'une salle : anciennes parties).
@@ -1049,10 +1086,75 @@ static func duree_salle(p: Dictionary) -> float:
 	return TRAVERSEE / (PresencesSalle.VITESSE_POURSUITE.get(p["genre"], 0.5) * VITESSE_SALLE * facteur)
 
 
-## Salle suivante du chasseur ``p`` qui est dans ``ici`` : un pas vers sa destination (« but ») s'il en a une, sinon
-## une voisine au hasard (pas celle d'où il vient, sauf impasse ; jamais la salle du boss).
-static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
-	var salles: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])]
+## Chasseurs qui changent de niveau (2026-11-10, demande de l'utilisateur : le Chevalier de la mort peut sortir des
+## cryptes) : pour eux, le passage d'une salle (« passage_niveau ») est une sortie de plus, vers un des niveaux de
+## NIVEAUX_DU_CHEVALIER (étages et cryptes ; ni la bibliothèque ni le laboratoire, choix de Claude). Ils marchent
+## même quand le héros est sur un autre niveau. Une salle d'un autre niveau s'écrit « niveau/salle » (ex. « 1/23 »).
+const PASSE_NIVEAUX := ["imbattable"]
+
+
+static func niveau_du_chevalier(niveau: int) -> bool:
+	return not Donjon.est_niveau_unique(niveau) or niveau == Donjon.NIVEAU_CRYPTES
+
+
+## Vrai si ``vers`` désigne une salle d'un autre niveau (« niveau/salle »).
+static func autre_niveau(vers: String) -> bool:
+	return "/" in vers
+
+
+## Sortie vers un autre niveau de la salle ``ici`` du niveau ``etage`` pour le chasseur ``p`` (« niveau/salle »), ""
+## s'il n'y en a pas ou s'il ne peut pas la prendre.
+static func lien_niveau(donjon, etage: int, ici: String, p: Dictionary) -> String:
+	if not (String(p.get("genre", "")) in PASSE_NIVEAUX) or not niveau_du_chevalier(etage):
+		return ""
+	var lien = donjon.plan_donjon.get(etage, {}).get(ici, {}).get("passage_niveau", null)
+	if not (lien is Dictionary):
+		return ""
+	var niveau := int(lien.get("niveau", 0))
+	var dest := String(lien.get("salle", ""))
+	if not niveau_du_chevalier(niveau) or not donjon.plan_donjon.get(niveau, {}).has(dest):
+		return ""
+	if not ouverte_au(donjon.plan_donjon[niveau], p, dest):
+		return ""
+	return "%d/%s" % [niveau, dest]
+
+
+## Salle suivante du chasseur ``p`` qui est dans ``ici`` (niveau ``etage``, celui du héros par défaut) : un pas vers sa
+## destination (« but ») s'il en a une, sinon une voisine au hasard (pas celle d'où il vient, sauf impasse ; jamais la
+## salle du boss). Le chevalier peut aussi prendre le passage vers un autre niveau (« niveau/salle », lien_niveau).
+static func prochaine_salle(donjon, p: Dictionary, ici: String, etage := -1) -> String:
+	if etage < 0:
+		etage = int(donjon.salle_actuelle[0])
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	# Combat entendu depuis un autre niveau (« but_niveau » : [niveau, salle], attirer) : il va à l'escalier du chemin
+	# le plus court au total, salles jusqu'à l'escalier + salles de sa sortie au combat (demande de l'utilisateur
+	# 2026-11-10 ; à égalité, celui qui débouche le plus près du combat), le prend, puis marche vers le combat
+	if p.has("but_niveau"):
+		var cible_n := int(p["but_niveau"][0])
+		var cible_s := str(p["but_niveau"][1])
+		if cible_n == etage:
+			p["but"] = cible_s
+			p.erase("but_niveau")
+		else:
+			var escaliers := []
+			for i in salles:
+				var lien := lien_niveau(donjon, etage, i, p)
+				if lien != "" and int(lien.get_slice("/", 0)) == cible_n:
+					escaliers.append(i)
+			var dist := distances_pour(salles, ici, String(p["genre"]))
+			var dist_combat := distances_pour(donjon.plan_donjon[cible_n], cible_s, String(p["genre"]))
+			var cote_combat := func(i) -> int:  # salles entre la sortie de l'escalier et le combat
+				return int(dist_combat.get(lien_niveau(donjon, etage, i, p).get_slice("/", 1), 1 << 20))
+			escaliers = escaliers.filter(func(i): return dist.has(i) and cote_combat.call(i) < (1 << 20))
+			var total := func(i) -> int:
+				return int(dist[i]) + cote_combat.call(i)
+			if escaliers.is_empty():
+				p.erase("but_niveau")  # aucun escalier atteignable : il n'entend plus le combat
+			else:
+				escaliers.sort_custom(func(a, b): return total.call(a) < total.call(b) or 					(total.call(a) == total.call(b) and cote_combat.call(a) < cote_combat.call(b)))
+				if escaliers[0] == ici or (ici in escaliers and total.call(ici) == total.call(escaliers[0])):
+					return lien_niveau(donjon, etage, ici, p)
+				p["but"] = escaliers[0]
 	if p.has("but") and salles.has(str(p["but"])):
 		p["but"] = but_permis(salles, p, str(p["but"]))  # un geôlier ne sort pas de son territoire
 	if p.has("but") and str(p["but"]) == ici:
@@ -1072,14 +1174,36 @@ static func prochaine_salle(donjon, p: Dictionary, ici: String) -> String:
 	for v in salles[ici].get("connections", []):
 		if salles.has(str(v)) and not salles[str(v)].get("boss", false) and ouverte_au(salles, p, str(v)):
 			voisines.append(str(v))
+	var lien := lien_niveau(donjon, etage, ici, p)
+	if lien != "":
+		voisines.append(lien)
 	if voisines.size() > 1:
 		voisines.erase(str(p.get("venu_de", "")))
 	return voisines.pick_random() if not voisines.is_empty() else ici
 
 
-## Fait passer le chasseur ``p`` de la salle ``de`` à la salle ``vers`` (données seulement).
-static func changer_de_salle(donjon, p: Dictionary, de: String, vers: String) -> void:
-	var salles: Dictionary = donjon.plan_donjon[int(donjon.salle_actuelle[0])]
+## Fait passer le chasseur ``p`` de la salle ``de`` à la salle ``vers`` (données seulement) ; ``etage`` : niveau de
+## ``de`` (celui du héros par défaut). ``vers`` peut être une salle d'un autre niveau (« niveau/salle ») : il y passe
+## (nouvel identifiant dans ce niveau) et oublie sa destination.
+static func changer_de_salle(donjon, p: Dictionary, de: String, vers: String, etage := -1) -> void:
+	if etage < 0:
+		etage = int(donjon.salle_actuelle[0])
+	var salles: Dictionary = donjon.plan_donjon[etage]
+	if autre_niveau(vers):
+		var niveau := int(vers.get_slice("/", 0))
+		var dest := vers.get_slice("/", 1)
+		preparer_etage(donjon, niveau)
+		if salles.has(de):
+			salles[de].get("presences", []).erase(p)
+		var arrivee: Dictionary = donjon.plan_donjon[niveau][dest]
+		if not arrivee.has("presences"):
+			arrivee["presences"] = []
+		p["id"] = _nouvel_id(meta(donjon, niveau))
+		arrivee["presences"].append(p)
+		p["venu_de"] = "%d/%s" % [etage, de]
+		p["marche"] = 0.0
+		p.erase("but")
+		return
 	_deplacer(salles, p, vers)
 	p["venu_de"] = de
 	p["marche"] = 0.0
@@ -1088,35 +1212,64 @@ static func changer_de_salle(donjon, p: Dictionary, de: String, vers: String) ->
 
 
 ## Fait avancer de ``delta`` secondes les chasseurs qui ne sont pas dans la salle du héros (eux, l'écran les fait
-## marcher). Renvoie ceux qui entrent dans la salle du héros : [[présence, salle d'où il vient], ...].
+## marcher) : ceux de son niveau, et le chevalier sur les autres niveaux (étages, cryptes). Renvoie ceux qui entrent
+## dans la salle du héros : [[présence, salle d'où il vient], ...] (« niveau/salle » s'il vient d'un autre niveau).
 static func avancer_chasseurs(donjon, delta: float) -> Array:
 	var etage := int(donjon.salle_actuelle[0])
 	var ici := str(donjon.salle_actuelle[1])
 	var entrants := []
+	var a_faire := []
 	for c in chasseurs(donjon, etage):
+		a_faire.append([c[0], c[1], etage])
+	for n in donjon.plan_donjon:
+		if int(n) == etage or not niveau_du_chevalier(int(n)) or not meta(donjon, int(n)).get("prepare", false):
+			continue
+		for c in chasseurs(donjon, int(n)):
+			if String(c[0]["genre"]) in PASSE_NIVEAUX:
+				a_faire.append([c[0], c[1], int(n)])
+	for c in a_faire:
 		var p: Dictionary = c[0]
-		if c[1] == ici:
+		var de: String = c[1]
+		var n: int = c[2]
+		if n == etage and de == ici:
 			continue
 		p["marche"] = float(p.get("marche", 0.0)) + delta
 		if p["marche"] < duree_salle(p):
 			continue
-		var vers := prochaine_salle(donjon, p, c[1])
-		if vers == c[1]:
+		var vers := prochaine_salle(donjon, p, de, n)
+		if vers == de:
 			p["marche"] = 0.0
 			continue
 		var cherche := p.has("but")
-		changer_de_salle(donjon, p, c[1], vers)
-		if vers == ici:
+		changer_de_salle(donjon, p, de, vers, n)
+		var arrive_ici := vers == ici and n == etage
+		if autre_niveau(vers):
+			arrive_ici = int(vers.get_slice("/", 0)) == etage and vers.get_slice("/", 1) == ici
+		if arrive_ici:
 			p["cherche"] = cherche  # il venait chercher le héros : il sait où il est en entrant
-			entrants.append([p, c[1]])
+			entrants.append([p, de if n == etage else "%d/%s" % [n, de]])
 	return entrants
 
 
-## Un combat commence dans la salle du héros : tous les chasseurs de l'étage apprennent où il est et s'y rendent.
+## Un combat commence dans la salle du héros : tous les chasseurs de l'étage apprennent où il est et s'y rendent. Le
+## Chevalier de la mort l'entend aussi depuis un autre niveau (2026-11-10, demande de l'utilisateur) : il prend
+## l'escalier le plus proche vers le niveau du héros (« but_niveau », prochaine_salle).
 static func attirer(donjon) -> void:
-	for c in chasseurs(donjon, int(donjon.salle_actuelle[0])):
-		if c[1] != str(donjon.salle_actuelle[1]):
-			c[0]["but"] = str(donjon.salle_actuelle[1])
+	var etage := int(donjon.salle_actuelle[0])
+	var ici := str(donjon.salle_actuelle[1])
+	for c in chasseurs(donjon, etage):
+		if c[1] != ici:
+			c[0]["but"] = ici
+			c[0].erase("but_niveau")
+	if not niveau_du_chevalier(etage):
+		return
+	for n in donjon.plan_donjon:
+		if int(n) == etage or not niveau_du_chevalier(int(n)):
+			continue
+		for c in chasseurs(donjon, int(n)):
+			if String(c[0]["genre"]) in PASSE_NIVEAUX:
+				c[0]["but_niveau"] = [etage, ici]
+				c[0].erase("but")
 
 
 ## Action bruyante du héros (chaînes brisées) : le chevalier à plus de ECART_VACARME salles se téléporte à

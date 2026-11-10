@@ -631,6 +631,10 @@ func _infliger_degats(lanceur, competence, cible, personnage) -> void:
 	var bonus := Formules.de_bonus_autre_type(lanceur, types, competence)
 	if not bonus.is_empty():
 		coups.append([bonus[0], Formules.base_de_bonus(lanceur, bonus[0], randi_range(1, bonus[1]))])
+	# Types ajoutés par les améliorations de l'arme que la compétence ne fait pas (feu de l'alchimiste sur Coup d'épée,
+	# ombre de l'enchanteur sur Boule de feu) : un coup de ce type, jet × % du type (2026-11-09)
+	for ep in AmeliorationsArmes.types_en_plus(lanceur, competence):
+		coups.append([ep[0], Formules.base_de_bonus(lanceur, ep[0], Formules.jet(ep[1]))])
 	for coup in coups:
 		var t: String = coup[0]
 		var base: float = coup[1]

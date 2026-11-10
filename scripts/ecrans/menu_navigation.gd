@@ -217,7 +217,8 @@ func _franchir(dest: String, sortie := -1) -> void:
 
 ## Passe par le passage de la salle (« passage_niveau ») vers un autre niveau : du fond d'un couloir de prison aux
 ## cryptes, ou d'une entrée des cryptes au couloir de sa prison (2026-11-03). Le héros arrive devant le passage de
-## l'autre côté ; les ennemis ne le suivent pas.
+## l'autre côté ; seul le Chevalier de la mort qui le poursuit peut le suivre (2026-11-10, Aventure.PASSE_NIVEAUX,
+## même chance que pour une porte : Aventure.CHANCE_SUIVRE).
 func _changer_de_niveau() -> void:
 	var lien: Dictionary = donjon.salle_courante().get("passage_niveau", {})
 	var niveau := int(lien.get("niveau", 0))
@@ -229,6 +230,13 @@ func _changer_de_niveau() -> void:
 		return
 	passage_en_cours = true
 	salle_peinte.actif = false
+	var etage_depart := int(donjon.salle_actuelle[0])
+	var origine := str(donjon.salle_actuelle[1])
+	var suiveurs := []
+	if salle_peinte.presences != null:
+		for p in salle_peinte.presences.poursuivants():
+			if Aventure.lien_niveau(donjon, etage_depart, origine, p) != "" and randf() < Aventure.CHANCE_SUIVRE.get(p["genre"], 0.0):
+				suiveurs.append(p)
 	_retenir_portes_ouvertes()
 	await salle_peinte.fondu(1.0)
 	donjon.salle_courante()["visitee"] = true
@@ -238,8 +246,16 @@ func _changer_de_niveau() -> void:
 	if _apres_action():
 		passage_en_cours = false
 		return
+	for p in suiveurs:
+		Aventure.changer_de_salle(donjon, p, origine, "%d/%s" % [niveau, dest], etage_depart)
+		p["suit"] = true
+		if int(p.get("traque", 0)) > 0:  # une salle de traque en moins, comme par une porte
+			p["traque"] = int(p["traque"]) - 1
 	_afficher_salle(int(donjon.salle_courante().get("salle_peinte", {}).get("passage", -1)))
-	message_nav = "Vous descendez dans les cryptes." if Donjon.est_niveau_unique(niveau) else "Vous remontez dans la prison."
+	if Donjon.est_niveau_unique(niveau):
+		message_nav = "Vous descendez dans les cryptes." if niveau == Donjon.NIVEAU_CRYPTES else "Vous entrez dans %s." % Donjon.nom_niveau(niveau)
+	else:
+		message_nav = "Vous remontez dans la prison." if donjon.salle_courante().has("prison") else "Vous revenez dans le donjon."
 	message_fin = Animations.temps() + 3.0
 	await salle_peinte.fondu(0.0)
 	salle_peinte.actif = true
@@ -489,7 +505,7 @@ func _dessiner(ci: Control) -> void:
 		Vector2(20, 15), Ui.TEXTE, 15, false, 520)
 	var nom_salle := nom_lisible(salle.get("nom", ""))
 	# « (miroir) » : la salle peinte est affichée retournée (gauche et droite échangées, PlanSalles)
-	var niveau_txt := "Cryptes" if Donjon.est_niveau_unique(etage) else "Étage %d" % int(etage)
+	var niveau_txt := Donjon.titre_niveau(etage)
 	Ui.texte(ci, "%s — Salle %d%s%s" % [niveau_txt, salle_id, (" : " + nom_salle) if nom_salle != "" else "",
 		" (miroir)" if salle_peinte != null and salle_peinte.miroir else ""],
 		Vector2(20, 38), Ui.OR, 16, true, 520)

@@ -1396,8 +1396,8 @@ func _remplir_butin() -> void:
 			h.add_child(_liste_deroulante(NOMS_POTIONS, POTIONS.find(String(b.get("potion", ""))), func(i): _regler_butin(b, "potion", POTIONS[i]), 230))
 		elif c == "equipement":
 			h.add_child(_liste_deroulante(NOMS_EQUIPEMENTS, EQUIPEMENTS.find(String(b.get("objet", ""))), func(i): _regler_butin(b, "objet", EQUIPEMENTS[i]), 230))
-		elif c in ["divers", "nourriture", "ingredient"]:
-			var noms: Array = ["Au hasard"] + ObjetsDivers.noms(c)
+		elif c in ["divers", "nourriture", "ingredient", "recette"]:
+			var noms: Array = ["Au hasard"] + (AmeliorationsArmes.noms_recettes() if c == "recette" else ObjetsDivers.noms(c))
 			h.add_child(_liste_deroulante(noms, maxi(0, noms.find(String(b.get("objet", "")))), func(i): _regler_butin(b, "objet", "" if i == 0 else noms[i]), 230))
 		else:
 			var vide := Control.new()

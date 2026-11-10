@@ -13,7 +13,7 @@
    ],
    [
     511,
-    210.0
+    210
    ]
   ]
  },
@@ -491,24 +491,45 @@
     0,
     517
    ]
+  ],
+  [
+   [
+    461,
+    294
+   ],
+   [
+    494,
+    295
+   ],
+   [
+    491,
+    324
+   ],
+   [
+    449,
+    324
+   ]
   ]
  ],
  "noms_sorties": [
   "porte de gauche",
   "passage du fond",
   "porte de droite",
-  "retour"
+  "retour",
+  "passage 5"
  ],
  "directions_sorties": [
   "gauche",
   "devant",
   "droite",
-  "bas"
+  "bas",
+  "devant"
  ],
  "types_sorties": [
   "porte",
   "porte",
   "porte",
+  "passage",
   "passage"
  ],
  "arrivees": {
@@ -546,5 +567,18 @@
     210
    ]
   ]
- }
+ },
+ "prisonniers": [],
+ "cachettes": [],
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": []
 }

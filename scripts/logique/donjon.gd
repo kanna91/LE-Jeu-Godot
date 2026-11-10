@@ -36,6 +36,7 @@ static func nouveau(personnage, fenetre = null) -> Donjon:
 	for e in range(1, NOMBRE_ETAGES + 1):
 		d.generer_etage(e)
 	d.generer_cryptes(1)
+	d.generer_niveaux_blocs(1)
 	return d
 
 
@@ -48,6 +49,16 @@ const NOMBRE_ETAGES := 1
 ## cachot ni de montée). On y entre par un passage (clé « passage_niveau » d'une salle). Le premier : les cryptes,
 ## sous les 4 prisons de l'étage 1.
 const NIVEAU_CRYPTES := 101
+## Niveaux à part des blocs (2026-11-10, demande de l'utilisateur) : la bibliothèque et le laboratoire d'alchimie,
+## chacun séparé du reste du donjon comme les cryptes (BlocsSalles.niveau_a_part, generer_niveaux_blocs).
+const NIVEAU_BIBLIOTHEQUE := 102
+const NIVEAU_LABORATOIRE := 103
+## Noms des niveaux uniques : [pour les messages, titre du bandeau, titre de la carte].
+const NOMS_NIVEAUX := {NIVEAU_CRYPTES: ["les cryptes", "Cryptes", "Carte des cryptes"],
+	NIVEAU_BIBLIOTHEQUE: ["la bibliothèque", "Bibliothèque", "Carte de la bibliothèque"],
+	NIVEAU_LABORATOIRE: ["le laboratoire d'alchimie", "Laboratoire d'alchimie", "Carte du laboratoire d'alchimie"]}
+## Passages vers un niveau à part : à au moins tant de cases (en ligne droite) du départ et des autres passages.
+const ECART_PASSAGES := 5
 ## Plans des cryptes essayés : on garde celui que les images des cryptes habillent le mieux.
 const ESSAIS_CRYPTES := 30
 
@@ -59,9 +70,23 @@ static func est_niveau_unique(etage) -> bool:
 
 ## Nom d'un étage ou d'un niveau unique, pour les messages : « l'étage 1 », « les cryptes ».
 static func nom_niveau(etage) -> String:
-	if int(etage) == NIVEAU_CRYPTES:
-		return "les cryptes"
+	if NOMS_NIVEAUX.has(int(etage)):
+		return NOMS_NIVEAUX[int(etage)][0]
 	return "l'étage %d" % int(etage)
+
+
+## Titre du bandeau d'exploration : « Étage 1 », « Cryptes », « Bibliothèque »...
+static func titre_niveau(etage) -> String:
+	if NOMS_NIVEAUX.has(int(etage)):
+		return NOMS_NIVEAUX[int(etage)][1]
+	return "Étage %d" % int(etage)
+
+
+## Titre de la carte complète : « Carte de l'étage 1 », « Carte des cryptes »...
+static func titre_carte(etage) -> String:
+	if NOMS_NIVEAUX.has(int(etage)):
+		return NOMS_NIVEAUX[int(etage)][2]
+	return "Carte de " + nom_niveau(etage)
 
 
 ## Vrai sur le dernier étage (sa montée est la sortie du donjon).
@@ -364,6 +389,7 @@ func generer_etage(etage: int) -> void:
 		data["connections"] = textes
 		salles[str(ident)] = data
 	_d["plan_donjon"][etage] = salles
+	_poser_passages_blocs(salles, plan)
 	_habiller_blocs(salles)
 	# Un étage refait repart de zéro (sinon ses anciens réglages, « prepare », empêcheraient de le peupler)
 	var reglages = U.ga(self, "aventure", null)
@@ -414,6 +440,96 @@ func generer_cryptes(etage := 1) -> void:
 	if reglages is Dictionary:
 		reglages.erase(NIVEAU_CRYPTES)
 	Aventure.preparer_etage(self, NIVEAU_CRYPTES)
+
+
+## Passages vers les niveaux à part (2026-11-10) : pour chaque entrée de la bibliothèque et du laboratoire, une salle
+## ordinaire de l'étage (branche ou chemin principal, sans passage ni événement) reçoit un « passage_niveau » vers ce
+## niveau, du côté d'une case vide (le fond de préférence, sinon un côté) : l'habillage y met une porte, marquée comme
+## celle des cryptes (escalier sur la carte). Les salles sont prises au hasard parmi celles à ECART_PASSAGES cases au
+## moins du départ et des autres passages (sinon la plus éloignée). « entree » : numéro de l'entrée du bloc.
+func _poser_passages_blocs(salles: Dictionary, plan: Dictionary) -> void:
+	var par_case := {}
+	var choisies := []
+	for id in salles:
+		par_case[salles[id]["position"]] = id
+		if salles[id].get("depart", false):
+			choisies.append(salles[id]["position"])
+	for nom in BlocsSalles.BLOCS:
+		var niveau := BlocsSalles.niveau_a_part(nom)
+		if niveau == 0:
+			continue
+		for k in BlocsSalles.BLOCS[nom]["entrees"].size():
+			var candidates := []  # [écart, id, direction]
+			for ident in plan:
+				var id := str(ident)
+				if not (plan[ident]["role"] in ["branche", "principale"]) or salles[id].has("passage_niveau") \
+						or salles[id].has("evenement"):
+					continue
+				var p: Vector2i = salles[id]["position"]
+				for d in [Vector2i(0, 1), Vector2i(-1, 0), Vector2i(1, 0)]:
+					if not par_case.has(p + d):
+						var ecart := 1 << 20
+						for c in choisies:
+							ecart = mini(ecart, absi(c.x - p.x) + absi(c.y - p.y))
+						candidates.append([ecart, id, d])
+						break
+			if candidates.is_empty():
+				continue
+			var loin := candidates.filter(func(c): return c[0] >= ECART_PASSAGES)
+			var choix: Array = loin.pick_random() if not loin.is_empty() else candidates.reduce(
+				func(a, b): return a if a[0] >= b[0] else b)
+			var dir: Vector2i = choix[2]
+			salles[choix[1]]["passage_niveau"] = {"niveau": niveau, "salle": "", "direction": [dir.x, dir.y], "entree": k}
+			choisies.append(salles[choix[1]]["position"])
+			par_case[salles[choix[1]]["position"] + dir] = "passage"
+
+
+## Niveaux à part des blocs (2026-11-10) : les salles du bloc (positions, images, liens de BlocsSalles), sans rien
+## autour ; chaque entrée du bloc est un passage vers la salle de l'étage ``etage`` choisie par _poser_passages_blocs
+## (et inversement). Ennemis, commis, prisonniers : Aventure.preparer_etage (niveau unique).
+func generer_niveaux_blocs(etage := 1) -> void:
+	for nom in BlocsSalles.BLOCS:
+		var niveau := BlocsSalles.niveau_a_part(nom)
+		if niveau == 0:
+			continue
+		var b: Dictionary = BlocsSalles.BLOCS[nom]
+		var ids := {}
+		for cle in b["salles"]:
+			ids[cle] = str(ids.size() + 1)
+		var salles := {}
+		for cle in b["salles"]:
+			var data := _create_room_data(b["salles"][cle]["nom"])
+			data["bloc"] = nom
+			data["bloc_salle"] = cle
+			data["bloc_instance"] = 1
+			data["position"] = b["salles"][cle]["position"]
+			salles[ids[cle]] = data
+		for l in b["liens"]:
+			for paire in [[l[0], l[2]], [l[2], l[0]]]:
+				var liste: Array = salles[ids[paire[0]]]["connections"]
+				if not (ids[paire[1]] in liste):
+					liste.append(ids[paire[1]])
+		var infos := BlocsSalles.salles_peintes(nom, ids, {})
+		for cle in infos:
+			salles[ids[cle]]["salle_peinte"] = infos[cle]
+		var portes := {}  # numéro d'entrée → id de la salle de l'étage
+		for id in _d["plan_donjon"].get(etage, {}):
+			var lien = _d["plan_donjon"][etage][id].get("passage_niveau", null)
+			if lien is Dictionary and int(lien.get("niveau", 0)) == niveau:
+				portes[int(lien.get("entree", 0))] = id
+		for k in b["entrees"].size():
+			var e: Array = b["entrees"][k]
+			var s: Dictionary = salles[ids[e[0]]]
+			var d: Vector2i = e[2]
+			s["salle_peinte"]["passage"] = e[1]
+			s["passage_niveau"] = {"niveau": etage, "salle": str(portes.get(k, "")), "direction": [d.x, d.y]}
+			if portes.has(k):
+				_d["plan_donjon"][etage][portes[k]]["passage_niveau"]["salle"] = ids[e[0]]
+		_d["plan_donjon"][niveau] = salles
+		var reglages = U.ga(self, "aventure", null)
+		if reglages is Dictionary:
+			reglages.erase(niveau)
+		Aventure.preparer_etage(self, niveau)
 
 
 ## Images et sorties des salles des blocs (BlocsSalles.salles_peintes), avant l'attribution des autres images :
