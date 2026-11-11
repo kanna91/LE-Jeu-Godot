@@ -38,6 +38,67 @@ const NOMS_BUTIN := {"or": "Or", "potion": "Potion", "arme": "Arme", "equipement
 	"nourriture": "Nourriture", "ingredient": "Ingrédient", "recette": "Recette"}
 ## Image du butin au sol (images/objets_salles/butin_<image>.png) selon sa catégorie.
 const IMAGES_BUTIN := {"or": "or", "potion": "potion"}
+## Coffres et points de fouille posés dans l'éditeur de zones (2026-11-11, demande de l'utilisateur) : clés « coffres »
+## et « fouilles » du .json de la salle. Coffre : {x, y, contenu} (image provisoire images/objets_salles/coffre.png en
+## attendant la sienne ; il arrête le héros ; « Ouvrir (E) »). Point de fouille : {x, y, verbe, contenu}, invisible,
+## posé sur un meuble peint (armoire, tonneau…) ; verbe « fouiller » ou « ouvrir » (« Fouiller (E) », « Ouvrir (E) »).
+## contenu : liste de butins (mêmes réglages qu'un butin au sol, sans x ni y), tous reçus en une fois ; vide : rien.
+## Chaque salle du plan les a une fois (comme le butin au sol).
+const CONTENANTS := {"coffre": "coffres", "fouille": "fouilles"}
+const VERBES := ["fouiller", "ouvrir"]
+## Sorte de meuble d'un point de fouille (2026-11-11, demande de l'utilisateur ; clé « meuble », « divers » si absente) :
+## nom dans l'éditeur, nom dans le jeu (« Fouiller la bibliothèque (E) », « Vous fouillez la bibliothèque… »).
+const MEUBLES := ["bibliotheque", "tonneau", "caisse_nourriture", "alchimie", "forge", "debris", "divers"]
+const NOMS_MEUBLES := {"bibliotheque": "Bibliothèque", "tonneau": "Tonneau", "caisse_nourriture": "Caisse de nourriture",
+	"alchimie": "Fournitures d'alchimie", "forge": "Fournitures de forge", "debris": "Débris", "divers": "Divers"}
+const MEUBLES_JEU := {"bibliotheque": "la bibliothèque", "tonneau": "le tonneau", "caisse_nourriture": "la caisse de nourriture",
+	"alchimie": "les fournitures d'alchimie", "forge": "les fournitures de forge", "debris": "les débris", "divers": ""}
+
+
+## Butin au hasard selon le meuble (2026-11-11, demande de l'utilisateur : « pas trop généreux ») : un point de fouille
+## « hasard » tire une ligne de la table de son meuble dans ``donnees/fouilles.json`` (poids ; ligne sans catégorie =
+## rien), en plus de son contenu réglé à la main. Les nouveaux points de fouille de l'éditeur sont « au hasard ».
+static var _tables_meubles := {}
+
+
+static func tables_meubles() -> Dictionary:
+	if _tables_meubles.is_empty():
+		var d = JSON.parse_string(FileAccess.get_file_as_string("res://donnees/fouilles.json"))
+		_tables_meubles = d.get("meubles", {}) if d is Dictionary else {}
+		_tables_meubles["_charge"] = true
+	return _tables_meubles
+
+
+## Un butin tiré pour le meuble ``meuble`` (définition comme un butin posé ; {} : rien).
+static func tirer_selon_meuble(meuble: String) -> Dictionary:
+	var table = tables_meubles().get(meuble, tables_meubles().get("divers", []))
+	if not (table is Array) or table.is_empty():
+		return {}
+	var total := 0.0
+	for l in table:
+		total += float(l.get("poids", 0))
+	var r := randf() * total
+	var ligne: Dictionary = table[-1]
+	for l in table:
+		r -= float(l.get("poids", 0))
+		if r < 0:
+			ligne = l
+			break
+	if not ligne.has("categorie"):
+		return {}
+	var b := {"categorie": String(ligne["categorie"]), "objet": String(ligne.get("objet", "")), "quantite": 0}
+	if ligne.has("objets") and not ligne["objets"].is_empty():
+		b["objet"] = String(ligne["objets"].pick_random())
+	if ligne.has("min"):
+		b["quantite"] = randi_range(int(ligne["min"]), int(ligne.get("max", ligne["min"])))
+	if ligne.has("artisan"):
+		b["artisan"] = String(ligne["artisan"])
+	return b
+
+
+## Ce que le héros fouille ou ouvre au point de fouille ``c`` (« la bibliothèque », « » pour divers).
+static func nom_meuble(c: Dictionary) -> String:
+	return String(MEUBLES_JEU.get(String(c.get("meuble", "divers")), ""))
 
 
 ## Butin posé à la main sur une image de salle (clé « butins » de son .json).
@@ -138,7 +199,7 @@ static func objets_salle(salle: Dictionary, image: String) -> Array:
 	if salle.get("objets_image", "") == image and salle.get("objets") is Array:
 		var gardes := []
 		for o in salle["objets"]:
-			if RESULTATS.has(o.get("type", "")) or o.get("type", "") == "butin":
+			if RESULTATS.has(o.get("type", "")) or o.get("type", "") == "butin" or CONTENANTS.has(o.get("type", "")):
 				gardes.append(o)  # types retirés depuis (coffre, étagère) : ils disparaissent
 		salle["objets"] = gardes
 		_ajouter_butins(gardes, image)
@@ -161,23 +222,33 @@ static func objets_salle(salle: Dictionary, image: String) -> Array:
 	return objets
 
 
-## Ajoute aux objets d'une salle le butin posé sur son image (un par butin, « fouille » : ramassé) ; retire celui
-## qui n'existe plus. Fait à chaque affichage : le butin posé après une sauvegarde apparaît aussi.
+## Ajoute aux objets d'une salle le butin, les coffres et les points de fouille posés sur son image (un objet par
+## pose, « fouille » : ramassé, ouvert ou fouillé) ; retire ceux qui n'existent plus. Fait à chaque affichage : ce qui
+## est posé après une sauvegarde apparaît aussi.
 static func _ajouter_butins(objets: Array, image: String) -> void:
-	var poses := butins(image)
-	var deja := {}
-	for o in objets.duplicate():
-		if o.get("type", "") != "butin":
-			continue
-		var k := int(o.get("butin", -1))
-		if k < 0 or k >= poses.size() or deja.has(k):
-			objets.erase(o)
-		else:
-			deja[k] = true
-			o["definition"] = poses[k].duplicate()  # suit les retouches de l'éditeur
-	for k in poses.size():
-		if not deja.has(k):
-			objets.append({"type": "butin", "butin": k, "fouille": false, "definition": poses[k].duplicate()})
+	_ajouter_poses(objets, SallePeinte.lire_salle(image))
+
+
+## Même chose d'après les données ``d`` d'une image de salle (clés « butins », « coffres », « fouilles »).
+static func _ajouter_poses(objets: Array, d: Dictionary) -> void:
+	for type in ["butin", "coffre", "fouille"]:
+		var cle: String = "butins" if type == "butin" else CONTENANTS[type]
+		var poses = d.get(cle, [])
+		if not (poses is Array):
+			poses = []
+		var deja := {}
+		for o in objets.duplicate():
+			if o.get("type", "") != type:
+				continue
+			var k := int(o.get("butin", -1))
+			if k < 0 or k >= poses.size() or deja.has(k):
+				objets.erase(o)
+			else:
+				deja[k] = true
+				o["definition"] = poses[k].duplicate(true)  # suit les retouches de l'éditeur
+		for k in poses.size():
+			if not deja.has(k):
+				objets.append({"type": type, "butin": k, "fouille": false, "definition": poses[k].duplicate(true)})
 
 
 ## Description d'affichage d'un objet tiré (pour SallePeinte.charger) : emplacement + type + image.
@@ -186,6 +257,12 @@ static func a_afficher(objets: Array, image: String) -> Array:
 	var liste := []
 	var poses := butins(image)
 	for o in objets:
+		if CONTENANTS.has(o.get("type", "")):
+			var c: Dictionary = o.get("definition", {})
+			liste.append({"type": o["type"], "x": c.get("x", 0), "y": c.get("y", 0), "fouille": o.get("fouille", false),
+				"objet": "coffre" if o["type"] == "coffre" else "", "verbe": String(c.get("verbe", "fouiller")),
+				"meuble": String(c.get("meuble", "divers")), "nom_meuble": nom_meuble(c)})
+			continue
 		if o.get("type", "") == "butin":
 			if int(o["butin"]) >= poses.size():
 				continue
@@ -212,6 +289,8 @@ static func fouiller(objet: Dictionary, joueur, donjon) -> String:
 	var etage: int = int(donjon.salle_actuelle[0])
 	if objet.get("type", "") == "butin":
 		return ramasser(objet.get("definition", {}), joueur, etage)
+	if CONTENANTS.has(objet.get("type", "")):
+		return ouvrir(objet["type"], objet.get("definition", {}), joueur, etage)
 	Statistiques.noter(joueur, "objets_fouilles")
 	var genre: String = objet["type"]
 	var resultat = _tirer_pondere(RESULTATS.get(genre, [["rien", 1]]))
@@ -228,6 +307,28 @@ static func fouiller(objet: Dictionary, joueur, donjon) -> String:
 	return "Vous fouillez %s : rien d'intéressant." % nom
 
 
+## Ouvre un coffre ou fouille un point de fouille (``type`` : « coffre » ou « fouille », ``c`` : sa définition) : le
+## héros reçoit tout son contenu ; renvoie le message.
+static func ouvrir(type: String, c: Dictionary, joueur, etage: int) -> String:
+	Statistiques.noter(joueur, "objets_fouilles")
+	var verbe := "ouvrir" if type == "coffre" else String(c.get("verbe", "fouiller"))
+	var debut := "Vous ouvrez le coffre" if type == "coffre" else ("Vous ouvrez" if verbe == "ouvrir" else "Vous fouillez")
+	if type == "fouille" and nom_meuble(c) != "":
+		debut += " " + nom_meuble(c)
+	var messages := []
+	for b in c.get("contenu", []):
+		if b is Dictionary:
+			messages.append(ramasser(b, joueur, etage))
+	if type == "fouille" and bool(c.get("hasard", false)):
+		var tire := tirer_selon_meuble(String(c.get("meuble", "divers")))
+		if not tire.is_empty():
+			messages.append(ramasser(tire, joueur, etage))
+	messages = messages.filter(func(m): return m != "Il n'y avait rien.")
+	if messages.is_empty():
+		return "%s : rien d'intéressant." % debut
+	return "%s. %s" % [debut, " ".join(messages)]
+
+
 ## Ramasse un butin posé à la main (``b`` : sa définition, voir CATEGORIES_BUTIN) ; renvoie le message.
 static func ramasser(b: Dictionary, joueur, etage: int) -> String:
 	var categorie := String(b.get("categorie", "or"))
@@ -241,7 +342,7 @@ static func ramasser(b: Dictionary, joueur, etage: int) -> String:
 		joueur.piece_or += gain
 		return "Vous ramassez %d pièces d'or." % gain
 	if categorie == "recette":
-		return AmeliorationsArmes.apprendre(joueur, nom_objet)
+		return AmeliorationsArmes.apprendre(joueur, nom_objet, String(b.get("artisan", "")))
 	var trouves := []
 	for _i in maxi(1, quantite):
 		var o = null

@@ -692,7 +692,7 @@ static func artisan(donjon, pnj: String) -> String:
 		var lignes_armes := []
 		for a in armes:
 			var detail := AmeliorationsArmes.resume(a)
-			lignes_armes.append({"texte": "%s%s — armurier %d/%d · alchimie et enchantement %d/%d" % [a.nom,
+			lignes_armes.append({"texte": "%s%s — forge %d/%d · alchimie et enchantement %d/%d" % [a.nom,
 				" (équipée)" if a == U.ga(joueur, "arme_equipee", null) else "",
 				AmeliorationsArmes.armurier_de(a).size(), AmeliorationsArmes.MAX_ARMURIER,
 				AmeliorationsArmes.magiques_de(a).size(), AmeliorationsArmes.MAX_MAGIE],

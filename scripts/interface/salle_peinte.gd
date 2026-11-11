@@ -120,8 +120,10 @@ const OMBRE_OBJETS := 0.42
 ## Hauteur de chaque type d'objet, en hauteurs du héros à la même profondeur.
 ## Emprise au sol : [demi-largeur, demi-profondeur] en parts de la largeur affichée.
 ## Butin posé dans l'éditeur (Fouille.butins) : petit, sans emprise (on marche dessus), disparaît une fois ramassé.
-const TAILLES := {"squelette": 0.5, "butin": 0.2}
-const EMPRISES := {"squelette": [0.4, 0.1], "butin": [0.0, 0.0]}
+## Coffre (2026-11-11, Fouille.CONTENANTS) : image provisoire, il arrête le héros ; point de fouille : invisible, sans
+## emprise (posé sur un meuble peint), de la taille d'un petit meuble pour la portée et le libellé.
+const TAILLES := {"squelette": 0.5, "butin": 0.2, "coffre": 0.42, "fouille": 0.45}
+const EMPRISES := {"squelette": [0.4, 0.1], "butin": [0.0, 0.0], "coffre": [0.45, 0.12], "fouille": [0.0, 0.0]}
 const TEINTE_BUTIN := Color(0.85, 0.85, 0.85)
 ## Portée de la fouille : distance au pied de l'objet, en hauteurs du héros.
 const PORTEE_FOUILLE := 0.55
@@ -476,14 +478,17 @@ func _animer_decor(_delta: float) -> void:
 
 ## Taille, emprise et hauteur de dessin d'un objet sur son emplacement (coordonnées sans miroir).
 func _preparer_objet(o: Dictionary) -> Dictionary:
-	var tex := texture(chemin("images/objets_salles/%s.png" % o["objet"]))
-	if tex == null:
+	var invisible: bool = o.get("type", "") == "fouille"
+	var tex: Texture2D = null
+	if not invisible:
+		tex = texture(chemin("images/objets_salles/%s.png" % o["objet"]))
+	if tex == null and not invisible:
 		return {}
 	var p := o.duplicate()
 	var y := float(o["y"])
 	var heros_ici := hauteur(y)
 	var h: float = TAILLES.get(o["type"], 0.4) * heros_ici
-	var largeur := h * tex.get_width() / tex.get_height()
+	var largeur := h if invisible else h * tex.get_width() / tex.get_height()
 	p["x"] = float(o["x"])
 	p["y"] = y
 	p["hauteur"] = h
@@ -510,6 +515,12 @@ func _creer_objets() -> void:
 		var x: float = o["x"]
 		if miroir:
 			x = fond.get_width() - x
+		if tex == null:  # point de fouille : rien à dessiner (le meuble est peint dans l'image)
+			var vide := Node2D.new()
+			vide.position = Vector2(x, o["y"])
+			tri.add_child(vide)
+			noeuds_objets.append(vide)
+			continue
 		var tri_y: float = o["y"]
 		var bas: float = o["bas"]
 		var echelle: float = o["hauteur"] / tex.get_height()

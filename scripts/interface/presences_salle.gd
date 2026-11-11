@@ -67,8 +67,11 @@ static var _images_diablotin := {}
 ## ``images/pnj/commis_<role>_anim/repos_000.png``...), hauteur en hauteurs du héros (un jeune homme, un peu plus petit).
 ## Cuisinière (2026-11-04) : image fixe détourée (``outils/importer_cuisiniere.py`` → ``images/pnj/cuisiniere.png``),
 ## qui respire doucement ; petite et trapue.
-const TAILLE_COMMIS := {"cuisine": 0.95, "cellier": 0.95, "cuisiniere": 0.88, "armurier": 1.0, "alchimiste": 0.95,
-	"enchanteur": 1.0}
+const TAILLE_COMMIS := {"cuisine": 0.95, "cellier": 0.95, "cuisiniere": 0.88, "armurier": 1.05, "alchimiste": 0.98,
+	"enchanteur": 1.0, "apprenti_forgeron": 0.97, "apprenti_alchimiste": 0.93, "bibliothecaire": 0.97, "assistante": 0.92}
+## Artisans et leurs aides (2026-11-11) : image fixe détourée (``outils/importer_artisans.py`` →
+## ``images/pnj/artisan_<role>.png``) qui respire doucement, comme la cuisinière ; la silhouette de couleur reste
+## pour un rôle sans image.
 ## Armurier, alchimiste, enchanteur (2026-11-09) : formes provisoires (silhouette de couleur) tant qu'ils n'ont pas
 ## d'animation dans images/pnj/commis_<role>_anim.
 const COULEURS_ARTISANS := {"armurier": Color8(120, 120, 130), "alchimiste": Color8(70, 130, 80),
@@ -76,6 +79,17 @@ const COULEURS_ARTISANS := {"armurier": Color8(120, 120, 130), "alchimiste": Col
 const IMAGE_CUISINIERE := preload("res://images/pnj/cuisiniere.png")
 const FPS_COMMIS := 24.0
 static var _images_commis := {}
+
+
+static var _images_artisans := {}
+
+
+## Image fixe d'un artisan (``images/pnj/artisan_<role>.png``), ou null.
+static func image_artisan(role: String) -> Texture2D:
+	if not _images_artisans.has(role):
+		var chemin := "res://images/pnj/artisan_%s.png" % role
+		_images_artisans[role] = load(chemin) if ResourceLoader.exists(chemin) else null
+	return _images_artisans[role]
 
 
 static func images_commis(role: String) -> Array:
@@ -691,8 +705,9 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 				"commis":
 					# Animation de repos de l'utilisateur (images/pnj/commis_<role>_anim), en boucle, pieds au sol
 					var images := images_commis(String(p.get("role", "cuisine")))
-					if p.get("role", "") == "cuisiniere":
-						var tex: Texture2D = IMAGE_CUISINIERE
+					var artisan := image_artisan(String(p.get("role", "")))
+					if p.get("role", "") == "cuisiniere" or artisan != null:
+						var tex: Texture2D = IMAGE_CUISINIERE if artisan == null else artisan
 						var souffle := 1.0 + 0.012 * sin(temps * 1.6 + int(p.get("id", 0)))
 						var taille := Vector2(hf * tex.get_width() / float(tex.get_height()), hf * souffle)
 						n.draw_texture_rect(tex, Rect2(Vector2(-taille.x / 2.0, -taille.y), taille), false)

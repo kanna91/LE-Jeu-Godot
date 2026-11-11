@@ -568,11 +568,16 @@ static func _preparer_niveau_unique(donjon, etage: int, m: Dictionary) -> void:
 ## près des fours ; on lui parle comme aux commis (rôle « cuisiniere »).
 const COMMIS := {"bloc_cuisine_cuisine": [{"role": "cuisine", "pos": [455, 352]}, {"role": "cuisiniere", "pos": [640, 452]}],
 	"bloc_cuisine_cellier_d": [{"role": "cellier", "pos": [520, 374]}],
-	# Améliorations d'armes (2026-11-09, AmeliorationsArmes) : l'armurier est au laboratoire, devant la forge, en
-	# attendant l'armurerie (il changera de place) ; l'alchimiste près des alambics, l'enchanteur dans la salle de lecture.
-	"bloc_laboratoire_fourneaux_forge": [{"role": "armurier", "pos": [476, 396]}],
-	"bloc_laboratoire_distillation_cornues": [{"role": "alchimiste", "pos": [504, 395]}],
-	"bloc_bibliotheque_lecture": [{"role": "enchanteur", "pos": [446, 402]}]}
+	# Améliorations d'armes (2026-11-09, AmeliorationsArmes) : le forgeron (rôle « armurier » : il a remplacé
+	# l'armurier le 2026-11-11, décision de l'utilisateur) devant la forge, l'alchimiste près des alambics,
+	# l'enchanteresse (rôle « enchanteur ») dans la salle de lecture. Leurs aides (2026-11-11, demande de l'utilisateur) :
+	# l'apprenti forgeron et l'apprenti alchimiste à côté de leur maître ; la bibliothécaire et son assistante dans le
+	# vestibule de la bibliothèque (à droite du grand bureau). On leur parle (dialogues « commis_<rôle> »).
+	"bloc_laboratoire_fourneaux_forge": [{"role": "armurier", "pos": [476, 396]}, {"role": "apprenti_forgeron", "pos": [400, 432]}],
+	"bloc_laboratoire_distillation_cornues": [{"role": "alchimiste", "pos": [504, 395]},
+		{"role": "apprenti_alchimiste", "pos": [600, 422]}],
+	"bloc_bibliotheque_lecture": [{"role": "enchanteur", "pos": [446, 402]}],
+	"bloc_bibliotheque_vestibule": [{"role": "bibliothecaire", "pos": [505, 412]}, {"role": "assistante", "pos": [612, 410]}]}
 
 
 ## Pose les commis dans les salles de l'étage dont l'image en a un (aussi à la lecture d'une salle : anciennes parties).

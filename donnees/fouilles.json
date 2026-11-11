@@ -1,0 +1,67 @@
+{
+ "_aide": [
+  "Butin au hasard des points de fouille, selon la sorte de meuble (2026-11-11). Valeurs proposées par Claude, volontairement peu généreuses : à ajuster.",
+  "Chaque fouille tire UNE ligne de la table de son meuble, selon les « poids » (sur 100 ici : un poids de 60 = 60 % de chances). Une ligne sans « categorie » = rien.",
+  "categorie : or, potion, arme, equipement, divers, nourriture, ingredient, recette (comme le butin de l'éditeur). objet : nom du catalogue (objets_divers.json) ; objets : une liste, un nom tiré au hasard ; sans objet : au hasard dans la catégorie.",
+  "min / max : nombre (ou pièces d'or) tiré entre les deux. recette : « artisan » = armurier (forgeron), alchimiste ou enchanteur ; une recette que le héros ne connaît pas encore."
+ ],
+ "meubles": {
+  "bibliotheque": [
+   {"poids": 64},
+   {"poids": 14, "categorie": "or", "min": 2, "max": 6},
+   {"poids": 12, "categorie": "divers", "objets": ["Page de livre de cuisine", "Tissu déchiré"]},
+   {"poids": 6, "categorie": "divers", "objets": ["Chandelier en cuivre", "Gobelet en fer"]},
+   {"poids": 3, "categorie": "recette", "artisan": "enchanteur"},
+   {"poids": 1, "categorie": "recette", "artisan": "alchimiste"}
+  ],
+  "tonneau": [
+   {"poids": 55},
+   {"poids": 20, "categorie": "ingredient", "objets": ["Pomme de terre", "Navet", "Carotte", "Oignon", "Chou", "Farine"]},
+   {"poids": 9, "categorie": "nourriture", "objets": ["Pomme", "Poire", "Prune", "Grappe de raisin"]},
+   {"poids": 5, "categorie": "nourriture", "objet": "Viande séchée"},
+   {"poids": 7, "categorie": "divers", "objets": ["Planche en bois", "Morceau de bois"]},
+   {"poids": 4, "categorie": "or", "min": 1, "max": 4}
+  ],
+  "caisse_nourriture": [
+   {"poids": 45},
+   {"poids": 28, "categorie": "ingredient", "objets": ["Pomme de terre", "Navet", "Carotte", "Oignon", "Chou", "Poireau", "Ail", "Œuf", "Farine", "Herbes"]},
+   {"poids": 15, "categorie": "nourriture", "objets": ["Pomme", "Orange", "Poire", "Citron", "Prune"]},
+   {"poids": 5, "categorie": "nourriture", "objet": "Viande séchée"},
+   {"poids": 4, "categorie": "ingredient", "objet": "Miel"},
+   {"poids": 3, "categorie": "ingredient", "objet": "Viande périmée"}
+  ],
+  "alchimie": [
+   {"poids": 58},
+   {"poids": 13, "categorie": "ingredient", "objets": ["Herbes", "Champignon", "Ail"]},
+   {"poids": 12, "categorie": "divers", "objets": ["Gobelet en terre cuite", "Gobelet en fer", "Tissu déchiré"]},
+   {"poids": 8, "categorie": "potion"},
+   {"poids": 5, "categorie": "or", "min": 2, "max": 5},
+   {"poids": 4, "categorie": "recette", "artisan": "alchimiste"}
+  ],
+  "forge": [
+   {"poids": 55},
+   {"poids": 16, "categorie": "divers", "objet": "Morceau de métal rouillé"},
+   {"poids": 10, "categorie": "divers", "objet": "Morceau de métal tordu"},
+   {"poids": 8, "categorie": "divers", "objets": ["Silex", "Amadou"]},
+   {"poids": 7, "categorie": "or", "min": 2, "max": 6},
+   {"poids": 4, "categorie": "recette", "artisan": "armurier"}
+  ],
+  "debris": [
+   {"poids": 66},
+   {"poids": 10, "categorie": "divers", "objet": "Morceau de bois"},
+   {"poids": 8, "categorie": "divers", "objet": "Tissu déchiré"},
+   {"poids": 7, "categorie": "divers", "objets": ["Morceau de métal rouillé", "Morceau de métal tordu"]},
+   {"poids": 7, "categorie": "or", "min": 1, "max": 5},
+   {"poids": 2, "categorie": "divers", "objet": "Dent en or"}
+  ],
+  "divers": [
+   {"poids": 60},
+   {"poids": 14, "categorie": "or", "min": 2, "max": 8},
+   {"poids": 10, "categorie": "divers", "objets": ["Gobelet en fer", "Gobelet en bois", "Assiette en terre cuite", "Couteau émoussé", "Silex"]},
+   {"poids": 8, "categorie": "ingredient"},
+   {"poids": 4, "categorie": "potion"},
+   {"poids": 3, "categorie": "divers", "objets": ["Chandelier en cuivre", "Dent en or"]},
+   {"poids": 1, "categorie": "divers", "objet": "Petit grenat"}
+  ]
+ }
+}

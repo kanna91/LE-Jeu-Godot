@@ -458,9 +458,17 @@ func _dessiner_fouille(ci: Control) -> void:
 			Ui.texte(ci, libelle_t, cadre_t.get_center(), Ui.OR, 15, true, null, "center")
 		return
 	var haut := salle_peinte.haut_objet_ecran(i)
-	var cadre := Rect2(haut.x - 62, haut.y - 34, 124, 26)
+	var type_objet := String(salle_peinte.objets[i].get("type", ""))
+	var libelle := "Fouiller (E)"
+	if type_objet == "butin":
+		libelle = "Ramasser (E)"
+	elif type_objet == "coffre" or (type_objet == "fouille" and salle_peinte.objets[i].get("verbe", "") == "ouvrir"):
+		libelle = "Ouvrir (E)"
+	if type_objet == "fouille" and String(salle_peinte.objets[i].get("nom_meuble", "")) != "":
+		libelle = libelle.replace(" (E)", " %s (E)" % salle_peinte.objets[i]["nom_meuble"])  # « Fouiller la bibliothèque (E) »
+	var l_cadre := maxf(124.0, Ui.taille_texte(libelle, 15, true).x + 24)
+	var cadre := Rect2(haut.x - l_cadre / 2, haut.y - 34, l_cadre, 26)
 	Ui.panneau(ci, cadre, 210)
-	var libelle := "Ramasser (E)" if salle_peinte.objets[i].get("type", "") == "butin" else "Fouiller (E)"
 	Ui.texte(ci, libelle, cadre.get_center(), Ui.OR, 15, true, null, "center")
 
 

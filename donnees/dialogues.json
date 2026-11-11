@@ -194,26 +194,26 @@
   "plusieurs": "Les {nombre} gobelins lèvent les mains, terrorisés. « Pas de combat ! Pas de combat ! »"
  },
  "armurier": {
-  "_nom": "Armurier (améliorations d'armes, au laboratoire en attendant l'armurerie)",
-  "nom": "Armurier",
-  "presentation": "Un forgeron aux bras couverts de brûlures martèle une lame près de la forge. « Une arme à renforcer ? Montrez-la-moi. »",
+  "_nom": "Forgeron (améliorations d'armes, à la forge du laboratoire ; ex-armurier)",
+  "nom": "Forgeron",
+  "presentation": "Un forgeron barbu, le tablier de cuir couvert de brûlures, martèle une lame près de la forge. « Une arme à renforcer ? Montrez-la-moi. »",
   "explications": [
    "« Je rends vos coups plus lourds : contondant pour un marteau, perforant pour une lance, tranchant pour une épée. Ça ne sert qu'aux coups portés avec l'arme, pas à vos sorts. »",
-   "« Une arme reçoit au plus trois améliorations de l'armurier, et trois en tout chez l'alchimiste et l'enchanteur : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
+   "« Une arme reçoit au plus trois améliorations du forgeron, et trois en tout chez l'alchimiste et l'enchanteresse : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
    "« Il me faut une recette pour chaque dé : 1d2, 1d3, 1d4 ou 1d6. On en trouve dans le donjon. Une fois lue, je saurai la refaire autant de fois que vous paierez. »"
   ],
   "sans_arme": "« Vous n'avez pas d'arme. Revenez avec quelque chose à forger. »",
-  "sans_recette": "« Je ne travaille pas au hasard. Trouvez-moi une recette d'armurier, et on en reparle. »",
+  "sans_recette": "« Je ne travaille pas au hasard. Trouvez-moi une recette de forge, et on en reparle. »",
   "fait": "« Voilà. {arme} frappe plus fort : +{de}. »",
-  "fin": "L'armurier retourne à son enclume."
+  "fin": "Le forgeron retourne à son enclume."
  },
  "alchimiste": {
   "_nom": "Alchimiste (dégâts sur les attaques de l'arme)",
   "nom": "Alchimiste",
-  "presentation": "Une alchimiste aux doigts tachés surveille ses alambics. « Un peu de poison sur la lame ? Du feu ? Tout se distille. »",
+  "presentation": "Un alchimiste aux doigts tachés surveille ses alambics. « Un peu de poison sur la lame ? Du feu ? Tout se distille. »",
   "explications": [
    "« J'enduis vos armes : poison, feu, froid, foudre, arcane, chaos ou ombre. Ça ne marche qu'avec les coups de l'arme, pas avec vos sorts. Le poison ne dépasse pas 1d4. »",
-   "« Une arme reçoit au plus trois améliorations de l'armurier, et trois en tout chez l'alchimiste et l'enchanteur : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
+   "« Une arme reçoit au plus trois améliorations du forgeron, et trois en tout chez l'alchimiste et l'enchanteresse : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
    "« Il me faut une recette pour chaque dé : 1d2, 1d3, 1d4 ou 1d6. On en trouve dans le donjon. Une fois lue, je saurai la refaire autant de fois que vous paierez. »"
   ],
   "sans_arme": "« Sans arme, je n'ai rien à enduire. »",
@@ -223,16 +223,64 @@
  },
  "enchanteur": {
   "_nom": "Enchanteur (dégâts sur les sorts)",
-  "nom": "Enchanteur",
-  "presentation": "Un vieil enchanteur lève les yeux de son grimoire. « Votre arme peut porter vos sorts plus loin. Voulez-vous que j'y grave une rune ? »",
+  "nom": "Enchanteresse",
+  "presentation": "Une enchanteresse en cape sombre lève les yeux de son grimoire. « Votre arme peut porter vos sorts plus loin. Voulez-vous que j'y grave une rune ? »",
   "explications": [
    "« Mes runes renforcent vos sorts, pas vos coups d'arme : feu, froid, foudre, arcane, chaos ou ombre. Chaque sort que vous lancez avec l'arme en main en profite. »",
-   "« Une arme reçoit au plus trois améliorations de l'armurier, et trois en tout chez l'alchimiste et l'enchanteur : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
+   "« Une arme reçoit au plus trois améliorations du forgeron, et trois en tout chez l'alchimiste et l'enchanteresse : deux chez l'un et une chez l'autre, ou trois chez le même, comme vous voulez. »",
    "« Il me faut une recette pour chaque dé : 1d2, 1d3, 1d4 ou 1d6. On en trouve dans le donjon. Une fois lue, je saurai la refaire autant de fois que vous paierez. »"
   ],
   "sans_arme": "« Il me faut une arme pour y graver une rune. »",
   "sans_recette": "« Je n'ai pas la formule. Rapportez-moi une recette d'enchantement. »",
   "fait": "« La rune est gravée. Vos sorts gagnent +{de} tant que vous tenez {arme}. »",
-  "fin": "L'enchanteur se replonge dans son grimoire."
+  "fin": "L'enchanteresse se replonge dans son grimoire."
+ },
+ "commis_apprenti_forgeron": {
+  "_nom": "Apprenti forgeron (à la forge du laboratoire)",
+  "nom": "Apprenti forgeron",
+  "presentation": "Un jeune apprenti, un marteau à la main, essuie la suie de son front. « Le maître est occupé. Mais je peux vous renseigner, si vous voulez. »",
+  "boutons": ["Parler", "Partir"],
+  "explications": [
+   "« Le maître rend les armes plus lourdes : un marteau cogne plus fort, une lance perce mieux, une épée tranche plus net. »",
+   "« Il ne forge rien sans recette de forge. On en trouve dans le donjon, paraît-il. Moi, je n'ai pas le droit de sortir. »",
+   "« Un jour, c'est moi qui tiendrai cette forge. En attendant, je tire le soufflet. »"
+  ],
+  "fin": "L'apprenti retourne au soufflet."
+ },
+ "commis_apprenti_alchimiste": {
+  "_nom": "Apprentie ou apprenti alchimiste (salle des cornues)",
+  "nom": "Apprenti alchimiste",
+  "presentation": "Un apprenti broie quelque chose de vert dans un mortier. L'odeur vous pique les yeux. « Ne touchez à rien. Surtout pas aux fioles rouges. »",
+  "boutons": ["Parler", "Partir"],
+  "explications": [
+   "« Mon maître enduit les lames : poison, feu, froid, foudre… Ça ne sert qu'aux coups portés avec l'arme. »",
+   "« Il lui faut une recette d'alchimie pour chaque mélange. Sans recette, il ne fait rien, même pour de l'or. »",
+   "« Moi, je broie. Toute la journée, je broie. »"
+  ],
+  "fin": "L'apprenti reprend son pilon."
+ },
+ "commis_bibliothecaire": {
+  "_nom": "Bibliothécaire (vestibule de la bibliothèque)",
+  "nom": "Bibliothécaire",
+  "presentation": "Une bibliothécaire en robe claire referme lentement un gros livre. « Chut. Ici, on parle bas. Que cherchez-vous ? »",
+  "boutons": ["Parler", "Partir"],
+  "explications": [
+   "« Cette bibliothèque est plus vieille que le donjon lui-même. Certains rayonnages n'ont pas été ouverts depuis des siècles. »",
+   "« L'enchanteresse travaille dans la salle de lecture. Si vous trouvez une recette d'enchantement, c'est elle qu'il faut voir. »",
+   "« Et ne courez pas dans les allées. Les livres n'aiment pas ça. »"
+  ],
+  "fin": "La bibliothécaire rouvre son livre sans un mot de plus."
+ },
+ "commis_assistante": {
+  "_nom": "Assistante de la bibliothécaire (vestibule de la bibliothèque)",
+  "nom": "Assistante",
+  "presentation": "Une jeune assistante, une pile de livres sous le bras et une lanterne à la main, vous adresse un petit sourire. « Vous êtes perdu ? Tout le monde se perd, ici. »",
+  "boutons": ["Parler", "Partir"],
+  "explications": [
+   "« Je range les livres que les gens oublient. Il y en a partout : sur les tables, dans les escaliers, sous les tapis… »",
+   "« La bibliothécaire est sévère, mais elle connaît chaque livre par cœur. »",
+   "« Gardez votre lanterne allumée. Certaines salles sont très sombres. »"
+  ],
+  "fin": "L'assistante repart ranger ses livres."
  }
 }

@@ -164,3 +164,13 @@ func _placement() -> void:
 			# porte qui n'existe plus sur l'image, bug connu le 2026-11-09 pour la bibliothèque et le bloc cuisine)
 			print("ATTENTION ", pnj, " absent des donjons générés : son bloc de salles ne se construit pas")
 		verifier(Dialogues.texte(pnj + "/presentation") != "", pnj + " a ses dialogues")
+	# Artisans et leurs aides (2026-11-11) : image détourée, dialogues, posés dans les donjons générés
+	verifier(Dialogues.texte("armurier/nom") == "Forgeron", "l'armurier est devenu le forgeron")
+	verifier(AmeliorationsArmes.id_depuis_nom("Recette d'armurier (1d3)") == AmeliorationsArmes.id_depuis_nom("Recette de forge (1d3)")
+		and AmeliorationsArmes.id_depuis_nom("Recette de forge (1d3)") != "", "recette de forge (l'ancien nom marche encore)")
+	for role in ["armurier", "alchimiste", "enchanteur", "apprenti_forgeron", "apprenti_alchimiste", "bibliothecaire", "assistante"]:
+		verifier(PresencesSalle.image_artisan(role) != null, role + " a son image")
+		verifier(role in trouves, role + " posé dans les donjons générés")
+	for role in ["apprenti_forgeron", "apprenti_alchimiste", "bibliothecaire", "assistante"]:
+		verifier(Dialogues.texte("commis_%s/presentation" % role) != "" and Dialogues.liste("commis_%s/explications" % role).size() >= 2,
+			role + " a ses dialogues")

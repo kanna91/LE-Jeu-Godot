@@ -58,35 +58,39 @@ stick droit pour choisir un bouton de l'interface.
 > neutre, prêts pour le nouveau système, et l'image `images/menu_améliorer_compétence.png`. Les corrections de base des
 > compétences sont dans `scripts/logique/bases_competences.gd` (`BasesCompetences`).
 
-- **Améliorations des armes : armurier, alchimiste, enchanteur** (2026-11-09, règles de l'utilisateur ;
+- **Améliorations des armes : forgeron, alchimiste, enchanteresse** (2026-11-09, règles de l'utilisateur ;
   `scripts/logique/ameliorations_armes.gd`, `AmeliorationsArmes`) :
-  - **Armurier** : ajoute des dés du type de l'arme (contondant au marteau, perforant à la lance, tranchant à
+  - **Forgeron** (l'« armurier » jusqu'au 2026-11-11 ; rôle « armurier » dans le code) : ajoute des dés du type de l'arme (contondant au marteau, perforant à la lance, tranchant à
     l'épée), lancés **seulement par les attaques de l'arme** (Coup d'épée/Frénésie, Coup de lance/Balayage, Coup de
     marteau/Fracasser).
   - **Alchimiste** : dés de poison, feu, froid, foudre, arcane, chaos ou ombre, lancés **par les attaques de l'arme**
     (jamais par les sorts). Poison limité à 1d4.
-  - **Enchanteur** : dés de feu, froid, foudre, arcane, chaos ou ombre, lancés **par les sorts offensifs** du héros
+  - **Enchanteresse** (rôle « enchanteur » dans le code) : dés de feu, froid, foudre, arcane, chaos ou ombre, lancés **par les sorts offensifs** du héros
     (Boule de feu, Souffle du chaos...), jamais par les coups d'arme.
-  - Dés : 1d2, 1d3, 1d4 ou 1d6. Une arme reçoit **au plus 3 améliorations de l'armurier** et **au plus 3 en tout
+  - Dés : 1d2, 1d3, 1d4 ou 1d6. Une arme reçoit **au plus 3 améliorations du forgeron** et **au plus 3 en tout
     chez l'alchimiste et l'enchanteur** (2 + 1, 1 + 2, 3 + 0... au choix). Les dés identiques s'additionnent
     (exemple de l'utilisateur : marteau 1d2 ×2 + 1d4, poison 1d3, feu des sorts 2d3).
   - Calcul : un type que la compétence fait déjà s'ajoute à ses dés (`Formules.des_type` : caractéristique,
     dégâts plats et % comptés une fois) ; un autre type devient un coup à part (`AmeliorationsArmes.types_en_plus`,
     jet × % du type, comme le dé bonus d'arme). La fiche de l'arme, l'onglet Dégâts et l'estimation des dégâts les
     montrent.
-  - **Recettes** : une par dé chez l'armurier (4), une par élément et par dé chez l'alchimiste (27) et
+  - **Recettes** : une par dé chez le forgeron (4, « Recette de forge (1d3) » ; l'ancien nom « Recette
+    d'armurier » est encore reconnu), une par élément et par dé chez l'alchimiste (27) et
     l'enchanteur (24). Elles se trouvent dans le donjon : butin « Recette » de l'éditeur de zones (ou butin d'un
     ennemi dans l'éditeur des ennemis ; objet « Au hasard » = une recette que le héros ne connaît pas). Lue en la
     ramassant, elle est connue pour toute la partie (`joueur.recettes`) et sert autant de fois qu'on veut.
   - **Prix** : or + ingrédients, dans `donnees/ameliorations_armes.json`. **À valider** : or proposé par Claude
     (1d2 = 30, 1d3 = 60, 1d4 = 100, 1d6 = 180, pour les trois) ; ingrédients vides en attendant le choix de
     l'utilisateur.
-  - **Où** : l'armurier est au laboratoire, devant la forge (`bloc_laboratoire_fourneaux_forge`) **en attendant
-    l'armurerie : il changera de place** ; l'alchimiste près des alambics (`bloc_laboratoire_distillation_cornues`),
-    l'enchanteur dans la salle de lecture de la bibliothèque (`bloc_bibliotheque_lecture`). Places dans
-    `Aventure.COMMIS` (comme les commis, E pour parler) ; silhouettes de couleur en attendant leurs images
-    (`images/pnj/commis_<role>_anim`). Textes dans `donnees/dialogues.json` (armurier, alchimiste, enchanteur),
-    modifiables dans le menu Dialogues de l'éditeur de zones.
+  - **Où** : le forgeron devant la forge du laboratoire (`bloc_laboratoire_fourneaux_forge`), avec **son apprenti** ;
+    l'alchimiste près des alambics (`bloc_laboratoire_distillation_cornues`), avec **son apprenti** ; l'enchanteresse
+    dans la salle de lecture de la bibliothèque (`bloc_bibliotheque_lecture`). La **bibliothécaire et son assistante**
+    sont dans le vestibule de la bibliothèque (`bloc_bibliotheque_vestibule`, à droite du grand bureau). Places dans
+    `Aventure.COMMIS` (comme les commis, E pour parler) ; les apprentis, la bibliothécaire et l'assistante parlent
+    seulement (présentation, quelques conseils). Images de l'utilisateur détourées par `outils/importer_artisans.py`
+    (`images/pnj/artisan_<role>.png`, image fixe qui respire). Textes dans `donnees/dialogues.json` (armurier,
+    alchimiste, enchanteur, commis_apprenti_forgeron, commis_apprenti_alchimiste, commis_bibliothecaire,
+    commis_assistante), modifiables dans le menu Dialogues de l'éditeur de zones.
 
 - **Donjon d'aventure** (2026-10-26, liste de l'utilisateur `..\liste des cohse a ajouter.odt`, feuille de route
   `FEUILLE_DE_ROUTE_AVENTURE.md`) : le jeu est centré sur l'exploration plutôt que sur le combat (l'ancien mode,
@@ -381,6 +385,19 @@ stick droit pour choisir un bouton de l'interface.
     (viande périmée 1 fois sur 2, viande crue 1 fois sur 4) : régénération des PV coupée, −4 PV par minute en tics de
     15 s pendant 8 minutes ; une 2ᵉ ajoute sa durée ; **peut tuer** ; compte en exploration et en combat, pas dans
     les menus. Affichée en rouge sous le bandeau du haut. Pas encore de remède (établi d'alchimie à venir) ;
+  - **Coffres et points de fouille** (2026-11-11, demande de l'utilisateur) : couches « Coffres » (C) et « Fouilles »
+    (F) de l'éditeur de zones (voir plus bas). Un **coffre** est posé au sol (image provisoire
+    `images/objets_salles/coffre.png` en attendant la vraie), il arrête le héros, « Ouvrir (E) ». Un **point de
+    fouille** est invisible, posé au pied d'un meuble peint (armoire, tonneau…), « Fouiller (E) » ou « Ouvrir (E) »
+    au choix, avec sa **sorte de meuble** : bibliothèque, tonneau, caisse de nourriture, fournitures d'alchimie,
+    fournitures de forge, débris ou divers (« Fouiller la bibliothèque (E) », « Vous fouillez la bibliothèque… » ;
+    divers : sans nom ; `Fouille.MEUBLES`, clé « meuble »). Un point de fouille peut avoir un **butin au hasard
+    selon son meuble** (case cochée d'office pour un nouveau point ; clé « hasard ») : une ligne tirée dans la table
+    du meuble, `donnees/fouilles.json` (modifiable ; souvent rien : 45 % caisse de nourriture à 67 % débris ; or
+    moyen sous 1 pièce par fouille ; recettes 4 % en bibliothèque, alchimie, forge, de l'artisan du lieu), en plus
+    du contenu de la liste. Chacun a un **contenu** (liste de butins réglés comme le butin au sol) : le héros reçoit tout en une
+    fois (« Vous ouvrez le coffre. Vous ramassez… » ; vide : « rien d'intéressant »), une seule fois par salle du plan
+    (`Fouille.ouvrir`, `Fouille.CONTENANTS`, clés « coffres » et « fouilles » du .json de la salle).
   - **Butin posé à la main** (2026-11-03) : onglet « Butin » de l'éditeur de zones (voir plus bas). Le butin est sur
     le sol de chaque salle qui utilise l'image (or en tas, potion en fiole, le reste en sac ; images provisoires de
     `outils/dessiner_butin.py`), ne bloque pas le passage, se ramasse avec **E** (« Ramasser (E) ») une fois par salle
@@ -651,6 +668,7 @@ stick droit pour choisir un bouton de l'interface.
     | 6 | couche des cachettes (zones où le héros est invisible) |
     | 8 ou onglet « Feux » | **onglet Feux** (2026-11-03) : des **zones** tracées au sol près des torches, comme les autres zones (clic : point ; Entrée ou 1er point : fermer ; glisser un point ou l'intérieur ; Maj+clic sur un bord : nouveau point ; clic droit : retirer). Dans le jeu, le héros dans une zone voit « Torche : allumer du bois (K) » (pas de cuisson à la torche). Clé « feux » du .json (polygones ; un ancien point devient une petite zone) |
     | 9 ou onglet « Eau » | **onglet Eau** (2026-11-04) : des **zones** tracées au sol au bord des points d'eau (puits, fontaine, bassin), mêmes gestes que l'onglet Feux. Dans le jeu, le héros dans une zone voit « Point d'eau : remplir le seau (K) » (« Point d'eau » sans seau). Clé « eaux » du .json (polygones ; un ancien point devient une petite zone) |
+    | C / F (menu Couche) | **couches Coffres et Fouilles** (2026-11-11) : clic = poser un coffre / un point de fouille, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; à droite : action du point de fouille (Fouiller ou Ouvrir), **contenu** (liste ; Ajouter un objet / Retirer l'objet), puis les réglages de l'objet choisi, comme pour le butin. Clés « coffres » et « fouilles » du .json |
     | 7 ou onglet « Butin » | **onglet Butin** (2026-11-03) : clic = poser un butin, clic dessus = le choisir, glisser = le déplacer, clic droit = le retirer ; le **module** à droite règle le butin choisi (et les suivants) : type (or, potion, arme, équipement, objet divers, nourriture, ingrédient), objet précis du catalogue ou au hasard, sorte de potion, armure ou bijou, montant d'or (0 = au hasard), nombre, rang (0 = selon l'étage). Clé « butins » du .json |
     | D | sur une sortie : changer sa direction (fond, gauche, droite, retour) |
     | ◀ ▶, liste, Page préc./suiv. | changer de salle (la salle quittée est enregistrée si elle a été modifiée) |
@@ -1216,6 +1234,7 @@ $godot = "C:\jeux\Godot\Godot_v4.7.2-stable_win64_console.exe"
 & $godot --path . -s tests/capture_bibliotheque.gd        # captures 190-203 : chaque salle du bloc bibliothèque, arrivée par le bas (hors écran)
 & $godot --headless --path . -s tests/test_commis_dialogues.gd # commis (place, anciennes parties, animations), viande des loups, textes de dialogues.json, menu Dialogues de l'éditeur
 & $godot --path . -s tests/capture_commis.gd                # captures 183-186 : commis de la cuisine et du cellier, dialogue d'un commis, menu Dialogues (hors écran)
+& $godot --headless --path . -s tests/test_coffres_fouilles.gd # coffres et points de fouille : posés dans l'éditeur, enregistrés, ouverts / fouillés dans le jeu (porte2 remise en état)
 & $godot --headless --path . -s tests/test_butin_pose.gd      # catalogue, onglets Nourriture/Ingrédients, manger, marchand, butin posé dans l'éditeur → ramassé dans le jeu (porte2 remise en état)
 & $godot --path . -s tests/capture_butin.gd               # captures 160-165 : onglet Butin, butin dans la salle, « Ramasser (E) », inventaire et marchand (hors écran)
 & $godot --path . -s tests/test_collisions_salles.gd      # le héros court dans 8 directions : pieds toujours sur le sol (cul-de-sac ; « -- toutes » : toutes les salles)
@@ -1302,6 +1321,75 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   la dernière release.
 
 ## Journal des modifications
+
+### 2026-11-11 — Butin au hasard selon le meuble
+
+- **Demande de l'utilisateur** : « ajoute le butin au hasard pour le moment selon la sorte de meuble ; fais attention
+  à ne pas être trop généreux ».
+- **Effet** : un point de fouille « au hasard » tire **une** ligne de la table de son meuble (`donnees/fouilles.json`,
+  poids sur 100, valeurs de Claude à ajuster) ; elle s'ajoute au contenu réglé à la main. Mesuré sur 2000 fouilles :
+  rien 63 % (bibliothèque), 53 % (tonneau), 45 % (caisse de nourriture), 59 % (alchimie), 54 % (forge), 67 %
+  (débris), 60 % (divers) ; or moyen par fouille 0 à 0,7 pièce ; recettes environ 4 % en bibliothèque (enchantement
+  surtout), alchimie et forge (recette de l'artisan du lieu, une que le héros ne connaît pas). Le reste : objets du
+  catalogue bon marché qui vont avec le meuble (légumes dans un tonneau, herbes et champignons chez l'alchimiste,
+  métal rouillé à la forge, bout de tissu dans les débris…), une potion rare chez l'alchimiste.
+- **Éditeur** : case « Butin au hasard selon le meuble » (cochée d'office pour un nouveau point de fouille, qui n'a
+  alors aucun objet réglé à la main) ; résumé « Tonneau — Fouiller : au hasard ».
+- **En passant** : une recette ramassée disait « L'armurier saura s'en servir » ; maintenant « Le forgeron »,
+  « L'alchimiste », « L'enchanteresse » (`AmeliorationsArmes.apprendre`, qui sait aussi tirer la recette d'un seul
+  artisan).
+- Fichiers : `donnees/fouilles.json` (nouveau), `fouille.gd` (`tirer_selon_meuble`), `editeur_zones.gd`,
+  `ameliorations_armes.gd`, `tests/test_coffres_fouilles.gd` (tables mesurées : souvent rien, peu d'or, recettes
+  rares, objets existants). Tests : `test_coffres_fouilles`, `test_ameliorations_armes`, `test_butin_pose`,
+  `compiler_tout` : 0 échec.
+
+### 2026-11-11 — Sortes de meuble des fouilles ; forgeron, alchimiste, bibliothécaire et leurs aides
+
+- **Demandes de l'utilisateur** : (1) pour les points de fouille, un paramètre « quel type d'objet c'est censé être » :
+  bibliothèque, tonneau, caisse de nourriture, fournitures d'alchimie, fournitures de forge, débris, divers ; (2)
+  ajouter la bibliothécaire et son assistante, l'alchimiste et son apprenti, le forgeron et son apprenti (images dans
+  `C:\ia image\ennemis`). Décisions de l'utilisateur : le forgeron **remplace l'armurier** ; la mage (cape sombre,
+  bâton) donne son image à l'enchanteur, devenu **enchanteresse**.
+- **Fouilles** : choix « Sorte de meuble » dans le panneau des points de fouille (éditeur, couche Fouilles), montré
+  dans l'éditeur (« Tonneau — Ouvrir : Oignon »). Dans le jeu : « Fouiller la bibliothèque (E) », « Ouvrir le tonneau
+  (E) », « Vous fouillez la bibliothèque… » ; « Divers » garde le texte court. La sorte ne change pas encore le
+  contenu (il reste celui réglé à la main).
+- **Personnages** : `outils/importer_artisans.py` détoure les 7 images (rembg) → `images/pnj/artisan_<role>.png`,
+  dessinées en image fixe qui respire (`PresencesSalle.image_artisan`), à la place des silhouettes de couleur.
+  Places (`Aventure.COMMIS`, vérifiées sur le sol) : forgeron + apprenti à la forge, alchimiste + apprenti dans la
+  salle des cornues, bibliothécaire + assistante dans le vestibule de la bibliothèque, enchanteresse dans la salle
+  de lecture. Les quatre nouveaux parlent seulement (dialogues `commis_<rôle>`, écrits par Claude, modifiables).
+- **Textes accordés aux images** : « Forgeron » (nom, présentation, fin, « améliorations du forgeron »), « Un
+  alchimiste » (une alchimiste avant), « Enchanteresse » ; « Recette de forge (1dN) » au lieu de « Recette
+  d'armurier » (l'ancien nom marche encore dans les butins) ; fiche d'arme « Forgeron : +… », liste « forge N/3 ».
+- Fichiers : `fouille.gd`, `editeur_zones.gd`, `menu_navigation.gd`, `aventure.gd`, `presences_salle.gd`,
+  `ameliorations_armes.gd`, `rencontres.gd`, `donnees/dialogues.json`, `outils/importer_artisans.py`,
+  `images/pnj/artisan_*.png`. Tests : `test_coffres_fouilles` (sorte de meuble), `test_ameliorations_armes`
+  (images, dialogues, les 7 posés dans les donjons générés, recette de forge), `test_niveaux_blocs`, `test_blocs`,
+  `test_aventure`, `compiler_tout` : 0 échec.
+
+### 2026-11-11 — Éditeur de salle : coffres et points de fouille
+
+- **Demande de l'utilisateur** : deux fonctions dans l'éditeur de salle, une pour poser des coffres (le visuel arrive
+  bientôt), une pour mettre l'option « Fouiller » ou « Ouvrir » à un endroit indiqué ; les deux avec un butin.
+- **Éditeur** (`scripts/outils/editeur_zones.gd`) : couches **Coffres** (touche C, carrés orange) et **Fouilles**
+  (touche F, losanges verts), aussi dans le menu Couche. Clic : poser ; clic dessus : choisir ; glisser : déplacer ;
+  clic droit : retirer ; Ctrl+Z, Ctrl+S comme ailleurs. Le panneau de droite montre l'action proposée (points de
+  fouille : « Fouiller (E) » ou « Ouvrir (E) »), le **contenu** (liste d'objets, boutons Ajouter un objet / Retirer
+  l'objet) et les réglages de l'objet choisi (mêmes que le butin au sol : or, potion, arme, équipement, divers,
+  nourriture, ingrédient, recette, nombre, rang). Un coffre posé reçoit un premier objet réglé comme le dernier.
+- **Jeu** : le coffre s'affiche avec une **image provisoire** (`images/objets_salles/coffre.png`, dessinée par Claude)
+  et arrête le héros ; le point de fouille est invisible (le meuble est peint dans l'image). À portée : « Ouvrir (E) »
+  ou « Fouiller (E) » ; E donne tout le contenu en une fois, une seule fois par salle du plan (`Fouille.ouvrir`) ;
+  un coffre ouvert s'assombrit, un point fouillé n'est plus proposé. Les poses ajoutées ou retirées après une
+  sauvegarde suivent l'éditeur (`Fouille._ajouter_poses`).
+- **Retouche du panneau du butin** : en passant de l'or à un autre type (ou l'inverse), le nombre repart de 0 (avant,
+  « 40 pièces d'or » changé en potion donnait 40 potions) ; vaut aussi pour l'onglet Butin.
+- **Pour la vraie image du coffre** : remplacer `images/objets_salles/coffre.png` (fond transparent, coffre posé sur le
+  bas de l'image) ; sa taille à l'écran est `SallePeinte.TAILLES["coffre"]` (0,42 hauteur de héros).
+- Fichiers : `editeur_zones.gd`, `fouille.gd`, `salle_peinte.gd`, `menu_navigation.gd`, `images/objets_salles/coffre.png`,
+  nouveau `tests/test_coffres_fouilles.gd`. Tests : `test_coffres_fouilles`, `test_butin_pose`, `test_editeur_zones`,
+  `test_butin`, `compiler_tout` : 0 échec.
 
 ### 2026-11-10 — Le chevalier prend l'escalier du chemin le plus court
 

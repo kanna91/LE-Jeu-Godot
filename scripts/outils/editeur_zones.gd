@@ -40,6 +40,11 @@ extends Control
 ## Couche « Ennemis » (touche E, 2026-11-04) : cocher les ennemis permis dans la salle ; un ennemi décoché n'y est
 ## jamais posé et n'y entre pas (clé « ennemis_interdits », Aventure.interdite_a).
 ## En marchant, Maj fait courir le héros (bascule, comme dans le jeu ; 2026-11-04).
+## Couches « Coffres » (touche C) et « Fouilles » (touche F), 2026-11-11, demande de l'utilisateur : poser un coffre
+## (image provisoire en attendant la sienne ; « Ouvrir (E) » dans le jeu) ou un point de fouille invisible sur un meuble
+## peint (« Fouiller (E) » ou « Ouvrir (E) », au choix). Chacun a un contenu : une liste de butins réglés comme un
+## butin au sol, avec le panneau de droite (Ajouter / Retirer un objet). Clés « coffres » et « fouilles » du .json
+## (Fouille.CONTENANTS).
 
 const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
@@ -76,9 +81,17 @@ const ONGLETS_ZONES := {
 }
 ## Couches du menu « Couche » : zones, puis Butin et Ennemis (panneaux à droite).
 const LISTE_COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux",
-	"butin", "ennemis"]
+	"butin", "coffres", "fouilles", "ennemis"]
 const RACCOURCIS_COUCHES := {"marche": "1", "obstacles": "2", "premier_plan": "3", "sorties": "4", "prisonniers": "5",
-	"cachettes": "6", "butin": "7", "feux": "8", "eaux": "9", "ennemis": "E"}
+	"cachettes": "6", "butin": "7", "coffres": "C", "fouilles": "F", "feux": "8", "eaux": "9", "ennemis": "E"}
+## Coffres et points de fouille (couches à contenu, Fouille.CONTENANTS) : couleur, nom.
+const COULEURS_CONTENANTS := {"coffres": Color(0.95, 0.6, 0.25), "fouilles": Color(0.45, 0.95, 0.75)}
+const NOMS_CONTENANTS := {"coffres": "coffre", "fouilles": "point de fouille"}
+const PLURIELS_CONTENANTS := {"coffres": "coffres", "fouilles": "points de fouille"}
+const NOMS_VERBES := ["Fouiller", "Ouvrir"]
+const AIDE_CONTENANTS := "Couche %s — clic : en poser un (contenu réglé à droite)   clic dessus : le choisir   glisser : le déplacer   clic droit : le retirer\n" \
+	+ "à droite : Ajouter un objet / Retirer l'objet, puis régler l'objet choisi dans la liste (comme un butin)   Échap : ne rien choisir\n" \
+	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   Ctrl+Z : annuler   Ctrl+S : enregistrer   F1 : replier l'aide"
 const COULEUR_ENNEMIS := Color(1, 0.4, 0.45)
 const AIDE_ENNEMIS := "Couche Ennemis — cochez dans le panneau de droite les ennemis qui peuvent se trouver dans cette salle\n" \
 	+ "un ennemi décoché n'y est jamais posé, n'y entre pas en rôdant ni en poursuivant le héros (un groupe : si un de ses membres est décoché)\n" \
@@ -122,6 +135,24 @@ var aide_complete := true
 var mode_butin := false
 ## Couche « Ennemis » active (panneau des ennemis permis).
 var mode_ennemis := false
+## Couche à contenu active : « coffres », « fouilles » ou « » (aucune).
+var mode_contenant := ""
+## Coffre ou point de fouille choisi (index dans sa liste, -1 : aucun), objet choisi dans son contenu, glissé.
+var contenant_choisi := -1
+var contenu_choisi := -1
+var glisse_contenant := -1
+## Verbe et sorte de meuble du prochain point de fouille posé.
+var modele_verbe := "fouiller"
+var modele_meuble := "divers"
+var choix_meuble: OptionButton
+var etiquette_meuble: Label
+var case_hasard: CheckBox
+var titre_module: Label
+var boite_contenant: VBoxContainer
+var choix_verbe: OptionButton
+var etiquette_verbe: Label
+var liste_contenu: ItemList
+var bouton_retirer: Button
 var menus := {}  # nom → MenuButton
 var bouton_mode: Button
 var module_ennemis: PanelContainer
@@ -143,7 +174,7 @@ var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": ""
 var _maj_module := false
 var dialogues: EditeurDialogues
 var donnees_ennemis: EditeurEnnemis
-const AIDE := "Tab : éditer / marcher   1-6 : zones   7 : butin   8 : feux   9 : eau   E : ennemis (ou menu Couche)
+const AIDE := "Tab : éditer / marcher   1-6 : zones   7 : butin   C : coffres   F : fouilles   8 : feux   9 : eau   E : ennemis (ou menu Couche)
 " 	+ "clic : ajouter un point (Entrée ou 1er point : fermer)   glisser un point : le déplacer   Maj+clic sur un bord : nouveau point
 " 	+ "clic droit : retirer point / zone   sorties, prisonniers : glisser l'intérieur = déplacer   D : direction   O : sortie potentielle
 " 	+ "molette : zoom   clic milieu : déplacer la vue   0 : vue entière   H : héros   P : poser le héros   Ctrl+Z / Ctrl+S   F1 : replier"
@@ -286,7 +317,8 @@ func _menu(barre: HBoxContainer, titre: String) -> PopupMenu:
 
 ## Nom lisible d'une couche du menu « Couche ».
 static func nom_couche(c: String) -> String:
-	return {"butin": "Butin", "ennemis": "Ennemis permis"}.get(c, NOMS.get(c, c))
+	return {"butin": "Butin", "coffres": "Coffres", "fouilles": "Fouilles (fouiller / ouvrir)",
+		"ennemis": "Ennemis permis"}.get(c, NOMS.get(c, c))
 
 
 ## Entrée d'un menu déroulant choisie.
@@ -428,6 +460,18 @@ func _charger() -> void:
 		if b is Dictionary:
 			butins.append(b.duplicate())
 	salle.donnees["butins"] = butins
+	for cle in COULEURS_CONTENANTS:
+		var liste := []
+		for c in salle.donnees.get(cle, []):
+			if c is Dictionary:
+				var copie: Dictionary = c.duplicate(true)
+				if not (copie.get("contenu") is Array):
+					copie["contenu"] = []
+				liste.append(copie)
+		salle.donnees[cle] = liste
+	contenant_choisi = -1
+	contenu_choisi = -1
+	glisse_contenant = -1
 	var interdits = salle.donnees.get("ennemis_interdits", [])
 	salle.donnees["ennemis_interdits"] = interdits.duplicate() if interdits is Array else []
 	_remplir_ennemis()
@@ -493,6 +537,10 @@ func _unhandled_input(ev: InputEvent) -> void:
 			var m := _borne(souris())
 			salle.donnees["butins"][glisse_butin]["x"] = int(m.x)
 			salle.donnees["butins"][glisse_butin]["y"] = int(m.y)
+		elif mode_contenant != "" and glisse_contenant >= 0 and glisse_contenant < salle.donnees[mode_contenant].size():
+			var m := _borne(souris())
+			salle.donnees[mode_contenant][glisse_contenant]["x"] = int(m.x)
+			salle.donnees[mode_contenant][glisse_contenant]["y"] = int(m.y)
 		elif not glisse.is_empty() and glisse[2] == -1:
 			# Zone déplacée d'un bloc
 			var decalage: Vector2 = _borne(souris()) - glisse[3]
@@ -540,6 +588,8 @@ func _touche(ev: InputEventKey) -> void:
 		KEY_ESCAPE:
 			trace.clear()
 			butin_choisi = -1
+			contenant_choisi = -1
+			contenu_choisi = -1
 			_remplir_module()
 		KEY_R:  # en marchant : le héros revient au point de départ de la salle
 			if not edition:
@@ -556,6 +606,10 @@ func _touche(ev: InputEventKey) -> void:
 			choisir_onglet(true)
 		KEY_E:
 			choisir_couche("ennemis")
+		KEY_C:
+			choisir_couche("coffres")
+		KEY_F:
+			choisir_couche("fouilles")
 		KEY_8, KEY_KP_8:
 			choisir_feux()
 		KEY_9, KEY_KP_9:
@@ -605,6 +659,8 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		deplacement = ev.pressed
 	elif mode_butin:
 		_bouton_butin(ev, m)
+	elif mode_contenant != "":
+		_bouton_contenant(ev, m)
 	elif mode_ennemis:
 		return  # la couche Ennemis se règle dans le panneau de droite
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
@@ -790,6 +846,8 @@ func _memoriser() -> void:
 		copie[cle] = salle.donnees[cle].duplicate()
 	copie["arrivees"] = salle.donnees["arrivees"].duplicate()
 	copie["butins"] = salle.donnees["butins"].duplicate(true)
+	for cle in COULEURS_CONTENANTS:
+		copie[cle] = salle.donnees[cle].duplicate(true)
 	copie["ennemis_interdits"] = salle.donnees["ennemis_interdits"].duplicate()
 	annulations.append(copie)
 	if annulations.size() > 100:
@@ -803,8 +861,12 @@ func _annuler() -> void:
 	var copie: Dictionary = annulations.pop_back()
 	for c in COUCHES:
 		salle.donnees[c] = copie[c]
-	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits", "coffres", "fouilles"]:
 		salle.donnees[cle] = copie[cle]
+	glisse_contenant = -1
+	if mode_contenant != "" and contenant_choisi >= salle.donnees[mode_contenant].size():
+		contenant_choisi = -1
+		contenu_choisi = -1
 	_remplir_ennemis()
 	glisse = []
 	glisse_butin = -1
@@ -851,7 +913,7 @@ func _enregistrer() -> void:
 	var zones := {}
 	for c in COUCHES:
 		zones[c] = _en_liste(salle.donnees[c])
-	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits"]:
+	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits", "coffres", "fouilles"]:
 		zones[cle] = salle.donnees[cle]
 	var donnees := SallePeinte.lire_salle(id)
 	for c in zones:
@@ -878,6 +940,8 @@ func _enregistrer() -> void:
 
 ## Couche active du menu « Couche » : une couche de zones, « butin » ou « ennemis ».
 func couche_active() -> String:
+	if mode_contenant != "":
+		return mode_contenant
 	return "butin" if mode_butin else ("ennemis" if mode_ennemis else couche)
 
 
@@ -886,9 +950,13 @@ func choisir_couche(nom: String) -> void:
 	trace.clear()
 	glisse = []
 	glisse_butin = -1
+	glisse_contenant = -1
+	contenant_choisi = -1
+	contenu_choisi = -1
 	mode_butin = nom == "butin"
 	mode_ennemis = nom == "ennemis"
-	if not mode_butin and not mode_ennemis:
+	mode_contenant = nom if COULEURS_CONTENANTS.has(nom) else ""
+	if not mode_butin and not mode_ennemis and mode_contenant == "":
 		couche = nom
 	elif couche in ONGLETS_ZONES:
 		couche = "marche"
@@ -898,9 +966,12 @@ func choisir_couche(nom: String) -> void:
 		message = {"prisonniers": "Prisonniers : tracez la zone où le héros peut parler à chaque prisonnier peint dans l'image",
 			"cachettes": "Cachettes : tracez les zones où le héros ne peut être ni vu ni entendu (Tab pour essayer)",
 			"butin": "Butin : cliquez sur le sol pour poser le butin réglé à droite",
+			"coffres": "Coffres : cliquez sur le sol pour poser un coffre (« Ouvrir (E) » dans le jeu), son contenu se règle à droite",
+			"fouilles": "Fouilles : cliquez au pied d'un meuble peint pour y mettre « Fouiller (E) » ou « Ouvrir (E) », contenu à droite",
 			"ennemis": "Ennemis : décochez à droite ceux qui ne doivent jamais se trouver dans cette salle"}.get(nom, "")
 	if mode_ennemis:
 		_remplir_ennemis()
+	_remplir_module()
 	_maj_menus()
 
 
@@ -1007,12 +1078,56 @@ func _creer_module() -> void:
 	module = _panneau(COULEUR_BUTIN)
 	var boite := VBoxContainer.new()
 	module.add_child(boite)
-	var titre := Label.new()
-	titre.text = "Butin"
-	titre.add_theme_color_override("font_color", COULEUR_BUTIN)
-	boite.add_child(titre)
+	titre_module = Label.new()
+	titre_module.text = "Butin"
+	titre_module.add_theme_color_override("font_color", COULEUR_BUTIN)
+	boite.add_child(titre_module)
 	etiquette_choisi = _petite_etiquette("")
+	etiquette_choisi.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART  # le panneau garde sa largeur
+	etiquette_choisi.custom_minimum_size = Vector2(216, 0)
 	boite.add_child(etiquette_choisi)
+	# Coffres et points de fouille : action, contenu (liste d'objets) ; les réglages en dessous règlent l'objet choisi
+	boite_contenant = VBoxContainer.new()
+	boite.add_child(boite_contenant)
+	etiquette_verbe = _petite_etiquette("Action proposée au héros")
+	boite_contenant.add_child(etiquette_verbe)
+	choix_verbe = OptionButton.new()
+	choix_verbe.focus_mode = Control.FOCUS_NONE
+	for v in NOMS_VERBES:
+		choix_verbe.add_item(v + " (E)")
+	choix_verbe.item_selected.connect(_verbe_choisi)
+	boite_contenant.add_child(choix_verbe)
+	etiquette_meuble = _petite_etiquette("Sorte de meuble")
+	boite_contenant.add_child(etiquette_meuble)
+	choix_meuble = OptionButton.new()
+	choix_meuble.focus_mode = Control.FOCUS_NONE
+	for m in Fouille.MEUBLES:
+		choix_meuble.add_item(Fouille.NOMS_MEUBLES[m])
+	choix_meuble.item_selected.connect(_meuble_choisi)
+	boite_contenant.add_child(choix_meuble)
+	case_hasard = CheckBox.new()
+	case_hasard.text = "Butin au hasard selon le meuble"
+	case_hasard.tooltip_text = "Tables dans donnees/fouilles.json (souvent rien) ; s'ajoute au contenu de la liste"
+	case_hasard.focus_mode = Control.FOCUS_NONE
+	case_hasard.add_theme_font_size_override("font_size", 12)
+	case_hasard.toggled.connect(_hasard_coche)
+	boite_contenant.add_child(case_hasard)
+	boite_contenant.add_child(_petite_etiquette("Contenu (tout est reçu en une fois)"))
+	liste_contenu = ItemList.new()
+	liste_contenu.focus_mode = Control.FOCUS_NONE
+	liste_contenu.custom_minimum_size = Vector2(216, 84)
+	liste_contenu.add_theme_font_size_override("font_size", 12)
+	liste_contenu.item_selected.connect(_contenu_choisi)
+	boite_contenant.add_child(liste_contenu)
+	var boutons := HBoxContainer.new()
+	boite_contenant.add_child(boutons)
+	for t in [["Ajouter un objet", _ajouter_contenu], ["Retirer l'objet", _retirer_contenu]]:
+		var b := Button.new()
+		b.text = t[0]
+		b.focus_mode = Control.FOCUS_NONE
+		b.add_theme_font_size_override("font_size", 12)
+		b.pressed.connect(t[1])
+		boutons.add_child(b)
 	boite.add_child(_petite_etiquette("Type d'objet"))
 	choix_categorie = OptionButton.new()
 	choix_categorie.focus_mode = Control.FOCUS_NONE
@@ -1040,11 +1155,11 @@ func _creer_module() -> void:
 	choix_rang.max_value = 6
 	choix_rang.value_changed.connect(func(v): _regler("rang", int(v)))
 	boite.add_child(choix_rang)
-	var retirer := Button.new()
-	retirer.text = "Retirer ce butin"
-	retirer.focus_mode = Control.FOCUS_NONE
-	retirer.pressed.connect(_retirer_choisi)
-	boite.add_child(retirer)
+	bouton_retirer = Button.new()
+	bouton_retirer.text = "Retirer ce butin"
+	bouton_retirer.focus_mode = Control.FOCUS_NONE
+	bouton_retirer.pressed.connect(_retirer_choisi)
+	boite.add_child(bouton_retirer)
 
 
 func _petite_etiquette(t: String) -> Label:
@@ -1057,9 +1172,21 @@ func _petite_etiquette(t: String) -> Label:
 
 ## Butin que le module montre et règle : le butin choisi, sinon le modèle des prochains.
 func butin_regle() -> Dictionary:
+	if salle != null and mode_contenant != "":
+		var c := contenant_regle()
+		if not c.is_empty() and contenu_choisi >= 0 and contenu_choisi < c["contenu"].size():
+			return c["contenu"][contenu_choisi]
+		return modele_butin
 	if salle != null and butin_choisi >= 0 and butin_choisi < salle.donnees.get("butins", []).size():
 		return salle.donnees["butins"][butin_choisi]
 	return modele_butin
+
+
+## Coffre ou point de fouille choisi ({} : aucun).
+func contenant_regle() -> Dictionary:
+	if salle == null or mode_contenant == "" or contenant_choisi < 0 or contenant_choisi >= salle.donnees[mode_contenant].size():
+		return {}
+	return salle.donnees[mode_contenant][contenant_choisi]
 
 
 ## Change un réglage du butin choisi (et du modèle des prochains butins).
@@ -1078,13 +1205,20 @@ func _categorie_choisie(k: int) -> void:
 	if _maj_module:
 		return
 	var b := butin_regle()
+	var nouvelle: String = Fouille.CATEGORIES_BUTIN[k]
+	# De l'or à un objet (ou l'inverse), le nombre repart de 0 : 40 pièces d'or ne deviennent pas 40 potions (2026-11-11)
+	var raz := (String(b.get("categorie", "or")) == "or") != (nouvelle == "or")
 	if not is_same(b, modele_butin):
 		_memoriser()
-		b["categorie"] = Fouille.CATEGORIES_BUTIN[k]
+		b["categorie"] = nouvelle
 		b["objet"] = ""
 		b["potion"] = ""
+		if raz:
+			b["quantite"] = 0
 		_change()
-	modele_butin["categorie"] = Fouille.CATEGORIES_BUTIN[k]
+	if (String(modele_butin.get("categorie", "or")) == "or") != (nouvelle == "or"):
+		modele_butin["quantite"] = 0
+	modele_butin["categorie"] = nouvelle
 	modele_butin["objet"] = ""
 	modele_butin["potion"] = ""
 	_remplir_module()
@@ -1103,7 +1237,10 @@ func _objet_choisi(k: int) -> void:
 
 
 func _retirer_choisi() -> void:
-	if butin_choisi >= 0:
+	if mode_contenant != "":
+		if contenant_choisi >= 0:
+			_retirer_contenant(contenant_choisi)
+	elif butin_choisi >= 0:
 		_retirer_butin(butin_choisi)
 
 
@@ -1116,6 +1253,12 @@ func _remplir_module() -> void:
 	var c := String(b.get("categorie", "or"))
 	etiquette_choisi.text = ("Butin %d choisi (clic droit : le retirer)" % (butin_choisi + 1)) if butin_choisi >= 0 \
 		else "Réglage du prochain butin posé"
+	titre_module.text = "Butin"
+	titre_module.add_theme_color_override("font_color", COULEUR_BUTIN)
+	bouton_retirer.text = "Retirer ce butin"
+	boite_contenant.visible = mode_contenant != ""
+	if mode_contenant != "":
+		_remplir_contenant()
 	choix_categorie.select(maxi(0, Fouille.CATEGORIES_BUTIN.find(c)))
 	choix_objet.clear()
 	var a_objet := c in ["potion", "equipement", "divers", "nourriture", "ingredient", "recette"]
@@ -1144,6 +1287,202 @@ func _remplir_module() -> void:
 	choix_rang.value = int(b.get("rang", 0))
 	module.reset_size()
 	_maj_module = false
+
+
+## Partie « coffre / point de fouille » du panneau (titre, action, liste du contenu).
+func _remplir_contenant() -> void:
+	var nom: String = NOMS_CONTENANTS[mode_contenant]
+	var c := contenant_regle()
+	titre_module.text = "Coffre" if mode_contenant == "coffres" else "Point de fouille"
+	titre_module.add_theme_color_override("font_color", COULEURS_CONTENANTS[mode_contenant])
+	bouton_retirer.text = "Retirer ce " + nom
+	var fouille := mode_contenant == "fouilles"
+	etiquette_verbe.visible = fouille
+	choix_verbe.visible = fouille
+	choix_verbe.select(maxi(0, Fouille.VERBES.find(String(c.get("verbe", modele_verbe)))))
+	etiquette_meuble.visible = fouille
+	choix_meuble.visible = fouille
+	var meuble := modele_meuble if c.is_empty() else String(c.get("meuble", "divers"))
+	choix_meuble.select(maxi(0, Fouille.MEUBLES.find(meuble)))
+	case_hasard.visible = fouille
+	case_hasard.set_pressed_no_signal(true if c.is_empty() else bool(c.get("hasard", false)))
+	liste_contenu.clear()
+	if c.is_empty():
+		etiquette_choisi.text = ("Cliquez au pied d'un meuble peint pour poser un point de fouille (butin au hasard selon le meuble)"
+			if mode_contenant == "fouilles" else "Cliquez dans la salle pour poser un %s (son premier objet : réglage ci-dessous)" % nom)
+		liste_contenu.add_item("(choisissez ou posez un %s)" % nom)
+		liste_contenu.set_item_disabled(0, true)
+		return
+	etiquette_choisi.text = "%s %d choisi (clic droit : le retirer)" % [_majuscule(nom), contenant_choisi + 1]
+	for b in c["contenu"]:
+		liste_contenu.add_item(resume_butin(b))
+	if c["contenu"].is_empty():
+		liste_contenu.add_item("(rien de réglé à la main)" if bool(c.get("hasard", false)) else "(vide : « rien d'intéressant »)")
+		liste_contenu.set_item_disabled(0, true)
+	elif contenu_choisi >= 0 and contenu_choisi < c["contenu"].size():
+		liste_contenu.select(contenu_choisi)
+
+
+func _verbe_choisi(k: int) -> void:
+	if _maj_module:
+		return
+	modele_verbe = Fouille.VERBES[k]
+	var c := contenant_regle()
+	if not c.is_empty() and String(c.get("verbe", "")) != modele_verbe:
+		_memoriser()
+		c["verbe"] = modele_verbe
+		_change()
+		message = "Point de fouille %d : « %s (E) »" % [contenant_choisi + 1, NOMS_VERBES[k]]
+
+
+func _hasard_coche(oui: bool) -> void:
+	if _maj_module:
+		return
+	var c := contenant_regle()
+	if c.is_empty() or bool(c.get("hasard", false)) == oui:
+		return
+	_memoriser()
+	c["hasard"] = oui
+	_change()
+	_remplir_module()
+	message = "Point de fouille %d : %s" % [contenant_choisi + 1, "butin au hasard selon le meuble" if oui else "seulement le contenu de la liste"]
+
+
+func _meuble_choisi(k: int) -> void:
+	if _maj_module:
+		return
+	modele_meuble = Fouille.MEUBLES[k]
+	var c := contenant_regle()
+	if not c.is_empty() and String(c.get("meuble", "divers")) != modele_meuble:
+		_memoriser()
+		c["meuble"] = modele_meuble
+		_change()
+		message = "Point de fouille %d : %s" % [contenant_choisi + 1, Fouille.NOMS_MEUBLES[modele_meuble]]
+
+
+func _contenu_choisi(k: int) -> void:
+	if _maj_module:
+		return
+	var c := contenant_regle()
+	if c.is_empty() or k >= c["contenu"].size():
+		return
+	contenu_choisi = k
+	for cle in modele_butin:  # les prochains objets ajoutés reprennent ses réglages
+		modele_butin[cle] = c["contenu"][k].get(cle, modele_butin[cle])
+	_remplir_module()
+
+
+## Ajoute au coffre (ou point de fouille) choisi un objet réglé comme le modèle.
+func _ajouter_contenu() -> void:
+	var c := contenant_regle()
+	if c.is_empty():
+		message = "Choisissez d'abord un %s (clic dessus) ou posez-en un" % NOMS_CONTENANTS.get(mode_contenant, "coffre")
+		return
+	_memoriser()
+	c["contenu"].append(_modele_contenu())
+	contenu_choisi = c["contenu"].size() - 1
+	_change()
+	_remplir_module()
+	message = "Objet ajouté : %s" % resume_butin(c["contenu"][contenu_choisi])
+
+
+func _retirer_contenu() -> void:
+	var c := contenant_regle()
+	if c.is_empty() or contenu_choisi < 0 or contenu_choisi >= c["contenu"].size():
+		message = "Choisissez d'abord l'objet à retirer dans la liste"
+		return
+	_memoriser()
+	c["contenu"].remove_at(contenu_choisi)
+	contenu_choisi = mini(contenu_choisi, c["contenu"].size() - 1)
+	_change()
+	_remplir_module()
+	message = "Objet retiré du contenu (Ctrl+Z pour annuler)"
+
+
+## Un objet de contenu réglé comme le modèle (sans position).
+func _modele_contenu() -> Dictionary:
+	var b := modele_butin.duplicate()
+	b.erase("x")
+	b.erase("y")
+	return b
+
+
+## Pose un coffre ou un point de fouille au point ``m`` (un objet : le modèle) ; renvoie son index.
+func poser_contenant(m: Vector2) -> int:
+	_memoriser()
+	var c := {"x": int(m.x), "y": int(m.y), "contenu": [_modele_contenu()]}
+	if mode_contenant == "fouilles":
+		c["verbe"] = modele_verbe
+		c["meuble"] = modele_meuble
+		c["hasard"] = true  # 2026-11-11 : butin au hasard selon le meuble, rien de réglé à la main
+		c["contenu"] = []
+	salle.donnees[mode_contenant].append(c)
+	contenant_choisi = salle.donnees[mode_contenant].size() - 1
+	contenu_choisi = 0 if not c["contenu"].is_empty() else -1
+	_change()
+	_remplir_module()
+	message = "%s posé : %s" % [_majuscule(NOMS_CONTENANTS[mode_contenant]), resume_contenant(c)]
+	return contenant_choisi
+
+
+func _retirer_contenant(k: int) -> void:
+	_memoriser()
+	salle.donnees[mode_contenant].remove_at(k)
+	contenant_choisi = -1
+	contenu_choisi = -1
+	_change()
+	_remplir_module()
+	message = "%s retiré (Ctrl+Z pour annuler)" % _majuscule(NOMS_CONTENANTS[mode_contenant])
+
+
+static func _majuscule(t: String) -> String:
+	return t.left(1).to_upper() + t.substr(1)
+
+
+## Coffre ou point de fouille de la couche active sous le point ``m`` (le plus récent d'abord), ou −1.
+func _contenant_sous(m: Vector2) -> int:
+	var liste: Array = salle.donnees[mode_contenant]
+	for k in range(liste.size() - 1, -1, -1):
+		if Vector2(liste[k]["x"], liste[k]["y"]).distance_to(m) * echelle() < PRISE + 6:
+			return k
+	return -1
+
+
+func _bouton_contenant(ev: InputEventMouseButton, m: Vector2) -> void:
+	if ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
+		var k := _contenant_sous(m)
+		if k >= 0:
+			contenant_choisi = k
+			contenu_choisi = 0 if not salle.donnees[mode_contenant][k]["contenu"].is_empty() else -1
+			_memoriser()
+			glisse_contenant = k
+			if mode_contenant == "fouilles":
+				modele_verbe = String(salle.donnees[mode_contenant][k].get("verbe", modele_verbe))
+				modele_meuble = String(salle.donnees[mode_contenant][k].get("meuble", "divers"))
+			_remplir_module()
+		else:
+			poser_contenant(m)
+	elif ev.button_index == MOUSE_BUTTON_LEFT and not ev.pressed:
+		if glisse_contenant >= 0:
+			glisse_contenant = -1
+			_change()
+	elif ev.button_index == MOUSE_BUTTON_RIGHT and ev.pressed:
+		var k := _contenant_sous(m)
+		if k >= 0:
+			_retirer_contenant(k)
+
+
+## Texte court d'un coffre ou d'un point de fouille (au-dessus de son point dans l'éditeur).
+func resume_contenant(c: Dictionary) -> String:
+	var contenu: Array = c.get("contenu", [])
+	var t := "vide" if contenu.is_empty() else (resume_butin(contenu[0]) if contenu.size() == 1 else "%d objets" % contenu.size())
+	if bool(c.get("hasard", false)):
+		t = "au hasard" if contenu.is_empty() else t + " + au hasard"
+	if c.has("verbe"):
+		var meuble := String(c.get("meuble", "divers"))
+		return "%s%s : %s" % ["" if meuble == "divers" else Fouille.NOMS_MEUBLES.get(meuble, meuble) + " — ",
+			NOMS_VERBES[maxi(0, Fouille.VERBES.find(String(c["verbe"])))], t]
+	return "Coffre : " + t
 
 
 ## Texte court d'un butin (au-dessus de son point dans l'éditeur).
@@ -1230,7 +1569,7 @@ func _process(_delta: float) -> void:
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
 	var onglet_zone: String = couche if couche in ONGLETS_ZONES and not mode_butin and not mode_ennemis else ""
-	if mode_butin or mode_ennemis or onglet_zone != "":
+	if mode_butin or mode_ennemis or mode_contenant != "" or onglet_zone != "":
 		nom_couche = nom_couche(couche_active())
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
 		("ÉDITION : couche %s" % nom_couche) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
@@ -1238,17 +1577,18 @@ func _process(_delta: float) -> void:
 		var m := _borne(souris())
 		lignes.append("souris : %d, %d   zoom ×%.1f%s" % [m.x, m.y, zoom,
 			("   ennemis interdits : %d" % salle.donnees["ennemis_interdits"].size()) if mode_ennemis
+			else ("   %s : %d posé(s)" % [PLURIELS_CONTENANTS[mode_contenant], salle.donnees[mode_contenant].size()]) if mode_contenant != ""
 			else ("   butin : %d posé(s)" % salle.donnees["butins"].size()) if mode_butin
 			else ("   zones : %d" % salle.donnees[onglet_zone].size()) if onglet_zone != "" else ""])
 	if message != "":
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = ((AIDE_ENNEMIS if mode_ennemis else AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir / marcher (%s)   R : héros au départ   Tab : revenir à l'édition" % ("il court" if salle.course else "il marche")
+	aide.text = ((AIDE_ENNEMIS if mode_ennemis else (AIDE_CONTENANTS % nom_couche(mode_contenant)) if mode_contenant != "" else AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir / marcher (%s)   R : héros au départ   Tab : revenir à l'édition" % ("il court" if salle.course else "il marche")
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
-	module.visible = edition and mode_butin
+	module.visible = edition and (mode_butin or mode_contenant != "")
 	module_ennemis.visible = edition and mode_ennemis
 
 
@@ -1308,6 +1648,30 @@ class Calque extends Node2D:
 				draw_set_transform(c + Vector2(0, -14 * e), 0, Vector2(e, e))
 				draw_string_outline(police, Vector2(-100, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 200, 13, 4, Color.BLACK)
 				draw_string(police, Vector2(-100, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 200, 13, Color.WHITE if choisi else COULEUR_BUTIN)
+				draw_set_transform(Vector2.ZERO)
+		# Coffres (carré) et points de fouille (losange), montrés comme le butin
+		for cle in COULEURS_CONTENANTS:
+			var actif_c: bool = ed.mode_contenant == cle
+			if not (actif_c or ed.voir_zones):
+				continue
+			var col_c: Color = COULEURS_CONTENANTS[cle]
+			var liste: Array = ed.salle.donnees.get(cle, [])
+			for k in liste.size():
+				var cont: Dictionary = liste[k]
+				var c := Vector2(cont["x"], cont["y"])
+				var choisi: bool = actif_c and k == ed.contenant_choisi
+				var r := (11.0 if choisi else 8.0) * e
+				var forme := PackedVector2Array([c + Vector2(-r, -r), c + Vector2(r, -r), c + Vector2(r, r), c + Vector2(-r, r)])
+				if cle == "fouilles":
+					forme = PackedVector2Array([c + Vector2(0, -r), c + Vector2(r, 0), c + Vector2(0, r), c + Vector2(-r, 0)])
+				draw_colored_polygon(forme, Color(col_c, 0.9 if actif_c else 0.45))
+				var bord := PackedVector2Array(forme)
+				bord.append(forme[0])
+				draw_polyline(bord, Color.WHITE if choisi else Color.BLACK, 2.0 * e)
+				var t: String = ed.resume_contenant(cont)
+				draw_set_transform(c + Vector2(0, -16 * e), 0, Vector2(e, e))
+				draw_string_outline(police, Vector2(-110, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 220, 13, 4, Color.BLACK)
+				draw_string(police, Vector2(-110, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 220, 13, Color.WHITE if choisi else col_c)
 				draw_set_transform(Vector2.ZERO)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]

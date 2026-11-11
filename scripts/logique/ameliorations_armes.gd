@@ -102,14 +102,14 @@ static func toutes_les_recettes() -> Array:
 	return liste
 
 
-## Nom lisible : « Recette d'armurier (1d4) », « Recette d'alchimie (feu 1d3) », « Recette d'enchantement (ombre 1d6) ».
+## Nom lisible : « Recette de forge (1d4) », « Recette d'alchimie (feu 1d3) », « Recette d'enchantement (ombre 1d6) ».
 static func nom_recette(id: String) -> String:
 	var r := lire_recette(id)
 	if r.is_empty():
 		return id
 	match r[0]:
 		"armurier":
-			return "Recette d'armurier (1d%d)" % r[2]
+			return "Recette de forge (1d%d)" % r[2]  # « Recette d'armurier » avant le 2026-11-11
 		"alchimiste":
 			return "Recette d'alchimie (%s 1d%d)" % [r[1], r[2]]
 	return "Recette d'enchantement (%s 1d%d)" % [r[1], r[2]]
@@ -118,7 +118,7 @@ static func nom_recette(id: String) -> String:
 ## Identifiant d'après le nom lisible (butin posé dans l'éditeur) ; « » s'il n'existe pas.
 static func id_depuis_nom(nom: String) -> String:
 	for id in toutes_les_recettes():
-		if nom_recette(id) == nom or id == nom:
+		if nom_recette(id) == nom or id == nom or nom_recette(id).replace("Recette de forge", "Recette d'armurier") == nom:
 			return id
 	return ""
 
@@ -138,10 +138,12 @@ static func connait(joueur, id: String) -> bool:
 
 ## Le héros lit une recette (``nom`` : nom lisible ou identifiant ; « » : une qu'il ne connaît pas, au hasard).
 ## Renvoie le message.
-static func apprendre(joueur, nom := "") -> String:
+## ``artisan`` (« armurier », « alchimiste », « enchanteur » ; « » : tous) : la recette au hasard est une des siennes.
+static func apprendre(joueur, nom := "", artisan := "") -> String:
 	var id := id_depuis_nom(nom) if nom != "" else ""
 	if id == "":
-		var inconnues := toutes_les_recettes().filter(func(x): return not connait(joueur, x))
+		var inconnues := toutes_les_recettes().filter(
+			func(x): return not connait(joueur, x) and (artisan == "" or lire_recette(x)[0] == artisan))
 		if inconnues.is_empty():
 			return "Une recette… que vous connaissez déjà par cœur."
 		id = inconnues.pick_random()
@@ -150,7 +152,9 @@ static func apprendre(joueur, nom := "") -> String:
 	var liste := recettes_connues(joueur).duplicate()
 	liste.append(id)
 	joueur._d["recettes"] = liste
-	return "Vous apprenez : %s. L'%s saura s'en servir." % [nom_recette(id), lire_recette(id)[0]]
+	var qui: String = {"armurier": "Le forgeron", "alchimiste": "L'alchimiste", "enchanteur": "L'enchanteresse"}.get(
+		lire_recette(id)[0], "Un artisan")
+	return "Vous apprenez : %s. %s saura s'en servir." % [nom_recette(id), qui]
 
 
 # ---------------------------------------------------------------------------
@@ -180,7 +184,7 @@ static func refus(arme, pnj: String, type_degats: String, faces: int) -> String:
 		return "Ce dé n'existe pas."
 	if pnj == "armurier":
 		if armurier_de(arme).size() >= MAX_ARMURIER:
-			return "L'arme a déjà %d améliorations d'armurier." % MAX_ARMURIER
+			return "L'arme a déjà %d améliorations du forgeron." % MAX_ARMURIER
 	elif magiques_de(arme).size() >= MAX_MAGIE:
 		return "L'arme a déjà %d améliorations d'alchimie ou d'enchantement." % MAX_MAGIE
 	return ""
@@ -259,7 +263,7 @@ static func grouper(faces: Array) -> Array:
 static func resume(arme) -> String:
 	var morceaux := []
 	if not armurier_de(arme).is_empty():
-		morceaux.append("Armurier : +%s %s" % [Formules.texte(grouper(armurier_de(arme))), type_armurier(arme)])
+		morceaux.append("Forgeron : +%s %s" % [Formules.texte(grouper(armurier_de(arme))), type_armurier(arme)])
 	for pnj in ["alchimiste", "enchanteur"]:
 		var par_type := {}
 		for a in magiques_de(arme):
