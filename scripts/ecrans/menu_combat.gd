@@ -96,6 +96,9 @@ func preparer(j, c) -> Ecran:
 var fond_peint: Texture2D = null
 var video_fond_peint: VideoStreamPlayer = null
 var fond_peint_miroir := false
+## Image agrandie par IA de la salle (grandes salles : ``fond_hd``), dessinée à la place de ``fond_peint`` ; avec une
+## vidéo, son mouvement s'y ajoute (SallePeinte.materiau_mouvement, matériau de la couche du fond ; 2026-11-15).
+var fond_peint_hd: Texture2D = null
 ## Part de la hauteur coupée en trop prise en haut de l'image (le reste en bas).
 const RECADRAGE_HAUT := 0.75
 
@@ -119,6 +122,8 @@ func _preparer_salle_peinte(donjon) -> void:
 	if fond_peint == null:
 		return
 	fond_ecran = ""
+	var hd := SallePeinte.chemin(String(d.get("fond_hd", "")))
+	fond_peint_hd = SallePeinte.texture(hd) if String(d.get("fond_hd", "")) != "" and FileAccess.file_exists(hd) else null
 	video_fond_peint = SallePeinte.nouveau_lecteur(String(d.get("decor_video", "")))
 	if video_fond_peint != null:
 		add_child(video_fond_peint)  # lancée au premier affichage (l'écran n'est pas encore dans l'arbre)
@@ -131,8 +136,17 @@ func _dessiner_fond(ci: Control) -> void:
 	var tex := fond_peint
 	if video_fond_peint != null and video_fond_peint.is_inside_tree() and not video_fond_peint.is_playing():
 		video_fond_peint.play()
-	if SallePeinte.video_prete(video_fond_peint):
+	if fond_peint_hd != null:
+		tex = fond_peint_hd
+		# La couche du fond (Ecran.couche_fond) ne dessine que lui : elle reçoit le mouvement de la vidéo
+		if ci.material == null and SallePeinte.video_prete(video_fond_peint):
+			ci.material = SallePeinte.materiau_mouvement(video_fond_peint.get_video_texture(), fond_peint)
+	elif SallePeinte.video_prete(video_fond_peint):
 		tex = video_fond_peint.get_video_texture()
+	_dessiner_texture_fond(ci, tex)
+
+
+func _dessiner_texture_fond(ci: CanvasItem, tex: Texture2D) -> void:
 	var taille := Vector2(fond_peint.get_size())
 	var h := minf(taille.y, taille.x * Ui.HAUTEUR / Ui.LARGEUR)
 	var region := Rect2(0, (taille.y - h) * RECADRAGE_HAUT, taille.x, h)

@@ -453,6 +453,7 @@ func _lancer_video() -> void:
 		lecteur_video.stop()
 		lecteur_video.queue_free()
 	decor_pret = false
+	materiau_decor = null
 	lecteur_video = nouveau_lecteur(String(donnees.get("decor_video", "")))
 	if lecteur_video == null:
 		return
@@ -464,12 +465,57 @@ func _animer_decor(_delta: float) -> void:
 		lecteur_video.play()
 	if decor_pret or not video_prete(lecteur_video):
 		return
-	# Première image décodée : la vidéo remplace l'image fixe (et le premier plan qui en est découpé)
 	var tex := lecteur_video.get_video_texture()
 	decor_pret = true
-	sprite_fond.texture = tex
-	sprite_fond.scale = Vector2(fond.get_size()) / Vector2(tex.get_size())
+	# Image agrandie par IA (grandes salles) : on la garde et on n'y ajoute que ce qui bouge dans la vidéo
+	materiau_decor = materiau_mouvement(tex, fond) if sprite_fond.texture != fond else null
+	if materiau_decor != null:
+		sprite_fond.material = materiau_decor
+	else:
+		# Première image décodée : la vidéo remplace l'image fixe (et le premier plan qui en est découpé)
+		sprite_fond.texture = tex
+		sprite_fond.scale = Vector2(fond.get_size()) / Vector2(tex.get_size())
 	_reconstruire_avant_plans()
+
+
+## Décor animé sur une image agrandie par IA (2026-11-15, demande de l'utilisateur : rendre les grandes salles animées
+## plus nettes) : l'image nette, plus la différence entre la vidéo et l'image fixe d'origine (« base »). Là où rien
+## ne bouge, la différence est nulle (on voit l'image nette) ; particules, rayons et flammes s'y ajoutent. Les
+## petites différences (compression de la vidéo) sont ignorées : SEUILS_MOUVEMENT, en écart de couleur (0 à 1) ; ce qui
+## s'assombrit ne compte que pour un cinquième (part_negative).
+const SEUILS_MOUVEMENT := Vector2(0.015, 0.05)
+const SHADER_MOUVEMENT := """
+shader_type canvas_item;
+uniform sampler2D video : filter_linear;
+uniform sampler2D base : filter_linear;
+uniform vec2 seuils = vec2(0.015, 0.05);
+uniform float part_negative = 0.2;
+void fragment() {
+	vec3 d = texture(video, UV).rgb - texture(base, UV).rgb;
+	// Ce qui s'assombrit compte peu : une particule peinte dans l'image fixe mais absente de la vidéo creusait une
+	// tache sombre dans l'image nette
+	d = max(d, vec3(0.0)) + min(d, vec3(0.0)) * part_negative;
+	float w = smoothstep(seuils.x, seuils.y, length(d));
+	COLOR.rgb = clamp(COLOR.rgb + d * w, 0.0, 1.0);
+}
+"""
+static var _shader_mouvement: Shader = null
+var materiau_decor: ShaderMaterial = null
+
+
+## Matériau qui ajoute le mouvement de ``video`` (comparée à l'image fixe ``base``, même cadrage) à la texture dessinée.
+static func materiau_mouvement(video: Texture2D, base: Texture2D) -> ShaderMaterial:
+	if video == null or base == null:
+		return null
+	if _shader_mouvement == null:
+		_shader_mouvement = Shader.new()
+		_shader_mouvement.code = SHADER_MOUVEMENT
+	var m := ShaderMaterial.new()
+	m.shader = _shader_mouvement
+	m.set_shader_parameter("video", video)
+	m.set_shader_parameter("base", base)
+	m.set_shader_parameter("seuils", SEUILS_MOUVEMENT)
+	return m
 
 
 # ---------------------------------------------------------------------------
@@ -802,6 +848,7 @@ func _reconstruire_avant_plans() -> void:
 		morceau.uv = uv
 		morceau.position = Vector2(0, base)
 		morceau.offset = Vector2(0, -base)
+		morceau.material = materiau_decor  # piliers de l'image nette : le mouvement passe aussi devant le héros
 		tri.add_child(morceau)
 		avant_plans.append(morceau)
 
@@ -1097,7 +1144,16 @@ func _process(delta: float) -> void:
 	_animer_portes(delta)
 
 
+## Héros caché (heros_cache : cachette, derrière le premier plan, immobile dans l'ombre) : assombri pour que le joueur
+## le voie (demande de l'utilisateur, 2026-11-15). Teinte et durée du fondu proposées par Claude.
+const TEINTE_CACHE := Color(0.1, 0.1, 0.13, 0.85)
+const DUREE_TEINTE_CACHE := 0.25
+var _part_cache := 0.0  # 0 : couleurs normales, 1 : TEINTE_CACHE
+
+
 func _maj_heros(_delta: float) -> void:
+	_part_cache = move_toward(_part_cache, 1.0 if heros_cache() else 0.0, _delta / DUREE_TEINTE_CACHE)
+	heros.self_modulate = Color.WHITE.lerp(TEINTE_CACHE, _part_cache)
 	var courir := course or _course_stick
 	if en_mouvement:
 		heros.texture = images_heros["course" if courir else "marche"][direction][image]

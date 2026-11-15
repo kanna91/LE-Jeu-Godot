@@ -16,7 +16,8 @@ comme le bas de l'image), **bas** (retour, derrière le spectateur).
 - ``C:\\IA\\pont-blender\\grandes_salles\\planche_zones.png`` : planche de contrôle (sol en vert, obstacles en
   rouge, sorties en couleur, héros à plusieurs profondeurs).
 
-Usage : ``python outils/importer_grandes_salles.py [--sans-ia]`` (``--sans-ia`` : ne refait pas l'agrandissement).
+Usage : ``python outils/importer_grandes_salles.py [--sans-ia]`` (``--sans-ia`` : ne refait pas l'agrandissement) ;
+``--videos`` : seulement les décors animés (VIDEOS), sans réécrire les zones.
 """
 import glob
 import json
@@ -181,7 +182,38 @@ def planche(donnees, sources):
     pl.save(os.path.join(TRAVAIL, "planche_zones.png"))
 
 
+# Décors animés des grandes salles (2026-11-15, demande de l'utilisateur) : dossier de « grande salle » → numéro de la
+# salle (même image que grandeN, vérifié par empreinte md5) et vidéo 768 x 512, 24 i/s, convertie en Theora
+# (``images/salles_peintes/grandeN/decor.ogv``, clé ``decor_video`` du .json).
+VIDEOS = {
+    8: os.path.join("01", "salle1_v2_anim_20s.mp4"),
+    9: os.path.join("02", "salle2_v3_anim_x3.mp4"),
+    10: os.path.join("03", "salle3_anim_x3.mp4"),
+    1: os.path.join("04", "salle4_anim_x3.mp4"),
+    6: os.path.join("05", "salle5_v2_anim_x3.mp4"),
+}
+
+
+def brancher_videos():
+    """Convertit les vidéos de VIDEOS et ajoute ``decor_video`` aux .json existants, sans toucher au reste (zones
+    retouchées dans l'éditeur comprises)."""
+    from importer_salles import convertir_video
+    for n, rel in VIDEOS.items():
+        ident = "grande%d" % n
+        convertir_video(os.path.join(SOURCE, rel), os.path.join(IMAGES, ident, "decor.ogv"))
+        chemin = os.path.join(DONNEES, ident + ".json")
+        with open(chemin, encoding="utf8") as f:
+            salle = json.load(f)
+        salle["decor_video"] = "images/salles_peintes/%s/decor.ogv" % ident
+        with open(chemin, "w", encoding="utf8") as f:
+            json.dump(salle, f, ensure_ascii=False, indent=1)
+        print(ident, "<-", rel)
+
+
 def main():
+    if "--videos" in sys.argv:
+        brancher_videos()
+        return
     fichiers = sorted(glob.glob(os.path.join(SOURCE, "*.jpeg")))
     sources = {k + 1: Image.open(f).convert("RGB") for k, f in enumerate(fichiers)}
     assert len(sources) == len(ZONES), "une entrée de ZONES par image"
@@ -202,6 +234,7 @@ def main():
             hd.save(os.path.join(IMAGES, "grande%d" % n, "fond_hd.png"), optimize=True)
     os.makedirs(TRAVAIL, exist_ok=True)
     planche(donnees, sources)
+    brancher_videos()
     print("Grandes salles importées :", len(donnees))
 
 

@@ -1445,6 +1445,34 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   de ce que l'utilisateur y a posé (coffre, squelettes interdits ; `tests/porte2_vide.gd`, copie de secours
   « .avant_test » le temps du test), puis la remettent comme avant.
 
+### 2026-11-15 — Héros assombri quand il est caché
+
+- **Demande de l'utilisateur** : « que le personnage soit assombri quand il est caché pour permettre au joueur de
+  comprendre qu'il est caché ». Quand `SallePeinte.heros_cache()` est vrai (cachette, derrière le premier plan,
+  immobile dans l'ombre : les cas de « Caché » à l'écran), le sprite du héros passe en 0,25 s à `TEINTE_CACHE`
+  (0,1 ; 0,1 ; 0,13 et 85 % d'opacité : « assombris encore un peu et ajoute une très légère transparence » ; 0,42 puis 0,18 avant) ; son ombre au sol ne change pas.
+  Capture : `tests/capture_heros_cache.gd` (74_heros_visible, 75_heros_cache).
+
+### 2026-11-15 — Grandes salles animées
+
+- **Demande de l'utilisateur** : brancher les salles animées de « C:\ia image\Salle de donjon\grande salle » au jeu.
+  Cinq vidéos (768 × 512, 24 i/s, 20 à 27 s), reconnues par l'image de leur dossier (empreinte md5) : 01 → grande8,
+  02 → grande9, 03 → grande10, 04 → grande1, 05 → grande6. Converties en Theora (`images/salles_peintes/grandeN/
+  decor.ogv`) et ajoutées aux .json (`decor_video`) par `python outils/importer_grandes_salles.py --videos`, qui ne
+  touche pas aux zones (retouches de l'éditeur gardées) ; table `VIDEOS` de l'outil. Le moteur les lisait déjà : la
+  vidéo remplace l'image fixe dès sa première image, en exploration comme en combat.
+- La caméra ne bouge pas dans les vidéos (écart moyen à l'image fixe < 2/255 à 0, 10 et 19 s) : sol, sorties et
+  premier plan restent alignés.
+- **Plus net** (« comment on peut les rendre plus nettes ? », solution A validée) : on garde l'image agrandie par IA
+  (`fond_hd`, 1152 × 768) et on n'y ajoute que ce qui bouge : la différence entre la vidéo (768 × 512) et l'image
+  fixe d'origine (`SallePeinte.materiau_mouvement`, shader `SHADER_MOUVEMENT`). Seuls 3 à 8 % des pixels bougent
+  (particules, rayons, flammes). Petites différences ignorées (`SEUILS_MOUVEMENT`, compression de la vidéo) ; ce qui
+  s'assombrit ne compte que pour un cinquième (`part_negative`), sinon les particules peintes dans l'image fixe
+  creusaient des taches sombres. Les particules de l'image fixe restent donc visibles, immobiles, sous celles de la
+  vidéo. Aussi en combat : il dessine maintenant l'image nette des grandes salles (avant, l'image 768 × 512), avec le
+  mouvement (matériau de la couche du fond). Les salles sans `fond_hd` gardent la vidéo seule.
+- Capture : `tests/capture_grandes_animees.gd` (76_grandeN_animee, 77_combat_grande9_anime).
+
 ### 2026-11-15 — Une compétence est la même pour tout le monde ; repos et salles piège retirés
 
 - **Demande de l'utilisateur** : « que l'éditeur de compétence ne fasse pas de distinction entre le héros et les
