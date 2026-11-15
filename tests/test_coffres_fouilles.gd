@@ -1,4 +1,6 @@
 extends SceneTree
+
+const Porte2Vide := preload("res://tests/porte2_vide.gd")
 ## Coffres et points de fouille posés dans l'éditeur de zones (2026-11-11, demande de l'utilisateur) : couches
 ## « Coffres » (C) et « Fouilles » (F), contenu réglé comme un butin, enregistrés dans le .json de la salle ; dans le
 ## jeu : coffre affiché (image provisoire) qui arrête le héros, point de fouille invisible, « Ouvrir » ou « Fouiller »,
@@ -22,6 +24,7 @@ func _initialize() -> void:
 	var original := FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json")
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
 	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""
+	Porte2Vide.vider()
 	await _editeur_et_jeu()
 	var f := FileAccess.open("res://donnees/salles_peintes/porte2.json", FileAccess.WRITE)
 	f.store_string(original)
@@ -33,6 +36,7 @@ func _initialize() -> void:
 	else:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path("res://outils/zones_manuelles/porte2.json"))
 	verifier(FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json") == original, "porte2.json remis comme avant")
+	Porte2Vide.nettoyer()
 	print("BILAN coffres et fouilles : %d échec(s)" % echecs)
 	quit(1 if echecs else 0)
 

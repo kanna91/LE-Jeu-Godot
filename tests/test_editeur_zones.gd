@@ -1,4 +1,6 @@
 extends SceneTree
+
+const Porte2Vide := preload("res://tests/porte2_vide.gd")
 ## Éditeur de zones : tracer une zone, annuler, déplacer un point, poser des prisonniers, enregistrer (porte2).
 ## « BILAN éditeur de zones : 0 échec(s) ». Le test écrit donnees/salles_peintes/porte2.json et
 ## outils/zones_manuelles/porte2.json, puis les remet tous deux comme avant (le second est effacé s'il n'existait pas).
@@ -14,6 +16,10 @@ func verifier(c: bool, cas: String) -> void:
 
 func _initialize() -> void:
 	var original := FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json")
+	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
+	# Zones retouchées par l'utilisateur : remises telles quelles à la fin (2026-11-03 ; avant, elles étaient écrasées)
+	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""
+	Porte2Vide.vider()
 	if true:  # Points de feu et d'eau (onglets Feux et Eau, 2026-11-03) : vérifiés sans rien enregistrer
 		var ed0 = load("res://scenes/outils/editeur_zones.tscn").instantiate()
 		root.add_child(ed0)
@@ -82,9 +88,6 @@ func _initialize() -> void:
 		verifier(sp.eau_proche() and not sp.torche_proche(), "héros dans la zone d'eau : eau à portée")
 		sp.queue_free()
 		await process_frame
-	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
-	# Zones retouchées par l'utilisateur : remises telles quelles à la fin (2026-11-03 ; avant, elles étaient écrasées)
-	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""
 	var ed = load("res://scenes/outils/editeur_zones.tscn").instantiate()
 	root.add_child(ed)
 	await process_frame
@@ -156,5 +159,6 @@ func _initialize() -> void:
 		var m := FileAccess.open("res://outils/zones_manuelles/porte2.json", FileAccess.WRITE)
 		m.store_string(manuel_original)
 		m.close()
+	Porte2Vide.nettoyer()
 	print("BILAN éditeur de zones : %d échec(s)" % echecs)
 	quit()

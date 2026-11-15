@@ -351,6 +351,106 @@ static func degats_bruts(lanceur, competence, type_degats: String) -> float:
 
 ## Estimation des dégâts d'une compétence sur une cible, type par type :
 ## [[type, dégâts avant réduction, dégâts subis], ...] (soins : subis négatifs).
+## Conversion de dégâts (effet unique des objets, décision de l'utilisateur, 2026-11-15) : attribut
+## « talent_conversion__<de>__<vers> » = part des dés du type <de> qui deviennent du type <vers> (0,25 à 1).
+## Le coup se calcule comme avant (dés de la compétence, de la caractéristique d'origine, dégâts plats, %), puis la
+## part convertie est envoyée dans le nouveau type (ses défenses, ses faiblesses). Le brut (aucune défense) n'est
+## qu'un type d'arrivée, à 25 % au plus (utilisateur : « beaucoup trop puissant » au-delà).
+const PREFIXE_CONVERSION := "talent_conversion__"
+const TYPES_CONVERSION := ["tranchant", "perforant", "contondant", "feu", "froid", "foudre", "ombre", "chaos", "arcane"]
+const CIBLES_CONVERSION := TYPES_CONVERSION + ["brut"]
+const PART_MAX_CONVERSION := {"brut": 0.25}
+const NOMS_DEGATS := {"tranchant": "tranchants", "perforant": "perforants", "contondant": "contondants",
+	"feu": "de feu", "froid": "de froid", "foudre": "de foudre", "ombre": "d'ombre", "chaos": "de chaos", "arcane": "d'arcane",
+	"brut": "bruts"}
+
+
+## Conversions du type ``type_degats`` d'une compétence : [[type d'arrivée, part du coup], ...]. La part suit les dés :
+## nombre de dés × pourcentage, arrondi au plus proche, au moins 1 dé (6d2 à 25 % : 2 dés sur 6 ; 3d2 à 25 % : 1 sur 3).
+static func conversions(lanceur, competence, type_degats: String) -> Array:
+	if lanceur == null or not (type_degats in TYPES_CONVERSION):
+		return []
+	var cles: Array = []
+	if lanceur is Dictionary:
+		cles = lanceur.keys()
+	elif lanceur is Object and lanceur.has_method("attributs"):
+		cles = lanceur.attributs()
+	var parts := {}
+	for attribut in cles:
+		var a := String(attribut)
+		if not a.begins_with(PREFIXE_CONVERSION):
+			continue
+		var morceaux := a.substr(PREFIXE_CONVERSION.length()).split("__")
+		if morceaux.size() != 2 or morceaux[0] != type_degats or not (morceaux[1] in CIBLES_CONVERSION):
+			continue
+		var part := clampf(U.num(lanceur, a), 0.0, 1.0)
+		if part > 0 and morceaux[1] != type_degats:
+			parts[morceaux[1]] = minf(PART_MAX_CONVERSION.get(morceaux[1], 1.0), parts.get(morceaux[1], 0.0) + part)
+	if parts.is_empty():
+		return []
+	var n := 0
+	for d in des_type(lanceur, type_degats, competence) + des_caracteristique(lanceur, type_degats):
+		n += int(d[0])
+	var resultat := []
+	var reste := 1.0
+	for vers in parts:
+		var fraction: float = parts[vers]
+		if n > 0:
+			fraction = maxi(1, roundi(n * fraction)) / float(n)
+		# le plafond du brut passe avant l'arrondi aux dés (3d2 : 25 %, pas 1 dé sur 3)
+		fraction = minf(minf(fraction, PART_MAX_CONVERSION.get(vers, 1.0)), reste)
+		if fraction <= 0:
+			break
+		reste -= fraction
+		resultat.append([vers, fraction])
+	return resultat
+
+
+## Texte d'une conversion (« 50 % des dégâts tranchants deviennent des dégâts de feu »), ou "" si ce n'en est pas une.
+static func texte_conversion(attribut: String, valeur) -> String:
+	if not attribut.begins_with(PREFIXE_CONVERSION):
+		return ""
+	var morceaux := attribut.substr(PREFIXE_CONVERSION.length()).split("__")
+	if morceaux.size() != 2:
+		return ""
+	return "%s %% des dégâts %s deviennent des dégâts %s" % [U.g(U.arrondi(float(valeur) * 100, 1)),
+		NOMS_DEGATS.get(morceaux[0], morceaux[0]), NOMS_DEGATS.get(morceaux[1], morceaux[1])]
+
+
+## Applique les conversions à des coups [[type, dégâts], ...] (types de la compétence seulement) : la part convertie
+## rejoint le coup du type d'arrivée s'il existe déjà, sinon devient un coup à part.
+static func convertir_coups(lanceur, competence, coups: Array, types_competence: Array) -> Array:
+	var resultat := []
+	var vides := []  # types entièrement convertis : retirés
+	for c in coups:
+		resultat.append([c[0], c[1]])
+	for c in coups:
+		var t: String = c[0]
+		if not (t in types_competence):
+			continue
+		var liste := conversions(lanceur, competence, t)
+		var total := 0.0
+		for conv in liste:
+			total += conv[1]
+		if total >= 1.0 - 1e-9:
+			vides.append(t)
+		for conv in liste:
+			var montant: float = float(c[1]) * conv[1]
+			for r in resultat:
+				if r[0] == t:
+					r[1] -= montant
+					break
+			var trouve := false
+			for r in resultat:
+				if r[0] == conv[0]:
+					r[1] += montant
+					trouve = true
+					break
+			if not trouve:
+				resultat.append([conv[0], montant])
+	return resultat.filter(func(r): return not (r[0] in vides and r[1] <= 1e-6))
+
+
 static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array:
 	var resultats := []
 	var mult_alterations := (Alterations.modificateur_degats(lanceur, cible)
@@ -368,6 +468,7 @@ static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array
 	for t in types + ([bonus[0]] if not bonus.is_empty() else []) + en_plus.keys():
 		if not (t in a_estimer):
 			a_estimer.append(t)  # chaque type une seule fois (le dé bonus s'ajoute au même type)
+	var avant := []
 	for type_degats in a_estimer:
 		if not (type_degats in TYPES_PHYSIQUES + TYPES_MAGIQUES + TYPES_SPECIAUX):
 			continue
@@ -378,6 +479,10 @@ static func estimer_degats(lanceur, competence, cible, arrondi := true) -> Array
 			brut += base_de_bonus(lanceur, type_degats, (bonus[1] + 1) / 2.0)
 		if en_plus.has(type_degats):
 			brut += base_de_bonus(lanceur, type_degats, moyenne(en_plus[type_degats]))
+		avant.append([type_degats, brut])
+	for coup in convertir_coups(lanceur, competence, avant, types):
+		var type_degats: String = coup[0]
+		var brut: float = coup[1]
 		if type_degats == "lumière":
 			brut *= Alterations.multiplicateur_soins(cible)
 			var soin = brut + brut * pen_res * 0.02

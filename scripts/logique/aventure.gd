@@ -1246,7 +1246,10 @@ static func avancer_chasseurs(donjon, delta: float) -> Array:
 		if vers == de:
 			p["marche"] = 0.0
 			continue
-		var cherche := p.has("but")
+		# Il cherche le héros s'il a une destination dans ce niveau (« but ») ou dans un autre (« but_niveau », combat
+		# entendu) : sans « but_niveau », celui qui était déjà sur l'escalier entrait chez le héros sans le savoir là
+		# (attirer efface « but » ; 2026-11-15, test_chevalier_niveaux)
+		var cherche := p.has("but") or p.has("but_niveau")
 		changer_de_salle(donjon, p, de, vers, n)
 		var arrive_ici := vers == ici and n == etage
 		if autre_niveau(vers):

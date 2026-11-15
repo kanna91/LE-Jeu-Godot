@@ -635,6 +635,8 @@ func _infliger_degats(lanceur, competence, cible, personnage) -> void:
 	# ombre de l'enchanteur sur Boule de feu) : un coup de ce type, jet × % du type (2026-11-09)
 	for ep in AmeliorationsArmes.types_en_plus(lanceur, competence):
 		coups.append([ep[0], Formules.base_de_bonus(lanceur, ep[0], Formules.jet(ep[1]))])
+	# Conversion des objets (2026-11-15) : calculée comme avant, une part du coup change de type avant d'être envoyée
+	coups = Formules.convertir_coups(lanceur, competence, coups, types)
 	for coup in coups:
 		var t: String = coup[0]
 		var base: float = coup[1]

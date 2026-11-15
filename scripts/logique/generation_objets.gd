@@ -89,12 +89,6 @@ const UNIQUES := {
 	"talent_attaque_terreur": ["de l'effroi", 0.02, 0.01, "m", _OFF],
 	"talent_attaque_vulnerabilite": ["de la brèche", 0.03, 0.01, "n", _OFF],
 	"talent_attaque_malediction": ["du maléfice", 0.03, 0.01, "m", _OFF],
-	"talent_ajout__physique__feu": ["du brasier", 0.04, 0.02, "p", _OFF],
-	"talent_ajout__physique__foudre": ["de l'orage", 0.04, 0.02, "p", _OFF],
-	"talent_ajout__physique__brut": ["du bourreau", 0.03, 0.01, "p", _OFF],
-	"talent_ajout__magique__froid": ["du givre", 0.04, 0.02, "m", _OFF],
-	"talent_ajout__magique__ombre": ["des ténèbres", 0.04, 0.02, "m", _OFF],
-	"talent_ajout__magique__foudre": ["de la tempête", 0.04, 0.02, "m", _OFF],
 	"talent_vol_de_vie_physique": ["du vampire", 0.02, 0.01, "p", _OFF],
 	"talent_frappe_supplementaire": ["de la frénésie", 0.02, 0.01, "n", _OFF],
 	"talent_mana_critique_magique": ["de la source", 0.05, 0.02, "m", _OFF],
@@ -106,6 +100,17 @@ const UNIQUES := {
 	"talent_soins_recus": ["de la grâce", 0.04, 0.015, "n", _DEF],
 	"talent_efficacite_potions": ["de l'alchimiste", 0.05, 0.02, "n", _DEF],
 }
+## Conversion de dégâts (2026-11-15, décision de l'utilisateur ; remplace les six « ajouts » de dégâts) : une part
+## des dés d'un type devient un seul autre type (Formules.conversions). Part tirée au hasard, sans lien avec le rang
+## (un marteau qui devient perforant contre les squelettes ne rend pas service) : 25, 50, 75 ou 100 %, ou 25 %
+## pour le brut (son plafond). Type de départ : celui de l'arme physique, sinon un type de l'orientation de l'objet.
+## Poids 3 parmi les effets uniques : la place des trois anciens ajouts de chaque orientation.
+const CONVERSION := "conversion"
+const POIDS_CONVERSION := 3.0
+const PARTS_CONVERSION := [0.25, 0.5, 0.75, 1.0]
+const SUFFIXES_CONVERSION := {"tranchant": "des lames", "perforant": "des pointes", "contondant": "de l'écrasement",
+	"feu": "des braises", "froid": "du givre", "foudre": "de l'orage", "ombre": "des ténèbres", "chaos": "du chaos",
+	"arcane": "de l'arcane", "brut": "du bourreau"}
 # Dé bonus des armes (rare) : chance et taille selon le rang. Arme physique : dé de son propre type ;
 # magique : arcane, ombre ou chaos ; élémentaire : feu, froid ou foudre.
 const CHANCES_DE_BONUS := {1: 0.06, 2: 0.07, 3: 0.08, 4: 0.09, 5: 0.10, 6: 0.12}
@@ -118,7 +123,7 @@ const BUDGETS := {1: [24, 36], 2: [40, 56], 3: [60, 80], 4: [84, 112], 5: [116, 
 
 const QUALITES := {1: ["médiocre", "médiocre", "médiocres", "médiocres"], 2: ["commun", "commune", "communs", "communes"],
 	3: ["précieux", "précieuse", "précieux", "précieuses"], 4: ["rare", "rare", "rares", "rares"],
-	5: ["unique", "unique", "uniques", "uniques"], 6: ["légendaire", "légendaire", "légendaires", "légendaires"]}
+	5: ["épique", "épique", "épiques", "épiques"], 6: ["légendaire", "légendaire", "légendaires", "légendaires"]}
 const _GENRES := {"m": 0, "f": 1, "mp": 2, "fp": 3}
 
 
@@ -147,7 +152,34 @@ static func effets_uniques_possibles(famille: String, orient: String) -> Array:
 	for a in UNIQUES:
 		if famille in UNIQUES[a][4] and UNIQUES[a][3] != interdit:
 			liste.append(a)
+	if famille in _OFF:
+		liste.append(CONVERSION)
 	return liste
+
+
+## Type de départ d'une conversion : le type de l'arme physique, sinon un type de l'orientation de l'objet.
+static func source_conversion(objet) -> String:
+	var orient := String(U.ga(objet, "orientation", "physique"))
+	if objet is Arme and orient == "physique":
+		return String(Formules.DES_ARMES.get(U.ga(objet, "type_arme", ""), "tranchant"))
+	return Degats.GROUPES.get(orient, Degats.PHYSIQUES).pick_random()
+
+
+## Donne une conversion à un objet (« Épée physique commune des braises » : x % des dégâts tranchants en feu).
+static func ajouter_conversion(objet, de = null, vers = null, part = null) -> String:
+	if de == null:
+		de = source_conversion(objet)
+	if vers == null:
+		vers = Formules.CIBLES_CONVERSION.filter(func(t): return t != de).pick_random()
+	if part == null:
+		part = PARTS_CONVERSION.pick_random()
+	part = minf(float(part), Formules.PART_MAX_CONVERSION.get(vers, 1.0))
+	var attribut := "%s%s__%s" % [Formules.PREFIXE_CONVERSION, de, vers]
+	objet.set(attribut, part)
+	objet.unique = attribut
+	objet.nom = "%s %s" % [objet.nom, SUFFIXES_CONVERSION.get(vers, "")]
+	objet.valeur = int(objet.valeur * MULTIPLICATEUR_OR_UNIQUE)
+	return attribut
 
 
 ## Donne un effet unique à un objet (valeur selon son rang, suffixe du nom, or ×1,5).
@@ -156,7 +188,12 @@ static func ajouter_effet_unique(objet, attribut = null):
 		var possibles := effets_uniques_possibles(objet.famille, objet.orientation)
 		if possibles.is_empty():
 			return null
-		attribut = possibles.pick_random()
+		var poids := []
+		for a in possibles:
+			poids.append(POIDS_CONVERSION if a == CONVERSION else 1.0)
+		attribut = U.choix_pondere(possibles, poids)
+	if attribut == CONVERSION:
+		return ajouter_conversion(objet)
 	var u: Array = UNIQUES[attribut]
 	objet.set(attribut, U.arrondi(u[1] + u[2] * (objet.rang - 1), 4))
 	objet.unique = attribut

@@ -953,7 +953,14 @@ stick droit pour choisir un bouton de l'interface.
   défense ; hybride (bottes, ceinture, gants) : les trois ; bijoux : caractéristique ou dégâts (validé).
   Retirés des objets : régénérations, esquive, toucher, critique, PV, pourcentages de dégâts, dégâts d'un type
   précis, résistances spécifiques. Les **résistances spécifiques** ne viennent que de l'**armure anti-boss**.
-  Les effets uniques (`UNIQUES`) sont gardés tels quels en attendant le tri de l'utilisateur. Le % de dégâts
+  Les effets uniques (`UNIQUES`) sont gardés tels quels en attendant le tri de l'utilisateur, sauf les six
+  « ajouts » de dégâts, remplacés le 2026-11-15 par la **conversion** : une part des dés d'un type devient **un seul**
+  autre type (25, 50, 75 ou 100 %, tiré au hasard, sans lien avec le rang ; brut : 25 % au plus, et jamais type de
+  départ). Le coup se calcule comme avant (dés, caractéristique d'origine, dégâts plats, %), puis la part est
+  convertie : dés × % arrondi au plus proche, au moins 1 dé (`Formules.conversions`, `convertir_coups`). Départ : le
+  type de l'arme physique, sinon un type de l'orientation de l'objet. Suffixe selon le type d'arrivée : des lames,
+  des pointes, de l'écrasement, des braises, du givre, de l'orage, des ténèbres, du chaos, de l'arcane, du bourreau
+  (brut). Qualité du rang 5 : **épique** (« unique » avant le 2026-11-15). Le % de dégâts
   magiques est séparé de l'élémentaire (`pourcentage_degats_elementaire`). La valeur en or suit le rang.
   À venir (idées de l'utilisateur) : armes spéciales à gros dégâts critiques (+100 %, critique plafonné à 5 %),
   armes qui infligent une vulnérabilité, arme anti-boss portée par un élite.
@@ -1415,6 +1422,28 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   3 viandes).
 - Test : `tests/test_outil_perspective.gd` (règles, annulation, vitesse au fond, panneau, taille, butin du jeu) ;
   capture `tests/captures/73_couche_perspective.png`.
+
+### 2026-11-15 — Qualité « épique » au rang 5 ; conversion de dégâts des objets
+
+- **Demande de l'utilisateur** : la qualité du rang 5 s'appelait « unique », comme les effets uniques ; elle devient
+  **épique** (`GenerationObjets.QUALITES`). Qualités : médiocre, commun, précieux, rare, épique, légendaire. Les objets
+  déjà trouvés gardent leur nom.
+- **Conversion de dégâts** (décisions de l'utilisateur) : remplace les six effets uniques « ajout de dégâts »
+  (brasier, orage, bourreau, givre, ténèbres, tempête), qui ne couvraient ni l'arcane ni le chaos et ajoutaient peu.
+  Un effet convertit une part des dés d'**un** type en **un** autre type : 6d2 tranchants à 50 % → 3d2 tranchants +
+  3d2 de feu. Types : tranchant, perforant, contondant, feu, froid, foudre, ombre, chaos, arcane, et brut à l'arrivée
+  seulement, **25 % au plus** (« trop puissant »). Part : 25, 50, 75 ou 100 %, une chance sur quatre chacune, **pas
+  liée au rang** (« un marteau qui devient perforant contre les squelettes n'est pas une bonne chose »). Option C :
+  calcul comme avant (la force reste la caractéristique d'une épée convertie en feu), conversion juste avant
+  d'envoyer les dégâts ; arrondi au plus proche, au moins 1 dé. Les talents « ajout » du sphérier ne changent pas.
+  Test : `tests/test_conversion_degats.gd`.
+- **Gardé** : les noms des altérations (malédiction comprise). Les effets défensifs sont à revoir plus tard.
+- **Chevalier de la mort** : quand un combat l'attirait depuis l'autre niveau alors qu'il était déjà sur l'escalier,
+  il entrait chez le héros sans savoir qu'il le cherchait (`attirer` efface « but », seul « but_niveau » restait).
+  `avancer_chasseurs` compte maintenant les deux. Révélé par `test_chevalier_niveaux` (1 graine sur 6 échouait).
+- **Tests de porte2** (`test_coffres_fouilles`, `test_butin_pose`, `test_editeur_zones`) : ils vident d'abord la salle
+  de ce que l'utilisateur y a posé (coffre, squelettes interdits ; `tests/porte2_vide.gd`, copie de secours
+  « .avant_test » le temps du test), puis la remettent comme avant.
 
 ### 2026-11-15 — Une compétence est la même pour tout le monde ; repos et salles piège retirés
 

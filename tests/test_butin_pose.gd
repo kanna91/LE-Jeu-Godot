@@ -1,4 +1,6 @@
 extends SceneTree
+
+const Porte2Vide := preload("res://tests/porte2_vide.gd")
 ## Butin posé à la main (onglet « Butin » de l'éditeur, 2026-11-03), catalogue des objets divers / nourriture /
 ## ingrédients, onglets Nourriture et Ingrédients de l'inventaire et du marchand.
 ## « BILAN butin posé : 0 échec(s) ». Le test pose du butin sur porte2 dans l'éditeur, l'enregistre, le relit
@@ -96,6 +98,7 @@ func _editeur() -> void:
 	var original := FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json")
 	var manuel_avant := FileAccess.file_exists("res://outils/zones_manuelles/porte2.json")
 	var manuel_original := FileAccess.get_file_as_string("res://outils/zones_manuelles/porte2.json") if manuel_avant else ""
+	Porte2Vide.vider()
 	var ed = load("res://scenes/outils/editeur_zones.tscn").instantiate()
 	root.add_child(ed)
 	await process_frame
@@ -152,4 +155,5 @@ func _editeur() -> void:
 	else:
 		DirAccess.remove_absolute(ProjectSettings.globalize_path("res://outils/zones_manuelles/porte2.json"))
 	verifier(FileAccess.get_file_as_string("res://donnees/salles_peintes/porte2.json") == original, "porte2 remise en état")
+	Porte2Vide.nettoyer()
 	ed.queue_free()

@@ -40,7 +40,7 @@ Les valeurs réglées (éditeur des ennemis, éditeur des salles, code) sont cel
 - **A. Bornes** : le multiplicateur suit ±5 % par point mais reste entre **× 0,25 et × 1,75** (`Karma.BUTIN_MIN`,
   `BUTIN_MAX` ; × 0,5 à × 1,5 d'abord, élargi par l'utilisateur le 2026-11-15). Karma −5 : 100 pièces → 75 ;
   karma +5 : → 125.
-- **B. Qualité plutôt que nombre pour les objets uniques** : l'or et les objets qu'on compte (viande, potions,
+- **B. Qualité plutôt que nombre pour les objets à exemplaire unique** : l'or et les objets qu'on compte (viande, potions,
   nourriture, ingrédients…) suivent le multiplicateur (nombre d'objets : la partie décimale est tirée au hasard,
   1 objet × 0,75 = 75 % de chance de l'avoir). Les **armes et équipements** gardent leur nombre, mais chaque point de
   karma donne **5 % de chance d'un rang de plus** (positif) **ou de moins** (négatif), entre 1 et 6

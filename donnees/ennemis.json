@@ -34,7 +34,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "lancier": {
    "pv": [
@@ -69,7 +90,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "archer": {
    "pv": [
@@ -109,7 +151,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "defenseur": {
    "pv": [
@@ -144,7 +207,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "sorcier": {
    "pv": [
@@ -201,7 +285,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "feticheur": {
    "pv": [
@@ -263,7 +368,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "chaman": {
    "pv": [
@@ -306,7 +432,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "loup": {
    "pv": [
@@ -323,24 +470,44 @@
     }
    ],
    "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
    "fouille_par_membre": [
     {
      "categorie": "ingredient",
      "objet": "Viande crue",
      "potion": "",
-     "quantite": 1,
-     "rang": 0,
-     "chance": 100
+     "quantite": 1.0,
+     "rang": 0.0,
+     "chance": 100.0
     },
     {
      "categorie": "ingredient",
      "objet": "Viande crue",
      "potion": "",
-     "quantite": 1,
-     "rang": 0,
-     "chance": 50
+     "quantite": 1.0,
+     "rang": 0.0,
+     "chance": 50.0
     }
-   ]
+   ],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "squelette": {
    "pv": [
@@ -356,7 +523,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "guerrier_squelette": {
    "pv": [
@@ -372,7 +560,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "mage_squelette": {
    "pv": [
@@ -415,7 +624,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "elementaliste_squelette": {
    "pv": [
@@ -468,7 +698,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   },
   "squelette_invoque": {
    "pv": [
@@ -484,7 +735,28 @@
      "chance": 100.0
     }
    ],
-   "butin": []
+   "butin": [],
+   "fouille": {
+    "rien": 50.0,
+    "or": 35.0,
+    "objet": 15.0,
+    "or_min": 10.0,
+    "or_max": 30.0
+   },
+   "fouille_par_membre": [],
+   "pacifique_tue": {
+    "or_min": 2.0,
+    "or_max": 6.0,
+    "potion": 10.0,
+    "equipement": 2.0
+   },
+   "pacifique_epargne": {
+    "or_min": 5.0,
+    "or_max": 15.0,
+    "potion": 20.0,
+    "equipement": 5.0
+   },
+   "elite_objet": 100.0
   }
  }
 }

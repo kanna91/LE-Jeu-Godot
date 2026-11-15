@@ -2,7 +2,15 @@
  "competences": {
   "Boule_de_feu": {
    "type_alteration": {
-    "brulure": 25
+    "brulure": 25.0
+   }
+  },
+  "Coup_de_baton": {
+   "type_alteration": {}
+  },
+  "Projectile_des_ombres": {
+   "type_alteration": {
+    "corruption": 10
    }
   }
  },

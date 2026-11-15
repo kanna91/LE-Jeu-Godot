@@ -142,6 +142,10 @@ static func decrire_stats(stats: Dictionary) -> Array:
 			var gab: String = PAIRES_CRITIQUES[attribut][1].replace("+{m}", ("-" if valeur < 0 else "+") + _nombre(absf(valeur) * 50))
 			lignes.append(_formater(gab, valeur * 100))
 			continue
+		var conversion := Formules.texte_conversion(String(attribut), valeur)
+		if conversion != "":
+			lignes.append(conversion)
+			continue
 		var entree = libelles().get(attribut, [attribut + " +{v}", 1])
 		if entree[1] == null:
 			lignes.append(entree[0])

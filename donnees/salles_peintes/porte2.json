@@ -8,11 +8,11 @@
   "table_hauteur": [
    [
     358,
-    60.0
+    60
    ],
    [
     511,
-    200.0
+    200
    ]
   ]
  },
@@ -404,5 +404,48 @@
     200
    ]
   ]
- }
+ },
+ "feux": [],
+ "eaux": [],
+ "sorties_potentielles": [
+  false,
+  false,
+  false
+ ],
+ "butins": [],
+ "ennemis_interdits": [
+  "guerrier_squelette",
+  "mage_squelette",
+  "elementaliste_squelette"
+ ],
+ "coffres": [
+  {
+   "x": 170,
+   "y": 353,
+   "contenu": [
+    {
+     "categorie": "arme",
+     "objet": "",
+     "quantite": 0,
+     "potion": "",
+     "rang": 0
+    },
+    {
+     "categorie": "or",
+     "objet": "",
+     "quantite": 0,
+     "potion": "",
+     "rang": 0
+    },
+    {
+     "categorie": "recette",
+     "objet": "",
+     "quantite": 0,
+     "potion": "",
+     "rang": 0
+    }
+   ]
+  }
+ ],
+ "fouilles": []
 }
