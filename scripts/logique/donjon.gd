@@ -7,9 +7,6 @@ extends Dyn
 ## écran (combat, coffre, marchand...) sont des coroutines (``await``).
 
 const CHANCE_MINI_BOSS := 0.2
-## Chance qu'une salle soit piégée en y entrant (1 sur 15 avant ; désactivées par l'utilisateur le 2026-10-31).
-## ``salle_piege`` reste prête si on les remet.
-const CHANCE_PIEGE := 0.0
 const RENCONTRES_ENTRE_MINI_BOSS := 3
 const TYPES_SALLE := ["physique", "tranchante", "perforante", "contondante", "magique", "élémentaire", "feu", "froid",
 	"foudre", "arcane", "chaos", "spirituel", "ombre", "lumière"]
@@ -28,7 +25,6 @@ static func nouveau(personnage, fenetre = null) -> Donjon:
 	d._d["noms_enregistres"] = []
 	d._d["plan_donjon"] = {1: {"1": {"nom": "salle_debut", "type": "départ", "connections": [], "visitee": false}}}
 	d._d["types_salle"] = TYPES_SALLE.duplicate()
-	d._d["compteur_repos"] = 0
 	d._d["salle_actuelle"] = [1, 1]
 	d._d["niveau_joueur"] = 1
 	d._d["marchand_rencontre"] = false
@@ -136,7 +132,7 @@ func creer_boss_gobelin() -> Array:
 	return [Gobelin.nouveau(self, _d["niveau_joueur"]).generer_boss_gobelin(self, _d["niveau_joueur"])]
 
 
-## Événement de la salle actuelle : piège (CHANCE_PIEGE, désactivés) ou marchand. Pas de combat d'office : les ennemis rôdent dans
+## Événement de la salle actuelle : marchand (salles piège supprimées le 2026-11-15, demande de l'utilisateur). Pas de combat d'office : les ennemis rôdent dans
 ## la salle (Aventure, PresencesSalle) et le boss garde la sienne.
 func generer_rencontre() -> void:
 	var etage = _d["salle_actuelle"][0]
@@ -149,10 +145,6 @@ func generer_rencontre() -> void:
 		return
 	if salle != null and salle.get("type") == "bonus":
 		print("[INFO] Salle bonus détectée — aucune menace générée.")
-		return
-	if CHANCE_PIEGE > 0 and randf() < CHANCE_PIEGE and not salle.get("cachot", false):
-		print("[⚠️] Vous entrez dans une salle piégée...")
-		salle_piege()
 		return
 	if salle != null and salle.get("evenement") == "marchand" and salle.get("type") != "marchand":
 		await rencontre_marchand()
@@ -176,7 +168,8 @@ func peut_se_reposer() -> bool:
 	return salle_courante().get("lit", false)
 
 
-## Repos : PV et mana au maximum, et renforcement des futurs ennemis (seulement dans un lit).
+## Repos : PV et mana au maximum (seulement dans un lit). Il ne renforce plus les futurs ennemis (retiré le
+## 2026-11-15, demande de l'utilisateur).
 func se_reposer() -> void:
 	if not peut_se_reposer():
 		print("Il n'y a pas de lit ici.")
@@ -185,9 +178,7 @@ func se_reposer() -> void:
 	p.points_de_vie = p.points_de_vie_max
 	p.mana = p.mana_max
 	print("%s a récupéré tous ses points de vie." % p.nom)
-	_d["compteur_repos"] += 1
 	Statistiques.noter(p, "repos")
-	Ennemis.bonus_ennemis(_d["compteur_repos"])
 
 
 ## Déplace le joueur (« t » haut, « g » gauche, « d » droite, « r » bas) puis génère la rencontre.
@@ -267,38 +258,6 @@ func descendre_etage() -> void:
 	Objet.compteur_etage_objet -= 1
 	print("Vous descendez à l'étage %d." % _d["salle_actuelle"][0])
 	await generer_rencontre()
-
-
-## Piège : PV, mana, or, ou PV et mana (message dans ``message_evenement``).
-func salle_piege() -> void:
-	var salle := salle_courante()
-	salle["type"] = "piege"
-	salle["effet_utilise"] = true
-	var p = _d["personnage"]
-	var type_piege = ["pv", "mana", "or", "mixte"].pick_random()
-	var niveau: int = [1, 2, 3].pick_random()
-	if type_piege == "pv":
-		var perte := int(p.points_de_vie_max * [0.15, 0.25, 0.35][niveau - 1])
-		p.points_de_vie -= perte
-		Statistiques.noter(p, "degats_subis", perte)
-		_d["message_evenement"] = "Piège ! Vous perdez %d PV." % perte
-	elif type_piege == "mana":
-		var perte = min(p.mana, int(p.mana_max * [0.35, 0.45, 0.55][niveau - 1]))
-		p.mana -= perte
-		_d["message_evenement"] = "Un piège magique vous draine %d points de mana." % perte
-	elif type_piege == "or":
-		var perte := int(p.piece_or * [0.15, 0.25, 0.35][niveau - 1])
-		p.piece_or = max(0, p.piece_or - perte)
-		_d["message_evenement"] = "Un piège sournois vous coûte %d pièces d'or." % perte
-	else:
-		var perte_pv := int(p.points_de_vie_max * [0.10, 0.15, 0.25][niveau - 1])
-		var perte_mana = min(p.mana, int(p.mana_max * [0.15, 0.20, 0.35][niveau - 1]))
-		p.points_de_vie -= perte_pv
-		p.mana -= perte_mana
-		Statistiques.noter(p, "degats_subis", perte_pv)
-		_d["message_evenement"] = "Double piège ! Vous perdez %d PV et %d mana." % [perte_pv, perte_mana]
-	print(_d["message_evenement"])
-	Statistiques.verifier_mort(p, "piège")
 
 
 ## Action disponible dans la salle actuelle : [libellé, Callable (coroutine)], ou null.

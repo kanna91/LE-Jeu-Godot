@@ -678,8 +678,8 @@ func _nouveautes_31_octobre() -> void:
 	verifier("???" in String(fiche[1][0]), "fiche du chevalier : PV « ??? »")
 	var gobelin := Gobelin.nouveau(donjon, 1).generer_gobelin(donjon, 1)
 	verifier(not FicheEnnemi.stats_cachees(gobelin), "les gobelins gardent leur fiche")
-	# Salles pièges désactivées
-	verifier(Donjon.CHANCE_PIEGE == 0.0, "salles pièges désactivées")
+	# Salles pièges supprimées (2026-11-15)
+	verifier(not donjon.has_method("salle_piege"), "salles pièges supprimées")
 	# Potions de niveau 1 : 40 PV / 40 mana ; celles des ennemis restent en pourcentage
 	joueur.points_de_vie_max = 200
 	joueur.points_de_vie = 100

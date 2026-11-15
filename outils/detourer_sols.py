@@ -337,6 +337,13 @@ def avec_perspective(ident, d):
         d.setdefault("perspective_origine", dict(d["perspective"]))
         d["perspective"] = dict(d["perspective"], y_horizon=m["y_horizon"], table_hauteur=m["table"],
                                 hauteur_par_pixel=round(m["table"][1][1] / (511 - m["y_horizon"]), 3))
+    # Perspective retouchée à la main dans l'éditeur des salles (couche Perspective, 2026-11-15) : elle passe avant
+    manuelle = os.path.join(ICI, "outils", "zones_manuelles", ident + ".json")
+    if os.path.exists(manuelle):
+        z = json.load(open(manuelle, encoding="utf8"))
+        if isinstance(z.get("perspective"), dict):
+            d.setdefault("perspective_origine", dict(d["perspective"]))
+            d["perspective"] = dict(d["perspective"], **z["perspective"])
     return d
 
 

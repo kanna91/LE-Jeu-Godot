@@ -24,7 +24,11 @@ func lancer() -> void:
 	var gobelin = Gobelin.nouveau(null)._completer("guerrier", "combattant")
 	var comp := Competences.creer("Coup_de_lance")
 	var avant := Formules.degats_bruts(heros, comp, "perforant")
-	# Dés réglés : 2d6 pour le héros comme pour un ennemi (pas réduits)
+	# Une compétence est la même pour tout le monde (2026-11-15) : mêmes dés pour le héros et les ennemis
+	verifier(Formules.des_type(gobelin, "perforant", comp) == Formules.des_competence(heros, comp, "perforant"),
+		"Coup de lance : mêmes dés pour le héros et un gobelin")
+	verifier(Formules.des_type(gobelin, "perforant", Competences.creer("Coup_de_lance_mineur")) == [[4, 2]],
+		"Coup de lance mineur (copie des ennemis) : 4d2")
 	comp._d["des_degats"] = {"perforant": [2, 6]}
 	verifier(Formules.des_competence(heros, comp, "perforant") == [[2, 6]], "dés réglés : 2d6 (héros)")
 	verifier(Formules.des_type(gobelin, "perforant", comp) == [[2, 6]], "dés réglés : 2d6 (ennemi, pas réduits)")
@@ -61,6 +65,19 @@ func lancer() -> void:
 	editeur._regler_competence("Coup_de_lance", "facteur_degats", 3.0)
 	editeur._maj_apercu("Coup_de_lance")
 	verifier(String(apercu.text) != texte_avant, "l'aperçu suit le multiplicateur")
+	# Les dés sont affichés tels qu'ils sont joués, et les régler change ce que lance un ennemi comme le héros
+	editeur.choisir_competence("Epee_longue_rouillee")
+	var ed_g = editeur.competence_travail("Epee_longue_rouillee")
+	verifier(editeur.des_joues("Epee_longue_rouillee", Competences.creer("Epee_longue_rouillee", true), "tranchant")
+		== [[6, 2]], "éditeur : guerrier squelette affiché à 6d2 (dés joués)")
+	verifier(editeur.des_joues("Coup_d_epee", Competences.creer("Coup_d_epee", true), "tranchant") == [[6, 2]]
+		and editeur.des_joues("Coup_d_epee_mineur", Competences.creer("Coup_d_epee_mineur", true), "tranchant") == [[4, 2]],
+		"éditeur : Coup d'épée 6d2, Coup d'épée mineur 4d2")
+	editeur._regler_competence("Epee_longue_rouillee", "des_degats", {"tranchant": [5, 4]})
+	ed_g = editeur.competence_travail("Epee_longue_rouillee")
+	verifier(Formules.des_type(editeur._references()[1], "tranchant", ed_g) == [[5, 4]]
+		and Formules.des_type(editeur._references()[0], "tranchant", ed_g).slice(0, 1) == [[5, 4]], "éditeur : dés réglés à 5d4, joués par tous")
+	verifier("5d4 tranchant" in editeur.des_ennemi_texte("Epee_longue_rouillee"), "onglet Ennemis : %s" % editeur.des_ennemi_texte("Epee_longue_rouillee"))
 	editeur.choisir_competence("Cri_de_guerre")
 	verifier("soutien" in String(editeur.fiche_competence.get_node("Apercu").text), "compétence sans dégâts : pas d'aperçu chiffré")
 	editeur.queue_free()

@@ -974,7 +974,8 @@ static func ennemis_de(donjon, p: Dictionary) -> Array:
 				g = Creatures.creer(donjon, mg["sous_classe"])
 			elif k == 0 and p.get("elite", false):
 				g = Gobelin.nouveau(donjon, n).generer_mini_boss_gobelin(donjon, n, cs)
-				g._d["butin_garanti"] = true
+				# Équipement lâché à sa mort, avec la chance réglée dans l'éditeur des ennemis (100 % par défaut)
+				g._d["butin_garanti"] = randf() * 100.0 < float(DonneesEnnemis.butin_du_jeu(String(cs[1]), "elite_objet"))
 				if p.has("nom_elite"):  # élite d'une quête de prisonnier (« Faux prisonnier »)
 					g._d["nom"] = String(p["nom_elite"])
 				if p.get("renforce", false):  # élite+ d'une quête de prisonnier
@@ -1748,7 +1749,7 @@ static func utiliser_objet(donjon, p: Dictionary) -> String:
 					var equipe = joueur.recevoir_objet(trouve)
 					return "Une cache secrète : %s%s !" % [trouve.nom, " (équipé)" if equipe else ""]
 				_:
-					var gain := Karma.or_gagne(joueur, randi_range(20, 50) * maxi(1, etage))
+					var gain := Karma.or_gagne(joueur, randi_range(20, 50))  # sans × étage (2026-11-15)
 					joueur.piece_or += gain
 					return "Une bourse oubliée dans une fissure : %d pièces d'or." % gain
 	return ""

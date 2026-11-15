@@ -16,7 +16,7 @@ const TYPES := [
 	["lumière", "Lumière (soins)", "Int./Sag."], ["poison", "Poison", "aucune"],
 ]
 ## Colonnes de l'onglet « Dégâts » : [titre, x relatif au panneau, ancre].
-## Depuis le 2026-11-02, les dés sont ceux de chaque attaque (Formules.DES_HEROS) : la colonne « Vos attaques »
+## Depuis le 2026-11-02, les dés sont ceux de chaque attaque (Formules.DES_COMPETENCES) : la colonne « Vos attaques »
 ## liste celles du héros qui font ce type (les deux de son arme, ses magies apprises) avec dés et moyenne par coup.
 const COLONNES := [["Type", 14, "topleft"], ["Carac.", 150, "topleft"], ["Vos attaques : dés (moyenne par coup)", 236, "topleft"],
 	["+ carac.", 700, "topright"], ["+ objets", 768, "topright"], ["× %", 830, "topright"],

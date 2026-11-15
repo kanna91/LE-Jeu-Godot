@@ -37,7 +37,7 @@ func _initialize() -> void:
 	donjon.ennemis = [lancier, allie]
 	var r := repartition(donjon, heros, lancier, 3000)
 	print("lancier : ", r)
-	verifier(absf(float(r.get("Coup_de_lance", 0)) / 3000.0 - 0.67) < 0.04, "lancier : Coup de lance 2 fois sur 3")
+	verifier(absf(float(r.get("Coup_de_lance_mineur", 0)) / 3000.0 - 0.67) < 0.04, "lancier : Coup de lance 2 fois sur 3")
 	verifier(r.get("Perforation", 0) > 800 and not r.has("Rafale_de_lance"), "lancier : Perforation si le héros ne saigne pas")
 	heros.alteration["saignement"] = {"duree": 3, "cumul": 1}
 	r = repartition(donjon, heros, lancier, 1000)
@@ -81,10 +81,11 @@ func _initialize() -> void:
 	cb.mort_au_combat(donjon)
 	verifier(heros.piece_or == or_avant + 7, "butin : 7 pièces d'or (chance 100 %)")
 	verifier(heros.inventaire.size() == potions_avant, "butin : la potion à 0 % n'est pas lâchée")
-	# Squelette : sa propre attaque reste la première, une compétence donnée s'ajoute
-	d["sortes"]["squelette"]["competences"] = ["Coup_d_epee", "Coup_de_gourdin"]
+	# Squelette : ses compétences sont celles de l'éditeur, dans l'ordre (son attaque Epee_rouillee depuis le 2026-11-15)
+	d["sortes"]["squelette"]["competences"] = ["Epee_rouillee", "Coup_de_gourdin"]
 	var sq := Creatures.creer(donjon, "squelette")
-	verifier(sq.competences.size() == 2 and sq.competences[0].nom == "Épée rouillée", "squelette : son attaque puis Coup de gourdin")
+	verifier(sq.competences.size() == 2 and sq.competences[0].nom == "Épée rouillée"
+		and sq.competences[1].nom_classe == "Coup_de_gourdin", "squelette : son attaque puis Coup de gourdin")
 	DonneesEnnemis.recharger()
 	verifier(Alterations.definition("stun")["duree"] != 5 and Competences.creer("Coup_de_lance").nom != "Lance d'essai", "rechargé : réglages d'essai oubliés")
 	# Interface de l'éditeur (sans enregistrer)

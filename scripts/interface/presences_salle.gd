@@ -821,6 +821,7 @@ func _dessiner(n: Node2D, e: Dictionary) -> void:
 ## ``k`` : rang dans le groupe (décale la respiration). Renvoie la hauteur du haut de la tête au-dessus des pieds.
 func _gobelin(n: Node2D, e: Dictionary, membre: Dictionary, k: int, pieds: Vector2, hauteur: float, teinte: Color,
 		anim := "attente") -> float:
+	hauteur *= DonneesEnnemis.taille_de(str(membre.get("sous_classe", "")))  # taille réglée dans l'éditeur (2026-11-15)
 	var decalage := int(e["p"].get("id", 0)) * 0.37 + k * 0.81
 	var sens := -1.0 if e["regard"].x < -0.2 else 1.0
 	var sorte: String = CombatAnime.TYPES.get(str(membre.get("sous_classe", "")), "")

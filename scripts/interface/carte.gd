@@ -15,7 +15,7 @@ const COULEURS := {
 }
 const LEGENDE := [["actuelle", "Vous"], ["visitee", "Visitée"], ["connue", "Inexplorée"], ["boss", "Boss"],
 	["coffre", "Coffre"], ["soin", "Source de soin"], ["choix_bonus", "Bonus"], ["marchand", "Marchand"],
-	["piege", "Piège"], ["escalier", "Passage"]]
+	["escalier", "Passage"]]
 
 
 ## État de connaissance de chaque salle d'un étage : {id: « actuelle » / « visitee » / « connue »}.
@@ -90,8 +90,6 @@ static func contenu_salle(salle: Dictionary) -> Array:
 		return [salle.get("effet_bonus"), U.vrai(salle.get("effet_utilise"))]
 	if salle.get("type") == "marchand":
 		return ["marchand", false]
-	if salle.get("type") == "piege":
-		return ["piege", true]
 	if String(salle.get("nom", "")).begins_with("salle_debut"):
 		return ["depart", false]
 	return [null, false]
@@ -133,10 +131,6 @@ static func dessiner_pictogramme(ci: CanvasItem, genre, centre: Vector2, taille:
 			Ui.cercle(ci, Vector2(x, y), r, Color8(240, 200, 70))
 			Ui.cercle(ci, Vector2(x, y), r, Color8(120, 80, 20), 1)
 			Ui.texte(ci, "$", Vector2(x, y), Color8(90, 60, 10), maxi(9, taille - 4), true, null, "center")
-		"piege":
-			var c := Color8(200, 70, 60)
-			Ui.ligne(ci, Vector2(x - r, y - r), Vector2(x + r, y + r), c, 2)
-			Ui.ligne(ci, Vector2(x - r, y + r), Vector2(x + r, y - r), c, 2)
 		"escalier":
 			dessiner_escalier(ci, centre, 2.0 * r + 2.0)
 		"depart":

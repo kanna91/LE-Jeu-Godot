@@ -6,7 +6,7 @@
     70.0
    ],
    "competences": [
-    "Coup_d_epee",
+    "Coup_d_epee_mineur",
     "Botte_secrete",
     "Cri_de_guerre"
    ],
@@ -30,7 +30,7 @@
      "chance": 33.0
     },
     {
-     "competence": "Coup_d_epee",
+     "competence": "Coup_d_epee_mineur",
      "chance": 100.0
     }
    ],
@@ -42,16 +42,16 @@
     60.0
    ],
    "competences": [
-    "Coup_d_epee",
+    "Coup_d_epee_mineur",
     "Botte_secrete",
     "Cri_de_guerre",
-    "Coup_de_lance",
+    "Coup_de_lance_mineur",
     "Rafale_de_lance",
     "Perforation"
    ],
    "ia": [
     {
-     "competence": "Coup_de_lance",
+     "competence": "Coup_de_lance_mineur",
      "chance": 67.0
     },
     {
@@ -77,7 +77,7 @@
     60.0
    ],
    "competences": [
-    "Coup_d_epee",
+    "Coup_d_epee_mineur",
     "Botte_secrete",
     "Cri_de_guerre",
     "Tir",
@@ -117,7 +117,7 @@
     70.0
    ],
    "competences": [
-    "Coup_d_epee",
+    "Coup_d_epee_mineur",
     "Botte_secrete",
     "Cri_de_guerre",
     "Coup_de_gourdin",
@@ -153,13 +153,13 @@
    ],
    "competences": [
     "Coup_de_baton",
-    "Boule_de_feu",
+    "Boule_de_feu_mineure",
     "Trait_des_Ombres",
     "Projectile_des_ombres"
    ],
    "ia": [
     {
-     "competence": "Boule_de_feu",
+     "competence": "Boule_de_feu_mineure",
      "chance": 33.0,
      "si": [
       [
@@ -189,7 +189,7 @@
      ]
     },
     {
-     "competence": "Boule_de_feu",
+     "competence": "Boule_de_feu_mineure",
      "chance": 50.0
     },
     {
@@ -210,7 +210,7 @@
    ],
    "competences": [
     "Coup_de_baton",
-    "Boule_de_feu",
+    "Boule_de_feu_mineure",
     "Projectile_des_ombres",
     "Caresse_des_ombres",
     "Enflammer",
@@ -272,7 +272,7 @@
    ],
    "competences": [
     "Coup_de_baton",
-    "Boule_de_feu",
+    "Boule_de_feu_mineure",
     "Projectile_des_ombres",
     "Silence",
     "Soin_mineur",
@@ -302,7 +302,7 @@
      "cible": "allie_blesse"
     },
     {
-     "competence": "Boule_de_feu",
+     "competence": "Boule_de_feu_mineure",
      "chance": 100.0
     }
    ],
@@ -314,30 +314,31 @@
     60.0
    ],
    "competences": [
-    "Coup_d_epee"
+    "Morsure"
    ],
    "ia": [
     {
-     "competence": "Coup_d_epee",
+     "competence": "Morsure",
      "chance": 100.0
     }
    ],
-   "butin": [
+   "butin": [],
+   "fouille_par_membre": [
     {
      "categorie": "ingredient",
      "objet": "Viande crue",
      "potion": "",
-     "quantite": 1.0,
-     "rang": 0.0,
-     "chance": 100.0
+     "quantite": 1,
+     "rang": 0,
+     "chance": 100
     },
     {
      "categorie": "ingredient",
      "objet": "Viande crue",
      "potion": "",
-     "quantite": 1.0,
-     "rang": 0.0,
-     "chance": 50.0
+     "quantite": 1,
+     "rang": 0,
+     "chance": 50
     }
    ]
   },
@@ -347,11 +348,11 @@
     60.0
    ],
    "competences": [
-    "Coup_d_epee"
+    "Epee_rouillee"
    ],
    "ia": [
     {
-     "competence": "Coup_d_epee",
+     "competence": "Epee_rouillee",
      "chance": 100.0
     }
    ],
@@ -359,27 +360,27 @@
   },
   "guerrier_squelette": {
    "pv": [
-    80,
-    80
+    80.0,
+    80.0
    ],
    "competences": [
-    "Coup_d_epee"
+    "Epee_longue_rouillee"
    ],
    "ia": [
     {
-     "competence": "Coup_d_epee",
-     "chance": 100
+     "competence": "Epee_longue_rouillee",
+     "chance": 100.0
     }
    ],
    "butin": []
   },
   "mage_squelette": {
    "pv": [
-    50,
-    60
+    50.0,
+    60.0
    ],
    "competences": [
-    "Coup_d_epee",
+    "Coup_de_baton",
     "Invocation_squelette",
     "Trait_des_Ombres",
     "Projectile_des_ombres"
@@ -387,7 +388,7 @@
    "ia": [
     {
      "competence": "Invocation_squelette",
-     "chance": 60,
+     "chance": 60.0,
      "si": [
       [
        "invocations_moins_de",
@@ -401,7 +402,7 @@
     },
     {
      "competence": "Trait_des_Ombres",
-     "chance": 50,
+     "chance": 50.0,
      "si": [
       [
        "mana_au_moins",
@@ -411,26 +412,26 @@
     },
     {
      "competence": "Projectile_des_ombres",
-     "chance": 100
+     "chance": 100.0
     }
    ],
    "butin": []
   },
   "elementaliste_squelette": {
    "pv": [
-    50,
-    60
+    50.0,
+    60.0
    ],
    "competences": [
-    "Coup_d_epee",
-    "Boule_de_feu",
-    "Givre",
-    "Eclair"
+    "Coup_de_baton",
+    "Boule_de_feu_mineure",
+    "Givre_mineur",
+    "Eclair_mineur"
    ],
    "ia": [
     {
-     "competence": "Eclair",
-     "chance": 33,
+     "competence": "Eclair_mineur",
+     "chance": 33.0,
      "si": [
       [
        "mana_au_moins",
@@ -439,8 +440,8 @@
      ]
     },
     {
-     "competence": "Givre",
-     "chance": 50,
+     "competence": "Givre_mineur",
+     "chance": 50.0,
      "si": [
       [
        "mana_au_moins",
@@ -453,8 +454,8 @@
      ]
     },
     {
-     "competence": "Boule_de_feu",
-     "chance": 100,
+     "competence": "Boule_de_feu_mineure",
+     "chance": 100.0,
      "si": [
       [
        "mana_au_moins",
@@ -463,24 +464,24 @@
      ]
     },
     {
-     "competence": "Coup_d_epee",
-     "chance": 100
+     "competence": "Coup_de_baton",
+     "chance": 100.0
     }
    ],
    "butin": []
   },
   "squelette_invoque": {
    "pv": [
-    30,
-    30
+    30.0,
+    30.0
    ],
    "competences": [
-    "Coup_d_epee"
+    "Lame_ebrechee"
    ],
    "ia": [
     {
-     "competence": "Coup_d_epee",
-     "chance": 100
+     "competence": "Lame_ebrechee",
+     "chance": 100.0
     }
    ],
    "butin": []

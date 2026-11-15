@@ -143,6 +143,12 @@ func _dessiner_fond(ci: Control) -> void:
 	ci.draw_set_transform(Vector2.ZERO)
 
 
+## Échelle de l'image d'un ennemi en combat : son rang (élite, boss : taille_affichage) × la taille de sa sorte réglée
+## dans l'éditeur (DonneesEnnemis.taille_de, 2026-11-15).
+static func echelle_ennemi(ennemi) -> float:
+	return float(U.ga(ennemi, "taille_affichage", 1.0)) * DonneesEnnemis.taille_de(str(U.ga(ennemi, "sous_classe", "")))
+
+
 static func taille_sprite(echelle: float) -> Vector2:
 	return Vector2(int(LARGEUR_SPRITE * echelle), int(HAUTEUR_SPRITE * echelle))
 
@@ -163,7 +169,7 @@ static func placer_ennemis(ennemis: Array) -> Dictionary:
 	var largeur_gauche := 0.0
 	var largeur_droite := 0.0
 	for i in ennemis.size():
-		var l := taille_sprite(U.ga(ennemis[i], "taille_affichage", 1.0)).x
+		var l := taille_sprite(echelle_ennemi(ennemis[i])).x
 		if i < a_gauche:
 			largeur_gauche += l
 		else:
@@ -175,7 +181,7 @@ static func placer_ennemis(ennemis: Array) -> Dictionary:
 	for i in ennemis.size():
 		if i == a_gauche:
 			x = maxf(x, minf(milieu + ECART_HEROS / 2.0, Ui.LARGEUR - largeur_droite))
-		var t := taille_sprite(U.ga(ennemis[i], "taille_affichage", 1.0))
+		var t := taille_sprite(echelle_ennemi(ennemis[i]))
 		if ennemis.size() == 1 and U.ga(ennemis[i], "centre_combat", false):
 			x = milieu - t.x / 2.0  # seul et face au héros (Chevalier de la mort) : au milieu, il frappe sur lui
 		positions[ennemis[i]] = Vector2(x, sol - t.y)
@@ -210,7 +216,7 @@ func rect_ennemi(ennemi):
 	var position = combat.positions_ennemis_fixes.get(ennemi)
 	if position == null:
 		return null
-	return Rect2(position, taille_sprite(U.ga(ennemi, "taille_affichage", 1.0)))
+	return Rect2(position, taille_sprite(echelle_ennemi(ennemi)))
 
 
 func _annuler() -> void:

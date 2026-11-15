@@ -7,6 +7,13 @@ extends RefCounted
 ##
 ## ``donnees/ennemis.json`` : pour chaque sorte d'ennemi (SORTES) :
 ## - « pv » : [min, max] au premier étage (par pas de 10 : Gobelin.bornes_endurance) ;
+## - « taille » : 1 = normale (taille_de, 2026-11-15) ;
+## - butin du jeu, réglable depuis le 2026-11-15 (demande de l'utilisateur ; avant, en dur dans Fouille, Rencontres et
+##   Aventure) : « fouille » (corps fouillé après le combat, un seul tirage pour le groupe, avec la table de son premier
+##   membre : poids « rien » / « or » / « objet », or « or_min » à « or_max »), « fouille_par_membre » (butins, même
+##   format que « butin », tirés pour chaque membre de cette sorte quand on fouille : la viande des loups),
+##   « pacifique_tue » et « pacifique_epargne » (or_min, or_max, chances en % de potion et d'équipement ; table du premier
+##   membre), « elite_objet » (chance en % qu'une élite lâche un équipement à sa mort) ;
 ## - « competences » : noms de classe des compétences qu'il connaît (Competences) ;
 ## - « ia » : règles jouées dans l'ordre, la première qui passe est jouée : {« competence », « chance » (%),
 ##   « si » : [[condition, valeur], ...] (toutes vraies), « cible » : « auto » ou « allie_blesse »}. Si aucune ne passe :
@@ -54,31 +61,31 @@ const CHAMPS_COMPETENCE := ["nom", "description", "cout_mana", "cout_action", "n
 	"type_degats", "multiplicateur_degats", "type_alteration", "duree_bonus", "facteur_degats", "des_degats", "degats_fixes",
 	"pv_max_cible"]
 
-## Compétences par défaut de chaque sorte (ancien Gobelin.definir_competence_gobelin ; loup et squelette : leur attaque,
-## une copie renommée de Coup_d_epee faite par Creatures).
+## Compétences par défaut de chaque sorte (ancien Gobelin.definir_competence_gobelin ; créatures : leur attaque, une
+## compétence à part depuis le 2026-11-15, avant une copie renommée de Coup_d_epee à dés fixes faite par Creatures).
 const COMPETENCES_DEFAUT := {
-	"combattant": ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre"],
-	"lancier": ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre", "Coup_de_lance", "Rafale_de_lance", "Perforation"],
-	"archer": ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre", "Tir", "Tir_precis", "Tir_empoisonne", "Précision"],
-	"defenseur": ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre", "Coup_de_gourdin", "Grand_coup_de_gourdin", "Protection"],
-	"sorcier": ["Coup_de_baton", "Boule_de_feu", "Trait_des_Ombres", "Projectile_des_ombres"],
-	"feticheur": ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur"],
-	"chaman": ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"],
-	"loup": ["Coup_d_epee"],
-	"squelette": ["Coup_d_epee"],
-	"guerrier_squelette": ["Coup_d_epee"],
-	"mage_squelette": ["Coup_d_epee", "Invocation_squelette", "Trait_des_Ombres", "Projectile_des_ombres"],
-	"elementaliste_squelette": ["Coup_d_epee", "Boule_de_feu", "Givre", "Eclair"],
-	"squelette_invoque": ["Coup_d_epee"],
+	"combattant": ["Coup_d_epee_mineur", "Botte_secrete", "Cri_de_guerre"],
+	"lancier": ["Coup_d_epee_mineur", "Botte_secrete", "Cri_de_guerre", "Coup_de_lance_mineur", "Rafale_de_lance", "Perforation"],
+	"archer": ["Coup_d_epee_mineur", "Botte_secrete", "Cri_de_guerre", "Tir", "Tir_precis", "Tir_empoisonne", "Précision"],
+	"defenseur": ["Coup_d_epee_mineur", "Botte_secrete", "Cri_de_guerre", "Coup_de_gourdin", "Grand_coup_de_gourdin", "Protection"],
+	"sorcier": ["Coup_de_baton", "Boule_de_feu_mineure", "Trait_des_Ombres", "Projectile_des_ombres"],
+	"feticheur": ["Coup_de_baton", "Boule_de_feu_mineure", "Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur"],
+	"chaman": ["Coup_de_baton", "Boule_de_feu_mineure", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"],
+	"loup": ["Morsure"],
+	"squelette": ["Epee_rouillee"],
+	"guerrier_squelette": ["Epee_longue_rouillee"],
+	"mage_squelette": ["Coup_de_baton", "Invocation_squelette", "Trait_des_Ombres", "Projectile_des_ombres"],
+	"elementaliste_squelette": ["Coup_de_baton", "Boule_de_feu_mineure", "Givre_mineur", "Eclair_mineur"],
+	"squelette_invoque": ["Lame_ebrechee"],
 }
 ## IA par défaut : l'ancienne IA codée en dur, traduite en règles (mêmes chances).
 const IA_DEFAUT := {
 	"combattant": [
 		{"competence": "Cri_de_guerre", "chance": 100, "si": [["a_des_allies", ""], ["groupe_sans", "rage"]]},
 		{"competence": "Botte_secrete", "chance": 33},
-		{"competence": "Coup_d_epee", "chance": 100}],
+		{"competence": "Coup_d_epee_mineur", "chance": 100}],
 	"lancier": [
-		{"competence": "Coup_de_lance", "chance": 67},
+		{"competence": "Coup_de_lance_mineur", "chance": 67},
 		{"competence": "Perforation", "chance": 100, "si": [["heros_sans", "saignement"]]},
 		{"competence": "Rafale_de_lance", "chance": 100}],
 	"archer": [
@@ -91,10 +98,10 @@ const IA_DEFAUT := {
 		{"competence": "Grand_coup_de_gourdin", "chance": 100, "si": [["groupe_avec", "résistance physique"]]},
 		{"competence": "Protection", "chance": 100}],
 	"sorcier": [
-		{"competence": "Boule_de_feu", "chance": 33, "si": [["mana_au_moins", "6"]]},
+		{"competence": "Boule_de_feu_mineure", "chance": 33, "si": [["mana_au_moins", "6"]]},
 		{"competence": "Trait_des_Ombres", "chance": 50, "si": [["mana_au_moins", "6"]]},
 		{"competence": "Projectile_des_ombres", "chance": 100, "si": [["heros_sans", "brulure"]]},
-		{"competence": "Boule_de_feu", "chance": 50},
+		{"competence": "Boule_de_feu_mineure", "chance": 50},
 		{"competence": "Trait_des_Ombres", "chance": 100},
 		{"competence": "Coup_de_baton", "chance": 100}],
 	"feticheur": [
@@ -106,21 +113,30 @@ const IA_DEFAUT := {
 	"chaman": [
 		{"competence": "Soin_mineur", "chance": 17, "si": [["allie_blesse", ""]], "cible": "allie_blesse"},
 		{"competence": "Recupe", "chance": 20, "si": [["allie_blesse", ""]], "cible": "allie_blesse"},
-		{"competence": "Boule_de_feu", "chance": 100}],
-	"loup": [{"competence": "Coup_d_epee", "chance": 100}],
-	"squelette": [{"competence": "Coup_d_epee", "chance": 100}],
-	"guerrier_squelette": [{"competence": "Coup_d_epee", "chance": 100}],
+		{"competence": "Boule_de_feu_mineure", "chance": 100}],
+	"loup": [{"competence": "Morsure", "chance": 100}],
+	"squelette": [{"competence": "Epee_rouillee", "chance": 100}],
+	"guerrier_squelette": [{"competence": "Epee_longue_rouillee", "chance": 100}],
 	# Proposé par Claude (2026-11-06), à régler dans l'éditeur
 	"mage_squelette": [
 		{"competence": "Invocation_squelette", "chance": 60, "si": [["invocations_moins_de", "2"], ["mana_au_moins", "6"]]},
 		{"competence": "Trait_des_Ombres", "chance": 50, "si": [["mana_au_moins", "8"]]},
 		{"competence": "Projectile_des_ombres", "chance": 100}],
 	"elementaliste_squelette": [
-		{"competence": "Eclair", "chance": 33, "si": [["mana_au_moins", "2"]]},
-		{"competence": "Givre", "chance": 50, "si": [["mana_au_moins", "2"], ["heros_sans", "lenteur"]]},
-		{"competence": "Boule_de_feu", "chance": 100, "si": [["mana_au_moins", "2"]]},
-		{"competence": "Coup_d_epee", "chance": 100}],
-	"squelette_invoque": [{"competence": "Coup_d_epee", "chance": 100}],
+		{"competence": "Eclair_mineur", "chance": 33, "si": [["mana_au_moins", "2"]]},
+		{"competence": "Givre_mineur", "chance": 50, "si": [["mana_au_moins", "2"], ["heros_sans", "lenteur"]]},
+		{"competence": "Boule_de_feu_mineure", "chance": 100, "si": [["mana_au_moins", "2"]]},
+		{"competence": "Coup_de_baton", "chance": 100}],
+	"squelette_invoque": [{"competence": "Lame_ebrechee", "chance": 100}],
+}
+
+## Butin du jeu par défaut (valeurs d'avant le 2026-11-15, quand il était en dur) : voir l'en-tête.
+const BUTIN_DU_JEU_DEFAUT := {
+	"fouille": {"rien": 50, "or": 35, "objet": 15, "or_min": 10, "or_max": 30},
+	"fouille_par_membre": [],
+	"pacifique_tue": {"or_min": 2, "or_max": 6, "potion": 10, "equipement": 2},
+	"pacifique_epargne": {"or_min": 5, "or_max": 15, "potion": 20, "equipement": 5},
+	"elite_objet": 100,
 }
 
 static var _donnees := {}
@@ -138,6 +154,11 @@ static func defaut() -> Dictionary:
 			bornes = Gobelin.ENDURANCE_PAR_SOUS_CLASSE.get(s, [5, 6])
 		sortes[s] = {"pv": [int(bornes[0]) * 10, int(bornes[1]) * 10], "competences": COMPETENCES_DEFAUT[s].duplicate(),
 			"ia": IA_DEFAUT[s].duplicate(true), "butin": []}
+		for cle in BUTIN_DU_JEU_DEFAUT:
+			sortes[s][cle] = BUTIN_DU_JEU_DEFAUT[cle].duplicate(true) if BUTIN_DU_JEU_DEFAUT[cle] is Dictionary 				or BUTIN_DU_JEU_DEFAUT[cle] is Array else BUTIN_DU_JEU_DEFAUT[cle]
+		if s == "loup":  # 1 viande crue par loup fouillé (règle de l'utilisateur, 2026-11-04)
+			sortes[s]["fouille_par_membre"] = [{"categorie": "ingredient", "objet": "Viande crue", "potion": "",
+				"quantite": 1, "rang": 0, "chance": 100}]
 	return {"sortes": sortes}
 
 
@@ -185,6 +206,28 @@ static func ia_de(s: String) -> Array:
 
 static func butin_de(s: String) -> Array:
 	return sorte(s).get("butin", [])
+
+
+## Réglage ``cle`` du butin du jeu de la sorte ``s`` (BUTIN_DU_JEU_DEFAUT pour une sorte inconnue ou sans réglage).
+static func butin_du_jeu(s: String, cle: String):
+	var v = sorte(s).get(cle, null)
+	if v == null:
+		v = BUTIN_DU_JEU_DEFAUT[cle]
+	return v
+
+
+## Sorte du premier membre d'une liste de membres (Aventure.membres) : c'est sa table qui sert au groupe.
+static func sorte_du_groupe(membres: Array) -> String:
+	for m in membres:
+		if m is Dictionary:
+			return String(m.get("sous_classe", ""))
+	return ""
+
+
+## Taille de la sorte (1 = taille normale), réglée dans l'éditeur (2026-11-15, demande de l'utilisateur) : multiplie sa
+## hauteur dans les salles (PresencesSalle) et son image en combat (MenuCombat). 1 pour une sorte inconnue.
+static func taille_de(s: String) -> float:
+	return clampf(float(sorte(s).get("taille", 1.0)), 0.2, 4.0) if SORTES.has(s) else 1.0
 
 
 ## PV [min, max] de la sorte au premier étage.

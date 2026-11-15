@@ -494,45 +494,33 @@ func choisir_competence(classe: String) -> void:
 	_maj = false
 
 
-## Ligne des dégâts d'un type : dés (par défaut ou réglés), dégâts fixes, part des PV max de la cible.
-func _ligne_degats(classe: String, origine, t: String, refs: Array) -> Control:
+## Ligne des dégâts d'un type : dés, dégâts fixes, part des PV max de la cible. Une compétence est la même pour tout
+## le monde (demande de l'utilisateur, 2026-11-15) : un seul réglage de dés (« des_degats »), prérempli avec les dés
+## joués ; pour des ennemis qui frappent autrement, une autre compétence (copie : Coup_d_epee_mineur...).
+func _ligne_degats(classe: String, origine, t: String, _refs: Array) -> Control:
 	var ligne := HFlowContainer.new()
 	var nom_t := _etiquette(String(NOMS_TYPES_DEGATS.get(t, t)), Color(0.75, 1, 0.8))
 	nom_t.custom_minimum_size = Vector2(110, 0)
 	ligne.add_child(nom_t)
-	var des_regles: Dictionary = Dictionary(valeur_competence(classe, "des_degats", {"des_degats": {}})).duplicate(true)
-	var regles: bool = des_regles.has(t)
-	var defaut_heros := Formules.des_competence(refs[0], origine, t)
-	var defaut_ennemi := Formules.des_competence(refs[1], origine, t)
-	var texte_defaut := "par défaut : héros %s, ennemis %s" % [_texte_des(defaut_heros, t, false), _texte_des(defaut_ennemi, t, true)]
-	var choix := CheckBox.new()
-	choix.text = "dés réglés"
-	choix.focus_mode = Control.FOCUS_NONE
-	choix.button_pressed = regles
-	choix.tooltip_text = "Décoché : les dés du jeu (%s). Coché : les dés choisis ici, pour le héros comme pour les ennemis." % texte_defaut
-	ligne.add_child(choix)
-	var defaut_affiche: Array = defaut_heros if not defaut_heros.is_empty() else Formules.DES_TYPES.get(t, [[1, 4]])
-	var valeur: Array = des_regles.get(t, defaut_affiche[0] if not defaut_affiche.is_empty() else [1, 4])
+	var joues := des_joues(classe, origine, t)
+	var valeur: Array = joues[0] if not joues.is_empty() else [1, 4]
+	ligne.add_child(_etiquette("Dés"))
 	var n := _nombre(float(valeur[0]), 0, 30, 1, func(_v): pass)
 	n.custom_minimum_size = Vector2(64, 0)
-	var faces := _liste_deroulante(FACES_DES.map(func(f): return "d%d" % f), FACES_DES.find(int(valeur[1])), func(_k): pass, 70)
+	var faces := _liste_deroulante(FACES_DES.map(func(f): return "d%d" % f), maxi(0, FACES_DES.find(int(valeur[1]))),
+		func(_k): pass, 70)
 	var maj_des := func():
 		if _maj:
 			return
 		var d: Dictionary = Dictionary(valeur_competence(classe, "des_degats", {"des_degats": {}})).duplicate(true)
-		if choix.button_pressed:
-			d[t] = [int(n.value), FACES_DES[maxi(0, faces.selected)]]
-		else:
-			d.erase(t)
+		d[t] = [int(n.value), FACES_DES[maxi(0, faces.selected)]]
 		_regler_competence(classe, "des_degats", d)
-		n.editable = choix.button_pressed
-		faces.disabled = not choix.button_pressed
 		_maj_apercu(classe)
 	n.value_changed.connect(func(_v): maj_des.call())
 	faces.item_selected.connect(func(_k): maj_des.call())
-	choix.toggled.connect(func(_on): maj_des.call())
-	n.editable = regles
-	faces.disabled = not regles
+	var aide := "Dés lancés à chaque coup, par le héros comme par les ennemis (joués : %s). Le dé bonus de l'arme du héros s'y ajoute pour les attaques de l'arme." % _texte_des(joues)
+	n.tooltip_text = aide
+	faces.tooltip_text = aide
 	ligne.add_child(n)
 	ligne.add_child(faces)
 	ligne.add_child(_etiquette("+ fixe"))
@@ -561,17 +549,22 @@ func _ligne_degats(classe: String, origine, t: String, refs: Array) -> Control:
 	var champ_pv := _nombre(float(parts.get(t, 0)) * 100.0, 0, 100, 0.5, regler_pv, " %")
 	champ_pv.tooltip_text = "Part des PV max de la cible ajoutée aux dégâts (ou aux soins pour la lumière)."
 	ligne.add_child(champ_pv)
-	var aide := _etiquette("(" + texte_defaut + ")", Color(0.6, 0.6, 0.66), 12)
-	ligne.add_child(aide)
 	return ligne
 
 
-func _texte_des(des: Array, t: String, ennemi: bool) -> String:
-	if des.is_empty():
-		var defaut: Array = Formules.DES_TYPES.get(t, [])
-		if ennemi:
-			defaut = Formules.des_reduits(defaut)
-		des = defaut
+## Dés joués pour le type ``t`` avec la compétence telle qu'elle est réglée (sans le dé d'arme) : réglés, sinon ceux
+## du jeu (Formules.des_competence), sinon ceux du type.
+func des_joues(classe: String, origine, t: String) -> Array:
+	var regles: Dictionary = Dictionary(valeur_competence(classe, "des_degats", {"des_degats": {}}))
+	if regles.get(t) is Array and regles[t].size() == 2:
+		return [regles[t]]
+	var propres := Formules.des_competence(null, origine, t)
+	if not propres.is_empty():
+		return propres
+	return Formules.DES_COUP_MULTIPLE if Formules.est_coup_multiple(origine) else Formules.DES_TYPES.get(t, [])
+
+
+func _texte_des(des: Array) -> String:
 	return " + ".join(des.map(func(d): return "%dd%d" % [int(d[0]), int(d[1])])) if not des.is_empty() else "aucun"
 
 
@@ -1214,11 +1207,18 @@ func _remplir_ennemi() -> void:
 	h.add_child(_etiquette("à"))
 	h.add_child(_nombre(float(pv[1]), 10, 990, 10, func(v): _regler_pv(1, v)))
 	boite_ennemi.add_child(h)
+	# Taille (2026-11-15, demande de l'utilisateur) : dans les salles et en combat
+	var ht := HBoxContainer.new()
+	ht.add_child(_etiquette("Taille (1 = normale ; dans les salles et en combat)", COULEUR_TITRE))
+	var champ_taille := _nombre(float(d.get("taille", 1.0)) * 100.0, 20, 400, 5, func(v): regler_taille(v / 100.0), " %")
+	champ_taille.tooltip_text = "Multiplie la hauteur de l'ennemi dans les salles (en hauteurs du héros) et son image en combat. Élites et boss gardent leur agrandissement en plus."
+	ht.add_child(champ_taille)
+	boite_ennemi.add_child(ht)
 	boite_ennemi.add_child(_etiquette("Compétences qu'il connaît (l'IA ne joue que celles-ci)", COULEUR_TITRE))
 	var liste: Array = d.get("competences", [])
 	for c in liste:
 		var l := HBoxContainer.new()
-		var t := _etiquette("• " + nom_competence(String(c)))
+		var t := _etiquette("• " + nom_competence(String(c)) + des_ennemi_texte(String(c)))
 		t.custom_minimum_size = Vector2(380, 0)
 		l.add_child(t)
 		var classe := String(c)
@@ -1229,8 +1229,6 @@ func _remplir_ennemi() -> void:
 			choisir_competence(classe)))
 		l.add_child(_bouton("✕ Retirer", func(): retirer_competence_sorte(classe)))
 		boite_ennemi.add_child(l)
-	if Creatures.SORTES.has(sorte_choisie):
-		boite_ennemi.add_child(_etiquette("Coup_d_epee est son attaque propre (%s, dés fixes)." % Creatures.SORTES[sorte_choisie]["attaque"], Color(0.65, 0.65, 0.7), 12))
 	var ajout := HBoxContainer.new()
 	var toutes := toutes_les_competences().filter(func(c): return not c in liste)
 	var choix := _liste_deroulante(toutes.map(func(c): return nom_competence(c)), 0, func(_k): pass, 380)
@@ -1240,6 +1238,26 @@ func _remplir_ennemi() -> void:
 			donner_competence_sorte(String(toutes[choix.selected]))))
 	boite_ennemi.add_child(ajout)
 	_maj = false
+
+
+## « — 6d2 tranchant » : dés qu'un ennemi lance avec cette compétence telle qu'elle est réglée ("" sans dégâts).
+func des_ennemi_texte(classe: String) -> String:
+	var comp = competence_travail(classe)
+	if comp == null:
+		return ""
+	var parties := []
+	for t in Array(comp.type_degats):
+		var des := Formules.des_type(_references()[1], String(t), comp)
+		if not des.is_empty():
+			parties.append("%s %s" % [" + ".join(des.map(func(d): return "%dd%d" % [int(d[0]), int(d[1])])), t])
+	return ("  — " + ", ".join(parties)) if not parties.is_empty() else ""
+
+
+func regler_taille(v: float) -> void:
+	if _maj:
+		return
+	donnees_sorte()["taille"] = snappedf(clampf(v, 0.2, 4.0), 0.01)
+	_change("Taille de " + DonneesEnnemis.NOMS[sorte_choisie])
 
 
 func _regler_pv(k: int, v: float) -> void:
@@ -1379,40 +1397,138 @@ func _remplir_butin() -> void:
 		+ "Objet « au hasard » : tiré dans sa catégorie ; rang 0 : selon l'étage ; or 0 : montant au hasard.", Color(0.7, 0.7, 0.75), 12)
 	aide.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	boite_butin.add_child(aide)
+	var karma := _etiquette("Karma : toutes ces valeurs sont celles du karma 0. Chaque point de karma change l'or et le nombre d'objets de %d %% (karma −5 : × 0,75, 100 pièces → 75 ; karma +5 : × 1,25). Les chances ne changent pas." 		% roundi(100 * Karma.EFFETS["butin"]["positif"]), Color(0.85, 0.75, 1.0), 12)
+	karma.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	boite_butin.add_child(karma)
 	var butins: Array = donnees_sorte()["butin"]
-	var cats: Array = Fouille.CATEGORIES_BUTIN
 	for k in butins.size():
-		var b: Dictionary = butins[k]
-		var c := String(b.get("categorie", "or"))
-		var h := HBoxContainer.new()
-		boite_butin.add_child(h)
-		h.add_child(_liste_deroulante(cats.map(func(x): return Fouille.NOMS_BUTIN[x]), cats.find(c), func(i):
-			b["categorie"] = cats[i]
-			b["objet"] = ""
-			b["potion"] = ""
-			_change("butin")
-			_remplir_butin.call_deferred(), 120))
-		if c == "potion":
-			h.add_child(_liste_deroulante(NOMS_POTIONS, POTIONS.find(String(b.get("potion", ""))), func(i): _regler_butin(b, "potion", POTIONS[i]), 230))
-		elif c == "equipement":
-			h.add_child(_liste_deroulante(NOMS_EQUIPEMENTS, EQUIPEMENTS.find(String(b.get("objet", ""))), func(i): _regler_butin(b, "objet", EQUIPEMENTS[i]), 230))
-		elif c in ["divers", "nourriture", "ingredient", "recette"]:
-			var noms: Array = ["Au hasard"] + (AmeliorationsArmes.noms_recettes() if c == "recette" else ObjetsDivers.noms(c))
-			h.add_child(_liste_deroulante(noms, maxi(0, noms.find(String(b.get("objet", "")))), func(i): _regler_butin(b, "objet", "" if i == 0 else noms[i]), 230))
-		else:
-			var vide := Control.new()
-			vide.custom_minimum_size = Vector2(230, 0)
-			h.add_child(vide)
-		h.add_child(_etiquette("or" if c == "or" else "nombre"))
-		h.add_child(_nombre(float(b.get("quantite", 0 if c == "or" else 1)), 0, 9999, 1, func(x): _regler_butin(b, "quantite", int(x))))
-		if c in ["arme", "equipement"]:
-			h.add_child(_etiquette("rang"))
-			h.add_child(_nombre(float(b.get("rang", 0)), 0, 6, 1, func(x): _regler_butin(b, "rang", int(x))))
-		h.add_child(_etiquette("chance"))
-		h.add_child(_nombre(float(b.get("chance", 25)), 0, 100, 1, func(x): _regler_butin(b, "chance", x), " %"))
-		h.add_child(_bouton("✕", func(): retirer_butin(k)))
-	boite_butin.add_child(_bouton("Ajouter un objet", ajouter_butin))
+		boite_butin.add_child(_ligne_butin(butins, k))
+	boite_butin.add_child(_bouton("Ajouter un objet", func(): ajouter_butin("butin")))
+	_butin_du_jeu()
 	_maj = false
+
+
+## Ligne de réglage du butin ``liste[k]`` (catégorie, objet, quantité, rang, chance, retirer).
+func _ligne_butin(liste: Array, k: int) -> HBoxContainer:
+	var b: Dictionary = liste[k]
+	var cats: Array = Fouille.CATEGORIES_BUTIN
+	var c := String(b.get("categorie", "or"))
+	var h := HBoxContainer.new()
+	h.add_child(_liste_deroulante(cats.map(func(x): return Fouille.NOMS_BUTIN[x]), cats.find(c), func(i):
+		b["categorie"] = cats[i]
+		b["objet"] = ""
+		b["potion"] = ""
+		_change("butin")
+		_remplir_butin.call_deferred(), 120))
+	if c == "potion":
+		h.add_child(_liste_deroulante(NOMS_POTIONS, POTIONS.find(String(b.get("potion", ""))), func(i): _regler_butin(b, "potion", POTIONS[i]), 230))
+	elif c == "equipement":
+		h.add_child(_liste_deroulante(NOMS_EQUIPEMENTS, EQUIPEMENTS.find(String(b.get("objet", ""))), func(i): _regler_butin(b, "objet", EQUIPEMENTS[i]), 230))
+	elif c in ["divers", "nourriture", "ingredient", "recette"]:
+		var noms: Array = ["Au hasard"] + (AmeliorationsArmes.noms_recettes() if c == "recette" else ObjetsDivers.noms(c))
+		h.add_child(_liste_deroulante(noms, maxi(0, noms.find(String(b.get("objet", "")))), func(i): _regler_butin(b, "objet", "" if i == 0 else noms[i]), 230))
+	else:
+		var vide := Control.new()
+		vide.custom_minimum_size = Vector2(230, 0)
+		h.add_child(vide)
+	h.add_child(_etiquette("or" if c == "or" else "nombre"))
+	h.add_child(_nombre(float(b.get("quantite", 0 if c == "or" else 1)), 0, 9999, 1, func(x): _regler_butin(b, "quantite", int(x))))
+	if c in ["arme", "equipement"]:
+		h.add_child(_etiquette("rang"))
+		h.add_child(_nombre(float(b.get("rang", 0)), 0, 6, 1, func(x): _regler_butin(b, "rang", int(x))))
+	h.add_child(_etiquette("chance"))
+	h.add_child(_nombre(float(b.get("chance", 25)), 0, 100, 1, func(x): _regler_butin(b, "chance", x), " %"))
+	h.add_child(_bouton("✕", func():
+		liste.remove_at(k)
+		_change("objet retiré du butin")
+		_remplir_butin.call_deferred()))
+	return h
+
+
+## Butin du jeu (réglable depuis le 2026-11-15, demande de l'utilisateur ; avant : en dur dans le code) : fouille du
+## corps, butins par membre, pacifiques tués ou épargnés, objet de l'élite (DonneesEnnemis.butin_du_jeu).
+func _butin_du_jeu() -> void:
+	var d := donnees_sorte()
+	for cle in DonneesEnnemis.BUTIN_DU_JEU_DEFAUT:
+		if not d.has(cle):
+			var v = DonneesEnnemis.BUTIN_DU_JEU_DEFAUT[cle]
+			d[cle] = v.duplicate(true) if (v is Dictionary or v is Array) else v
+	var nom := String(DonneesEnnemis.NOMS[sorte_choisie])
+	# Fouille du corps
+	_titre_butin("Fouille du corps après le combat",
+		"Quand le héros fouille le corps : un seul tirage pour tout le groupe, avec la table de son premier membre. Les nombres sont des poids (convertis en %).")
+	var f: Dictionary = d["fouille"]
+	var h := HBoxContainer.new()
+	var parts := _etiquette("", Color(0.75, 0.75, 0.8), 12)
+	var maj_parts := func():
+		var total := maxf(1.0, float(f.get("rien", 0)) + float(f.get("or", 0)) + float(f.get("objet", 0)))
+		parts.text = "= rien %d %%, or %d %%, objet %d %%" % [roundi(100 * float(f.get("rien", 0)) / total),
+			roundi(100 * float(f.get("or", 0)) / total), roundi(100 * float(f.get("objet", 0)) / total)]
+	for t in [["rien", "rien"], ["or", "or"], ["objet", "arme ou équipement"]]:
+		var cle: String = t[0]
+		h.add_child(_etiquette(t[1]))
+		h.add_child(_nombre(float(f.get(cle, 0)), 0, 1000, 1, func(v):
+			_regler_jeu(f, cle, int(v))
+			maj_parts.call()))
+	h.add_child(parts)
+	maj_parts.call()
+	boite_butin.add_child(h)
+	boite_butin.add_child(_ligne_or(f, "Or trouvé : de"))
+	# Par membre
+	_titre_butin("Pour chaque %s du groupe, à la fouille" % nom.to_lower(),
+		"Tiré pour chaque membre de cette sorte quand le héros fouille le corps (ex. : 1 viande crue par loup).")
+	var liste: Array = d["fouille_par_membre"]
+	for k in liste.size():
+		boite_butin.add_child(_ligne_butin(liste, k))
+	boite_butin.add_child(_bouton("Ajouter un objet à la fouille", func(): ajouter_butin("fouille_par_membre")))
+	if not Creatures.est_creature(sorte_choisie):
+		for t in [["pacifique_tue", "Groupe pacifique tué, à la fouille du corps"],
+				["pacifique_epargne", "Groupe pacifique épargné : son cadeau"]]:
+			_titre_butin(t[1], "Table du premier membre du groupe.")
+			var tab: Dictionary = d[t[0]]
+			var l2 := _ligne_or(tab, "Or : de")
+			for c in [["potion", "potion de soin"], ["equipement", "équipement"]]:
+				var cle: String = c[0]
+				l2.add_child(_etiquette("  ·  " + c[1]))
+				l2.add_child(_nombre(float(tab.get(cle, 0)), 0, 100, 1, func(v): _regler_jeu(tab, cle, v), " %"))
+			boite_butin.add_child(l2)
+		_titre_butin("En élite (chef d'un groupe d'élite)", "Chance de lâcher un équipement à sa mort (orienté selon sa classe).")
+		var he := HBoxContainer.new()
+		he.add_child(_etiquette("équipement à sa mort"))
+		he.add_child(_nombre(float(d.get("elite_objet", 100)), 0, 100, 1, func(v): _regler_jeu(d, "elite_objet", v), " %"))
+		boite_butin.add_child(he)
+		var info := _etiquette("Aussi : un porteur rend les objets confisqués au héros ; le corps d'un boss peut porter la clé du boss.",
+			Color(0.7, 0.7, 0.75), 12)
+		info.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+		boite_butin.add_child(info)
+
+
+func _titre_butin(texte: String, aide: String) -> void:
+	var l := _etiquette(texte, COULEUR_TITRE)
+	l.tooltip_text = aide
+	l.mouse_filter = Control.MOUSE_FILTER_PASS
+	boite_butin.add_child(l)
+	var a := _etiquette(aide, Color(0.7, 0.7, 0.75), 12)
+	a.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
+	boite_butin.add_child(a)
+
+
+## « Or : de [min] à [max] » pour la table ``t`` (clés or_min, or_max).
+func _ligne_or(t: Dictionary, titre: String) -> HBoxContainer:
+	var h := HBoxContainer.new()
+	h.add_child(_etiquette(titre))
+	h.add_child(_nombre(float(t.get("or_min", 0)), 0, 9999, 1, func(v): _regler_jeu(t, "or_min", int(v))))
+	h.add_child(_etiquette("à"))
+	h.add_child(_nombre(float(t.get("or_max", 0)), 0, 9999, 1, func(v): _regler_jeu(t, "or_max", int(v))))
+	h.add_child(_etiquette("pièces"))
+	return h
+
+
+func _regler_jeu(t: Dictionary, cle: String, v) -> void:
+	if _maj:
+		return
+	t[cle] = v
+	_change("butin du jeu de " + DonneesEnnemis.NOMS[sorte_choisie])
 
 
 func _regler_butin(b: Dictionary, champ: String, valeur) -> void:
@@ -1420,13 +1536,17 @@ func _regler_butin(b: Dictionary, champ: String, valeur) -> void:
 	_change("butin de " + DonneesEnnemis.NOMS[sorte_choisie])
 
 
-func ajouter_butin() -> void:
-	donnees_sorte()["butin"].append({"categorie": "potion", "objet": "", "potion": "", "quantite": 1, "rang": 0, "chance": 25})
+## Ajoute un objet à la liste ``cle`` de la sorte (« butin » : à sa mort ; « fouille_par_membre » : à la fouille).
+func ajouter_butin(cle := "butin") -> void:
+	var d := donnees_sorte()
+	if not (d.get(cle) is Array):
+		d[cle] = []
+	d[cle].append({"categorie": "potion", "objet": "", "potion": "", "quantite": 1, "rang": 0, "chance": 25})
 	_change("objet ajouté au butin")
 	_remplir_butin.call_deferred()
 
 
-func retirer_butin(k: int) -> void:
-	donnees_sorte()["butin"].remove_at(k)
+func retirer_butin(k: int, cle := "butin") -> void:
+	donnees_sorte()[cle].remove_at(k)
 	_change("objet retiré du butin")
 	_remplir_butin.call_deferred()

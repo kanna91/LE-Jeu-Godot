@@ -626,11 +626,6 @@ static func parler(donjon, p: Dictionary) -> Array:
 	return ["", false]
 
 
-## Ce que donnent des gobelins pacifiques épargnés (règles de l'utilisateur, 2026-10-31 ; valeurs validées) : un peu
-## d'or (× étage), parfois une potion, plus rarement un équipement ; puis ils disparaissent (karma +1).
-const PACIFIQUES_EPARGNES := {"or": [5, 15], "potion": 0.20, "equipement": 0.05}
-
-
 ## Le héros épargne le groupe de pacifiques ``p`` : il reçoit leur cadeau, ils s'en vont. Renvoie le message.
 static func epargner_pacifiques(donjon, p: Dictionary) -> String:
 	var joueur = donjon.personnage
@@ -638,18 +633,12 @@ static func epargner_pacifiques(donjon, p: Dictionary) -> String:
 	var n := Aventure.membres(p).size()
 	p["etat"] = "parti"
 	Statistiques.noter(joueur, "pacifiques_epargnes", n)
-	var cadeaux := []
-	var gain := Karma.or_gagne(joueur, randi_range(PACIFIQUES_EPARGNES["or"][0], PACIFIQUES_EPARGNES["or"][1]) * maxi(1, etage))
-	joueur.piece_or += gain
-	cadeaux.append("%d pièces d'or" % gain)
-	if randf() < PACIFIQUES_EPARGNES["potion"]:
-		var potion := Consommable.creer_potion("pv", Consommable.niveau_potion_etage(etage))
-		joueur.recevoir_objet(potion)
-		cadeaux.append(potion.nom)
-	if randf() < PACIFIQUES_EPARGNES["equipement"]:
-		var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
-		joueur.recevoir_objet(objet)
-		cadeaux.append(objet.nom)
+	# Cadeau (règles de l'utilisateur, 2026-10-31) : un peu d'or, parfois une potion, plus rarement un équipement ;
+	# réglé dans l'éditeur des ennemis depuis le 2026-11-15 (« pacifique_epargne » du premier membre)
+	var cadeaux := Fouille.cadeau(joueur, etage, DonneesEnnemis.butin_du_jeu(
+		DonneesEnnemis.sorte_du_groupe(Aventure.membres(p)), "pacifique_epargne"))
+	if cadeaux.is_empty():
+		cadeaux = ["rien d'autre que leur gratitude"]
 	var texte := "%s vous remercie%s et vous laisse%s %s avant de disparaître dans l'ombre." % [
 		"Le gobelin" if n == 1 else "Les gobelins", "" if n == 1 else "nt", "" if n == 1 else "nt", ", ".join(cadeaux)]
 	return (texte + " " + Karma.acte(donjon, "epargner_pacifiques")).strip_edges()

@@ -10,6 +10,11 @@ extends RefCounted
 static var _competences := {}
 static var _sorts := {}
 static var _ordre_sorts := []
+## Copies (clé « copie_de » d'une entrée de competences.json ou sorts.json, 2026-11-15) : nom de classe -> compétence
+## d'origine. Une compétence est la même pour tout le monde (demande de l'utilisateur) ; quand les ennemis doivent en
+## avoir une autre version, c'est une copie (Coup_d_epee_mineur...). Elle reprend les corrections de base et le palier
+## de l'originale (originale()), mais a ses propres dés. Un sort copié n'entre pas dans le grimoire du héros.
+static var _copies := {}
 
 
 static func _charger() -> void:
@@ -17,9 +22,21 @@ static func _charger() -> void:
 		return
 	for c in U.charger_json("competences.json"):
 		_competences[c["classe"]] = c["args"]
+		if c.has("copie_de"):
+			_copies[c["classe"]] = String(c["copie_de"])
 	for s in U.charger_json("sorts.json"):
 		_sorts[s["classe"]] = s
-		_ordre_sorts.append(s["classe"])
+		if s.has("copie_de"):
+			_copies[s["classe"]] = String(s["copie_de"])
+		else:
+			_ordre_sorts.append(s["classe"])
+
+
+## Compétence d'origine d'une copie (elle-même sinon) : sert aux tables rangées par nom (BasesCompetences,
+## ValeurCompetences, Formules.DES_COMPETENCES quand la copie n'a pas ses propres dés).
+static func originale(nom_classe: String) -> String:
+	_charger()
+	return String(_copies.get(nom_classe, nom_classe))
 
 
 ## Noms de classe des sorts du grimoire, dans l'ordre des éléments puis des paliers (classes_de_sorts).
@@ -32,6 +49,9 @@ static func classes_de_sorts() -> Array:
 static func classes_de_competences() -> Array:
 	_charger()
 	var noms := _competences.keys()
+	for n in _copies:  # sorts copiés : hors du grimoire, mais réglables dans l'éditeur
+		if _sorts.has(n):
+			noms.append(n)
 	noms.sort()
 	return noms
 

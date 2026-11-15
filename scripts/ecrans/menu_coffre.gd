@@ -14,7 +14,7 @@ func preparer(j, _donjon, s: Dictionary) -> Ecran:
 	fond_ecran = "salles/image_coffre_plein01.png"
 	joueur = j
 	salle = s
-	contenu = SallesBonus.contenu_coffre(s)
+	contenu = SallesBonus.contenu_coffre(s, j)
 	btn_prendre = Rect2(cadre.get_center().x - 170, cadre.end.y - 52, 160, 38)
 	btn_laisser = Rect2(cadre.get_center().x + 10, cadre.end.y - 52, 160, 38)
 	return self

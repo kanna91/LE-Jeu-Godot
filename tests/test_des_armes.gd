@@ -242,6 +242,7 @@ func _brulure() -> int:
 func _coups_multiples() -> int:
 	var echecs := 0
 	var rafale := Competences.creer("Rafale_de_lance")
+	rafale.nom_classe = "Rafale_d_essai"  # sans dés propres (Rafale_de_lance a les siens : 2d2) : les dés d'un coup multiple
 	var simple := Competences.creer("Coup_de_lance")
 	var lanceur := {"force": 4, "pourcentage_degats_physique": 1.0}
 	if not Formules.est_coup_multiple(rafale) or Formules.est_coup_multiple(simple):
@@ -319,18 +320,16 @@ func _pourcentage_element() -> int:
 	return echecs
 
 
-## Les ennemis lancent chaque dé un palier plus bas (1d2, 1d4, 1d6, 1d10, 1d12 ; 1d2 reste 1d2),
-## sauf les soins (lumière) ; le héros garde ses dés.
+## Une compétence est la même pour tout le monde (2026-11-15) : un ennemi lance les mêmes dés que le héros (plus de
+## palier plus bas) ; les versions plus faibles des ennemis sont des copies « mineur ».
 func _des_ennemis() -> int:
 	var echecs := 0
 	var donjon := Donjon.nouveau(Personnage.nouveau())
 	var gobelin = Gobelin.nouveau(donjon).generer_combattant_gobelin(donjon)
-	var attendus := {"tranchant": [[2, 4]], "perforant": [[1, 10]], "contondant": [[1, 6], [1, 2]], "froid": [[3, 2]],
-		"foudre": [[1, 10]], "poison": [[1, 2]], "lumière": [[3, 6]]}
-	for t in attendus:
+	for t in ["tranchant", "perforant", "contondant", "froid", "foudre", "poison", "lumière"]:
 		var obtenu := Formules.des_type(gobelin, t)
-		if obtenu != attendus[t]:
-			print("ÉCHEC : dés ennemis %s = %s au lieu de %s" % [t, obtenu, attendus[t]])
+		if obtenu != Formules.DES_TYPES[t] or obtenu != Formules.des_type({"force": 0}, t):
+			print("ÉCHEC : dés ennemis %s = %s au lieu de %s (ceux du héros)" % [t, obtenu, Formules.DES_TYPES[t]])
 			echecs += 1
 	if Formules.des_type({"force": 0}, "tranchant") != [[2, 6]]:
 		print("ÉCHEC : le héros garde 2d6 tranchants.")
@@ -339,9 +338,9 @@ func _des_ennemis() -> int:
 	if Formules.des_type(gobelin, "perforant", rafale) != [[2, 2]] or Formules.valeur_jet(gobelin, rafale, "perforant", true) != 3.0:
 		print("ÉCHEC : Rafale de lance d'un ennemi en 2d2 par coup, sans malus (2026-11-01).")
 		echecs += 1
-	# Dés propres des compétences (2026-11-01) : héros et ennemis ont les leurs pour une même compétence
-	if Formules.des_type({"force": 0}, "feu", Competences.creer("Boule_de_feu")) != [[8, 2]] 			or Formules.des_type(gobelin, "feu", Competences.creer("Boule_de_feu")) != [[5, 2]]:
-		print("ÉCHEC : Boule de feu 8d2 pour le héros, 5d2 pour un gobelin.")
+	# Même compétence, mêmes dés pour tous ; la version des gobelins est la Boule de feu mineure (2026-11-15)
+	if Formules.des_type({"force": 0}, "feu", Competences.creer("Boule_de_feu")) != [[8, 2]] 			or Formules.des_type(gobelin, "feu", Competences.creer("Boule_de_feu")) != [[8, 2]] 			or Formules.des_type(gobelin, "feu", Competences.creer("Boule_de_feu_mineure")) != [[5, 2]]:
+		print("ÉCHEC : Boule de feu 8d2 pour tous, Boule de feu mineure 5d2.")
 		echecs += 1
 	# Soin mineur d'un gobelin : 7d2 + 15 % des PV max de la cible
 	var soin := Competences.creer("Soin_mineur")

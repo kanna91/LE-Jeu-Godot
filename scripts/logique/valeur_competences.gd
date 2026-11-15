@@ -32,7 +32,7 @@ static var _fichier_charge := false
 static func palier(comp) -> int:
 	var pal = U.ga(comp, "PALIER", null)
 	if pal == null:
-		pal = PALIERS_COMPETENCES.get(U.ga(comp, "nom_classe", ""), 0)
+		pal = PALIERS_COMPETENCES.get(Competences.originale(String(U.ga(comp, "nom_classe", ""))), 0)
 	return clampi(int(pal), 0, 5)
 
 
@@ -171,6 +171,8 @@ static func _charger_fichier() -> void:
 static func normaliser(comp) -> void:
 	_charger_fichier()
 	var cle: String = comp.nom_classe
+	if not _normalisations.has(cle) and _normalisations.has(Competences.originale(cle)):
+		cle = Competences.originale(cle)  # copie (Competences._copies) : la valeur de son originale
 	if not _normalisations.has(cle):
 		_normalisations[cle] = calculer_normalisation(comp)
 	_appliquer(comp, _normalisations[cle])

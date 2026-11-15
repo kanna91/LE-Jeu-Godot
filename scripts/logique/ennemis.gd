@@ -5,9 +5,12 @@ extends Dyn
 
 const CHANCE_SOIN_IA := 1.0 / 3
 const ATTAQUES_DE_SECOURS := {
-	"combattant": ["Coup_d_epee"], "lancier": ["Coup_de_lance"], "archer": ["Tir"],
+	"combattant": ["Coup_d_epee_mineur"], "lancier": ["Coup_de_lance_mineur"], "archer": ["Tir"],
 	"defenseur": ["Coup_de_gourdin"], "sorcier": ["Projectile_des_ombres"],
-	"feticheur": ["Projectile_des_ombres"], "chaman": ["Boule_de_feu", "Projectile_des_ombres"],
+	"feticheur": ["Projectile_des_ombres"], "chaman": ["Boule_de_feu_mineure", "Projectile_des_ombres"],
+	# Créatures (2026-11-15) : leur attaque, devenue une compétence de l'éditeur (Creatures)
+	"loup": ["Morsure"], "squelette": ["Epee_rouillee"], "guerrier_squelette": ["Epee_longue_rouillee"],
+	"squelette_invoque": ["Lame_ebrechee"],
 }
 ## Orientation des objets lâchés (GenerationObjets) : guerrier physique, mage magique, chaman élémentaire.
 const ORIENTATION_PAR_CLASSE := {"guerrier": "physique", "mage": "magique", "soutien": "elementaire", "soutient": "elementaire"}
@@ -44,9 +47,6 @@ const ENDURANCE_PAR_POINT_ENNEMI := 4
 ## les ennemis gardent leurs 20 à 30 mana.
 const MANA_ENNEMIS := [8, 12]
 
-## Bonus de caractéristiques (un par repos) appliqués à tous les ennemis créés ensuite.
-
-static var bonus_globaux := {"niveau": 0, "force": 0, "dextérité": 0, "endurance": 0, "intelligence": 0, "sagesse": 0}
 
 
 ## Remplit les attributs (``Ennemis.__init__``).
@@ -63,7 +63,7 @@ func initialiser_ennemi(a: Dictionary, donjon) -> void:
 	d["mana_max"] = a["mana_max"]
 	d["regen_de_mana"] = a.get("regen_de_mana", 0)
 	for c in ["force", "dextérité", "endurance", "intelligence", "sagesse"]:
-		d[c] = a[c] + bonus_globaux[c]
+		d[c] = a[c]
 	d[Caracteristiques.MANA] = a.get(Caracteristiques.MANA, randi_range(MANA_ENNEMIS[0], MANA_ENNEMIS[1]))
 	d["armure"] = a.get("armure", 0)
 	d["coefficient_reduction_armure"] = 0.02
@@ -130,9 +130,9 @@ func calculer_stats() -> void:
 
 
 ## Objet lâché : emplacement au hasard, orienté selon la classe de l'ennemi.
-func generer_objet_butin():
+func generer_objet_butin(rang = null):
 	var cle: String = Objets.EMPLACEMENTS_EQUIPEMENT.pick_random()
-	return GenerationObjets.generer_objet("anneau" if cle.begins_with("anneau") else cle, null, null,
+	return GenerationObjets.generer_objet("anneau" if cle.begins_with("anneau") else cle, rang, null,
 		ORIENTATION_PAR_CLASSE.get(U.ga(self, "classe", null)))
 
 
@@ -204,17 +204,6 @@ func utiliser_consommable(consommable) -> void:
 	print("%s boit %s et récupère %s PV." % [_d["nom"], consommable.nom, U.f(_d["points_de_vie"] - pv_avant)])
 
 
-## Bonus globaux aléatoires aux caractéristiques des futurs ennemis (un par repos).
-static func bonus_ennemis(compteur_repos: int) -> void:
-	for _i in compteur_repos:
-		var c = ["force", "dextérité", "endurance", "intelligence", "sagesse"].pick_random()
-		var bonus := randi_range(1, 3)
-		if c == "endurance":
-			bonus *= ENDURANCE_PAR_POINT_ENNEMI  # même gain de PV qu'avant le 2026-11-03
-		bonus_globaux[c] += bonus
-		print("Tous les nouveaux ennemis gagneront %d en %s." % [bonus, c])
-
-
 func est_vivant() -> bool:
 	return _d["points_de_vie"] > 0
 
@@ -230,9 +219,12 @@ func mort_au_combat(donjon) -> void:
 			Statistiques.noter(donjon.personnage, "boss_vaincus")
 		print("%s est mort." % _d["nom"])
 		if U.ga(self, "butin_garanti", false):
-			var objet = generer_objet_butin()
-			donjon.personnage.ajouter_objet_inventaire(objet)
-			print("%s a lâché %s" % [_d["nom"], objet.nom])
+			# Karma (KARMA.md) : rang plus ou moins haut ; palier positif : chance d'un 2e objet
+			var nombre := 2 if randf() < Karma.chance_objet_en_plus(donjon.personnage) else 1
+			for _i in nombre:
+				var objet = Karma.objet_butin(donjon.personnage, func(r): return generer_objet_butin(r), GenerationObjets._rang(null))
+				donjon.personnage.ajouter_objet_inventaire(objet)
+				print("%s a lâché %s" % [_d["nom"], objet.nom])
 		lacher_butin(donjon)
 
 

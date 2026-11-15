@@ -131,7 +131,6 @@ static func sauvegarder(nom: String, joueur, donjon) -> void:
 		"etage": etage, "salle": salle, "pv": int(joueur.points_de_vie), "pv_max": int(joueur.points_de_vie_max),
 		"or": int(joueur.piece_or)}
 	var partie := _ecrire_objets({"joueur": joueur, "donjon": donjon})
-	partie["bonus_globaux"] = Ennemis.bonus_globaux.duplicate()
 	partie["compteur_etage_objet"] = Objet.compteur_etage_objet
 	var provisoire := chemin(nom) + ".tmp"
 	var fichier := FileAccess.open(provisoire, FileAccess.WRITE)
@@ -160,8 +159,7 @@ static func charger(nom: String, fenetre = null) -> Array:
 	var fichier := FileAccess.open(chemin(nom), FileAccess.READ)
 	fichier.get_var()
 	var partie: Dictionary = fichier.get_var()
-	Ennemis.bonus_globaux.clear()
-	Ennemis.bonus_globaux.merge(partie["bonus_globaux"])
+	# « bonus_globaux » des anciennes parties (renforcement des ennemis au repos, retiré le 2026-11-15) : ignoré
 	Objet.compteur_etage_objet = partie["compteur_etage_objet"]
 	var racine: Dictionary = _lire_objets(partie)
 	var donjon = racine["donjon"]
@@ -186,6 +184,4 @@ static func charger(nom: String, fenetre = null) -> Array:
 
 ## Remet à zéro l'état global partagé par toutes les parties (avant une nouvelle partie).
 static func reinitialiser_monde() -> void:
-	for cle in Ennemis.bonus_globaux:
-		Ennemis.bonus_globaux[cle] = 0
 	Objet.compteur_etage_objet = 1

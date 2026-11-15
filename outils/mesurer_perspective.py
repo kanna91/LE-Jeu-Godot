@@ -172,6 +172,13 @@ def appliquer(r):
     p["y_horizon"] = r["y_horizon"]
     p["hauteur_par_pixel"] = round(r["pente"], 3)
     p["table_hauteur"] = r["table"]
+    # Perspective retouchée à la main dans l'éditeur des salles (couche Perspective, 2026-11-15) : on ne l'écrase pas
+    manuelle = os.path.join(ICI, "outils", "zones_manuelles", r["id"] + ".json")
+    if os.path.exists(manuelle):
+        z = json.load(open(manuelle, encoding="utf8"))
+        if isinstance(z.get("perspective"), dict):
+            p.update(z["perspective"])
+            print("  %s : perspective retouchée dans l'éditeur, gardée" % r["id"])
     json.dump(d, open(chemin, "w", encoding="utf8"), ensure_ascii=False, indent=1)
     os.makedirs(SORTIE, exist_ok=True)
     json.dump({k: r[k] for k in ("y_mesure", "r_mesure", "r_haut", "y_horizon", "h_bas", "table")},

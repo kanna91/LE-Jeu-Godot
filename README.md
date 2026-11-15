@@ -1322,6 +1322,159 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
 
 ## Journal des modifications
 
+### 2026-11-15 — Karma : bornes × 0,25 à × 1,75 ; pas d'objet maudit
+
+- **Décisions de l'utilisateur** : A élargi (le multiplicateur du butin va de × 0,25 à × 1,75) ; les objets maudits
+  sont **retirés** (afflictions au début de chaque combat « bien trop pénibles ») : le mauvais karma baisse seulement
+  la qualité des objets (rang, B). Les objets maudits seront conçus plus tard : identifiés chez la bibliothécaire ou
+  l'alchimiste, malus passif permanent mais pas rédhibitoire, un bonus qui compense un peu (consignes dans
+  `KARMA.md`).
+- Retirés : `Karma.chance_maudit`, `maudire`, `afflictions_maudites`, `AFFLICTIONS_MAUDITES`,
+  `CHANCE_MAUDIT_PAR_PALIER`, l'affliction en début de combat (`Combat.nouveau`) et la ligne « Maudit » des fiches.
+- `test_karma` : bornes, rang en moins au karma −5, pas d'objet maudit.
+
+### 2026-11-15 — Karma et butin : bornes, rang des objets, paliers (A + B + C + D) ; note KARMA.md
+
+- **Note `KARMA.md`** (demande de l'utilisateur) : tout ce qui a été décidé sur le karma, le butin, ce qui reste à
+  faire (quêtes) et des idées. Principe rappelé par l'utilisateur : le karma se gagne et se perd **rarement et
+  lentement** (±20 n'est pas prévu) ; +1 karma = +5 %, −1 = −5 %.
+- **A** : multiplicateur du butin borné entre × 0,5 et × 1,5 (`Karma.BUTIN_MIN`, `BUTIN_MAX`).
+- **B** : les armes et équipements gardent leur nombre ; chaque point de karma donne 5 % de chance d'un rang de plus
+  (positif) ou de moins (négatif), entre 1 et 6 (`Karma.rang_butin`, `Karma.objet_butin`). Butins (`Fouille.ramasser`),
+  corps fouillés, cadeau des pacifiques, squelettes des salles, équipement des élites, coffres des salles bonus.
+- **C** : par palier de 5 : **+10 % de chance d'un objet en plus** dans les coffres (`Fouille.ouvrir`, salles bonus)
+  et sur les élites (`Karma.chance_objet_en_plus`) ; **10 % de chance qu'une arme ou un équipement trouvé soit maudit**
+  (`Karma.chance_maudit`, `Karma.maudire`) : « (maudit) » dans son nom, une affliction (usure, étourdissement,
+  brûlure, poison, aveuglement, silence) infligée à son porteur au début de chaque combat (`Combat.nouveau`,
+  `Karma.afflictions_maudites`), décrite dans sa fiche. Effet de l'objet maudit : **choix de Claude, à valider**.
+- **D** : clés, objets de quête, recettes, or confisqué rendu : jamais touchés par le karma (inchangé, vérifié).
+- `test_karma` réparé : il cherchait le Chevalier de la mort à l'étage 1 (il est dans les cryptes depuis le
+  2026-11-10) et l'erreur arrêtait **tout le test** ; il tourne de nouveau en entier, avec A, B, C, D (0 échec).
+
+### 2026-11-15 — Le karma multiplie le butin ; viande des loups à la fouille seulement
+
+- **Règle de l'utilisateur** : « la valeur de base indiquée est égale au karma 0, les karmas négatifs ou positifs
+  changeront ces valeurs via un multiplicateur comme pour les dégâts. Exemple : 100 pièces d'or avec karma 0,
+  karma −5 = 75 pièces d'or. » → `Karma.EFFETS["butin"]` : **±5 % par point**, dans les deux sens
+  (`Karma.facteur_butin`) ; avant, seulement +5 % d'or par point positif (`or_gagne`, retiré).
+  - Or : tout l'or gagné passe par `Karma.or_gagne`, y compris maintenant un montant fixe réglé dans un butin
+    (`Fouille.ramasser`) ; pas l'or confisqué qu'on récupère ni les ventes au marchand.
+  - Objets : `Karma.quantite_butin` multiplie le nombre d'objets, la partie décimale tirée au hasard (1 objet à
+    karma −5 = 75 % de chance de l'avoir ; à karma +5, 25 % de chance d'en avoir 2). Appliqué aux butins
+    (`Fouille.ramasser` : à la mort, à la fouille, au sol, coffres et points de fouille), aux objets des corps fouillés,
+    au cadeau des pacifiques, aux squelettes des salles et à l'équipement des élites. Les chances ne changent pas.
+  - Rappel dans l'éditeur des ennemis, onglet Butin.
+- **Loup** : sa viande ne tombe plus à sa mort, seulement **quand on fouille son corps** (demande de l'utilisateur) :
+  les deux viandes de sa liste « butin » (100 % et 50 %) sont passées dans « fouille_par_membre » ; la viande sûre
+  ajoutée par le code (ancienne `viande_des_loups`) disparaît. Un loup fouillé donne 1 ou 2 viandes (au karma 0).
+- Tests : `test_karma` (karma −5 : 100 pièces → 75, 1 objet → 0,75 en moyenne), `test_commis_dialogues`.
+
+### 2026-11-15 — Le butin du jeu se règle dans l'éditeur des ennemis
+
+- **Demande de l'utilisateur** : « rends le butin du jeu modifiable dans l'éditeur ».
+- Ce qui était en dur passe dans `donnees/ennemis.json`, **par sorte**, avec les mêmes valeurs par défaut
+  (`DonneesEnnemis.BUTIN_DU_JEU_DEFAUT`, `butin_du_jeu`) :
+  - `fouille` : le corps fouillé après le combat, un seul tirage pour le groupe avec la table de son **premier membre**
+    (poids rien 50 / or 35 / arme ou équipement 15, or de 10 à 30) ; avant : `Fouille.RESULTATS` et `Fouille.OR`
+    (ils servent encore aux squelettes posés dans les salles) ;
+  - `fouille_par_membre` : butins (même format que la liste « butin ») tirés pour **chaque membre** de la sorte à la
+    fouille ; le loup y a sa viande crue (avant : `Fouille.viande_des_loups`, supprimée) ;
+  - `pacifique_tue` (or 2 à 6, potion 10 %, équipement 2 % ; avant `Fouille.CORPS_PACIFIQUE`) et `pacifique_epargne`
+    (or 5 à 15, potion 20 %, équipement 5 % ; avant `Rencontres.PACIFIQUES_EPARGNES`), table du premier membre ;
+  - `elite_objet` : chance (%) qu'une élite lâche un équipement à sa mort (100 %, avant toujours).
+- Éditeur, onglet Butin : sous la liste « à sa mort », ces réglages (créatures : fouille et par membre seulement).
+  `Fouille.cadeau`, `Fouille.butins_par_membre`, `DonneesEnnemis.sorte_du_groupe`.
+- Tests : `test_outil_perspective` (valeurs par défaut, fouille à 500 pièces, potion par membre, cadeau des pacifiques
+  réglés), `test_commis_dialogues` (viande des loups : « 2 × Viande crue »).
+
+### 2026-11-15 — Outil de perspective, taille des ennemis, butin du jeu dans l'éditeur
+
+- **Demandes de l'utilisateur** : « un outil pour mieux gérer les perspectives des ennemis et du personnage dans les
+  salles. Dans certaines salles, le personnage marche très longtemps pour faire quelques mètres et les distances ou la
+  taille du personnage et des ennemis ne sont pas raccord avec la salle » ; « pouvoir modifier la taille des ennemis
+  dans l'éditeur » ; « une indication du butin des ennemis : sur la plupart, le butin est vide dans l'éditeur alors
+  que ce n'est pas le cas en jeu ».
+- **Couche « Perspective » de l'éditeur des salles** (touche V, menu Couche ; `scripts/outils/outil_perspective.gd`) :
+  - des **règles** à gauche de l'image, une par point de `table_hauteur` : glisser le pied change la profondeur, glisser
+    la tête change la taille du héros à cette profondeur ; clic ailleurs : nouvelle règle ; clic droit : la retirer ;
+  - une rangée de héros du bas au haut du sol, et à la souris **le héros et l'ennemi choisi** à leur taille (taille de
+    l'éditeur des ennemis comprise) ;
+  - panneau : vitesse du héros, vitesse en profondeur de près (`compression_profondeur`) et **au fond**
+    (`compression_min`, nouveau, réglable par salle ; `SallePeinte.COMPRESSION_MIN` = 0,25 par défaut : c'est lui qui
+    fait marcher longtemps au fond) ; taille du héros près et au fond, **largeur et profondeur du sol en mètres**
+    (héros = 1,75 m) et **temps pour traverser** le sol en marchant et en courant ;
+  - Tab pour marcher et essayer tout de suite, Ctrl+Z, « Revenir à la perspective enregistrée ».
+  - Une perspective retouchée est enregistrée avec la salle et dans `outils/zones_manuelles/<id>.json` ;
+    `outils/detourer_sols.avec_perspective` (importeurs) et `outils/mesurer_perspective.py` la respectent.
+- **Taille des ennemis** (éditeur des ennemis, onglet Ennemis, en %) : clé `taille` de `donnees/ennemis.json`
+  (`DonneesEnnemis.taille_de`), appliquée dans les salles (`PresencesSalle._gobelin`) et en combat
+  (`MenuCombat.echelle_ennemi`), en plus de l'agrandissement des élites et des boss.
+- **Butin du jeu dans l'éditeur** (onglet Butin ; devenu réglable le même jour, voir plus haut) : section « Aussi en jeu », calculée depuis les valeurs du code :
+  fouille du corps (rien 50 %, 10 à 30 pièces d'or 35 %, arme ou équipement 15 %), groupe pacifique, objet garanti
+  de l'élite, porteur, boss, viande des loups à la fouille (en plus de la viande de leur liste : un loup donne donc 2 ou
+  3 viandes).
+- Test : `tests/test_outil_perspective.gd` (règles, annulation, vitesse au fond, panneau, taille, butin du jeu) ;
+  capture `tests/captures/73_couche_perspective.png`.
+
+### 2026-11-15 — Une compétence est la même pour tout le monde ; repos et salles piège retirés
+
+- **Demande de l'utilisateur** : « que l'éditeur de compétence ne fasse pas de distinction entre le héros et les
+  ennemis. Cela crée de la confusion. Une compétence est telle qu'elle est, pour tout le monde. S'il y a des
+  différences, tu peux juste faire une autre compétence », par exemple une copie « mineur ».
+- **Une seule table de dés** : `Formules.DES_COMPETENCES` remplace `DES_HEROS` et `DES_ENNEMIS`. Le « palier plus
+  bas » des ennemis (`PALIERS_DES`, `palier_inferieur`, `des_reduits`) est supprimé. `PV_CIBLE_ENNEMIS` devient
+  `PV_CIBLE_COMPETENCES` et vaut pour tous. Le champ `des_degats_ennemis` (ajouté plus tôt le même jour) est retiré :
+  l'éditeur n'a plus qu'un réglage « Dés » par type.
+- **Copies « mineur »** pour les 5 compétences que les ennemis avaient en version plus faible : **Coup d'épée mineur**
+  4d2, **Coup de lance mineur** 4d2, **Boule de feu mineure** 5d2, **Givre mineur** 5d2, **Éclair mineur** 4d3
+  (le héros garde 6d2, 6d2, 8d2, 8d2, 6d3). Une copie est une entrée de `competences.json` ou `sorts.json` avec
+  `"copie_de"` (`Competences.originale`) : elle reprend les corrections de base et le palier de l'originale, a ses
+  propres dés, et un sort copié n'entre pas dans le grimoire du héros. `ennemis.json`, les compétences et l'IA par
+  défaut, les attaques de secours et les anciennes listes des gobelins sont passés sur ces copies.
+- Vérifié par un instantané avant/après : chaque sorte d'ennemi et le héros lancent exactement les mêmes dés qu'avant.
+- **Repos** : il ne renforce plus les futurs ennemis (`Ennemis.bonus_ennemis`, `bonus_globaux` et `compteur_repos`
+  supprimés ; l'ancienne valeur des sauvegardes est ignorée). Le repos dans un lit rend toujours PV et mana.
+- **Salles piège supprimées** (`Donjon.salle_piege`, `CHANCE_PIEGE`, pictogramme et légende de la carte, cause de mort
+  « Tué par un piège »). Les meubles piégés des fouilles restent.
+
+### 2026-11-15 — Plus d'or multiplié par l'étage
+
+- **Constat de l'utilisateur** : un ennemi lui a donné plus de 1000 pièces d'or, dans plusieurs parties. Cause : l'or
+  était multiplié par `donjon.salle_actuelle[0]`, qui est le **numéro du niveau** et non un étage : 101 dans les
+  cryptes, 102 et 103 dans la bibliothèque et le laboratoire. Fouiller un corps de squelette y donnait 1010 à 3030
+  pièces au lieu de 10 à 30.
+- **Décision de l'utilisateur** : plus de multiplicateur d'or par étage, l'or de l'étage 1 partout. Il n'y aura pas
+  d'autre étage que le 1 (le jeu n'est plus un roguelike mais un RPG à progression lente). Les cryptes et les autres
+  niveaux à part gardent leur numéro.
+- Retiré dans : `Fouille` (corps, corps de pacifique, meubles, butin d'or sans quantité), `Aventure` (bourse d'une
+  cachette), `Rencontres.epargner_pacifiques`, `SallesBonus.contenu_coffre` (× `Objet.compteur_etage_objet`).
+- Test : `test_fouille` (l'or d'un squelette fouillé à l'étage 3 reste entre 10 et 30).
+
+### 2026-11-15 — Les dégâts des ennemis sont ceux de leurs compétences dans l'éditeur
+
+- **Question de l'utilisateur** : pourquoi le guerrier squelette frappe toujours sous 7 alors qu'il « est censé avoir
+  6d2 » ? Réponse : il lançait **4d2** (4 à 8, moins l'armure), des dés fixes codés dans `Creatures.SORTES` (`des_fixes`)
+  qui passaient avant tout ; l'éditeur affichait les 6d2 **du héros** pour le Coup d'épée, et les dés des ennemis
+  (`Formules.DES_ENNEMIS`, ou ceux du type un palier plus bas) n'y étaient visibles que dans une bulle d'aide.
+- **Demande** : « fais en sorte que l'éditeur modifie réellement ses dégâts ; que les dégâts des ennemis soient ceux de
+  leurs compétences dans l'éditeur ».
+- **Éditeur (onglet Compétences)** : chaque type de dégâts a maintenant **deux dés toujours réglables**, préremplis avec
+  les dés réellement joués : **Héros** (champ `des_degats`) et **Ennemis** (nouveau champ `des_degats_ennemis`).
+  La case « dés réglés » (un seul dé pour les deux) est supprimée : `des_degats` ne vaut plus que pour le héros
+  (`Formules.des_competence`). Une nouvelle compétence (copie) reprend les dés de sa base. **Onglet Ennemis** : chaque
+  compétence connue affiche les dés qu'il lance (« — 6d2 tranchant »).
+- **Créatures** : plus de dés fixes. L'attaque de chaque créature est **sa propre compétence** (ajoutées à
+  `donnees/competences.json`, copies du Coup d'épée) : **Morsure** (loup, 4d2 perforant), **Épée rouillée**
+  (squelette, 4d2), **Épée longue rouillée** (guerrier squelette, **6d2**, la valeur attendue par l'utilisateur),
+  **Lame ébréchée** (squelette invoqué, 3d2) ; mage et élémentaliste squelettes : **Coup de bâton** (2d2 contondant,
+  comme avant). `Creatures.creer` donne exactement les compétences de l'éditeur ; `donnees/ennemis.json`,
+  `DonneesEnnemis.COMPETENCES_DEFAUT`/`IA_DEFAUT` et `Ennemis.ATTAQUES_DE_SECOURS` mis à jour. Le Coup d'épée reste aux
+  gobelins (4d2) : le modifier ne touche plus les squelettes.
+- **Seule exception** : le Chevalier de la mort (hors éditeur) garde ses dés fixes (`Aventure.CHEVALIER`).
+- Tests : `test_degats_editeur` (dés héros/ennemis séparés, affichage et réglage dans l'éditeur), `test_squelettes`
+  (guerrier 6d2, dés réglés joués, loup Morsure), `test_editeur_ennemis` adaptés ; 0 échec sur les tests des ennemis,
+  dégâts, aventure, cryptes et zones.
+
 ### 2026-11-11 — Butin au hasard selon le meuble
 
 - **Demande de l'utilisateur** : « ajoute le butin au hasard pour le moment selon la sorte de meuble ; fais attention
@@ -1613,7 +1766,7 @@ Le jeu reste en 2D ; des assets 3D faits dans Blender sont prêts pour plus tard
   mage** (il tombe en poussière si son invocateur meurt).
 - **Les quatre** (`Creatures.SORTES`, morts-vivants, mêmes défenses que le squelette : perforant -20 %, contondant
   +40 %, lents comme lui) — valeurs **proposées par Claude**, réglables dans l'éditeur des ennemis (F4) :
-  - **Guerrier squelette** : comme le squelette pour l'instant (60 PV, Épée longue rouillée 4d2 tranchant) ;
+  - **Guerrier squelette** : 80 PV (éditeur), Épée longue rouillée **6d2** tranchant depuis le 2026-11-15 (4d2 avant) ;
   - **Mage squelette** : 50-60 PV, coup de bâton 2d2 ; IA : **Invocation** (60 %, s'il a moins de 2 invoqués et
     6 mana), Trait de l'ombre (50 %, 8 mana), sinon Projectile de l'ombre ;
   - **Élémentaliste squelette** : 50-60 PV, coup de bâton 2d2 ; IA : Éclair (33 %), Givre (50 %, si le héros n'est

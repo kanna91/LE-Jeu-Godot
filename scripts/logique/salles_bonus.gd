@@ -29,25 +29,31 @@ const NOMS_SOIN := {"pv": "des PV max", "mana": "du mana max", "tout": "des PV e
 
 ## Contenu du coffre, tiré à la première ouverture : or, objet de rang étage + 1 (étage + 2 avant le 2026-10-30,
 ## décision de l'utilisateur), potion (60 %).
-static func contenu_coffre(salle: Dictionary) -> Dictionary:
+## Karma du héros ``joueur`` (KARMA.md) : rang de l'objet plus ou moins haut, palier positif : chance
+## d'un objet en plus (« objet_en_plus », donné en prenant le contenu).
+static func contenu_coffre(salle: Dictionary, joueur = null) -> Dictionary:
 	if not salle.has("contenu"):
 		# Salle verrouillée (donjon d'aventure, Aventure) : « qualite » rangs de plus et 50 % d'or en plus par rang
 		var qualite := int(salle.get("qualite", 0))
-		var or_gagne := int(randi_range(200, 500) * Objet.compteur_etage_objet * (1.0 + 0.5 * qualite))
+		var or_gagne := int(randi_range(200, 500) * (1.0 + 0.5 * qualite))  # sans × étage (2026-11-15)
 		var rang := mini(Objet.compteur_etage_objet + 1 + qualite, 6)
-		var objet = GenerationObjets.generer_objet(null, rang)
+		var objet = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), rang)
+		var en_plus = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), rang) 			if randf() < Karma.chance_objet_en_plus(joueur) else null
 		var potion = Consommable.creer_potion("pv", Consommable.niveau_potion_etage()) if randf() < CHANCE_POTION_COFFRE else null
-		salle["contenu"] = {"or": or_gagne, "objet": objet, "potion": potion}
+		salle["contenu"] = {"or": or_gagne, "objet": objet, "potion": potion, "objet_en_plus": en_plus}
 		salle["coffre_ouvert"] = false
 	return salle["contenu"]
 
 
 ## « Prendre » : or, objet (équipé si son emplacement est vide), potion ; le coffre est vidé.
 static func prendre_coffre(joueur, salle: Dictionary) -> void:
-	var contenu := contenu_coffre(salle)
+	var contenu := contenu_coffre(salle, joueur)
 	joueur.piece_or += Karma.or_gagne(joueur, int(contenu["or"]))
 	if joueur.recevoir_objet(contenu["objet"]):
 		print("%s équipé automatiquement." % contenu["objet"].nom)
+	if contenu.get("objet_en_plus") != null:
+		joueur.recevoir_objet(contenu["objet_en_plus"])
+		print("Tout au fond du coffre : %s." % contenu["objet_en_plus"].nom)
 	if contenu.get("potion") != null:
 		joueur.inventaire.append(contenu["potion"])
 	salle["coffre_ouvert"] = true

@@ -69,7 +69,8 @@ func _resultats() -> void:
 			elif joueur.piece_or > 0:
 				resultat = "or"
 				var bornes: Array = Fouille.OR[genre]
-				verifier(joueur.piece_or >= bornes[0] * 3 and joueur.piece_or <= bornes[1] * 3, "or × étage (%d)" % joueur.piece_or)
+				# Plus multiplié par l'étage (ici le 3) depuis le 2026-11-15 : l'or de l'étage 1 partout
+				verifier(joueur.piece_or >= bornes[0] and joueur.piece_or <= bornes[1], "or sans × étage (%d)" % joueur.piece_or)
 			elif joueur.points_de_vie < avant_pv:
 				resultat = "piege"
 				verifier(joueur.points_de_vie >= 1, "le piège ne tue pas")

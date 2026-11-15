@@ -264,7 +264,7 @@ static func effet_consommable(objet) -> String:
 
 ## Comparaison avec l'objet équipé : [[texte, couleur], ...].
 ## Dégâts d'une arme (« Dégâts perforants + 1d4 de feu ») ou chaîne vide. Depuis le 2026-11-02, les dés sont ceux de
-## chaque attaque (Formules.DES_HEROS) : l'arme ne donne que son type et son dé bonus.
+## chaque attaque (Formules.DES_COMPETENCES) : l'arme ne donne que son type et son dé bonus.
 static func ligne_des(objet) -> String:
 	if not objet.est_arme():
 		return ""

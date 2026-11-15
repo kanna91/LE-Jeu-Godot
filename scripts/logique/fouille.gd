@@ -19,7 +19,8 @@ const VARIANTES := 4
 const RESULTATS := {
 	"squelette": [["rien", 50], ["or", 35], ["objet", 15]],
 }
-## Or trouvé : [minimum, maximum] × l'étage (valeurs choisies par Claude ; un gobelin en donne ~30).
+## Or trouvé : [minimum, maximum] (valeurs choisies par Claude ; un gobelin en donne ~30). Plus multiplié par l'étage
+## depuis le 2026-11-15 (décision de l'utilisateur : un seul étage, l'or de l'étage 1 partout, cryptes comprises).
 const OR := {"squelette": [10, 30]}
 const NOMS := {"squelette": "le squelette"}
 
@@ -130,68 +131,84 @@ static func _tirer_pondere(table) -> Variant:
 	return table[0][0]
 
 
-## Fouille d'un corps d'ennemi vaincu (Aventure.cadavre, 2026-10-31) : comme un squelette (RESULTATS, OR) ; celui
-## d'un gobelin pacifique tué rapporte moins (CORPS_PACIFIQUE : un peu d'or, parfois une potion, rarement un
-## équipement). Renvoie le message.
-const CORPS_PACIFIQUE := {"or": [2, 6], "potion": 0.10, "equipement": 0.02}
-
-
-## Loups (règle de l'utilisateur, 2026-11-04) : chaque loup du corps fouillé donne en plus 1 viande crue (ingrédient).
-const VIANDE_PAR_LOUP := 1
-
-
+## Fouille d'un corps d'ennemi vaincu (Aventure.cadavre, 2026-10-31). Depuis le 2026-11-15, réglée dans l'éditeur des
+## ennemis (onglet Butin, DonneesEnnemis.butin_du_jeu) : un seul tirage pour le groupe avec la table de son premier
+## membre (« fouille », ou « pacifique_tue » pour un groupe pacifique tué), puis les butins « fouille_par_membre » de
+## chaque membre (1 viande crue par loup). Renvoie le message.
 static func fouiller_corps(joueur, donjon, pacifique: bool, membres := []) -> String:
-	var viande := viande_des_loups(joueur, membres)
-	var message := _fouiller_corps(joueur, donjon, pacifique)
-	if viande == "":
-		return message
-	if message.ends_with("rien d'intéressant."):
-		return "Vous fouillez le corps : %s." % viande
-	return message.trim_suffix(".") + ", " + viande + "."
-
-
-## Viande crue des loups parmi ``membres`` (``Aventure.membres``), donnée au héros : texte (« » s'il n'y en a pas).
-static func viande_des_loups(joueur, membres: Array) -> String:
-	var n := 0
-	for m in membres:
-		if m is Dictionary and String(m.get("sous_classe", "")) == "loup":
-			n += VIANDE_PAR_LOUP
-	if n == 0:
-		return ""
-	for _k in n:
-		var o = ObjetsDivers.depuis_catalogue("Viande crue")
-		if o != null:
-			joueur.recevoir_objet(o)
-	return "%d viande%s crue%s" % [n, "s" if n > 1 else "", "s" if n > 1 else ""]
-
-
-static func _fouiller_corps(joueur, donjon, pacifique: bool) -> String:
 	var etage: int = int(donjon.salle_actuelle[0])
 	Statistiques.noter(joueur, "objets_fouilles")
+	var sorte := DonneesEnnemis.sorte_du_groupe(membres)
+	var trouve := []
 	if pacifique:
-		var trouve := []
-		var gain := Karma.or_gagne(joueur, randi_range(CORPS_PACIFIQUE["or"][0], CORPS_PACIFIQUE["or"][1]) * maxi(1, etage))
+		trouve = cadeau(joueur, etage, DonneesEnnemis.butin_du_jeu(sorte, "pacifique_tue"))
+	else:
+		trouve = _tirage_corps(joueur, etage, DonneesEnnemis.butin_du_jeu(sorte, "fouille"))
+	trouve += butins_par_membre(joueur, etage, membres)
+	if trouve.is_empty():
+		return "Vous fouillez le corps : rien d'intéressant."
+	return "Vous fouillez le corps : " + ", ".join(trouve) + "."
+
+
+## Tirage d'un corps : rien, de l'or ou un objet, selon les poids de la table ``t``. Renvoie ce qui est trouvé (textes).
+static func _tirage_corps(joueur, etage: int, t: Dictionary) -> Array:
+	var table := [["rien", int(t.get("rien", 0))], ["or", int(t.get("or", 0))], ["objet", int(t.get("objet", 0))]]
+	if table.all(func(l): return l[1] <= 0):
+		return []
+	var resultat = _tirer_pondere(table.filter(func(l): return l[1] > 0))
+	if resultat == "or":
+		var gain := Karma.or_gagne(joueur, randi_range(int(t.get("or_min", 10)), maxi(int(t.get("or_min", 10)), int(t.get("or_max", 30)))))
+		joueur.piece_or += gain
+		return ["%d pièces d'or" % gain]
+	if resultat == "objet":
+		# Karma : rang plus ou moins haut (Karma.objet_butin)
+		var objet = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), clampi(etage, 1, 6))
+		var equipe = joueur.recevoir_objet(objet)
+		return ["%s%s" % [objet.nom, " (équipé)" if equipe else ""]]
+	return []
+
+
+## Cadeau d'or, de potion et d'équipement (corps d'un pacifique tué, pacifiques épargnés) : table ``t`` de l'éditeur
+## (or_min, or_max, chances en % de « potion » et d'« equipement »). Renvoie ce qui est donné (textes).
+static func cadeau(joueur, etage: int, t: Dictionary) -> Array:
+	var trouve := []
+	var or_max := maxi(int(t.get("or_min", 0)), int(t.get("or_max", 0)))
+	if or_max > 0:
+		var gain := Karma.or_gagne(joueur, randi_range(int(t.get("or_min", 0)), or_max))
 		joueur.piece_or += gain
 		trouve.append("%d pièces d'or" % gain)
-		if randf() < CORPS_PACIFIQUE["potion"]:
+	if randf() * 100.0 < float(t.get("potion", 0)):
+		for _i in Karma.quantite_butin(joueur, 1):  # karma : 1 objet × facteur_butin
 			var potion := Consommable.creer_potion("pv", Consommable.niveau_potion_etage(etage))
 			joueur.recevoir_objet(potion)
 			trouve.append(potion.nom)
-		if randf() < CORPS_PACIFIQUE["equipement"]:
-			var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
-			joueur.recevoir_objet(objet)
-			trouve.append(objet.nom)
-		return "Vous fouillez le corps : " + ", ".join(trouve) + "."
-	var resultat = _tirer_pondere(RESULTATS["squelette"])
-	if resultat == "or":
-		var gain := Karma.or_gagne(joueur, randi_range(OR["squelette"][0], OR["squelette"][1]) * maxi(1, etage))
-		joueur.piece_or += gain
-		return "Vous fouillez le corps : %d pièces d'or." % gain
-	if resultat == "objet":
-		var objet = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
-		var equipe = joueur.recevoir_objet(objet)
-		return "Vous fouillez le corps : %s%s." % [objet.nom, " (équipé)" if equipe else ""]
-	return "Vous fouillez le corps : rien d'intéressant."
+	if randf() * 100.0 < float(t.get("equipement", 0)):
+		var objet = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), clampi(etage, 1, 6))
+		joueur.recevoir_objet(objet)
+		trouve.append(objet.nom)
+	return trouve
+
+
+## Butins « fouille_par_membre » de chaque membre (chacun tiré avec sa chance), regroupés : textes de ce qui est ramassé.
+static func butins_par_membre(joueur, etage: int, membres: Array) -> Array:
+	var gagnes := {}  # définition (texte) -> [butin, quantité totale]
+	for m in membres:
+		if not (m is Dictionary):
+			continue
+		for b in DonneesEnnemis.butin_du_jeu(String(m.get("sous_classe", "")), "fouille_par_membre"):
+			if b is Dictionary and randf() * 100.0 < float(b.get("chance", 0)):
+				var cle := JSON.stringify(b)
+				if not gagnes.has(cle):
+					gagnes[cle] = [b, 0]
+				gagnes[cle][1] += maxi(1, int(b.get("quantite", 1))) if String(b.get("categorie", "")) != "or" else int(b.get("quantite", 0))
+	var textes := []
+	for cle in gagnes:
+		var b: Dictionary = Dictionary(gagnes[cle][0]).duplicate()
+		b["quantite"] = gagnes[cle][1]
+		var m := ramasser(b, joueur, etage)
+		if not m.begins_with("Il n'y avait rien"):
+			textes.append(m.trim_prefix("Vous ramassez ").trim_suffix("."))
+	return textes
 
 
 ## Objets de la salle du plan ``salle`` affichée avec l'image ``image`` (tirés à la première visite).
@@ -297,11 +314,11 @@ static func fouiller(objet: Dictionary, joueur, donjon) -> String:
 	var nom: String = NOMS.get(genre, "l'objet")
 	if resultat == "or":
 		var bornes: Array = OR.get(genre, [10, 30])
-		var gain := Karma.or_gagne(joueur, randi_range(bornes[0], bornes[1]) * maxi(1, etage))
+		var gain := Karma.or_gagne(joueur, randi_range(bornes[0], bornes[1]))
 		joueur.piece_or += gain
 		return "Vous fouillez %s : %d pièces d'or !" % [nom, gain]
 	if resultat == "objet":
-		var trouve = GenerationObjets.generer_objet(null, clampi(etage, 1, 6))
+		var trouve = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), clampi(etage, 1, 6))
 		var equipe = joueur.recevoir_objet(trouve)
 		return "Le squelette portait encore %s%s." % [trouve.nom, " (équipé)" if equipe else ""]
 	return "Vous fouillez %s : rien d'intéressant." % nom
@@ -323,6 +340,11 @@ static func ouvrir(type: String, c: Dictionary, joueur, etage: int) -> String:
 		var tire := tirer_selon_meuble(String(c.get("meuble", "divers")))
 		if not tire.is_empty():
 			messages.append(ramasser(tire, joueur, etage))
+	# Karma positif (KARMA.md, C) : à chaque palier, +10 % de chance d'un objet en plus dans un coffre
+	if type == "coffre" and randf() < Karma.chance_objet_en_plus(joueur):
+		var objet = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet(null, r), clampi(etage, 1, 6))
+		var equipe = joueur.recevoir_objet(objet)
+		messages.append("Tout au fond : %s%s." % [objet.nom, " (équipé)" if equipe else ""])
 	messages = messages.filter(func(m): return m != "Il n'y avait rien.")
 	if messages.is_empty():
 		return "%s : rien d'intéressant." % debut
@@ -336,15 +358,17 @@ static func ramasser(b: Dictionary, joueur, etage: int) -> String:
 	var quantite := maxi(0, int(b.get("quantite", 0)))
 	var rang = int(b.get("rang", 0)) if int(b.get("rang", 0)) > 0 else clampi(etage, 1, 6)
 	if categorie == "or":
-		var gain := quantite
-		if gain <= 0:
-			gain = Karma.or_gagne(joueur, randi_range(OR["squelette"][0], OR["squelette"][1]) * maxi(1, etage))
+		# Montant réglé au karma 0 : le karma le multiplie (Karma.facteur_butin, 2026-11-15), comme le montant au hasard
+		var gain := Karma.or_gagne(joueur, quantite if quantite > 0 else randi_range(OR["squelette"][0], OR["squelette"][1]))
 		joueur.piece_or += gain
 		return "Vous ramassez %d pièces d'or." % gain
 	if categorie == "recette":
 		return AmeliorationsArmes.apprendre(joueur, nom_objet, String(b.get("artisan", "")))
 	var trouves := []
-	for _i in maxi(1, quantite):
+	# Karma (KARMA.md) : le nombre d'objets qu'on compte est multiplié (Karma.quantite_butin) ; une arme ou un
+	# équipement garde son nombre, mais son rang peut monter ou descendre (Karma.objet_butin)
+	var unique := categorie in ["arme", "equipement"]
+	for _i in (maxi(1, quantite) if unique else Karma.quantite_butin(joueur, maxi(1, quantite))):
 		var o = null
 		match categorie:
 			"potion":
@@ -352,14 +376,14 @@ static func ramasser(b: Dictionary, joueur, etage: int) -> String:
 				o = Consommable.creer_potion(sorte if sorte in ["pv", "mana", "mixte"] else ["pv", "mana", "mixte"].pick_random(),
 					Consommable.niveau_potion_etage(etage))
 			"arme":
-				o = GenerationObjets.generer_objet("arme", rang)
+				o = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_objet("arme", r), rang)
 			"equipement":
 				if nom_objet == "bijou":
-					o = GenerationObjets.generer_bijou(rang)
+					o = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_bijou(r), rang)
 				elif nom_objet == "armure":
-					o = GenerationObjets.generer_armure(rang)
+					o = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_armure(r), rang)
 				else:
-					o = GenerationObjets.generer_armure(rang) if randf() < 0.7 else GenerationObjets.generer_bijou(rang)
+					o = Karma.objet_butin(joueur, func(r): return GenerationObjets.generer_armure(r) if randf() < 0.7 else GenerationObjets.generer_bijou(r), rang)
 			_:
 				o = ObjetsDivers.depuis_catalogue(nom_objet) if nom_objet != "" else null
 				if o == null:

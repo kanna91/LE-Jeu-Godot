@@ -67,9 +67,12 @@ const MALUS_COUP_MULTIPLE := 2
 
 ## Dés propres à chaque compétence (revue des dégâts de l'utilisateur, 2026-11-01) : nom de classe -> {type: dés}.
 ## Ils remplacent les dés du type (DES_TYPES), sans le malus des coups multiples (les dés sont ceux d'un coup ;
-## Frénésie frappe 2 fois 4d2, Balayage 3d2 sur chaque cible) ni le palier plus bas des ennemis.
-## Le dé bonus d'une arme s'ajoute toujours aux attaques de l'arme.
-const DES_HEROS := {
+## Frénésie frappe 2 fois 4d2, Balayage 3d2 sur chaque cible). Le dé bonus d'une arme s'ajoute aux attaques de l'arme.
+## Depuis le 2026-11-15 (demande de l'utilisateur : « une compétence est telle qu'elle est, pour tout le monde ») :
+## une seule table pour le héros et les ennemis, plus de « palier plus bas » des ennemis. Les compétences que les
+## ennemis avaient en version affaiblie sont des copies (Competences._copies : Coup_d_epee_mineur...), mêmes dés qu'avant.
+const DES_COMPETENCES := {
+	# Héros
 	"Coup_d_epee": {"tranchant": [[6, 2]]}, "Frenesie": {"tranchant": [[4, 2]]},
 	"Coup_de_marteau": {"contondant": [[6, 2]]}, "Fracasser": {"contondant": [[8, 2]]},
 	"Coup_de_poing": {"contondant": [[4, 2]]}, "Enchainement": {"contondant": [[3, 2]]},
@@ -78,36 +81,43 @@ const DES_HEROS := {
 	"Boule_de_feu": {"feu": [[8, 2]]}, "Givre": {"froid": [[8, 2]]}, "Eclair": {"foudre": [[6, 3]]},
 	"Trait_arcanique": {"arcane": [[8, 2]]}, "Souffle_du_chaos": {"chaos": [[4, 2]], "feu": [[4, 2]]},
 	"Murmure_des_ombres": {"ombre": [[8, 2]]},
-}
-const DES_ENNEMIS := {
+	# Versions des ennemis (copies)
+	"Coup_d_epee_mineur": {"tranchant": [[4, 2]]}, "Coup_de_lance_mineur": {"perforant": [[4, 2]]},
+	"Boule_de_feu_mineure": {"feu": [[5, 2]]}, "Givre_mineur": {"froid": [[5, 2]]}, "Eclair_mineur": {"foudre": [[4, 3]]},
+	# Ennemis
 	"Tir": {"perforant": [[4, 2]]}, "Tir_precis": {"perforant": [[3, 2]]}, "Tir_empoisonne": {"perforant": [[3, 2]]},
-	"Boule_de_feu": {"feu": [[5, 2]]}, "Soin_mineur": {"lumière": [[7, 2]]},
-	"Coup_d_epee": {"tranchant": [[4, 2]]}, "Botte_secrete": {"tranchant": [[3, 2]]},
+	"Soin_mineur": {"lumière": [[7, 2]]}, "Recupe": {"lumière": [[3, 6]]},
+	"Botte_secrete": {"tranchant": [[3, 2]]},
 	"Coup_de_gourdin": {"contondant": [[3, 2]]}, "Grand_coup_de_gourdin": {"contondant": [[5, 2]]},
 	"Projectile_des_ombres": {"ombre": [[5, 2]]}, "Caresse_des_ombres": {"ombre": [[2, 2]]},
 	"Enflammer": {"feu": [[5, 2]]}, "Silence": {"ombre": [[2, 2]]},
-	"Coup_de_lance": {"perforant": [[4, 2]]}, "Rafale_de_lance": {"perforant": [[2, 2]]},
-	"Perforation": {"perforant": [[3, 2]]},
+	"Rafale_de_lance": {"perforant": [[2, 2]]}, "Perforation": {"perforant": [[3, 2]]},
 	"Coup_de_baton": {"contondant": [[2, 2]]}, "Trait_des_Ombres": {"ombre": [[5, 2]]},
-	# Élémentaliste squelette (2026-11-06) : sorts du héros, dés d'ennemi (Givre 8d2 -> 5d2, Éclair 6d3 -> 4d3)
-	"Givre": {"froid": [[5, 2]]}, "Eclair": {"foudre": [[4, 3]]},
+	# Attaques des créatures (2026-11-15, avant : dés fixes de Creatures, que l'éditeur ne pouvait pas changer).
+	# Guerrier squelette à 6d2 : les dés que l'utilisateur pensait lui avoir donnés (demande du 2026-11-15).
+	"Morsure": {"perforant": [[4, 2]]}, "Epee_rouillee": {"tranchant": [[4, 2]]},
+	"Epee_longue_rouillee": {"tranchant": [[6, 2]]}, "Lame_ebrechee": {"tranchant": [[3, 2]]},
 }
-## Part des PV max de la cible ajoutée aux dégâts (ou aux soins) d'une compétence d'ennemi : nom -> {type: part}.
-## Soin mineur des gobelins : 7d2 + 15 % des PV max de la cible (2026-11-01). Un lanceur peut aussi avoir sa
-## propre table ``pourcentage_pv_cible`` (Chevalier de la mort : +15 % en tranchant).
-const PV_CIBLE_ENNEMIS := {"Soin_mineur": {"lumière": 0.15}}
+## Part des PV max de la cible ajoutée aux dégâts (ou aux soins) d'une compétence : nom -> {type: part}.
+## Soin mineur : 7d2 + 15 % des PV max de la cible (2026-11-01). Un lanceur peut aussi avoir sa propre table
+## ``pourcentage_pv_cible`` (Chevalier de la mort : +15 % en tranchant).
+const PV_CIBLE_COMPETENCES := {"Soin_mineur": {"lumière": 0.15}}
 
 
 ## Dés propres de la compétence pour ce type ([] : ceux du type).
 static func des_competence(lanceur, competence, type_degats: String) -> Array:
 	if competence == null:
 		return []
-	# Dés réglés dans l'éditeur des compétences (2026-11-06) : {type : [nombre, faces]}, pour le héros comme les ennemis
+	# Dés réglés dans l'éditeur des compétences : {type : [nombre, faces]}, les mêmes pour tout le monde
 	var regles = U.ga(competence, "des_degats", null)
 	if regles is Dictionary and regles.get(type_degats) is Array and regles[type_degats].size() == 2:
 		return [[int(regles[type_degats][0]), maxi(1, int(regles[type_degats][1]))]]
-	var table: Dictionary = DES_ENNEMIS if lanceur is Ennemis else DES_HEROS
-	var par_type = table.get(U.ga(competence, "nom_classe", ""), null)
+	var classe := String(U.ga(competence, "nom_classe", ""))
+	var par_type = DES_COMPETENCES.get(classe, null)
+	if par_type == null and DonneesEnnemis.base_de(classe) != "":
+		par_type = DES_COMPETENCES.get(DonneesEnnemis.base_de(classe), null)  # nouvelle compétence de l'éditeur : dés de sa base
+	if par_type == null:
+		par_type = DES_COMPETENCES.get(Competences.originale(classe), null)  # copie sans dés à elle : ceux de l'originale
 	if par_type is Dictionary and par_type.has(type_degats):
 		return par_type[type_degats]
 	return []
@@ -119,8 +129,8 @@ static func part_pv_cible(lanceur, competence, type_degats: String) -> float:
 	var propre = U.ga(lanceur, "pourcentage_pv_cible", null) if lanceur != null else null
 	if propre is Dictionary:
 		part += float(propre.get(type_degats, 0.0))
-	if lanceur is Ennemis and competence != null:
-		part += float(PV_CIBLE_ENNEMIS.get(U.ga(competence, "nom_classe", ""), {}).get(type_degats, 0.0))
+	if competence != null:
+		part += float(PV_CIBLE_COMPETENCES.get(U.ga(competence, "nom_classe", ""), {}).get(type_degats, 0.0))
 	# Part des PV max de la cible réglée dans l'éditeur des compétences (2026-11-06)
 	var regle = U.ga(competence, "pv_max_cible", null) if competence != null else null
 	if regle is Dictionary:
@@ -139,36 +149,14 @@ static func est_coup_multiple(competence) -> bool:
 	return competence != null and U.num(competence, "nombre_attaque") > 1
 
 
-## Paliers des dés de dégâts. Les ennemis lancent chaque dé un palier plus bas que le héros
-## (2026-10-20, demande de l'utilisateur) : 1d12 → 1d10, 1d10 → 1d6, 1d8 → 1d6, 1d6 → 1d4, 1d4 → 1d2 ;
-## 1d2 reste 1d2 (pas de palier plus bas). Les soins (lumière) ne sont pas réduits.
-const PALIERS_DES := [2, 4, 6, 10, 12]
-
-
-## Faces du dé un palier plus bas (1d2 reste 1d2).
-static func palier_inferieur(faces: int) -> int:
-	var resultat := PALIERS_DES[0]
-	for p in PALIERS_DES:
-		if p < faces:
-			resultat = p
-	return resultat
-
-
-## Dés réduits d'un palier ([[nombre, faces], ...]).
-static func des_reduits(des: Array) -> Array:
-	var liste := []
-	for d in des:
-		liste.append([d[0], palier_inferieur(d[1])])
-	return liste
-
-
 ## Dés lancés pour un type de dégâts d'une compétence : ceux du type (1d6 pour un coup multiple), plus
 ## le dé bonus de l'arme quand il est du même type que l'arme, que le coup fait ce type et que c'est
-## une attaque de l'arme (est_attaque_arme). Un ennemi lance ses dés un palier plus bas (PALIERS_DES).
+## une attaque de l'arme (est_attaque_arme). Les mêmes pour le héros et les ennemis (2026-11-15 : plus de palier
+## plus bas pour les ennemis).
 static func des_type(lanceur, type_degats: String, competence = null) -> Array:
 	var fixes = U.ga(lanceur, "des_fixes", null) if lanceur != null else null
 	if fixes is Dictionary and fixes.has(type_degats):
-		return fixes[type_degats]  # dés imposés (Chevalier de la mort), ni dé d'arme ni palier ennemi
+		return fixes[type_degats]  # dés imposés (Chevalier de la mort, hors de l'éditeur), sans dé d'arme
 	var propres := des_competence(lanceur, competence, type_degats)
 	var des: Array = propres
 	if propres.is_empty():
@@ -179,8 +167,6 @@ static func des_type(lanceur, type_degats: String, competence = null) -> Array:
 		des = des + [[1, bonus["faces"]]]
 	# Améliorations de l'arme (armurier, alchimiste, enchanteur, 2026-11-09) : seulement pour la bonne compétence
 	des = des + AmeliorationsArmes.des(lanceur, competence, type_degats)
-	if lanceur is Ennemis and type_degats != "lumière" and propres.is_empty():
-		return des_reduits(des)
 	return des
 
 
@@ -195,7 +181,7 @@ static func de_bonus_autre_type(lanceur, types_competence: Array, competence = n
 	var bonus := de_bonus(_arme(lanceur))
 	if bonus.is_empty() or bonus["type"] == type_arme:
 		return []
-	return [bonus["type"], palier_inferieur(bonus["faces"]) if lanceur is Ennemis else bonus["faces"]]
+	return [bonus["type"], bonus["faces"]]
 
 
 static func jet(des: Array) -> int:

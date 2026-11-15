@@ -6,8 +6,9 @@ extends RefCounted
 ## Décidé par l'utilisateur : loup **faible au feu (40 %)**, frappe **perforant**, toujours avec un archer ou un
 ## chaman gobelin (jamais seul) ; squelette **résiste au perforant (20 %)**, **faible au contondant (40 %)**, frappe
 ## **1d10 tranchant**, avec d'autres squelettes, morts-vivants, animaux ou féticheurs, et peut être seul ; tous deux
-## dès le premier étage. Leurs dés comptent tels quels (``des_fixes``) : le « dé un cran plus bas » des gobelins
-## était un réglage fait à la main pour eux, pas une règle (précision de l'utilisateur, 2026-10-27).
+## dès le premier étage. Leurs dés sont ceux de leur attaque dans l'éditeur des ennemis (2026-11-15 ; avant : dés fixes
+## ``des_fixes`` ici, que l'éditeur ne voyait pas) : Morsure 4d2 perforant, Épée rouillée 4d2, Épée longue rouillée 6d2,
+## Lame ébréchée 3d2 tranchant, Coup de bâton 2d2 contondant (Formules.DES_COMPETENCES, réglables dans l'éditeur).
 ## **Proposé par Claude, validé par l'utilisateur le 2026-10-27** : caractéristiques, dé du loup (1d8), fréquences des rencontres
 ## (zone « defaut » de donnees/zones.json depuis le 2026-11-02 : Zones), vitesse des squelettes.
 ##
@@ -26,12 +27,10 @@ extends RefCounted
 const SORTES := {
 	"loup": {"nom": "Loup", "type_ennemi": "bête", "image": "loup01.png",
 		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Morsure", "description": "Morsure : des crocs qui percent la chair.",
-		"des": {"perforant": [[4, 2]]}, "vulnerabilites": {"feu": 0.40}, "resistances_pct": {}},
+		"vulnerabilites": {"feu": 0.40}, "resistances_pct": {}},
 	"squelette": {"nom": "Squelette", "type_ennemi": "mort-vivant", "image": "squelette01.png",
 		"endurance": [6, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Épée rouillée", "description": "Un coup d'épée rouillée, lent mais lourd.",
-		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 	# Squelettes refaits par l'utilisateur (2026-11-06, sous-dossiers de « C:/ia image/ennemis/squelette ») : mêmes
 	# défenses que le squelette. Guerrier : une sorte de plus (décision de l'utilisateur), mêmes règles que le squelette
 	# en attendant ses réglages. Mage (ombre, invoque) et élémentaliste (feu, froid, foudre) : seulement dans les
@@ -39,21 +38,17 @@ const SORTES := {
 	# en poussière si son invocateur meurt. PV, compétences et IA réglables dans l'éditeur des ennemis.
 	"guerrier_squelette": {"nom": "Guerrier squelette", "type_ennemi": "mort-vivant", "image": "guerrier_squelette01.png",
 		"endurance": [6, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Épée longue rouillée", "description": "Un coup d'épée longue rouillée.",
-		"des": {"tranchant": [[4, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 	"mage_squelette": {"nom": "Mage squelette", "type_ennemi": "mort-vivant", "image": "mage_squelette01.png",
 		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Coup de bâton", "description": "Un coup de son bâton noueux.",
-		"des": {"contondant": [[2, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 	"elementaliste_squelette": {"nom": "Élémentaliste squelette", "type_ennemi": "mort-vivant",
 		"image": "elementaliste_squelette01.png",
 		"endurance": [5, 6], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Coup de bâton", "description": "Un coup de son bâton gravé.",
-		"des": {"contondant": [[2, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 	"squelette_invoque": {"nom": "Squelette invoqué", "type_ennemi": "mort-vivant", "image": "squelette_invoque01.png",
 		"endurance": [3, 3], "force": [0, 0], "dextérité": [0, 0], "intelligence": [0, 0], "sagesse": [0, 0],
-		"attaque": "Lame ébréchée", "description": "Un coup de lame ébréchée.",
-		"des": {"tranchant": [[3, 2]]}, "vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
+		"vulnerabilites": {"contondant": 0.40}, "resistances_pct": {"perforant": 0.20}},
 }
 ## Squelettes qui forment des groupes (le féticheur, le mage et l'élémentaliste peuvent s'y joindre).
 const SQUELETTES_DE_GROUPE := ["squelette", "guerrier_squelette"]
@@ -87,18 +82,14 @@ static func creer(donjon, sorte: String) -> Gobelin:
 	e.calculer_stats()
 	e.points_de_vie = e.points_de_vie_max
 	e.mana = e.mana_max
-	var attaque = Competences.creer("Coup_d_epee")
-	attaque._d["nom"] = r["attaque"]
-	attaque._d["description"] = r["description"]
-	attaque._d["type_degats"] = r["des"].keys()
-	attaque._d["cout_mana"] = 0
-	e._d["competences"] = [attaque]
-	for nom in DonneesEnnemis.competences_de(sorte):  # compétences données dans l'éditeur des ennemis
-		if String(nom) != "Coup_d_epee":
-			var c := Competences.creer(String(nom))
-			if c != null:
-				e._d["competences"].append(c)
-	e._d["des_fixes"] = r["des"].duplicate(true)
+	# Compétences données dans l'éditeur des ennemis, dégâts compris (2026-11-15 : plus de dés fixes ; l'attaque de
+	# chaque créature est sa propre compétence : Morsure, Epee_rouillee, Epee_longue_rouillee, Lame_ebrechee,
+	# Coup_de_baton pour les mages)
+	e._d["competences"] = []
+	for nom in DonneesEnnemis.competences_de(sorte):
+		var c := Competences.creer(String(nom))
+		if c != null:
+			e._d["competences"].append(c)
 	Degats.ajouter_pourcentages(e, r["vulnerabilites"], r["resistances_pct"])
 	e._d["image"] = r["image"]
 	e._d["sans_animation"] = true

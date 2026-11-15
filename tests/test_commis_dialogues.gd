@@ -113,13 +113,16 @@ func _loups() -> void:
 	var compter := func(): return joueur.inventaire.filter(func(o): return o.nom == "Viande crue").size()
 	var avant: int = compter.call()
 	var msg := Fouille.fouiller_corps(joueur, donjon, false, [Creatures.membre("loup"), {"classe": "gobelin", "sous_classe": "archer"}])
-	verifier(compter.call() == avant + 1 and msg.contains("1 viande crue"), "un loup fouillé : 1 viande crue (%s)" % msg)
+	# À la fouille seulement (2026-11-15) : 1 viande sûre + 1 à 50 % par loup (karma 0)
+	verifier(compter.call() - avant in [1, 2] and msg.contains("Viande crue"), "un loup fouillé : 1 ou 2 viandes crues (%s)" % msg)
+	avant = compter.call()
 	var o = joueur.inventaire.filter(func(x): return x.nom == "Viande crue")[0]
 	verifier(o.est_ingredient(), "la viande crue est un ingrédient")
 	msg = Fouille.fouiller_corps(joueur, donjon, false, [Creatures.membre("loup"), Creatures.membre("loup")])
-	verifier(compter.call() == avant + 3 and msg.contains("2 viandes crues"), "deux loups : 2 viandes crues (%s)" % msg)
+	verifier(compter.call() - avant in [2, 3, 4] and msg.contains("Viande crue"), "deux loups : 2 à 4 viandes crues (%s)" % msg)
+	avant = compter.call()
 	Fouille.fouiller_corps(joueur, donjon, false, [{"classe": "gobelin", "sous_classe": "guerrier"}])
-	verifier(compter.call() == avant + 3, "pas de loup : pas de viande")
+	verifier(compter.call() == avant, "pas de loup : pas de viande")
 	# Par l'écran du corps (Aventure.cadavre), en mode automatique
 	Ecrans.auto = true
 	var corps := {"genre": "objet", "sous": "cadavre", "etat": "actif", "ames": 1, "fouille": false,
@@ -129,7 +132,7 @@ func _loups() -> void:
 			break
 		corps["etat"] = "actif"
 		await Aventure.cadavre(donjon, corps)
-	verifier(corps["fouille"] and compter.call() == avant + 4, "corps de loup fouillé dans le jeu : viande crue")
+	verifier(corps["fouille"] and compter.call() - avant in [1, 2], "corps de loup fouillé dans le jeu : viande crue")
 	# Commis en mode automatique : la conversation se termine
 	for role in ["cuisine", "cellier", "cuisiniere"]:
 		var r = await Rencontres.commis(donjon, {"role": role})

@@ -14,7 +14,7 @@ const BASES := {
 		"décrépitude": 25, "esprit embrumé": 25}},
 	"Silence": {"alterations": {"silence": 60, "brûlure de mana": 30}},
 	"Recupe": {"alterations": {"régénération": 100}, "degats_lumière": 12},  # « +5 % des PV max » retiré (2026-11-02) : jamais appliqué
-	# Soins : leur part des PV max de la cible est dans Formules.PV_CIBLE_ENNEMIS (2026-11-01)
+	# Soins : leur part des PV max de la cible est dans Formules.PV_CIBLE_COMPETENCES (2026-11-01)
 	"Soin_mineur": {"degats_lumière": 15},
 	"Soin": {"degats_lumière": 50},
 	# Coup de poing : plus d'étourdissement (2026-11-01)
@@ -42,7 +42,7 @@ const CONTROLES_PLAFONNES := {"stun": {"plafond": 35}}
 
 ## Termine la création d'une compétence : corrections de base, puis normalisation.
 static func preparer(comp) -> void:
-	var base: Dictionary = BASES.get(comp.nom_classe, {})
+	var base: Dictionary = BASES.get(Competences.originale(comp.nom_classe), {})  # une copie a les bases de l'originale
 	var alterations: Dictionary = base.get("alterations", {})
 	for nom in alterations:
 		comp.type_alteration[nom] = alterations[nom]

@@ -1,5 +1,11 @@
 {
- "competences": {},
+ "competences": {
+  "Boule_de_feu": {
+   "type_alteration": {
+    "brulure": 25
+   }
+  }
+ },
  "alterations": {},
  "alterations_personnalisees": {}
 }

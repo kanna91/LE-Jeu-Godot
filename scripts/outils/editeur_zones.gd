@@ -45,6 +45,8 @@ extends Control
 ## peint (« Fouiller (E) » ou « Ouvrir (E) », au choix). Chacun a un contenu : une liste de butins réglés comme un
 ## butin au sol, avec le panneau de droite (Ajouter / Retirer un objet). Clés « coffres » et « fouilles » du .json
 ## (Fouille.CONTENANTS).
+## Couche « Perspective » (touche V), 2026-11-15, demande de l'utilisateur : régler la taille du héros selon la
+## profondeur, sa vitesse et l'écrasement en profondeur, avec les silhouettes du héros et des ennemis (OutilPerspective).
 
 const COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux"]
 const NOMS := {"marche": "Sol (marche)", "obstacles": "Obstacles", "premier_plan": "Premier plan", "sorties": "Sorties",
@@ -81,9 +83,9 @@ const ONGLETS_ZONES := {
 }
 ## Couches du menu « Couche » : zones, puis Butin et Ennemis (panneaux à droite).
 const LISTE_COUCHES := ["marche", "obstacles", "premier_plan", "sorties", "prisonniers", "cachettes", "feux", "eaux",
-	"butin", "coffres", "fouilles", "ennemis"]
+	"butin", "coffres", "fouilles", "ennemis", "perspective"]
 const RACCOURCIS_COUCHES := {"marche": "1", "obstacles": "2", "premier_plan": "3", "sorties": "4", "prisonniers": "5",
-	"cachettes": "6", "butin": "7", "coffres": "C", "fouilles": "F", "feux": "8", "eaux": "9", "ennemis": "E"}
+	"cachettes": "6", "butin": "7", "coffres": "C", "fouilles": "F", "feux": "8", "eaux": "9", "ennemis": "E", "perspective": "V"}
 ## Coffres et points de fouille (couches à contenu, Fouille.CONTENANTS) : couleur, nom.
 const COULEURS_CONTENANTS := {"coffres": Color(0.95, 0.6, 0.25), "fouilles": Color(0.45, 0.95, 0.75)}
 const NOMS_CONTENANTS := {"coffres": "coffre", "fouilles": "point de fouille"}
@@ -173,6 +175,11 @@ var glisse_butin := -1
 var modele_butin := {"categorie": "or", "objet": "", "quantite": 0, "potion": "", "rang": 0}
 var _maj_module := false
 var dialogues: EditeurDialogues
+## Couche « Perspective » active, son outil, la perspective telle qu'enregistrée et si elle a été retouchée.
+var mode_perspective := false
+var perspective: OutilPerspective
+var perspective_enregistree := {}
+var perspective_modifiee := false
 var donnees_ennemis: EditeurEnnemis
 const AIDE := "Tab : éditer / marcher   1-6 : zones   7 : butin   C : coffres   F : fouilles   8 : feux   9 : eau   E : ennemis (ou menu Couche)
 " 	+ "clic : ajouter un point (Entrée ou 1er point : fermer)   glisser un point : le déplacer   Maj+clic sur un bord : nouveau point
@@ -199,6 +206,7 @@ func _ready() -> void:
 	_barre_menus()
 	_creer_module()
 	_creer_module_ennemis()
+	perspective = OutilPerspective.new(self)
 	_charger()
 	for a in demande:  # --couche=ennemis : couche choisie au départ (captures)
 		if a.begins_with("--couche="):
@@ -318,7 +326,7 @@ func _menu(barre: HBoxContainer, titre: String) -> PopupMenu:
 ## Nom lisible d'une couche du menu « Couche ».
 static func nom_couche(c: String) -> String:
 	return {"butin": "Butin", "coffres": "Coffres", "fouilles": "Fouilles (fouiller / ouvrir)",
-		"ennemis": "Ennemis permis"}.get(c, NOMS.get(c, c))
+		"ennemis": "Ennemis permis", "perspective": "Perspective (taille et vitesse)"}.get(c, NOMS.get(c, c))
 
 
 ## Entrée d'un menu déroulant choisie.
@@ -472,6 +480,11 @@ func _charger() -> void:
 	contenant_choisi = -1
 	contenu_choisi = -1
 	glisse_contenant = -1
+	salle.donnees["perspective"] = Dictionary(salle.donnees.get("perspective", {})).duplicate(true)
+	perspective_enregistree = salle.donnees["perspective"].duplicate(true)
+	perspective_modifiee = false
+	perspective.glisse = []
+	perspective.maj_panneau()
 	var interdits = salle.donnees.get("ennemis_interdits", [])
 	salle.donnees["ennemis_interdits"] = interdits.duplicate() if interdits is Array else []
 	_remplir_ennemis()
@@ -533,7 +546,11 @@ func _unhandled_input(ev: InputEvent) -> void:
 	if ev is InputEventMouseButton:
 		_bouton(ev)
 	elif ev is InputEventMouseMotion:
-		if glisse_butin >= 0 and glisse_butin < salle.donnees["butins"].size():
+		if mode_perspective:
+			perspective.mouvement(_borne(souris()))
+			if deplacement:
+				salle.monde.position += ev.relative
+		elif glisse_butin >= 0 and glisse_butin < salle.donnees["butins"].size():
 			var m := _borne(souris())
 			salle.donnees["butins"][glisse_butin]["x"] = int(m.x)
 			salle.donnees["butins"][glisse_butin]["y"] = int(m.y)
@@ -606,6 +623,8 @@ func _touche(ev: InputEventKey) -> void:
 			choisir_onglet(true)
 		KEY_E:
 			choisir_couche("ennemis")
+		KEY_V:
+			choisir_couche("perspective")
 		KEY_C:
 			choisir_couche("coffres")
 		KEY_F:
@@ -663,6 +682,8 @@ func _bouton(ev: InputEventMouseButton) -> void:
 		_bouton_contenant(ev, m)
 	elif mode_ennemis:
 		return  # la couche Ennemis se règle dans le panneau de droite
+	elif mode_perspective:
+		perspective.bouton(ev, _borne(souris()))
 	elif ev.button_index == MOUSE_BUTTON_LEFT and ev.pressed:
 		if not trace.is_empty():
 			if trace.size() >= 3 and m.distance_to(trace[0]) * echelle() < PRISE:
@@ -849,6 +870,7 @@ func _memoriser() -> void:
 	for cle in COULEURS_CONTENANTS:
 		copie[cle] = salle.donnees[cle].duplicate(true)
 	copie["ennemis_interdits"] = salle.donnees["ennemis_interdits"].duplicate()
+	copie["perspective"] = salle.donnees["perspective"].duplicate(true)
 	annulations.append(copie)
 	if annulations.size() > 100:
 		annulations.pop_front()
@@ -863,6 +885,10 @@ func _annuler() -> void:
 		salle.donnees[c] = copie[c]
 	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits", "coffres", "fouilles"]:
 		salle.donnees[cle] = copie[cle]
+	if copie.has("perspective"):
+		salle.donnees["perspective"] = copie["perspective"]
+		perspective.glisse = []
+		perspective.maj_panneau()
 	glisse_contenant = -1
 	if mode_contenant != "" and contenant_choisi >= salle.donnees[mode_contenant].size():
 		contenant_choisi = -1
@@ -915,6 +941,11 @@ func _enregistrer() -> void:
 		zones[c] = _en_liste(salle.donnees[c])
 	for cle in INFOS_SORTIES + ["arrivees", "butins", "ennemis_interdits", "coffres", "fouilles"]:
 		zones[cle] = salle.donnees[cle]
+	# Perspective retouchée (couche Perspective) : gardée aussi dans les zones manuelles, que les importeurs et la mesure
+	# automatique respectent (outils/detourer_sols.avec_perspective) ; une perspective déjà retouchée y reste.
+	var manuelles = JSON.parse_string(FileAccess.get_file_as_string("res://outils/zones_manuelles/%s.json" % id)) 		if FileAccess.file_exists("res://outils/zones_manuelles/%s.json" % id) else null
+	if perspective_modifiee or (manuelles is Dictionary and manuelles.has("perspective")):
+		zones["perspective"] = salle.donnees["perspective"]
 	var donnees := SallePeinte.lire_salle(id)
 	for c in zones:
 		donnees[c] = zones[c]
@@ -930,6 +961,8 @@ func _enregistrer() -> void:
 		f.store_string(JSON.stringify(_entiers(zones), "", false))
 		f.close()
 	modifie = false
+	perspective_enregistree = salle.donnees["perspective"].duplicate(true)
+	perspective_modifiee = false
 	Aventure.vider_interdits()
 	message = "Enregistré : %s (le jeu et les importeurs utiliseront ces zones)" % id
 
@@ -942,6 +975,8 @@ func _enregistrer() -> void:
 func couche_active() -> String:
 	if mode_contenant != "":
 		return mode_contenant
+	if mode_perspective:
+		return "perspective"
 	return "butin" if mode_butin else ("ennemis" if mode_ennemis else couche)
 
 
@@ -955,8 +990,11 @@ func choisir_couche(nom: String) -> void:
 	contenu_choisi = -1
 	mode_butin = nom == "butin"
 	mode_ennemis = nom == "ennemis"
+	mode_perspective = nom == "perspective"
+	if perspective != null:
+		perspective.glisse = []
 	mode_contenant = nom if COULEURS_CONTENANTS.has(nom) else ""
-	if not mode_butin and not mode_ennemis and mode_contenant == "":
+	if not mode_butin and not mode_ennemis and not mode_perspective and mode_contenant == "":
 		couche = nom
 	elif couche in ONGLETS_ZONES:
 		couche = "marche"
@@ -968,7 +1006,8 @@ func choisir_couche(nom: String) -> void:
 			"butin": "Butin : cliquez sur le sol pour poser le butin réglé à droite",
 			"coffres": "Coffres : cliquez sur le sol pour poser un coffre (« Ouvrir (E) » dans le jeu), son contenu se règle à droite",
 			"fouilles": "Fouilles : cliquez au pied d'un meuble peint pour y mettre « Fouiller (E) » ou « Ouvrir (E) », contenu à droite",
-			"ennemis": "Ennemis : décochez à droite ceux qui ne doivent jamais se trouver dans cette salle"}.get(nom, "")
+			"ennemis": "Ennemis : décochez à droite ceux qui ne doivent jamais se trouver dans cette salle",
+			"perspective": "Perspective : réglez la taille du héros selon la profondeur (règles à gauche) et sa vitesse (à droite) ; Tab pour essayer"}.get(nom, "")
 	if mode_ennemis:
 		_remplir_ennemis()
 	_remplir_module()
@@ -1568,8 +1607,8 @@ func _process(_delta: float) -> void:
 	var nom_couche: String = NOMS[couche]
 	if couche == "prisonniers":
 		nom_couche = "Prisonniers (%d zone(s) de dialogue)" % salle.donnees["prisonniers"].size()
-	var onglet_zone: String = couche if couche in ONGLETS_ZONES and not mode_butin and not mode_ennemis else ""
-	if mode_butin or mode_ennemis or mode_contenant != "" or onglet_zone != "":
+	var onglet_zone: String = couche if couche in ONGLETS_ZONES and not mode_butin and not mode_ennemis and not mode_perspective else ""
+	if mode_butin or mode_ennemis or mode_perspective or mode_contenant != "" or onglet_zone != "":
 		nom_couche = nom_couche(couche_active())
 	var lignes := ["%s%s  (%d/%d)   —   %s" % [id, " *" if modifie else "", numero + 1, salles.size(),
 		("ÉDITION : couche %s" % nom_couche) if edition else "MARCHE : on essaie la salle (Tab pour éditer)"]]
@@ -1584,12 +1623,15 @@ func _process(_delta: float) -> void:
 		lignes.append(message)
 	texte.text = "\n".join(lignes)
 	aide.visible = true
-	aide.text = ((AIDE_ENNEMIS if mode_ennemis else (AIDE_CONTENANTS % nom_couche(mode_contenant)) if mode_contenant != "" else AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir / marcher (%s)   R : héros au départ   Tab : revenir à l'édition" % ("il court" if salle.course else "il marche")
+	aide.text = ((OutilPerspective.AIDE if mode_perspective else AIDE_ENNEMIS if mode_ennemis else (AIDE_CONTENANTS % nom_couche(mode_contenant)) if mode_contenant != "" else AIDE_BUTIN if mode_butin else String(ONGLETS_ZONES[onglet_zone]["aide"]) if onglet_zone != "" else AIDE) if aide_complete else "F1 : aide des commandes") if edition 		else "MARCHE — flèches ou ZQSD : marcher   Maj : courir / marcher (%s)   R : héros au départ   Tab : revenir à l'édition" % ("il court" if salle.course else "il marche")
 	aide.position.y = 540 - 8 - aide.get_line_count() * 17
 	calque.visible = edition or voir_zones
 	calque.queue_redraw()
 	module.visible = edition and (mode_butin or mode_contenant != "")
 	module_ennemis.visible = edition and mode_ennemis
+	perspective.panneau.visible = edition and mode_perspective
+	if perspective.panneau.visible:
+		perspective.maj_infos()
 
 
 class Calque extends Node2D:
@@ -1601,7 +1643,7 @@ class Calque extends Node2D:
 		var police := ThemeDB.fallback_font
 		for c in COUCHES:
 			var col: Color = COULEURS[c]
-			var actif: bool = ed.edition and c == ed.couche
+			var actif: bool = ed.edition and c == ed.couche and not ed.mode_perspective
 			var polys: Array = ed.salle.donnees[c]
 			for i in polys.size():
 				var poly: PackedVector2Array = polys[i]
@@ -1673,6 +1715,8 @@ class Calque extends Node2D:
 				draw_string_outline(police, Vector2(-110, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 220, 13, 4, Color.BLACK)
 				draw_string(police, Vector2(-110, 0), t, HORIZONTAL_ALIGNMENT_CENTER, 220, 13, Color.WHITE if choisi else col_c)
 				draw_set_transform(Vector2.ZERO)
+		if ed.mode_perspective and ed.edition:
+			ed.perspective.dessiner(self, e)
 		if not ed.trace.is_empty():
 			var col: Color = COULEURS[ed.couche]
 			var pts := PackedVector2Array(ed.trace)

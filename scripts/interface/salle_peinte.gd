@@ -832,8 +832,11 @@ func hauteur(y: float) -> float:
 ## fond, comme sur un vrai sol vu en perspective. Avant, elle était fixe : le héros avançait d'autant plus vite vers
 ## le fond qu'il était loin et rétrécissait de moitié à intervalles réguliers (« minuscule » en quelques pas).
 func compression(y: float) -> float:
-	var c := float(donnees["perspective"]["compression_profondeur"])
-	return c * clampf(hauteur(y) / maxf(1.0, hauteur(511.0)), COMPRESSION_MIN, 1.0)
+	var persp: Dictionary = donnees["perspective"]
+	var c := float(persp["compression_profondeur"])
+	# Plancher réglable par salle dans l'éditeur (couche Perspective, 2026-11-15), COMPRESSION_MIN sinon
+	var minimum := clampf(float(persp.get("compression_min", COMPRESSION_MIN)), 0.01, 1.0)
+	return c * clampf(hauteur(y) / maxf(1.0, hauteur(511.0)), minimum, 1.0)
 
 
 func _dans(p: Vector2, couche: String) -> bool:

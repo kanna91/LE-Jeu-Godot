@@ -83,5 +83,26 @@
     "affaiblissement": 20
    }
   }
+ },
+ {
+  "classe": "Givre_mineur",
+  "element": "froid",
+  "palier": 0,
+  "fiche": {
+   "nom": "Givre mineur",
+   "description": "Un souffle de givre qui engourdit la cible.",
+   "mana": 2,
+   "types": [
+    "froid"
+   ],
+   "degats": {
+    "froid": 9
+   },
+   "alterations": {
+    "lenteur": 15,
+    "réduction de dextérité": 20
+   }
+  },
+  "copie_de": "Givre"
  }
 ]

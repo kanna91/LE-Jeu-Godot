@@ -42,11 +42,19 @@ func _paliers() -> void:
 	Sauvegarde.reinitialiser_monde()
 	var joueur := Personnage.nouveau()
 	var donjon := Donjon.nouveau(joueur)
+	# Le Chevalier de la mort est dans les cryptes depuis le 2026-11-10 (avant : à l'étage 1) : niveaux préparés d'abord
+	for e in [1, Donjon.NIVEAU_CRYPTES]:
+		Aventure.preparer_etage(donjon, e)
 	var base := {}
+	var niveau_chevalier := -1
 	for e in donjon.plan_donjon:
 		base[e] = _chevaliers(donjon, e).size()
-	verifier(base[1] >= 1, "au moins un chevalier de base")
-	var chevalier: Dictionary = _chevaliers(donjon, 1)[0]
+		if base[e] >= 1 and niveau_chevalier < 0:
+			niveau_chevalier = int(e)
+	verifier(niveau_chevalier >= 0, "au moins un chevalier de base (niveau %d)" % niveau_chevalier)
+	if niveau_chevalier < 0:
+		return
+	var chevalier: Dictionary = _chevaliers(donjon, niveau_chevalier)[0]
 	var duree_base := Aventure.duree_salle(chevalier)
 	var k := 0
 	for v in [-1, -5, -11, -3, 0, 4]:
@@ -110,13 +118,59 @@ func _effets() -> void:
 	var joueur := Personnage.nouveau()
 	joueur._d["karma"] = -3
 	verifier(is_equal_approx(Karma.facteur_prix(joueur), 1.15), "karma −3 : prix +15 %")
-	verifier(is_equal_approx(Karma.facteur_or(joueur), 1.0), "karma négatif : or inchangé")
+	verifier(is_equal_approx(Karma.facteur_or(joueur), 0.85), "karma −3 : butin −15 %")
 	verifier(is_equal_approx(Karma.chance_mensonge(joueur, 1.0 / 3.0), 1.0 / 3.0 + 0.15), "karma −3 : +15 % de mensonges")
 	joueur._d["karma"] = 4
 	verifier(is_equal_approx(Karma.facteur_prix(joueur), 0.80), "karma +4 : prix −20 %")
 	verifier(is_equal_approx(Karma.facteur_or(joueur), 1.20), "karma +4 : or +20 %")
 	verifier(is_equal_approx(Karma.chance_mensonge(joueur, 1.0 / 3.0), 1.0 / 3.0 - 0.20), "karma +4 : +20 % de vérité")
 	verifier(Karma.or_gagne(joueur, 100) == 120, "or gagné +20 %")
+	# Butin réglé au karma 0, ±5 % par point (règle de l'utilisateur, 2026-11-15) : karma −5 → 100 pièces = 75
+	joueur._d["karma"] = -5
+	verifier(Karma.or_gagne(joueur, 100) == 75, "karma −5 : 100 pièces d'or → 75")
+	var total := 0
+	for _i in 4000:
+		total += Karma.quantite_butin(joueur, 1)
+	verifier(absf(total / 4000.0 - 0.75) < 0.03, "karma −5 : 1 objet → 0,75 en moyenne (%.3f)" % (total / 4000.0))
+	joueur._d["karma"] = 0
+	verifier(Karma.or_gagne(joueur, 100) == 100 and Karma.quantite_butin(joueur, 3) == 3, "karma 0 : valeurs de base")
+	# A : bornes × 0,25 à × 1,75 (2026-11-15)
+	joueur._d["karma"] = -20
+	verifier(is_equal_approx(Karma.facteur_butin(joueur), 0.25), "A : karma −20 → × 0,25 (borne)")
+	joueur._d["karma"] = 20
+	verifier(is_equal_approx(Karma.facteur_butin(joueur), 1.75), "A : karma +20 → × 1,75 (borne)")
+	joueur._d["karma"] = -10
+	verifier(is_equal_approx(Karma.facteur_butin(joueur), 0.5), "A : karma −10 → × 0,5 (sous la borne)")
+	# B : armes et équipements : rang ±1 avec 5 % par point, nombre inchangé
+	joueur._d["karma"] = 5
+	var plus := 0
+	for _i in 4000:
+		plus += 1 if Karma.rang_butin(joueur, 2) == 3 else 0
+	verifier(absf(plus / 4000.0 - 0.25) < 0.03, "B : karma +5 → 25 %% de rang en plus (%.3f)" % (plus / 4000.0))
+	joueur._d["karma"] = -5
+	verifier(Karma.rang_butin(joueur, 1) == 1, "B : jamais sous le rang 1")
+	var moins := 0
+	for _i in 4000:
+		moins += 1 if Karma.rang_butin(joueur, 3) == 2 else 0
+	verifier(absf(moins / 4000.0 - 0.25) < 0.03, "B : karma −5 → 25 %% de rang en moins (%.3f)" % (moins / 4000.0))
+	var avant: int = joueur.inventaire.size() + joueur.equipements.values().filter(func(o): return o != null).size()
+	for _i in 20:
+		Fouille.ramasser({"categorie": "arme", "quantite": 1, "rang": 2}, joueur, 1)
+	var apres: int = joueur.inventaire.size() + joueur.equipements.values().filter(func(o): return o != null).size()
+	verifier(apres - avant == 20, "B : 20 armes ramassées à karma −5 = 20 armes (%d)" % (apres - avant))
+	# C : paliers
+	joueur._d["karma"] = 10
+	verifier(is_equal_approx(Karma.chance_objet_en_plus(joueur), 0.20), "C : karma +10 → 20 % d'objet en plus")
+	joueur._d["karma"] = -5
+	verifier(is_equal_approx(Karma.chance_objet_en_plus(joueur), 0.0), "C : karma négatif : pas d'objet en plus")
+	# Pas d'objet maudit pour le moment (décision de l'utilisateur, 2026-11-15) : seulement la qualité (B)
+	verifier(not Karma.new().has_method("maudire"), "pas d'objet maudit")
+	# D : l'or confisqué qu'on récupère ne passe pas par le karma (coffre_confisque) ; recettes : pas de multiplicateur
+	joueur._d["karma"] = -10
+	var or_avant: int = joueur.piece_or
+	joueur.piece_or += 40  # même code que le coffre des affaires confisquées : montant exact
+	verifier(joueur.piece_or - or_avant == 40, "D : or confisqué rendu tel quel")
+	joueur._d["karma"] = 4
 	var objet := Objet.nouveau("Essai", "divers", "", 100)
 	verifier(Marchand.prix_vente(objet, joueur) == 100, "vente au marchand : toujours le même prix (karma sans effet)")
 	joueur._d["karma"] = -4

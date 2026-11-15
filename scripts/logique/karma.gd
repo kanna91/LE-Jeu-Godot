@@ -8,8 +8,12 @@ extends RefCounted
 ## de vitesse de déplacement** (règle de l'utilisateur, 2026-11-03 : dans la salle comme d'une salle à l'autre ;
 ## ``facteur_vitesse_chevalier``). Avant (2026-10-31), tous les 5 points, un Chevalier de la mort de plus sur chaque
 ## étage : supprimé, ceux d'une ancienne partie repartent (``synchroniser``).
-## Karma positif, par point : diablotins +5 % de vérité, prix −5 %, or gagné +5 % (toutes les sources, sauf ce que le
-## marchand rachète : il vend moins cher mais rachète toujours au même prix).
+## Karma positif, par point : diablotins +5 % de vérité, prix −5 %.
+## **Butin** (règle de l'utilisateur, 2026-11-15) : les valeurs réglées (éditeur, code) sont celles du karma 0 ; chaque
+## point de karma les change de 5 %, dans les deux sens, comme un multiplicateur de dégâts : karma −5 → × 0,75
+## (100 pièces → 75), karma +5 → × 1,25 (``facteur_butin``). Il s'applique à l'or gagné (toutes les sources, sauf ce que
+## le marchand rachète et l'or confisqué qu'on récupère) et au nombre d'objets du butin (``quantite_butin`` : arrondi au
+## hasard, 1 objet × 0,75 = 75 % de chance de l'avoir). Avant : seulement +5 % d'or par point positif.
 ## Pas encore fait (aucun système de quêtes) : les habitants qui donnent plus ou moins de quêtes ; ils sont déjà plus
 ## froids ou plus chaleureux (accueil des diablotins).
 
@@ -36,7 +40,7 @@ const ACTES := {
 const EFFETS := {
 	"mensonges_diablotins": {"negatif": 0.05, "positif": -0.05},
 	"prix_marchands": {"negatif": 0.05, "positif": -0.05},
-	"or_gagne": {"negatif": 0.0, "positif": 0.05},
+	"butin": {"negatif": -0.05, "positif": 0.05},
 	"vitesse_chevalier": {"negatif": 0.05, "positif": 0.0},
 }
 ## Taille d'un palier de karma.
@@ -47,6 +51,15 @@ const PALIER := 5
 const PALIERS := {"negatif": ["quetes_speciales"], "positif": ["quetes", "meilleures_recompenses"]}
 ## Les prix ne descendent pas sous ce facteur (karma très positif ; choix de Claude, à valider).
 const PRIX_MIN := 0.25
+## Butin (décisions de l'utilisateur du 2026-11-15, voir KARMA.md : A + B + C + D) :
+## A. multiplicateur borné entre × 0,25 et × 1,75 (2026-11-15) ; B. armes et équipements : chance d'un rang de plus ou de moins par point ;
+## C. par palier positif : chance d'un objet en plus (coffres et élites). Pas d'objet maudit pour le moment (décision de
+##    l'utilisateur, 2026-11-15 : le karma négatif baisse seulement la qualité des objets, B ; voir KARMA.md) ;
+## D. clés, objets de quête, recettes, or confisqué : jamais touchés (ils ne passent pas par ces fonctions).
+const BUTIN_MIN := 0.25
+const BUTIN_MAX := 1.75
+const CHANCE_RANG_PAR_POINT := 0.05
+const CHANCE_OBJET_PAR_PALIER := 0.10
 
 
 static func valeur(joueur) -> int:
@@ -132,12 +145,45 @@ static func facteur_prix(joueur) -> float:
 	return maxf(PRIX_MIN, 1.0 + modificateur(joueur, "prix_marchands"))
 
 
-## Facteur de l'or gagné (EFFETS « or_gagne » : +5 % par point positif). Pas les ventes au marchand.
+## Multiplicateur du butin (EFFETS « butin ») : 1 au karma 0, ±5 % par point, borné entre BUTIN_MIN et BUTIN_MAX (A).
+static func facteur_butin(joueur) -> float:
+	return clampf(1.0 + modificateur(joueur, "butin"), BUTIN_MIN, BUTIN_MAX)
+
+
+## Rang d'une arme ou d'un équipement de butin (B) : ``rang`` (karma 0), avec |karma| × 5 % de chance d'un rang de plus
+## (karma positif) ou de moins (négatif), entre 1 et 6.
+static func rang_butin(joueur, rang: int) -> int:
+	var k := valeur(joueur) if joueur != null else 0
+	if k != 0 and randf() < absf(k) * CHANCE_RANG_PAR_POINT:
+		rang += 1 if k > 0 else -1
+	return clampi(rang, 1, 6)
+
+
+## Chance d'un objet en plus dans un coffre ou sur une élite (C) : +10 % par palier de karma positif.
+static func chance_objet_en_plus(joueur) -> float:
+	return maxf(0.0, float(palier(joueur))) * CHANCE_OBJET_PAR_PALIER if joueur != null else 0.0
+
+
+## Arme ou équipement de butin, karma compris : rang plus ou moins haut (B). ``fabrique`` : Callable(rang) -> objet.
+## ``rang`` : celui du karma 0. Renvoie l'objet.
+static func objet_butin(joueur, fabrique: Callable, rang: int):
+	return fabrique.call(rang_butin(joueur, rang))
+
+
+## Facteur de l'or gagné : celui du butin. Pas les ventes au marchand.
 static func facteur_or(joueur) -> float:
-	return maxf(0.0, 1.0 + modificateur(joueur, "or_gagne"))
+	return facteur_butin(joueur)
 
 
-## Or réellement gagné pour ``montant`` (karma positif : +5 % par point), compté dans les statistiques.
+## Nombre d'objets réellement reçus pour ``n`` objets de butin réglés au karma 0 : ``n`` × facteur_butin, la partie
+## décimale tirée au hasard (1,25 → 1, plus 1 une fois sur 4 ; 0,75 → 1 trois fois sur 4).
+static func quantite_butin(joueur, n: int) -> int:
+	var v := float(n) * facteur_butin(joueur)
+	var entier := floori(v)
+	return entier + (1 if randf() < v - entier else 0)
+
+
+## Or réellement gagné pour ``montant`` (réglé au karma 0 : × facteur_butin), compté dans les statistiques.
 static func or_gagne(joueur, montant: int) -> int:
 	var gain := int(round(montant * facteur_or(joueur)))
 	Statistiques.noter(joueur, "or_gagne", gain)

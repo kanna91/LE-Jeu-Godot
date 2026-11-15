@@ -171,21 +171,21 @@ static func definir_competence_gobelin(classe: String, sous_classe: String) -> A
 		return liste
 	var noms := []
 	if classe == "guerrier":
-		noms = ["Coup_d_epee", "Botte_secrete", "Cri_de_guerre"]
+		noms = ["Coup_d_epee_mineur", "Botte_secrete", "Cri_de_guerre"]
 		if sous_classe == "lancier":
-			noms += ["Coup_de_lance", "Rafale_de_lance", "Perforation"]
+			noms += ["Coup_de_lance_mineur", "Rafale_de_lance", "Perforation"]
 		elif sous_classe == "archer":
 			noms += ["Tir", "Tir_precis", "Tir_empoisonne", "Précision"]
 		elif sous_classe == "defenseur":
 			noms += ["Coup_de_gourdin", "Grand_coup_de_gourdin", "Protection"]
 	elif classe == "mage":
-		noms = ["Coup_de_baton", "Boule_de_feu"]
+		noms = ["Coup_de_baton", "Boule_de_feu_mineure"]
 		if sous_classe == "sorcier":
 			noms += ["Trait_des_Ombres", "Projectile_des_ombres"]  # sans Éclair ni Enflammer (2026-11-01)
 		elif sous_classe == "feticheur":
 			noms += ["Projectile_des_ombres", "Caresse_des_ombres", "Enflammer", "Silence", "Soin_mineur"]
 	elif classe == "soutien":
-		noms = ["Coup_de_baton", "Boule_de_feu", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"]
+		noms = ["Coup_de_baton", "Boule_de_feu_mineure", "Projectile_des_ombres", "Silence", "Soin_mineur", "Recupe"]
 	var competences := []
 	for nom in noms:
 		competences.append(Competences.creer(nom))
@@ -240,7 +240,7 @@ const PARADE_PAR_SOUS_CLASSE := {"combattant": [2, 4], "lancier": [2, 4], "defen
 ## Le critique ne vient que des caractéristiques (Ennemis.calculer_stats : dextérité, intelligence).
 static func definir_attribut_gobelin(g, classe: String, sous_classe: String) -> void:
 	var bornes: Array = bornes_endurance(sous_classe)
-	g.endurance = randi_range(bornes[0], bornes[1]) * Ennemis.ENDURANCE_PAR_POINT_ENNEMI + Ennemis.bonus_globaux["endurance"]
+	g.endurance = randi_range(bornes[0], bornes[1]) * Ennemis.ENDURANCE_PAR_POINT_ENNEMI
 	var stats: Array = STATS_PAR_SOUS_CLASSE.get(sous_classe, ["force", "dextérité"])
 	for c in ["force", "dextérité", "intelligence", "sagesse"]:
 		var b: Array = POINTS_AUTRES_STATS

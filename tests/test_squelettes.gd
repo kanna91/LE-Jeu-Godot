@@ -28,7 +28,15 @@ func _initialize() -> void:
 	var g := Creatures.creer(donjon, "guerrier_squelette")
 	var pv_g: Array = DonneesEnnemis.sorte("guerrier_squelette")["pv"]  # réglés dans l'éditeur (80 depuis le 2026-11-06)
 	verifier(g.points_de_vie_max >= float(pv_g[0]) - 2 and g.points_de_vie_max <= float(pv_g[1]) + 2
-		and Formules.des_type(g, "tranchant", g.competences[0]) == [[4, 2]], "guerrier squelette : PV de l'éditeur %s, 4d2 tranchant" % [pv_g])
+		and g.competences[0].nom_classe == "Epee_longue_rouillee"
+		and Formules.des_type(g, "tranchant", g.competences[0]) == [[6, 2]], "guerrier squelette : PV de l'éditeur %s, Épée longue rouillée 6d2 tranchant" % [pv_g])
+	# Les dés des créatures sont ceux de leur compétence dans l'éditeur (2026-11-15, plus de dés fixes)
+	var sq := Creatures.creer(donjon, "squelette")
+	sq.competences[0]._d["des_degats"] = {"tranchant": [7, 2]}
+	verifier(Formules.des_type(sq, "tranchant", sq.competences[0]) == [[7, 2]], "squelette : les dés réglés dans l'éditeur sont joués")
+	var loup := Creatures.creer(donjon, "loup")
+	verifier(loup.competences[0].nom_classe == "Morsure" and loup.competences[0].type_degats == ["perforant"]
+		and Formules.des_type(loup, "perforant", loup.competences[0]) == [[4, 2]], "loup : Morsure 4d2 perforant")
 	var inv := Creatures.creer(donjon, "squelette_invoque")
 	verifier(inv.points_de_vie_max <= 32 and Formules.des_type(inv, "tranchant", inv.competences[0]) == [[3, 2]],
 		"squelette invoqué : 30 PV, 3d2 tranchant")
@@ -37,9 +45,10 @@ func _initialize() -> void:
 		and mage.competences.any(func(c): return c.nom_classe == "Trait_des_Ombres"), "mage squelette : invocation et sorts d'ombre")
 	var elem := Creatures.creer(donjon, "elementaliste_squelette")
 	var noms_elem: Array = elem.competences.map(func(c): return c.nom_classe)
-	verifier("Boule_de_feu" in noms_elem and "Givre" in noms_elem and "Eclair" in noms_elem, "élémentaliste : Boule de feu, Givre, Éclair")
-	var givre = elem.competences.filter(func(c): return c.nom_classe == "Givre")[0]
-	verifier(Formules.des_type(elem, "froid", givre) == [[5, 2]], "élémentaliste : Givre à 5d2 (dés d'ennemi)")
+	verifier("Boule_de_feu_mineure" in noms_elem and "Givre_mineur" in noms_elem and "Eclair_mineur" in noms_elem,
+		"élémentaliste : Boule de feu, Givre, Éclair mineurs")
+	var givre = elem.competences.filter(func(c): return c.nom_classe == "Givre_mineur")[0]
+	verifier(Formules.des_type(elem, "froid", givre) == [[5, 2]] and givre.nom == "Givre mineur", "élémentaliste : Givre mineur à 5d2")
 	# Groupes : cryptes (guerriers, mages, élémentalistes) et reste de l'étage (aucun)
 	var m := {"prochain_id": 1}
 	var vus := {}
